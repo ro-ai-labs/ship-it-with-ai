@@ -110,7 +110,7 @@ CSS (dark theme):
 - label badge: bumped luminance `#94a3b8`
 - body: `#cbd5e1`
 
-Build script (`build/build_spa.py`): post-process the rendered HTML to wrap `<p><em>Source note. (.*?)</em></p>` paragraphs with the `<aside class="source-note">` structure. Title text "Source note" is extracted from the leading sentence; remaining body becomes the `<p>`.
+Build script (`build/build_spa.py`): post-process the rendered HTML to match `<p><em>Source note. (.*?)</em></p>` paragraphs and rewrite them as the `<aside class="source-note">` structure. The literal "Source note." prefix is stripped (it's replaced by the styled badge); the rest of the captured body becomes the inner `<p>`.
 
 #### `.artifact-box` — chapter-ending deliverable
 
@@ -228,7 +228,9 @@ Implementation sketch: after markdown rendering, split on chapter boundaries, wa
 
 Add `<a class="anchor-link" href="#slug" aria-label="Copy link to section">¶</a>` adjacent to:
 - Every `<h2>` and `<h3>` in chapter bodies (skip TOC, hero, foreword subsections that already have ids)
-- Every `.artifact-box`, `.action-box`, `.try-box`
+- Every `.artifact-box` (artifacts only, per the reviewer's "every artifact" wording — action and try boxes are excluded to keep visual noise down)
+
+Each artifact-box gains an `id="artifact-<chapter-slug>"` during the wrap step so the anchor can target it.
 
 CSS:
 - Default opacity 0
@@ -301,7 +303,7 @@ Automated: `node build/tests/verify_feedback_pass.js` per the spec above. Should
 - Separate /about.html route (single SPA section instead)
 - External destinations for CTAs (calendar URL, PDF download) — internal anchors + mailto only
 - PDF/EPUB generation
-- Per-section copy-link anchors on Ship-this-week boxes (artifacts only per the reviewer's "every artifact" wording)
+- Per-section copy-link anchors on Ship-this-week / Try-it-yourself boxes (artifacts and headings only)
 - Optional hairline divider above chapter-end stack (revisit after seeing the built page)
 
 ## Open items for user review
