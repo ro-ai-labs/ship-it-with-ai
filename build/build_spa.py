@@ -327,6 +327,59 @@ SOURCE_ENTRY_RE = re.compile(
 )
 
 
+SOURCE_NOTE_RE = re.compile(
+    r'<p><em>Source note\.\s*(?P<body>.*?)</em></p>',
+    re.DOTALL,
+)
+
+
+def transform_source_notes(html: str) -> str:
+    """Wrap inline `*Source note. ...*` italic paragraphs as styled callouts."""
+    def repl(m):
+        body = m.group("body").strip()
+        return (
+            '<aside class="source-note">'
+            '<span class="source-note-label">Source</span>'
+            f'<p>{body}</p>'
+            '</aside>'
+        )
+    return SOURCE_NOTE_RE.sub(repl, html)
+
+
+CLIPBOARD_SVG = (
+    '<svg class="artifact-icon" viewBox="0 0 16 16" aria-hidden="true">'
+    '<rect x="3" y="2" width="10" height="13" rx="1.5"></rect>'
+    '<rect x="5.5" y="0.75" width="5" height="2.5" rx="0.5"></rect>'
+    '<line x1="5" y1="6.5" x2="11" y2="6.5"></line>'
+    '<line x1="5" y1="9" x2="11" y2="9"></line>'
+    '<line x1="5" y1="11.5" x2="9" y2="11.5"></line>'
+    '</svg>'
+)
+
+ARTIFACT_RE = re.compile(
+    r'<p><strong>Artifact:\s*(?P<title>[^<]+?)\.</strong>\s*(?P<body>.*?)</p>',
+    re.DOTALL,
+)
+
+
+def transform_artifacts(html: str) -> str:
+    """Wrap **Artifact: TITLE.** body paragraphs into styled cards."""
+    def repl(m):
+        title = m.group("title").strip()
+        body = m.group("body").strip()
+        return (
+            '<aside class="artifact-box">'
+            '<div class="artifact-header">'
+            f'{CLIPBOARD_SVG}'
+            '<span class="artifact-label">Artifact</span>'
+            '</div>'
+            f'<h4 class="artifact-title">{title}</h4>'
+            f'<p>{body}</p>'
+            '</aside>'
+        )
+    return ARTIFACT_RE.sub(repl, html)
+
+
 def transform_source_cards(html: str) -> str:
     # Annotate the known H3 group headings with .source-group + id slug.
     for group_title in SOURCE_GROUPS:
@@ -820,6 +873,11 @@ def main() -> int:
     # Render markdown
     content_html = render_markdown(body_md)
 
+    # Source notes + artifact boxes — must run before action/try wrapping so
+    # the wrapped callouts are stable siblings in the chapter-end stack.
+    content_html = transform_source_notes(content_html)
+    content_html = transform_artifacts(content_html)
+
     # Wrap each "Ship this week" paragraph as a styled card, from the bold
     # marker to the next horizontal rule.
     content_html = content_html.replace(
@@ -828,7 +886,7 @@ def main() -> int:
     )
     content_html = re.sub(
         r'<div class="action-marker"><p><strong>Ship this week\.</strong></p>(.*?)<hr ?/?>',
-        r'<aside class="action-box"><div class="action-label">Ship this week</div>\1</aside><hr/>',
+        r'<aside class="action-box"><div class="action-label">Ship this week</div>\1</aside>',
         content_html,
         flags=re.DOTALL,
     )
@@ -840,9 +898,18 @@ def main() -> int:
     )
     content_html = re.sub(
         r'<div class="try-marker"><p><strong>Try it yourself\.</strong></p>(.*?)<hr ?/?>',
-        r'<aside class="try-box"><div class="try-label">Try it yourself</div>\1</aside><hr/>',
+        r'<aside class="try-box"><div class="try-label">Try it yourself</div>\1</aside>',
         content_html,
         flags=re.DOTALL,
+    )
+
+    # Chapter-end stack tightening: drop any <hr> sitting between adjacent
+    # callouts (artifact-box / action-box / try-box) so CSS sibling selectors
+    # take effect.
+    content_html = re.sub(
+        r'(</aside>)\s*<hr\s*/?>\s*(?=<aside class="(?:artifact-box|action-box|try-box)")',
+        r'\1',
+        content_html,
     )
 
     # Tag case notes
