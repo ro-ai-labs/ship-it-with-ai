@@ -8,7 +8,7 @@ Driven by findings from three parallel SEO research agents (technical audit, key
 
 In scope (this pass):
 - **Tier 1 — On-page fixes.** Title and H1 carry "agentic coding"; demote stray H1s to H2; rewrite landing dek to lead with the phrase; schema upgrade to `TechArticle` + `Book` + `FAQPage` + `BreadcrumbList` + `Organization`; internal anchor text variation; cover.jpg → cover.webp at 1200×630; dynamic dateModified stamped at build time; custom 404 page; llms.txt; render-blocking CSS split.
-- **Tier 2 — Per-chapter URL split.** Generate ~17 per-chapter / per-appendix / per-About URLs from the same source, each with unique title + meta + canonical + breadcrumbs + prev/next nav. Preserve the all-in-one SPA at `/read/` for one-page reading and to keep existing `#anchor` bookmarks working.
+- **Tier 2 — Per-chapter URL split.** Generate 18 per-section URLs (foreword, prologue, 10 chapters, closing, acknowledgments, about, 3 appendices) from the same source, each with unique title + meta + canonical + breadcrumbs + prev/next nav. Preserve the all-in-one SPA at `/read/` for one-page reading and to keep existing `#anchor` bookmarks working.
 - **Build pipeline refactor.** Build script becomes a generator that emits to `_site/` directly; workflow stops staging files manually; `index.html` at the repo root is no longer committed (it's a build artifact).
 - **Verification harness** (`build/tests/verify_seo_pass.js`) covering desktop / tablet / mobile in light + dark mode.
 
@@ -26,7 +26,7 @@ Same pattern as the feedback-pass branch: tiered commits in one branch enable in
 
 > **Coupling note:** the schema block ships on `/index.html` (the current SPA URL) in Commit 1. In Commit 2 the template splits into landing/chapter/read modes and the schema block becomes a parameter of the landing template — same JSON-LD content, served from the same URL (`/`), just generated through the new template plumbing. No re-emission needed; the schema is portable across the refactor.
 
-**Commit 2 — Build refactor + static-file move + workflow update.** Section parser, multi-mode template, generator emits to `_site/` directly. Move static-input files (`robots.txt`, `CNAME`, `.nojekyll`, `cover.jpg`, `cover.webp`) from repo root into `build/static/` *and* update `.github/workflows/static.yml` to remove the staging step *in the same commit* — otherwise CI breaks mid-branch. No new URLs yet — landing + `/read/` (which is the renamed all-in-one mode) only. Validates the pipeline change without changing the URL surface for crawlers.
+**Commit 2 — Build refactor + static-file move + workflow update.** Section parser, multi-mode template, generator emits to `_site/` directly. Move static-input files (`robots.txt`, `CNAME`, `.nojekyll`, `cover.jpg`, `cover.webp`) from repo root into `build/static/` *and* update `.github/workflows/static.yml` to remove the staging step *in the same commit* — otherwise CI breaks mid-branch. Introduces `/read/` URL (the renamed all-in-one mode) and makes `/` the landing page. Per-chapter URLs don't exist yet, so the landing TOC links to `/read/#chapter-N` in this commit (transition state). Commit 3 rewrites them.
 
 **Commit 3 — Per-chapter pages (Tier 2).** Emit ~17 chapter pages, breadcrumbs, prev/next nav, sitemap regenerated, cross-section anchor rewriting, hash-redirect shim on landing, byline mode-awareness, AGENTS.md de-linker refactor for chapter mode. The actual organic-ceiling unlock.
 
@@ -57,18 +57,20 @@ _site/
 ├── CNAME                                       ← unchanged
 ├── .nojekyll                                   ← unchanged
 │
+├── deferred.css                                ← non-critical CSS, async-loaded
+│
 ├── foreword/index.html
 ├── prologue-nine-seconds/index.html
 ├── chapter-1-six-primitives/index.html
-├── chapter-2-the-anatomy-invariant/index.html
+├── chapter-2-anatomy-invariant/index.html
 ├── chapter-3-governance-in-layers/index.html
 ├── chapter-4-from-generating-code-to-shipping-software/index.html
-├── chapter-5-the-six-phase-loop/index.html
-├── chapter-6-agents-md-as-team-infrastructure/index.html
+├── chapter-5-six-phase-loop/index.html
+├── chapter-6-agents-md/index.html
 ├── chapter-7-architecture-review/index.html
 ├── chapter-8-readiness-kill-signals/index.html
-├── chapter-9-patterns-for-brownfield-codebases/index.html
-├── chapter-10-adoption-90-days-three-roles/index.html
+├── chapter-9-brownfield-patterns/index.html
+├── chapter-10-adoption-90-days/index.html
 ├── closing/index.html
 ├── acknowledgments/index.html
 ├── about-the-author/index.html
@@ -79,7 +81,7 @@ _site/
 └── read/index.html                             ← all-in-one SPA preserved (~378 KB)
 ```
 
-~19 indexable URLs. The `/read/` page preserves every existing `#chapter-N`, `#appendix-b`, `#about-the-author` anchor so inbound bookmarks keep working; the chapter URLs are new and SEO-priority.
+**20 indexable URLs** total: the 18 section pages + landing (`/`) + `/read/`. The `/read/` page preserves every existing `#chapter-N`, `#appendix-b`, `#about-the-author` anchor so inbound bookmarks keep working; the chapter URLs are new and SEO-priority.
 
 ## Slug map (explicit, hand-curated)
 
@@ -118,7 +120,7 @@ The same chapter body appears at two URLs after Commit 3: `/chapter-3-governance
 - **Landing** (`/`): `<link rel="canonical" href="https://ship-it-with.ai/">` (self).
 - **`/read/`**: `<link rel="canonical" href="https://ship-it-with.ai/">` (the landing). This signals to Google that `/read/` is an alternate format of the manual-as-a-whole, not the canonical home of any individual chapter. Google may still index `/read/` (no `noindex`) because users searching for "ship it with ai full text" should still find it, but ranking authority flows to the per-chapter pages.
 
-The `/read/` page also gets a small note in its body ("You're reading in single-page mode. Each chapter has its own page — see the [table of contents](/).") to give users a navigable on-ramp to the chapter URLs.
+The `/read/` page also gets a small note in its body (specified in the Multi-mode template section above) to give users a navigable on-ramp to the chapter URLs.
 
 ## Component designs
 
@@ -173,7 +175,11 @@ The TOC currently emits `<span class="toc-num">1</span><span class="toc-text">Si
 
 Generate `cover.webp` at exactly 1200×630, target ≤50 KB. The conversion is one-shot — committed to the repo, regenerated only when the source `cover.png` changes. `og:image` and `twitter:image` keep pointing at `cover.jpg` for maximum scraper compatibility (some scrapers still don't speak WebP); the WebP is for browser hero rendering where appropriate. Both files coexist in `build/static/` (after Commit 2's static-file move) and get copied to `_site/` by the build script.
 
-Implementation: add `build/cover_to_webp.py` (Python + Pillow, dev-only one-shot — Pillow is not added to CI). Script reads `build/cover.png`, writes `build/static/cover.webp` at exactly 1200×630. Run manually when the cover changes: `python3 build/cover_to_webp.py`.
+Implementation: add `build/cover_to_webp.py` (Python + Pillow, dev-only one-shot — Pillow is not added to CI). Script reads `build/cover.png`, writes `build/static/cover.webp` at exactly 1200×630.
+
+If `cover.png` isn't 2:1 aspect ratio (1200:630 = ~1.9:1), the script center-crops to the target ratio first, then resizes. This preserves the visually important center of the image and avoids letterboxing. Output uses Pillow's `WEBP` encoder with `quality=82, method=6` (the slow path produces 20-30% smaller output for the same visual quality — fine for a one-shot script).
+
+Run manually when the cover changes: `python3 build/cover_to_webp.py`.
 
 #### Dynamic dateModified
 
@@ -318,9 +324,9 @@ If any source heading pattern isn't in `SECTION_SLUGS`, raise loudly (per Error 
 The Python build script reads the template once, splits on these region markers, and composes per-page HTML by inserting the body content (and mode-specific schema, title, etc.) into the right slot.
 
 The body slot is filled differently per page mode:
-- `landing`: marketing hero (H1 + dek + CTAs), then the TOC (also visible in the sidebar), then a short "About this manual" blurb, then footer-y outbound links.
+- `landing`: marketing hero (H1 + dek + CTA row, all from the feedback-pass work), then the TOC rendered as the page body (chapters grouped by Part, with reading-time badges). The sidebar TOC also renders so the page is navigable from anywhere. No content body — just the hero + TOC + footer. Target page weight ≤100 KB.
 - `chapter`: chapter title (H1), reading-time badge, body HTML, prev/next nav at the bottom.
-- `read`: the existing all-in-one body (every section concatenated), with Parts/Prologue/Closing demoted from H1 to H2.
+- `read`: the existing all-in-one body (every section concatenated), with Parts/Prologue/Closing demoted from H1 to H2. Plus a small note at the top of the body: "You're reading in single-page mode. Each chapter has its own page — see the [chapter index](/)."
 
 #### Output to `_site/`
 
@@ -362,12 +368,13 @@ For each `Section` from the parser, the build script writes `_site/<slug>/index.
 
 The TOC on landing and the sidebar TOC on chapter pages link to `/<slug>/` (the per-chapter URL). The TOC on `/read/` keeps using in-page anchors. The TOC builder takes a parameter for which URL style to emit.
 
-Concrete examples of TOC entries that change between modes:
+Three URL styles, set by the build script per page-mode:
 
-- `read` mode: `<a href="#chapter-3">Governance in layers</a>`
-- `chapter` / `landing` mode: `<a href="/chapter-3-governance-in-layers/">Governance in layers</a>`
+- `read` mode: in-page anchors. `<a href="#chapter-3">Governance in layers</a>`
+- `chapter` / `landing` mode (Commit 3 onward): per-chapter URLs. `<a href="/chapter-3-governance-in-layers/">Governance in layers</a>`
+- `landing` mode during Commit 2 (transition only — before chapter URLs exist): `<a href="/read/#chapter-3">Governance in layers</a>`. Commit 3 replaces this with the per-chapter URL form. This avoids broken links during the transition while keeping each commit individually deployable.
 
-Same applies to the "About the author" TOC entry added in the feedback pass (currently `#about-the-author` — becomes `/about-the-author/` on landing + chapter pages).
+Same applies to the "About the author" TOC entry added in the feedback pass (currently `#about-the-author` — becomes `/about-the-author/` on landing + chapter pages once Commit 3 lands).
 
 #### Cross-section anchor rewriting
 
@@ -417,9 +424,10 @@ Add a small JS shim to the landing template only (~10 lines):
       '#chapter-8':  '/chapter-8-readiness-kill-signals/',
       '#chapter-9':  '/chapter-9-brownfield-patterns/',
       '#chapter-10': '/chapter-10-adoption-90-days/',
-      '#foreword':   '/foreword/',
+      '#foreword':           '/foreword/',
       '#nine-seconds':       '/prologue-nine-seconds/',
       '#about-the-author':   '/about-the-author/',
+      '#contact':            '/about-the-author/#contact',
       '#closing':            '/closing/',
       '#acknowledgments':    '/acknowledgments/',
       '#appendix-a':         '/appendix-a-cost-economics/',
@@ -480,6 +488,8 @@ All asset references in the template become root-relative so they resolve from a
 
 - `<img src="/cover.jpg">` (was: `cover.jpg`) at `build/spa_template.html:1781`
 - `<meta property="og:image" content="https://ship-it-with.ai/cover.jpg">` (already absolute — unchanged)
+- `<meta property="og:url" content="<page absolute URL>">` and `<link rel="canonical" href="<page absolute URL>">` — both per-page, substituted by the build script per `_site/<slug>/index.html`. Existing template hardcodes a single og:url; needs to become a `{{PAGE_URL}}` placeholder.
+- `<meta name="twitter:url" content="<page absolute URL>">` — same per-page substitution if present in template.
 - Any inline SVG `<use href="…">` references (none currently)
 - All internal navigation: TOC links to `/chapter-N-…/`, `/read/`, `/`, etc.
 
@@ -543,7 +553,7 @@ Assertions built up across the three commits:
   - `_site/read/index.html` has `<link rel="canonical" href="https://ship-it-with.ai/">`
   - `_site/deferred.css` exists, is loaded via `<link rel="preload">` on landing and `/read/`
 - **Commit 3 assertions**:
-  - `_site/sitemap.xml` lists at least 19 URLs (the 17 sections + landing + `/read/`)
+  - `_site/sitemap.xml` lists exactly 20 URLs (the 18 sections + landing + `/read/`)
   - Every URL in the sitemap returns 200 from the local HTTP server and has exactly one `<h1>` matching the page title
   - Every chapter page has unique `<title>` + meta description
   - Every chapter page has a `BreadcrumbList` JSON-LD block that parses; first crumb resolves to `/`, last to self
