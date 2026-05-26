@@ -110,7 +110,8 @@ I am not neutral about the topic. I think agentic software delivery is the most 
 
 That trajectory - four decades of writing code, twenty-five of them professional, more than a decade building AI systems, every generation of coding assistant in between - is the trajectory the book is written from. Calibrate your expectations accordingly.
 
-*Contact: info@ship-it-with.ai for technical conversations or tailored workshops, in-person or online, shaped to your team's codebase and constraints. For executive and non-technical leadership audiences, the sister practice at ai-leaders.ro covers the adoption side without the engineering depth.*
+<a id="contact"></a>
+*Contact: [info@ship-it-with.ai](mailto:info@ship-it-with.ai) for technical conversations or tailored workshops, in-person or online, shaped to your team's codebase and constraints. Find me on [LinkedIn](https://www.linkedin.com/in/mihaicvasnievschi/). For executive and non-technical leadership audiences, the sister practice at [ai-leaders.ro](https://ai-leaders.ro) covers the adoption side without the engineering depth.*
 
 ---
 
@@ -2203,7 +2204,7 @@ This appendix exists because every claim in this book deserves a verifiable sour
 ### Studies and research
 
 **Claim:** Experienced open-source developers using AI assistance on familiar repositories were 19% slower than the same developers without it, while predicting beforehand they would be 24% faster - a 43-point gap between expected speedup and measured slowdown that persisted in their self-reports even after the data contradicted it.
-**Source:** Becker et al., METR, "Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity," July 10, 2025. arXiv: arxiv.org/abs/2507.09089. Writeup: metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/.
+**Source:** Becker et al., METR, "Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity," July 10, 2025. arXiv: [arxiv.org/abs/2507.09089](https://arxiv.org/abs/2507.09089). Writeup: [metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/](https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/).
 **Where used:** Chapter 4 (From generating code to shipping software).
 **Caveat:** Tested raw AI assistance (Cursor + Claude) without a formulation-discipline variable. My interpretation that workflow discipline is the missing variable is mine, not the study's.
 
@@ -2235,7 +2236,7 @@ This appendix exists because every claim in this book deserves a verifiable sour
 ### Vulnerabilities with patch versions
 
 **Claim:** Claude Code was vulnerable to remote code execution via untrusted project files: malicious `.mcp.json` or `.claude/settings.json` files in untrusted repos could execute hooks before the trust dialog, enabling RCE.
-**Source:** Check Point Research, February 2026. CVE-2025-59536. NVD: nvd.nist.gov/vuln/detail/CVE-2025-59536. Writeup: research.checkpoint.com/2026/rce-and-api-token-exfiltration-through-claude-code-project-files-cve-2025-59536/.
+**Source:** Check Point Research, February 2026. CVE-2025-59536. NVD: [nvd.nist.gov/vuln/detail/CVE-2025-59536](https://nvd.nist.gov/vuln/detail/CVE-2025-59536). Writeup: [research.checkpoint.com/2026/rce-and-api-token-exfiltration-through-claude-code-project-files-cve-2025-59536/](https://research.checkpoint.com/2026/rce-and-api-token-exfiltration-through-claude-code-project-files-cve-2025-59536/).
 **Where used:** Chapter 3 (Governance in layers); referenced in Chapter 10 (Adoption, security committee scene).
 **Caveat:** Patched in Claude Code v1.0.111. Versions earlier than the patch remain vulnerable; the class survives even after the specific patch.
 
@@ -2249,21 +2250,21 @@ This appendix exists because every claim in this book deserves a verifiable sour
 ---
 
 **Claim:** Claude Code automatically loads `.env*` files in the working directory at session start without explicit user permission, exposing secrets to the agent's context.
-**Source:** Knostic, December 2025. Blog: knostic.ai/blog/claude-loads-secrets-without-permission.
+**Source:** Knostic, December 2025. Blog: [knostic.ai/blog/claude-loads-secrets-without-permission](https://knostic.ai/blog/claude-loads-secrets-without-permission).
 **Where used:** Chapter 3 (Governance in layers), named in the dot-env auto-loading vulnerability class.
 **Caveat:** Mitigation is sandbox `denyRead` of the `.env*` patterns rather than a vendor patch. The behavior may change in future versions; the class (agents loading local config at session start) is enduring.
 
 ---
 
 **Claim:** Claude Code's deny rules were silently bypassed when a shell command chained more than 50 subcommands (MAX_SUBCOMMANDS_FOR_SECURITY_CHECK = 50 hard cap), with the security check falling through to a generic "ask" prompt.
-**Source:** Adversa AI Red Team, disclosed April 1, 2026. Writeup: adversa.ai/blog/claude-code-security-bypass-deny-rules-disabled/.
+**Source:** Adversa AI Red Team, disclosed April 1, 2026. Writeup: [adversa.ai/blog/claude-code-security-bypass-deny-rules-disabled/](https://adversa.ai/blog/claude-code-security-bypass-deny-rules-disabled/).
 **Where used:** Chapter 3 (Governance in layers), as the parser-cap bypass example for "any single layer can have a quiet-failure mode."
 **Caveat:** Patched in Claude Code v2.1.90 on April 6, 2026 (within a week of disclosure). The class - governance layers with parser caps that silently fail - is what to remember after the specific cap is gone.
 
 ---
 
 **Claim:** Permission parsers in coding agents recognize only a known set of shell-read commands; agents invoking Python's `open()`, Node's `fs.readFile`, or any unrecognized binary bypass the deny rules entirely.
-**Source:** eve.gd (Eve Cailey), public writeup of the architectural class.
+**Source:** [eve.gd](https://eve.gd) (Eve Cailey), public writeup of the architectural class.
 **Where used:** Chapter 3 (Governance in layers), as the permission-parser bypass class.
 **Caveat:** Architectural, not a single CVE. Mitigation is the OS sandbox `denyRead` list (kernel-level), not a vendor patch. The class persists across patches because the parser cannot enumerate every binary.
 
@@ -2272,49 +2273,49 @@ This appendix exists because every claim in this book deserves a verifiable sour
 ### Tool documentation
 
 **Claim:** Codex CLI shipped Agent Skills as a first-class primitive in December 2025, with SKILL.md files using YAML frontmatter and progressive disclosure semantics comparable to Claude Code Skills.
-**Source:** OpenAI Codex CLI docs, developers.openai.com/codex/skills.
+**Source:** OpenAI Codex CLI docs, [developers.openai.com/codex/skills](https://developers.openai.com/codex/skills).
 **Where used:** Chapter 1 (Six primitives), as the Codex side of the skill-primitive convergence.
 **Caveat:** Vendor documentation; the GA dates are accurate as of mid-2026 but may be revised retroactively.
 
 ---
 
 **Claim:** Codex CLI subagents went GA in early 2026 and can run up to eight in parallel.
-**Source:** OpenAI Codex CLI docs, developers.openai.com/codex/.
+**Source:** OpenAI Codex CLI docs, [developers.openai.com/codex/](https://developers.openai.com/codex/).
 **Where used:** Chapter 1 (Six primitives) and Chapter 5 (the six-phase loop, Execute phase).
 **Caveat:** Vendor documentation; parallel count may change with subsequent versions.
 
 ---
 
 **Claim:** Codex CLI documents AGENTS.md as the convention for project-level agent instructions, loaded at session start and equivalent in role to other vendors' team-instruction files.
-**Source:** OpenAI Codex CLI documentation, developers.openai.com/codex/agents-md.
+**Source:** OpenAI Codex CLI documentation, [developers.openai.com/codex/agents-md](https://developers.openai.com/codex/agents-md).
 **Where used:** Chapter 1 (Six primitives, skills section) and Chapter 6 (AGENTS.md as team infrastructure).
 **Caveat:** Filename and loading semantics are stable; specific frontmatter and discovery rules may evolve with versions.
 
 ---
 
 **Claim:** AGENTS.md as the vendor-neutral team-instruction-file convention has native support across Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, Zed, and Windsurf. The format is markdown; the loading semantics are equivalent across tools.
-**Source:** Cross-vendor documentation: Codex CLI (developers.openai.com/codex/agents-md), Cursor (cursor.sh/docs), GitHub Copilot (docs.github.com/copilot), Gemini CLI (cloud.google.com/gemini/docs/codeassist), Aider (aider.chat/docs), Zed (zed.dev/docs/ai), Windsurf (codeium.com/windsurf/docs).
+**Source:** Cross-vendor documentation: Codex CLI ([developers.openai.com/codex/agents-md](https://developers.openai.com/codex/agents-md)), Cursor ([cursor.sh/docs](https://cursor.sh/docs)), GitHub Copilot ([docs.github.com/copilot](https://docs.github.com/copilot)), Gemini CLI ([cloud.google.com/gemini/docs/codeassist](https://cloud.google.com/gemini/docs/codeassist)), Aider ([aider.chat/docs](https://aider.chat/docs)), Zed ([zed.dev/docs/ai](https://zed.dev/docs/ai)), Windsurf ([codeium.com/windsurf/docs](https://codeium.com/windsurf/docs)).
 **Where used:** Chapter 1 (Six primitives, skills section) and Chapter 6 (Names and conventions).
 **Caveat:** The list of supporting tools grows over time; the claim is that AGENTS.md is the de facto vendor-neutral convention, not that the list is exhaustive.
 
 ---
 
 **Claim:** opencode is an open-source coding agent maintained by an independent team, written in TypeScript and licensed under MIT. Source-organized around the same six primitives this book identifies in Codex CLI and Claude Code.
-**Source:** opencode repository (github.com/opencode-ai/opencode); LICENSE and README.
+**Source:** opencode repository ([github.com/opencode-ai/opencode](https://github.com/opencode-ai/opencode)); LICENSE and README.
 **Where used:** Chapter 1 (Six primitives, source survey) and Chapter 2 (Anatomy invariant, two-agent demo).
 **Caveat:** Project naming and maintainer composition may evolve; the architectural convergence claim survives renames.
 
 ---
 
 **Claim:** Playwright drives a real browser through scripted interactions; the accessibility tree is the semantic structure browsers expose for assistive technology and is stable across visual restyles or component-library swaps. Tests written against the accessibility tree assert behavior rather than presentation.
-**Source:** Playwright documentation (playwright.dev/docs/accessibility-testing); W3C ARIA Accessibility Object Model spec.
+**Source:** Playwright documentation ([playwright.dev/docs/accessibility-testing](https://playwright.dev/docs/accessibility-testing)); W3C ARIA Accessibility Object Model spec.
 **Where used:** Chapter 5 (Verify), as the recommended frontend-verification pattern; Appendix B.3 checklist.
 **Caveat:** Some UI behavior (animation, drag-and-drop, complex canvas surfaces) is not fully captured by the accessibility tree and needs supplementary verification.
 
 ---
 
 **Claim:** Claude Code supports OS-level sandboxing on Linux (bubblewrap with Landlock and seccomp), macOS (Seatbelt), and Windows (restricted tokens with job objects), and is opt-in by configuration. Codex CLI enforces sandbox by default on Linux and macOS; you have to opt out, not opt in.
-**Source:** Claude Code docs (code.claude.com/docs/en/sandboxing) and Codex CLI agent approvals and security docs (developers.openai.com/codex/agent-approvals-security).
+**Source:** Claude Code docs ([code.claude.com/docs/en/sandboxing](https://code.claude.com/docs/en/sandboxing)) and Codex CLI agent approvals and security docs ([developers.openai.com/codex/agent-approvals-security](https://developers.openai.com/codex/agent-approvals-security)).
 **Where used:** Chapter 2 (Anatomy invariant, sandbox-divergence finding) and Chapter 3 (Governance in layers, layer two).
 **Caveat:** Default-on versus opt-in is a versioned implementation detail. Verify the current default for your installed version before relying on it.
 
@@ -2330,7 +2331,7 @@ This appendix exists because every claim in this book deserves a verifiable sour
 ### Marketplaces and plugin ecosystems
 
 **Claim:** Anthropic's `claude-plugins-official` marketplace ships built-in with Claude Code as of May 2026 and bundles skills, hooks, tools, and commands behind a single install command. The marketplace warns users to trust plugins before installing.
-**Source:** Claude Code docs (code.claude.com/docs/en/discover-plugins); the marketplace itself.
+**Source:** Claude Code docs ([code.claude.com/docs/en/discover-plugins](https://code.claude.com/docs/en/discover-plugins)); the marketplace itself.
 **Where used:** Chapter 1 (Six primitives, plugins section).
 **Caveat:** Plugin counts and marketplace policies will drift; the supply-chain discipline described in Chapter 1 is what to take away rather than any specific count.
 

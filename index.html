@@ -1066,7 +1066,7 @@
       <header class="article-header">
         <h1 class="article-title">Ship It With AI</h1>
         <p class="article-subtitle">A Field Manual for Agentic Software Delivery</p>
-        <div class="article-author">Mihai Cvasnievschi</div>
+        <div class="article-author"><a href="#contact">Mihai Cvasnievschi</a></div>
       </header>
 
       <div class="epigraph"><p>The agents write the code.</p><p>You understand the problem.</p><p>That is the skill no one is automating.</p></div><h2 id="foreword" class="foreword-heading"><span class="appendix-label">Foreword</span><span class="appendix-title">Why this book</span></h2>
@@ -1101,7 +1101,8 @@
 <p>The book draws on this trajectory. The methodology I describe has been refined across dozens of engagements with teams of varying sizes, in varying industries, in varying states of agentic readiness. The frames I share are the ones that have held up across the engagements; the ones that did not hold up have been retired. This is not the first set of frames I wrote about agentic delivery. It is the third or fourth iteration. The earlier iterations were wrong in interesting ways. This one is, I hope, less wrong.</p>
 <p>I am not neutral about the topic. I think agentic software delivery is the most consequential shift in our field since the introduction of high-level programming languages. I also think the way most teams are currently adopting it is doing them more harm than good. Both of those things can be true. The point of the book is to help you adopt in a way that captures the upside without the harm. The frameworks are how.</p>
 <p>That trajectory - four decades of writing code, twenty-five of them professional, more than a decade building AI systems, every generation of coding assistant in between - is the trajectory the book is written from. Calibrate your expectations accordingly.</p>
-<p><em>Contact: info@ship-it-with.ai for technical conversations or tailored workshops, in-person or online, shaped to your team's codebase and constraints. For executive and non-technical leadership audiences, the sister practice at ai-leaders.ro covers the adoption side without the engineering depth.</em></p>
+<p><a id="contact"></a>
+<em>Contact: <a href="mailto:info@ship-it-with.ai">info@ship-it-with.ai</a> for technical conversations or tailored workshops, in-person or online, shaped to your team's codebase and constraints. Find me on <a href="https://www.linkedin.com/in/mihaicvasnievschi/" target="_blank" rel="noopener noreferrer">LinkedIn</a>. For executive and non-technical leadership audiences, the sister practice at <a href="https://ai-leaders.ro" target="_blank" rel="noopener noreferrer">ai-leaders.ro</a> covers the adoption side without the engineering depth.</em></p>
 <hr>
 <h3 id="what-agentic-ai-means-in-this-book">What "agentic AI" means in this book</h3>
 <p>I have been calling this "agentic AI" without defining it. Here is the definition.</p>
@@ -2539,7 +2540,7 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
 <p>This appendix exists because every claim in this book deserves a verifiable source if you choose to chase it down. I have organized the entries by claim, not by source, so you can map back from a passage in the body to the evidence behind it. Entries are grouped by category (studies, named incidents, vulnerabilities with patch versions, tool documentation, marketplaces) and each entry follows the same shape: the claim, the source, where in the book it is used, and any caveat worth knowing.</p>
 <h3>Studies and research</h3>
 <p><strong>Claim:</strong> Experienced open-source developers using AI assistance on familiar repositories were 19% slower than the same developers without it, while predicting beforehand they would be 24% faster - a 43-point gap between expected speedup and measured slowdown that persisted in their self-reports even after the data contradicted it.
-<strong>Source:</strong> Becker et al., METR, "Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity," July 10, 2025. arXiv: arxiv.org/abs/2507.09089. Writeup: metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/.
+<strong>Source:</strong> Becker et al., METR, "Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity," July 10, 2025. arXiv: <a href="https://arxiv.org/abs/2507.09089" target="_blank" rel="noopener noreferrer">arxiv.org/abs/2507.09089</a>. Writeup: <a href="https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/" target="_blank" rel="noopener noreferrer">metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/</a>.
 <strong>Where used:</strong> Chapter 4 (From generating code to shipping software).
 <strong>Caveat:</strong> Tested raw AI assistance (Cursor + Claude) without a formulation-discipline variable. My interpretation that workflow discipline is the missing variable is mine, not the study's.</p>
 <hr>
@@ -2561,7 +2562,7 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
 <hr>
 <h3>Vulnerabilities with patch versions</h3>
 <p><strong>Claim:</strong> Claude Code was vulnerable to remote code execution via untrusted project files: malicious <code>.mcp.json</code> or <code>.claude/settings.json</code> files in untrusted repos could execute hooks before the trust dialog, enabling RCE.
-<strong>Source:</strong> Check Point Research, February 2026. CVE-2025-59536. NVD: nvd.nist.gov/vuln/detail/CVE-2025-59536. Writeup: research.checkpoint.com/2026/rce-and-api-token-exfiltration-through-claude-code-project-files-cve-2025-59536/.
+<strong>Source:</strong> Check Point Research, February 2026. CVE-2025-59536. NVD: <a href="https://nvd.nist.gov/vuln/detail/CVE-2025-59536" target="_blank" rel="noopener noreferrer">nvd.nist.gov/vuln/detail/CVE-2025-59536</a>. Writeup: <a href="https://research.checkpoint.com/2026/rce-and-api-token-exfiltration-through-claude-code-project-files-cve-2025-59536/" target="_blank" rel="noopener noreferrer">research.checkpoint.com/2026/rce-and-api-token-exfiltration-through-claude-code-project-files-cve-2025-59536/</a>.
 <strong>Where used:</strong> Chapter 3 (Governance in layers); referenced in Chapter 10 (Adoption, security committee scene).
 <strong>Caveat:</strong> Patched in Claude Code v1.0.111. Versions earlier than the patch remain vulnerable; the class survives even after the specific patch.</p>
 <hr>
@@ -2571,53 +2572,53 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
 <strong>Caveat:</strong> Patched in Claude Code v2.0.65. Same class as CVE-2025-59536: pre-trust execution of untrusted project configuration.</p>
 <hr>
 <p><strong>Claim:</strong> Claude Code automatically loads <code>.env*</code> files in the working directory at session start without explicit user permission, exposing secrets to the agent's context.
-<strong>Source:</strong> Knostic, December 2025. Blog: knostic.ai/blog/claude-loads-secrets-without-permission.
+<strong>Source:</strong> Knostic, December 2025. Blog: <a href="https://knostic.ai/blog/claude-loads-secrets-without-permission" target="_blank" rel="noopener noreferrer">knostic.ai/blog/claude-loads-secrets-without-permission</a>.
 <strong>Where used:</strong> Chapter 3 (Governance in layers), named in the dot-env auto-loading vulnerability class.
 <strong>Caveat:</strong> Mitigation is sandbox <code>denyRead</code> of the <code>.env*</code> patterns rather than a vendor patch. The behavior may change in future versions; the class (agents loading local config at session start) is enduring.</p>
 <hr>
 <p><strong>Claim:</strong> Claude Code's deny rules were silently bypassed when a shell command chained more than 50 subcommands (MAX_SUBCOMMANDS_FOR_SECURITY_CHECK = 50 hard cap), with the security check falling through to a generic "ask" prompt.
-<strong>Source:</strong> Adversa AI Red Team, disclosed April 1, 2026. Writeup: adversa.ai/blog/claude-code-security-bypass-deny-rules-disabled/.
+<strong>Source:</strong> Adversa AI Red Team, disclosed April 1, 2026. Writeup: <a href="https://adversa.ai/blog/claude-code-security-bypass-deny-rules-disabled/" target="_blank" rel="noopener noreferrer">adversa.ai/blog/claude-code-security-bypass-deny-rules-disabled/</a>.
 <strong>Where used:</strong> Chapter 3 (Governance in layers), as the parser-cap bypass example for "any single layer can have a quiet-failure mode."
 <strong>Caveat:</strong> Patched in Claude Code v2.1.90 on April 6, 2026 (within a week of disclosure). The class - governance layers with parser caps that silently fail - is what to remember after the specific cap is gone.</p>
 <hr>
 <p><strong>Claim:</strong> Permission parsers in coding agents recognize only a known set of shell-read commands; agents invoking Python's <code>open()</code>, Node's <code>fs.readFile</code>, or any unrecognized binary bypass the deny rules entirely.
-<strong>Source:</strong> eve.gd (Eve Cailey), public writeup of the architectural class.
+<strong>Source:</strong> <a href="https://eve.gd" target="_blank" rel="noopener noreferrer">eve.gd</a> (Eve Cailey), public writeup of the architectural class.
 <strong>Where used:</strong> Chapter 3 (Governance in layers), as the permission-parser bypass class.
 <strong>Caveat:</strong> Architectural, not a single CVE. Mitigation is the OS sandbox <code>denyRead</code> list (kernel-level), not a vendor patch. The class persists across patches because the parser cannot enumerate every binary.</p>
 <hr>
 <h3>Tool documentation</h3>
 <p><strong>Claim:</strong> Codex CLI shipped Agent Skills as a first-class primitive in December 2025, with SKILL.md files using YAML frontmatter and progressive disclosure semantics comparable to Claude Code Skills.
-<strong>Source:</strong> OpenAI Codex CLI docs, developers.openai.com/codex/skills.
+<strong>Source:</strong> OpenAI Codex CLI docs, <a href="https://developers.openai.com/codex/skills" target="_blank" rel="noopener noreferrer">developers.openai.com/codex/skills</a>.
 <strong>Where used:</strong> Chapter 1 (Six primitives), as the Codex side of the skill-primitive convergence.
 <strong>Caveat:</strong> Vendor documentation; the GA dates are accurate as of mid-2026 but may be revised retroactively.</p>
 <hr>
 <p><strong>Claim:</strong> Codex CLI subagents went GA in early 2026 and can run up to eight in parallel.
-<strong>Source:</strong> OpenAI Codex CLI docs, developers.openai.com/codex/.
+<strong>Source:</strong> OpenAI Codex CLI docs, <a href="https://developers.openai.com/codex/" target="_blank" rel="noopener noreferrer">developers.openai.com/codex/</a>.
 <strong>Where used:</strong> Chapter 1 (Six primitives) and Chapter 5 (the six-phase loop, Execute phase).
 <strong>Caveat:</strong> Vendor documentation; parallel count may change with subsequent versions.</p>
 <hr>
 <p><strong>Claim:</strong> Codex CLI documents AGENTS.md as the convention for project-level agent instructions, loaded at session start and equivalent in role to other vendors' team-instruction files.
-<strong>Source:</strong> OpenAI Codex CLI documentation, developers.openai.com/codex/agents-md.
+<strong>Source:</strong> OpenAI Codex CLI documentation, <a href="https://developers.openai.com/codex/agents-md" target="_blank" rel="noopener noreferrer">developers.openai.com/codex/agents-md</a>.
 <strong>Where used:</strong> Chapter 1 (Six primitives, skills section) and Chapter 6 (AGENTS.md as team infrastructure).
 <strong>Caveat:</strong> Filename and loading semantics are stable; specific frontmatter and discovery rules may evolve with versions.</p>
 <hr>
 <p><strong>Claim:</strong> AGENTS.md as the vendor-neutral team-instruction-file convention has native support across Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, Zed, and Windsurf. The format is markdown; the loading semantics are equivalent across tools.
-<strong>Source:</strong> Cross-vendor documentation: Codex CLI (developers.openai.com/codex/agents-md), Cursor (cursor.sh/docs), GitHub Copilot (docs.github.com/copilot), Gemini CLI (cloud.google.com/gemini/docs/codeassist), Aider (aider.chat/docs), Zed (zed.dev/docs/ai), Windsurf (codeium.com/windsurf/docs).
+<strong>Source:</strong> Cross-vendor documentation: Codex CLI (<a href="https://developers.openai.com/codex/agents-md" target="_blank" rel="noopener noreferrer">developers.openai.com/codex/agents-md</a>), Cursor (<a href="https://cursor.sh/docs" target="_blank" rel="noopener noreferrer">cursor.sh/docs</a>), GitHub Copilot (<a href="https://docs.github.com/copilot" target="_blank" rel="noopener noreferrer">docs.github.com/copilot</a>), Gemini CLI (<a href="https://cloud.google.com/gemini/docs/codeassist" target="_blank" rel="noopener noreferrer">cloud.google.com/gemini/docs/codeassist</a>), Aider (<a href="https://aider.chat/docs" target="_blank" rel="noopener noreferrer">aider.chat/docs</a>), Zed (<a href="https://zed.dev/docs/ai" target="_blank" rel="noopener noreferrer">zed.dev/docs/ai</a>), Windsurf (<a href="https://codeium.com/windsurf/docs" target="_blank" rel="noopener noreferrer">codeium.com/windsurf/docs</a>).
 <strong>Where used:</strong> Chapter 1 (Six primitives, skills section) and Chapter 6 (Names and conventions).
 <strong>Caveat:</strong> The list of supporting tools grows over time; the claim is that AGENTS.md is the de facto vendor-neutral convention, not that the list is exhaustive.</p>
 <hr>
 <p><strong>Claim:</strong> opencode is an open-source coding agent maintained by an independent team, written in TypeScript and licensed under MIT. Source-organized around the same six primitives this book identifies in Codex CLI and Claude Code.
-<strong>Source:</strong> opencode repository (github.com/opencode-ai/opencode); LICENSE and README.
+<strong>Source:</strong> opencode repository (<a href="https://github.com/opencode-ai/opencode" target="_blank" rel="noopener noreferrer">github.com/opencode-ai/opencode</a>); LICENSE and README.
 <strong>Where used:</strong> Chapter 1 (Six primitives, source survey) and Chapter 2 (Anatomy invariant, two-agent demo).
 <strong>Caveat:</strong> Project naming and maintainer composition may evolve; the architectural convergence claim survives renames.</p>
 <hr>
 <p><strong>Claim:</strong> Playwright drives a real browser through scripted interactions; the accessibility tree is the semantic structure browsers expose for assistive technology and is stable across visual restyles or component-library swaps. Tests written against the accessibility tree assert behavior rather than presentation.
-<strong>Source:</strong> Playwright documentation (playwright.dev/docs/accessibility-testing); W3C ARIA Accessibility Object Model spec.
+<strong>Source:</strong> Playwright documentation (<a href="https://playwright.dev/docs/accessibility-testing" target="_blank" rel="noopener noreferrer">playwright.dev/docs/accessibility-testing</a>); W3C ARIA Accessibility Object Model spec.
 <strong>Where used:</strong> Chapter 5 (Verify), as the recommended frontend-verification pattern; Appendix B.3 checklist.
 <strong>Caveat:</strong> Some UI behavior (animation, drag-and-drop, complex canvas surfaces) is not fully captured by the accessibility tree and needs supplementary verification.</p>
 <hr>
 <p><strong>Claim:</strong> Claude Code supports OS-level sandboxing on Linux (bubblewrap with Landlock and seccomp), macOS (Seatbelt), and Windows (restricted tokens with job objects), and is opt-in by configuration. Codex CLI enforces sandbox by default on Linux and macOS; you have to opt out, not opt in.
-<strong>Source:</strong> Claude Code docs (code.claude.com/docs/en/sandboxing) and Codex CLI agent approvals and security docs (developers.openai.com/codex/agent-approvals-security).
+<strong>Source:</strong> Claude Code docs (<a href="https://code.claude.com/docs/en/sandboxing" target="_blank" rel="noopener noreferrer">code.claude.com/docs/en/sandboxing</a>) and Codex CLI agent approvals and security docs (<a href="https://developers.openai.com/codex/agent-approvals-security" target="_blank" rel="noopener noreferrer">developers.openai.com/codex/agent-approvals-security</a>).
 <strong>Where used:</strong> Chapter 2 (Anatomy invariant, sandbox-divergence finding) and Chapter 3 (Governance in layers, layer two).
 <strong>Caveat:</strong> Default-on versus opt-in is a versioned implementation detail. Verify the current default for your installed version before relying on it.</p>
 <hr>
@@ -2628,7 +2629,7 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
 <hr>
 <h3>Marketplaces and plugin ecosystems</h3>
 <p><strong>Claim:</strong> Anthropic's <code>claude-plugins-official</code> marketplace ships built-in with Claude Code as of May 2026 and bundles skills, hooks, tools, and commands behind a single install command. The marketplace warns users to trust plugins before installing.
-<strong>Source:</strong> Claude Code docs (code.claude.com/docs/en/discover-plugins); the marketplace itself.
+<strong>Source:</strong> Claude Code docs (<a href="https://code.claude.com/docs/en/discover-plugins" target="_blank" rel="noopener noreferrer">code.claude.com/docs/en/discover-plugins</a>); the marketplace itself.
 <strong>Where used:</strong> Chapter 1 (Six primitives, plugins section).
 <strong>Caveat:</strong> Plugin counts and marketplace policies will drift; the supply-chain discipline described in Chapter 1 is what to take away rather than any specific count.</p>
 <hr>
