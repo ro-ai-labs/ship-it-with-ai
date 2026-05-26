@@ -1,0 +1,42 @@
+# robots.txt for ship-it-with.ai
+# Default: everything allowed.
+User-agent: *
+Allow: /
+
+# AI training / research / answer-engine bots: explicitly allowed.
+# This book is meant to be discovered and cited by AI-powered search.
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+Sitemap: https://ship-it-with.ai/sitemap.xml
