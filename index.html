@@ -23,8 +23,8 @@
       --color-red: #b91c1c;
       --color-red-soft: #fee2e2;
       --color-card-bg: #ffffff;
-      --color-monday-bg: #fff8ee;
-      --color-monday-accent: #d97706;
+      --color-action-bg: #fff8ee;
+      --color-action-accent: #d97706;
       --color-case-bg: #f5f3ed;
       --color-quote-border: #d97706;
       --color-table-stripe: #faf9f6;
@@ -56,8 +56,8 @@
       --color-red: #f87171;
       --color-red-soft: #3a1a1a;
       --color-card-bg: #1c1f23;
-      --color-monday-bg: #2a200f;
-      --color-monday-accent: #f59e0b;
+      --color-action-bg: #2a200f;
+      --color-action-accent: #f59e0b;
       --color-case-bg: #1f2126;
       --color-quote-border: #f59e0b;
       --color-table-stripe: #1f2226;
@@ -457,18 +457,18 @@
     }
     .article li { margin-bottom: 8px; }
 
-    /* Monday boxes */
-    .monday-box {
-      background: var(--color-monday-bg);
+    /* Action boxes */
+    .action-box {
+      background: var(--color-action-bg);
       border: 1px solid var(--color-accent);
       border-radius: var(--radius-lg);
       padding: 24px 28px;
       margin: 40px 0;
       box-shadow: var(--shadow-sm);
     }
-    .monday-label {
+    .action-label {
       display: inline-block;
-      background: var(--color-monday-accent);
+      background: var(--color-action-accent);
       color: white;
       font-size: 11px;
       font-weight: 700;
@@ -478,8 +478,8 @@
       border-radius: 4px;
       margin-bottom: 14px;
     }
-    .monday-box p { margin-bottom: 12px; font-size: 17px; }
-    .monday-box p:last-child { margin-bottom: 0; }
+    .action-box p { margin-bottom: 12px; font-size: 17px; }
+    .action-box p:last-child { margin-bottom: 0; }
 
     /* Case notes */
     .case-note {
@@ -906,7 +906,7 @@
       .topbar, .sidebar, .progress, .article-footer { display: none !important; }
       .layout { display: block; padding: 0; }
       .article { max-width: none; }
-      .monday-box, .case-note, figure.diagram { break-inside: avoid; box-shadow: none; }
+      .action-box, .case-note, figure.diagram { break-inside: avoid; box-shadow: none; }
     }
   </style>
 </head>
@@ -1000,11 +1000,11 @@
 <hr>
 <h3>Where I am coming from</h3>
 <p>The shape of a book depends on the shape of the writer, and you deserve to know whether the writer's experience is the kind of experience that maps to your situation.</p>
-<p>I have been writing software for twenty-five years and building AI systems for ten of them. I have been on the assisted-AI-coding train since the days when "assisted" meant "occasionally suggests the next character you would have typed." I started in the early 2000s, on Windows machines, in languages -- Java, C#, JavaScript -- that have all evolved substantially since I started. I have worked in startups and in enterprises. I have shipped consumer products, internal tools, banking software, infrastructure. I am, by training and inclination, an engineer first and a consultant second; the consulting work I do is the secondary outgrowth of doing engineering with teams who want help.</p>
-<p>I built my first machine learning model around 2014, when "machine learning" still meant feature engineering and hand-tuned classifiers. I built my first transformer-based model around 2018, when transformers were a research curiosity. I started using AI assistance for my own coding in 2021, when "assistance" meant the early versions of Copilot suggesting the next few tokens. I started doing agentic workflows -- letting an agent take a task and execute it autonomously -- in 2024, when the first practical coding agents shipped. I have been doing agentic coding daily, for production work, since the start of 2025. I have spent the last three years specifically watching teams try to ship software with AI agents in the loop, and I have spent the last eighteen months specifically watching them get it wrong in the same ways, repeatedly, across companies that should know better.</p>
+<p>I first met a computer in my parents' office around 1984, when I was six -- a mainframe room with a raised floor, Space Invaders running on a terminal, and an introduction to BASIC. I wrote my first programs in BASIC in 1989. Borland Pascal in DOS followed in 1993, then Visual Basic, the first real IDE I used and the first language I sold software in as a teenager. My professional career started in 2000 as IT Manager for a manufacturing company. In 2001 I moved into software engineering proper, joining a startup that built multicasting software for satellite operators running DVB. When the startup lost its investors and pivoted to outsourcing, I switched from C++ to .NET, and spent the next two decades, through 2023, delivering for customers across industries on Visual Studio.NET and its descendants. I am, by training and inclination, an engineer first and a consultant second; the consulting work is the secondary outgrowth of doing engineering with teams who want help.</p>
+<p>My interest in machine learning started around 2013. The first serious deep dive came in late 2015, when I ported DarkNet and YOLO onto an XR headset; that is when I started building AI applications professionally. In 2023 I joined a company building the first neuromorphic SoC, working on the nano-ML end of the field. On the assisted-coding side, I have used every generation: Whole Tomato's Visual Assist (the first intelligent coding assistant I ever installed), the early JetBrains tooling in the .NET world, the first releases of Copilot, and LLMs for coding since the day ChatGPT first shipped. I have not built my own coding agent. I have used most of the ones that ship now, and I have watched a lot of teams use them.</p>
 <p>The book draws on this trajectory. The methodology I describe has been refined across dozens of engagements with teams of varying sizes, in varying industries, in varying states of agentic readiness. The frames I share are the ones that have held up across the engagements; the ones that did not hold up have been retired. This is not the first set of frames I wrote about agentic delivery. It is the third or fourth iteration. The earlier iterations were wrong in interesting ways. This one is, I hope, less wrong.</p>
 <p>I am not neutral about the topic. I think agentic software delivery is the most consequential shift in our field since the introduction of high-level programming languages. I also think the way most teams are currently adopting it is doing them more harm than good. Both of those things can be true. The point of the book is to help you adopt in a way that captures the upside without the harm. The frameworks are how.</p>
-<p>That trajectory -- engineer first, consultant second, decades of practice across many stacks and industries -- is the trajectory the book is written from. Calibrate your expectations accordingly.</p>
+<p>That trajectory -- four decades of writing code, twenty-five of them professional, more than a decade building AI systems, every generation of coding assistant in between -- is the trajectory the book is written from. Calibrate your expectations accordingly.</p>
 <hr>
 <h3>What "agentic AI" means in this book</h3>
 <p>I have been calling this "agentic AI" without defining it. Here is the definition.</p>
@@ -1066,7 +1066,7 @@
 <hr>
 <p>That is the failure pattern this book is built to prevent.</p>
 <p>Not because any methodology makes agents perfect. None does. But because the incident did not require magic to prevent. It required ordinary engineering controls applied to a new kind of worker: bounded credentials, constrained tools, review gates, telemetry, and a team that knew which actions the agent was not allowed to take. Several layers of the practice this book describes could have broken the chain. Telemetry might have shortened the response. A sandbox might have blocked the destructive call. Secrets segregation might have prevented the session from holding the relevant credential. A security hook might have forced a human approval before the dangerous action ran.</p>
-<p>None of those layers is exotic. They are the same controls an experienced engineer would apply to any new junior teammate authorized to push to production. Bound the credentials. Bound the tools. Review the work before it ships. Record what happened so you can learn from it. The agent is software, but the controls around the agent are engineering practice that predates the agent by decades. The chapters that follow are each one piece of that wrapping, named, scoped, and made concrete enough to put in place on a Monday morning.</p>
+<p>None of those layers is exotic. They are the same controls an experienced engineer would apply to any new junior teammate authorized to push to production. Bound the credentials. Bound the tools. Review the work before it ships. Record what happened so you can learn from it. The agent is software, but the controls around the agent are engineering practice that predates the agent by decades. The chapters that follow are each one piece of that wrapping, named, scoped, and made concrete enough to put in place this week.</p>
 <p>The hardest part for most teams is not the technical setup. The hardest part is the shift in stance. The agent is software, but the operational pattern is engineering: onboard it, constrain it, review its work, log its actions, and let trust accumulate through small bets. The frameworks in this book are how you do that for an agent. The shift is recognizing that this contributor runs in parallel, never gets tired, and can violate a system-prompt instruction when a clever input convinces it to. PocketOS is what happens when that pattern is absent.</p>
 <p>The tools change. The methodology endures. That is the bet of this book.</p>
 <hr>
@@ -1154,7 +1154,7 @@
 <hr>
 <p><strong>Artifact: Agent evaluation worksheet.</strong> One column per primitive; rate each new agent's implementation as basic / intermediate / advanced. Use it as the rubric for any new agent your team evaluates.</p>
 <hr>
-<aside class="monday-box"><div class="monday-label">What to do Monday</div>
+<aside class="action-box"><div class="action-label">Ship this week</div>
 <p>Open whichever coding agent you have access to. Ask it: how large is your context window, what tools do you have access to, where do skills live, what marketplace are plugins installed from, does this agent speak MCP, and how do I dispatch a subagent? Note the answers. You now have the start of an agent evaluation worksheet.</p>
 </aside><hr/>
 <h2 id="chapter-2" class="chapter-heading"><span class="chapter-num">Chapter 2</span><span class="chapter-title">The anatomy invariant</span></h2>
@@ -1237,7 +1237,7 @@
 <hr>
 <p><strong>Artifact: Source-inspection checklist.</strong> The eight inspection points from this chapter. Use the checklist on the next agent that lands in your team's evaluation queue.</p>
 <hr>
-<aside class="monday-box"><div class="monday-label">What to do Monday</div>
+<aside class="action-box"><div class="action-label">Ship this week</div>
 <p>Open the source repository of any open-source coding agent. Find the file that implements the agent loop. Read it. Twenty minutes. You will not understand every line; you will understand the shape of the loop, and that is the point.</p>
 </aside><hr/>
 <h2 id="chapter-3" class="chapter-heading"><span class="chapter-num">Chapter 3</span><span class="chapter-title">Governance in layers</span></h2>
@@ -1336,7 +1336,7 @@
 <hr>
 <p><strong>Artifact: Five-layer governance audit.</strong> Score each layer for one codebase your team owns: default / configured / enforced / monitored. The audit becomes the baseline for the next quarter's investment.</p>
 <hr>
-<aside class="monday-box"><div class="monday-label">What to do Monday</div>
+<aside class="action-box"><div class="action-label">Ship this week</div>
 <p>Audit one codebase your team owns. Of the five governance layers (permissions, sandbox, secrets, security hooks, telemetry), how many are configured beyond defaults? Score one out of five through five out of five. That score is your starting point.</p>
 </aside><hr/>
 <p>Part I ends here. You have the architecture. You know what an agent is anatomically, how to evaluate one when it arrives, what governance layers you put in place to control it.</p>
@@ -1400,7 +1400,7 @@
 <hr>
 <p><strong>Artifact: Task suitability heuristic.</strong> Three questions per task: more than three files touched, crosses concerns, would I type it by hand? If none, skip the loop; if any, run it.</p>
 <hr>
-<aside class="monday-box"><div class="monday-label">What to do Monday</div>
+<aside class="action-box"><div class="action-label">Ship this week</div>
 <p>Take one task you were about to dispatch to the agent. Write a 200-word research note before dispatching. Notice what the note surfaces that you had not thought about. Then dispatch.</p>
 </aside><hr/>
 <h2 id="chapter-5" class="chapter-heading"><span class="chapter-num">Chapter 5</span><span class="chapter-title">The six-phase loop</span></h2>
@@ -1540,7 +1540,7 @@
 <hr>
 <p><strong>Artifact: Phase artifact table.</strong> The six rows from this chapter, taped above your team's review-board: Research note, File-level plan, Diff + per-task reports, Review reports, Test evidence, PR with evidence trail.</p>
 <hr>
-<aside class="monday-box"><div class="monday-label">What to do Monday</div>
+<aside class="action-box"><div class="action-label">Ship this week</div>
 <p>Run one feature through the full six-phase loop. Time each phase. Note which phases ate the most wall clock and which produced the most value. The two are often not the same.</p>
 </aside><hr/>
 <h2 id="chapter-6" class="chapter-heading"><span class="chapter-num">Chapter 6</span><span class="chapter-title">AGENTS.md as team infrastructure</span></h2>
@@ -1649,12 +1649,12 @@ Configuration in <code>src/main/resources/application.yml</code></p>
 <hr>
 <p><strong>Artifact: 15-line AGENTS.md starter.</strong> Three forbidden patterns, one mistake-journal entry from last quarter, the team's build and test commands, where the code lives. Commit it. Invite the team to expand.</p>
 <hr>
-<aside class="monday-box"><div class="monday-label">What to do Monday</div>
+<aside class="action-box"><div class="action-label">Ship this week</div>
 <p>Draft a fifteen-line AGENTS.md for one project. Three forbidden patterns, one mistake-journal entry (real, from last quarter), the team's build and test commands, where the code lives. Commit it. Invite the team to expand it via pull request.</p>
 </aside><hr/>
 <h2 id="chapter-7" class="chapter-heading"><span class="chapter-num">Chapter 7</span><span class="chapter-title">Architecture Review: Documentation and Diagnosis</span></h2>
 
-<p>In Chapter 2 I showed you how I used one coding agent to inspect the source code of two other coding agents, side by side. I called the anatomy invariant. Now I want to turn that observation into a workflow you can apply on Monday morning to a codebase your team owns and barely remembers.</p>
+<p>In Chapter 2 I showed you how I used one coding agent to inspect the source code of two other coding agents, side by side. I called the anatomy invariant. Now I want to turn that observation into a workflow you can apply this week to a codebase your team owns and barely remembers.</p>
 <p>The workflow is straightforward. Point the agent at the repository. Ask it to produce a structured architecture review. Save the output as a durable artifact. Use the artifact as the entry point for any subsequent work in that codebase.</p>
 <p>Most teams own at least one codebase that fits the "barely remembers" description. The original author left two years ago. The documentation is sparse and partly wrong. The README claims a build process that has not worked since the dependency update of last March. The code runs in production and earns money. Nobody wants to touch it.</p>
 <p>Before agents, getting productive in a codebase like this took weeks. A senior engineer would spend two to four weeks reading source, asking questions, tracing flows, writing internal documentation. Multiply by the engineer's loaded cost and you arrive at five-figure dollar amounts per codebase per onboarding. Times three or four engineers per legacy repository over its lifetime. Times the number of legacy repositories your organization has. The aggregate cost is substantial. Most organizations swallow it without measuring it.</p>
@@ -1685,7 +1685,7 @@ Configuration in <code>src/main/resources/application.yml</code></p>
 <p>I include the plugin alternative for completeness. The markdown architecture document I described first is good enough for most teams; the visual dashboard is a meaningful upgrade for teams that have managers or product people who need to engage with the codebase structure regularly. Choose by what your team needs, not by what is fancier.</p>
 <hr>
 <p>Run the architecture review workflow on your most poorly-understood codebase first. Watch the agent produce in fifteen minutes what would have taken a senior engineer a week. Save the artifact. Reference it from AGENTS.md. Move on to the next codebase.</p>
-<p>That is the Monday morning recipe.</p>
+<p>That is the recipe.</p>
 <hr>
 <p>The same workflow is also a diagnostic. The same fifteen minutes of agent time tells you whether you should adopt agentic work on the codebase at all.</p>
 <p>Here is an architecture review I ran for a banking team last year, anonymized but accurate to the experience.</p>
@@ -1747,7 +1747,7 @@ Configuration in <code>src/main/resources/application.yml</code></p>
 <hr>
 <p><strong>Artifact: Review prompt + human correction checklist.</strong> The architecture review prompt from Appendix B, paired with the five-point checklist of what the human must verify in the generated output.</p>
 <hr>
-<aside class="monday-box"><div class="monday-label">What to do Monday</div>
+<aside class="action-box"><div class="action-label">Ship this week</div>
 <p>Pick the codebase nobody on the team understands well. Paste the architecture review prompt into the agent. Set a sixty-minute budget -- agent processing plus your correction time. Commit the resulting document as <code>docs/architecture.md</code> and reference it from AGENTS.md. Then run the same workflow on two more poorly-understood codebases. Note which produce clean output and which produce garbage. That pattern is the diagnostic ahead of Chapter 8: clean output means agentic work has a chance; garbage output is one of the kill signals.</p>
 </aside><hr/>
 <p>Part II ends here. You have the method. You know how to formulate work in a way the agent can execute, the six-phase loop that turns formulation into delivery, the AGENTS.md infrastructure that makes the method portable, and the architecture review workflow that gets you productive in a new codebase in an afternoon -- and that doubles as the cheapest diagnostic you have for whether agentic work will succeed on a given codebase.</p>
@@ -1936,7 +1936,7 @@ Configuration in <code>src/main/resources/application.yml</code></p>
 <hr>
 <p><strong>Artifact: Portfolio readiness scorecard.</strong> One row per active project: signals scored, traffic-light color, recommended mode (agent-led / human-led / fix the codebase first).</p>
 <hr>
-<aside class="monday-box"><div class="monday-label">What to do Monday</div>
+<aside class="action-box"><div class="action-label">Ship this week</div>
 <p>Have the green/yellow/red conversation with your tech lead. Get one project officially classified. Defend the classification with the kill signal scores from yesterday.</p>
 </aside><hr/>
 <h2 id="chapter-9" class="chapter-heading"><span class="chapter-num">Chapter 9</span><span class="chapter-title">Patterns for brownfield codebases</span></h2>
@@ -1999,7 +1999,7 @@ Configuration in <code>src/main/resources/application.yml</code></p>
 <hr>
 <p><strong>Artifact: Worktree + hook + review pattern.</strong> The three patterns this chapter installs on every brownfield codebase: an isolated worktree for agent work, a pre-tool-use hook for the dangerous-action categories, and a PR review checklist tuned to agent-generated diffs.</p>
 <hr>
-<aside class="monday-box"><div class="monday-label">What to do Monday</div>
+<aside class="action-box"><div class="action-label">Ship this week</div>
 <p>Set up one git worktree on a project you are about to dispatch the agent on. Use the worktree for the agent's work. Notice the isolation. The first time you accidentally do not destroy your local state, the pattern lands.</p>
 </aside><hr/>
 <h2 id="chapter-10" class="chapter-heading"><span class="chapter-num">Chapter 10</span><span class="chapter-title">Adoption: 90 days, three roles</span></h2>
@@ -2129,7 +2129,7 @@ Configuration in <code>src/main/resources/application.yml</code></p>
 <hr>
 <p><strong>Artifact: 90-day rollout board.</strong> A whiteboard or shared doc with the three role lanes (Champion, Lead, Manager) and the four artifact families (CLAUDE.md / AGENTS.md, hooks, skills, metrics dashboard). Use it as the working board for the rollout, not as a presentation slide.</p>
 <hr>
-<aside class="monday-box"><div class="monday-label">What to do Monday</div>
+<aside class="action-box"><div class="action-label">Ship this week</div>
 <p>Pick your role -- champion, lead, manager. Make the first commitment from that role's checklist this week. Schedule the action. The arc starts when the calendar event is on someone's calendar.</p>
 </aside><hr/>
 <h1 id="closing" class="closing-heading"><span class="part-label">Closing</span><span class="part-title">A way of thinking that survives the tools</span></h1>
