@@ -1564,17 +1564,6 @@ def render_hash_redirect_js(sections: list[Section]) -> str:
     )
 
 
-def render_sitemap_minimal() -> str:
-    """Commit 2 sitemap stub. Commit 3 expands this to all 20 URLs."""
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    return f'''<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://ship-it-with.ai/</loc><lastmod>{today}</lastmod></url>
-  <url><loc>https://ship-it-with.ai/read/</loc><lastmod>{today}</lastmod></url>
-</urlset>
-'''
-
-
 def render_sitemap(sections: list[Section]) -> str:
     """Full sitemap: landing + /read/ + every per-section URL (20 total)."""
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
@@ -2036,22 +2025,86 @@ def render_404(template: str, *, title: str, author: str, toc_html: str,
     return render_template_with_placeholders(template, substitutions)
 
 
-def render_llms_txt() -> str:
+_LLMS_KIND_LABELS = {
+    "foreword":   "Foreword",
+    "prologue":   "Prologue",
+    "closing":    "Closing",
+}
+
+
+def _llms_label(section: Section) -> str:
+    """Friendly link label for llms.txt.
+
+    Examples:
+      foreword            → "Foreword"
+      prologue            → "Prologue - Nine seconds"
+      chapter (slug=ch-1) → "Chapter 1 - Six primitives"
+      closing             → "Closing"
+      appendix (letter A) → "Appendix A - Cost economics"
+      about               → "About the author"
+      acknowledgments     → "Acknowledgments"
+    """
+    k = section.kind
+    if k == "foreword":
+        return "Foreword"
+    if k == "closing":
+        return "Closing"
+    if k == "prologue":
+        return f"Prologue - {section.title}"
+    if k == "chapter":
+        m = re.match(r"^chapter-(\d+)-", section.slug)
+        num = m.group(1) if m else "?"
+        return f"Chapter {num} - {section.title}"
+    if k == "appendix":
+        # section.title is "Appendix A. Cost economics"; normalize "." → " -".
+        m = re.match(r"^Appendix ([A-Z])\.\s*(.+)$", section.title)
+        if m:
+            return f"Appendix {m.group(1)} - {m.group(2)}"
+        return section.title
+    # about / acknowledgments fall through with their plain title.
+    return section.title
+
+
+def render_llms_txt(sections: list[Section]) -> str:
     """Render llms.txt per the emerging convention at https://llmstxt.org/.
 
-    Lists all site sections so AI answer engines (ChatGPT, Perplexity, etc.)
-    can crawl an authoritative URL index without parsing the SPA. The chapter
-    URL list here is the Commit 1 stub — full per-chapter URLs land in Commit
-    3 when the SPA splits.
+    Lists every per-section URL so AI answer engines (ChatGPT, Perplexity, etc.)
+    can crawl an authoritative URL index without parsing the SPA. Docs section
+    holds the linear reading path (Foreword → Prologue → Chapters → Closing →
+    Appendices); Optional holds the meta/back-matter URLs + the /read/ all-in-
+    one view.
     """
-    return """# Ship It With AI - A Field Manual for Agentic Coding
+    docs_order = ["foreword", "prologue", "chapter", "closing", "appendix"]
+    optional_kinds = {"about", "acknowledgments"}
+    base = "https://ship-it-with.ai"
+
+    docs_lines: list[str] = []
+    for kind in docs_order:
+        for s in sections:
+            if s.kind != kind:
+                continue
+            docs_lines.append(f"- [{_llms_label(s)}]({base}/{s.slug}/)")
+
+    optional_lines: list[str] = []
+    for s in sections:
+        if s.kind in optional_kinds:
+            optional_lines.append(f"- [{_llms_label(s)}]({base}/{s.slug}/)")
+    optional_lines.append(f"- [Read as one page]({base}/read/)")
+
+    docs_block = "\n".join(docs_lines)
+    optional_block = "\n".join(optional_lines)
+
+    return f"""# Ship It With AI - A Field Manual for Agentic Coding
 
 > A vendor-neutral field manual for shipping software with AI coding agents.
 > Covers six primitives, the six-phase loop, AGENTS.md as team infrastructure,
 > governance in layers, kill signals, brownfield patterns, and 90-day adoption.
 
 ## Docs
-- [Ship It With AI - the full manual](https://ship-it-with.ai/)
+{docs_block}
+
+## Optional
+{optional_block}
 """
 
 
@@ -2127,49 +2180,9 @@ def render_all_in_one_body(md_text: str) -> tuple[str, dict, str, str, str, list
     content_html = transform_source_notes(content_html)
     content_html = transform_artifacts(content_html)
 
-    # "Ship this week" wrapping
-    content_html = content_html.replace(
-        "<p><strong>Ship this week.</strong></p>",
-        '<div class="action-marker"><p><strong>Ship this week.</strong></p>',
-    )
-    content_html = re.sub(
-        r'<div class="action-marker"><p><strong>Ship this week\.</strong></p>(.*?)<hr ?/?>',
-        r'<aside class="action-box"><div class="action-label">Ship this week</div>\1</aside>',
-        content_html,
-        flags=re.DOTALL,
-    )
-
-    # "Try it yourself" wrapping
-    content_html = content_html.replace(
-        "<p><strong>Try it yourself.</strong></p>",
-        '<div class="try-marker"><p><strong>Try it yourself.</strong></p>',
-    )
-    content_html = re.sub(
-        r'<div class="try-marker"><p><strong>Try it yourself\.</strong></p>(.*?)<hr ?/?>',
-        r'<aside class="try-box"><div class="try-label">Try it yourself</div>\1</aside>',
-        content_html,
-        flags=re.DOTALL,
-    )
-
-    # Drop <hr> between adjacent callouts
-    content_html = re.sub(
-        r'(</aside>)\s*<hr\s*/?>\s*(?=<aside class="(?:artifact-box|action-box|try-box)")',
-        r'\1',
-        content_html,
-    )
-
-    # Case notes
-    content_html = re.sub(
-        r"<p><strong>Case note:([^<]+)</strong></p>",
-        r'<aside class="case-note"><div class="case-note-label">Case Note</div><div class="case-note-title">\1</div>',
-        content_html,
-    )
-    content_html = re.sub(
-        r'(<aside class="case-note">.*?<table>.*?</table>)',
-        r"\1</aside>",
-        content_html,
-        flags=re.DOTALL,
-    )
+    # Ship-this-week / Try-it-yourself / hr-drop / Case-note wrapping.
+    # Shared with apply_transforms (per-chapter pages) via _wrap_callouts.
+    content_html = _wrap_callouts(content_html)
 
     # Appendix C source entries → card layout
     content_html = transform_source_cards(content_html)
@@ -2305,7 +2318,7 @@ def main() -> int:
     (SITE_DIR / "deferred.css").write_text(deferred_css + "\n")
     print(f"Wrote _site/deferred.css ({len(deferred_css) / 1024:.1f} KB)")
 
-    (SITE_DIR / "llms.txt").write_text(render_llms_txt())
+    (SITE_DIR / "llms.txt").write_text(render_llms_txt(sections))
     print("Wrote _site/llms.txt")
 
     (SITE_DIR / "sitemap.xml").write_text(render_sitemap(sections))
