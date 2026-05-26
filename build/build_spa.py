@@ -649,14 +649,13 @@ def build_toc(parts, chapters, appendices, foreword, closing, reading_times=None
         "chapter-1": "part-i",
         "chapter-2": "part-i",
         "chapter-3": "part-i",
-        "chapter-4": "part-i",
+        "chapter-4": "part-ii",
         "chapter-5": "part-ii",
         "chapter-6": "part-ii",
         "chapter-7": "part-ii",
-        "chapter-8": "part-ii",
+        "chapter-8": "part-iii",
         "chapter-9": "part-iii",
         "chapter-10": "part-iii",
-        "chapter-11": "part-iii",
     }
 
     parts_map = {slug: (num, title) for slug, num, title in parts}
