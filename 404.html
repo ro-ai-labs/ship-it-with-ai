@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Agentic Coding: A Field Manual for Shipping Software With AI Agents</title>
 
-  <meta name="description" content="How to ship software with AI agents. Architecture (six primitives), method (six-phase loop), and reality (eight kill signals) for agentic software delivery in 2026. A vendor-neutral field manual by {{AUTHOR}}." />
+  <meta name="description" content="How to ship software with AI agents. Architecture (six primitives), method (six-phase loop), and reality (eight kill signals) for agentic software delivery in 2026. A vendor-neutral field manual by Mihai Cvasnievschi." />
   <meta name="keywords" content="agentic coding, AI coding agents, write code with AI, ship code with AI, agentic software delivery, AGENTS.md, claude code, codex cli, opencode, AI development methodology, coding with AI agents, AI software engineering" />
-  <meta name="author" content="{{AUTHOR}}" />
+  <meta name="author" content="Mihai Cvasnievschi" />
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
   <link rel="canonical" href="https://ship-it-with.ai/" />
 
   <meta property="og:type" content="article" />
-  <meta property="og:title" content="{{TITLE}} - A Field Manual for Agentic Software Delivery" />
+  <meta property="og:title" content="Page not found - A Field Manual for Agentic Software Delivery" />
   <meta property="og:description" content="How to ship software with AI agents. Architecture, method, and reality for agentic software delivery in 2026. A vendor-neutral field manual." />
   <meta property="og:url" content="https://ship-it-with.ai/" />
   <meta property="og:site_name" content="Ship It With AI" />
@@ -21,11 +21,11 @@
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="Ship It With AI - A Manual for Shipping Software with AI Agents" />
-  <meta property="article:author" content="{{AUTHOR}}" />
+  <meta property="article:author" content="Mihai Cvasnievschi" />
   <meta property="article:published_time" content="2026-05-26" />
 
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="{{TITLE}} - A Field Manual for Agentic Software Delivery" />
+  <meta name="twitter:title" content="Page not found - A Field Manual for Agentic Software Delivery" />
   <meta name="twitter:description" content="How to ship software with AI agents. Architecture, method, and reality for agentic delivery in 2026." />
   <meta name="twitter:image" content="https://ship-it-with.ai/cover.jpg" />
   <meta name="twitter:image:alt" content="Ship It With AI - A Manual for Shipping Software with AI Agents" />
@@ -40,13 +40,13 @@
     "alternateName": "Agentic Coding Field Manual",
     "author": {
       "@type": "Person",
-      "name": "{{AUTHOR}}",
+      "name": "Mihai Cvasnievschi",
       "url": "https://www.linkedin.com/in/mihaicvasnievschi/"
     },
     "publisher": { "@id": "https://ship-it-with.ai/#org" },
     "bookFormat": "https://schema.org/EBook",
     "inLanguage": "en",
-    "numberOfPages": {{NUMBER_OF_PAGES}},
+    "numberOfPages": 158,
     "genre": "Technology / Software Engineering",
     "about": [
       "Agentic coding",
@@ -57,7 +57,7 @@
     "description": "A vendor-neutral field manual for shipping software with AI coding agents. Covers six primitives, the six-phase loop, AGENTS.md, governance in layers, kill signals, brownfield patterns, and 90-day adoption.",
     "url": "https://ship-it-with.ai/",
     "image": "https://ship-it-with.ai/cover.jpg",
-    "dateModified": "{{DATE_MODIFIED}}"
+    "dateModified": "2026-05-26"
   }
   </script>
   <script type="application/ld+json">
@@ -112,7 +112,7 @@
   </script>
 
   <style>
-    :root {
+:root {
       --color-bg: #fdfdfb;
       --color-surface: #ffffff;
       --color-text: #1a1a1a;
@@ -1649,345 +1649,16 @@
       .action-box, .try-box, .case-note, .artifact-box, .source-note, figure.diagram { break-inside: avoid; box-shadow: none; }
       .search-overlay, .kbd-overlay { display: none !important; }
     }
-
-    /* @region-end critical */
-
-    /* === Deferred CSS — loaded async via <link rel="preload"> === */
-    /* Anchor-link toast (created lazily on first ¶ click) */
-    .anchor-toast {
-      position: fixed;
-      bottom: 32px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--color-text);
-      color: var(--color-bg);
-      padding: 8px 16px;
-      border-radius: 6px;
-      font-size: 13px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease;
-      z-index: 1000;
-    }
-    .anchor-toast.show { opacity: 1; }
-
-    /* Search overlay */
-    .search-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 200;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding: 11vh 16px 16px;
-    }
-    .search-overlay[hidden] { display: none; }
-    .search-backdrop {
-      position: absolute;
-      inset: 0;
-      background: rgba(20, 18, 14, 0.32);
-      backdrop-filter: saturate(140%) blur(4px);
-      -webkit-backdrop-filter: saturate(140%) blur(4px);
-      animation: searchFade 0.18s ease-out;
-    }
-    [data-theme="dark"] .search-backdrop { background: rgba(0, 0, 0, 0.6); }
-    .search-modal {
-      position: relative;
-      width: min(640px, 100%);
-      max-height: min(72vh, 640px);
-      background: var(--color-surface);
-      border: 1px solid var(--color-border-strong);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-md);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      animation: searchRise 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-    }
-    @keyframes searchFade { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes searchRise {
-      from { opacity: 0; transform: translateY(8px) scale(0.985); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .search-backdrop, .search-modal { animation: none; }
-    }
-    .search-input-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--color-border);
-    }
-    .search-icon { color: var(--color-text-muted); flex-shrink: 0; }
-    .search-input {
-      flex: 1;
-      min-width: 0;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: var(--color-text);
-      font-family: inherit;
-      font-size: 18px;
-      line-height: 1.4;
-      padding: 4px 0;
-      letter-spacing: -0.005em;
-    }
-    .search-input::placeholder { color: var(--color-text-muted); }
-    .search-input::-webkit-search-cancel-button { display: none; }
-    .search-close {
-      background: var(--color-bg);
-      border: 1px solid var(--color-border-strong);
-      border-radius: 5px;
-      padding: 4px 10px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      color: var(--color-text-soft);
-      cursor: pointer;
-      font-family: inherit;
-      transition: color 0.12s ease, border-color 0.12s ease, background 0.12s ease;
-    }
-    .search-close:hover { color: var(--color-text); border-color: var(--color-accent); }
-    .search-close:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
-    .search-results-wrap { flex: 1; min-height: 0; overflow-y: auto; padding: 6px 8px; }
-    .search-results { list-style: none; margin: 0; padding: 0; }
-    .search-result {
-      display: block;
-      padding: 12px 14px;
-      border-radius: 8px;
-      cursor: pointer;
-      border: 1px solid transparent;
-      transition: background 0.1s ease, border-color 0.1s ease;
-    }
-    .search-result:hover, .search-result.is-active {
-      background: var(--color-accent-soft);
-      border-color: var(--color-accent);
-    }
-    .search-result-title {
-      font-size: 15.5px;
-      font-weight: 700;
-      color: var(--color-text);
-      letter-spacing: -0.005em;
-      line-height: 1.3;
-    }
-    .search-result-subtitle {
-      display: block;
-      font-size: 11.5px;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--color-text-muted);
-      margin: 2px 0 6px;
-    }
-    .search-result-snippet {
-      font-size: 13.5px;
-      color: var(--color-text-soft);
-      line-height: 1.5;
-      margin: 0;
-    }
-    .search-result mark {
-      background: var(--color-accent-soft);
-      color: var(--color-text);
-      padding: 0 2px;
-      border-radius: 3px;
-      font-weight: 600;
-    }
-    [data-theme="dark"] .search-result mark { background: var(--color-accent-soft); color: var(--color-accent); }
-    .search-empty, .search-hint-body {
-      margin: 0;
-      padding: 28px 18px;
-      text-align: center;
-      color: var(--color-text-muted);
-      font-size: 14px;
-    }
-    .search-hint-body { font-style: italic; }
-    .search-footer {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 10px 16px;
-      border-top: 1px solid var(--color-border);
-      background: var(--color-bg);
-      font-size: 12px;
-      color: var(--color-text-muted);
-      flex-wrap: wrap;
-    }
-    .search-kbd-row { display: inline-flex; align-items: center; gap: 6px; }
-    .search-kbd-row-spacer { flex: 1; }
-    .search-kbd {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 22px;
-      padding: 1px 6px;
-      font-family: inherit;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--color-text-soft);
-      background: var(--color-surface);
-      border: 1px solid var(--color-border-strong);
-      border-bottom-width: 2px;
-      border-radius: 4px;
-      line-height: 1.4;
-    }
-    .search-credit { font-size: 11.5px; color: var(--color-text-muted); }
-
-    /* Topbar search trigger */
-    .search-trigger { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; }
-    .search-trigger-kbd {
-      display: inline-flex;
-      gap: 2px;
-      font-size: 10.5px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      color: var(--color-text-muted);
-      padding: 1px 6px;
-      background: var(--color-bg);
-      border: 1px solid var(--color-border);
-      border-radius: 4px;
-    }
-    .search-trigger:hover .search-trigger-kbd {
-      color: var(--color-text-soft);
-      border-color: var(--color-border-strong);
-    }
-    @media (max-width: 640px) {
-      .search-overlay { padding: 0; align-items: stretch; }
-      .search-modal {
-        width: 100%;
-        max-height: 100vh;
-        height: 100vh;
-        border-radius: 0;
-        border: none;
-      }
-      .search-input { font-size: 17px; }
-      .search-trigger-kbd { display: none; }
-      .search-trigger-label { display: none; }
-    }
-
-    /* Keyboard shortcuts overlay */
-    .kbd-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 200;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-    .kbd-overlay[aria-hidden="true"] { display: none; }
-    .kbd-backdrop {
-      position: absolute;
-      inset: 0;
-      background: rgba(20, 20, 22, 0.45);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      animation: kbdFade 0.18s ease-out;
-    }
-    [data-theme="dark"] .kbd-backdrop { background: rgba(0, 0, 0, 0.6); }
-    .kbd-card {
-      position: relative;
-      background: var(--color-surface);
-      color: var(--color-text);
-      border: 1px solid var(--color-border-strong);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-md);
-      max-width: 520px;
-      width: 100%;
-      max-height: calc(100vh - 48px);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      animation: kbdRise 0.18s ease-out;
-      outline: none;
-    }
-    .kbd-card-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 18px 22px;
-      border-bottom: 1px solid var(--color-border);
-    }
-    .kbd-card-title { margin: 0; font-size: 15px; font-weight: 600; color: var(--color-text); }
-    .kbd-close {
-      background: transparent;
-      border: 1px solid transparent;
-      color: var(--color-text-soft);
-      font-size: 22px;
-      line-height: 1;
-      width: 32px;
-      height: 32px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-family: inherit;
-    }
-    .kbd-close:hover { color: var(--color-text); border-color: var(--color-border-strong); }
-    .kbd-card-body { padding: 14px 22px 20px; overflow-y: auto; }
-    .kbd-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-    .kbd-table th {
-      text-align: left;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--color-text-muted);
-      font-weight: 600;
-      padding: 8px 0;
-      border-bottom: 1px solid var(--color-border);
-    }
-    .kbd-table td {
-      padding: 10px 8px 10px 0;
-      border-bottom: 1px solid var(--color-border);
-      vertical-align: middle;
-      color: var(--color-text-soft);
-    }
-    .kbd-table td:first-child { white-space: nowrap; width: 42%; }
-    .kbd-table tr:last-child td { border-bottom: none; }
-    .kbd-chip {
-      display: inline-block;
-      font-family: inherit;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--color-text);
-      background: var(--color-bg);
-      border: 1px solid var(--color-border-strong);
-      border-bottom-width: 2px;
-      border-radius: 5px;
-      padding: 2px 7px;
-      min-width: 22px;
-      text-align: center;
-    }
-    .kbd-or { color: var(--color-text-muted); font-size: 12px; margin: 0 4px; }
-    .kbd-foot { margin: 14px 0 0; font-size: 12px; color: var(--color-text-muted); }
-    .kbd-hint { font-size: 12px; color: var(--color-text-muted); margin-right: 4px; display: none; }
-    .kbd-hint kbd {
-      font-family: inherit;
-      background: var(--color-bg);
-      border: 1px solid var(--color-border);
-      border-radius: 4px;
-      padding: 1px 5px;
-      font-size: 11px;
-      color: var(--color-text-soft);
-    }
-    @media (min-width: 980px) { .kbd-hint { display: inline; } }
-    @keyframes kbdFade { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes kbdRise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    @media (prefers-reduced-motion: reduce) {
-      .kbd-backdrop, .kbd-card { animation: none; }
-    }
-    @media (max-width: 600px) {
-      .kbd-overlay { padding: 0; align-items: stretch; }
-      .kbd-card { max-width: none; max-height: 100vh; border-radius: 0; border: none; }
-    }
-    /* @region-end deferred */
-  </style>
+    </style>
+    <link rel="preload" href="/deferred.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/deferred.css"></noscript>
 </head>
 <body>
   <div class="progress" id="progress"></div>
 
   <header class="topbar">
     <button class="topbar-btn menu-toggle" id="menuToggle" aria-label="Toggle navigation">☰</button>
-    <a href="#top" class="topbar-title">{{TITLE}}</a>
+    <a href="#top" class="topbar-title">Page not found</a>
     <div class="topbar-actions">
       <span class="kbd-hint" aria-hidden="true">Press <kbd>?</kbd> for shortcuts</span>
       <button class="topbar-btn search-trigger" id="searchTrigger" type="button" aria-label="Open search" aria-haspopup="dialog" aria-controls="searchOverlay" title="Search (Ctrl K)">
@@ -2020,7 +1691,7 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 6 9 12 15 18"/></svg>
         </button>
       </div>
-      {{TOC}}
+      
     </aside>
     <button class="toc-rail" id="tocRail" aria-label="Show contents" aria-controls="sidebar" aria-expanded="false" hidden>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"/></svg>
@@ -2033,9 +1704,9 @@
           Ship It With AI
           <span class="article-title-keyword">Agentic Coding Field Manual</span>
         </h1>
-        <p class="article-subtitle">{{SUBTITLE}}</p>
+        <p class="article-subtitle"></p>
         <p class="article-dek">Agentic coding — letting an AI agent read, write, run, and verify your code — is now a control problem, not a tooling problem. Control the context, the actions, the verification, and the adoption surface. This field manual is the methodology.</p>
-        <div class="article-author"><a href="#contact">{{AUTHOR}}</a></div>
+        <div class="article-author"><a href="#contact">Mihai Cvasnievschi</a></div>
         <nav class="hero-cta" aria-label="Quick start">
           <a class="cta-primary" href="#chapter-7">Start with the architecture review</a>
           <a class="cta-secondary" href="#appendix-b">Download the templates</a>
@@ -2043,10 +1714,24 @@
         </nav>
       </header>
 
-      {{CONTENT}}
+      
+<main class="article" id="top">
+  <header class="article-header">
+    <h1 class="article-title">Page not found</h1>
+    <p class="article-subtitle">The page you were looking for doesn't exist (yet).</p>
+  </header>
+  <section style="text-align:center; margin-top:48px;">
+    <p>
+      <a href="/">← Back to the homepage</a>
+      &nbsp;·&nbsp;
+      <a href="/read/">Read the whole manual in one page</a>
+    </p>
+  </section>
+</main>
+
 
       <figure class="article-cover article-cover-end">
-        <img src="cover.jpg" alt="Ship It With AI - A Manual for Shipping Software with AI Agents, by {{AUTHOR}}" width="1200" height="630" loading="lazy" decoding="async" />
+        <img src="cover.jpg" alt="Ship It With AI - A Manual for Shipping Software with AI Agents, by Mihai Cvasnievschi" width="1200" height="630" loading="lazy" decoding="async" />
       </figure>
 
       <footer class="article-footer">
@@ -2057,7 +1742,7 @@
           <span class="footer-sep">·</span>
           <a href="https://ai-leaders.ro" target="_blank" rel="noopener noreferrer">ai-leaders.ro</a>
         </div>
-        <p class="footer-copy">© 2026 {{AUTHOR}} · Bucharest · All rights reserved</p>
+        <p class="footer-copy">© 2026 Mihai Cvasnievschi · Bucharest · All rights reserved</p>
       </footer>
     </main>
   </div>
@@ -2120,7 +1805,7 @@
     </div>
   </div>
 
-  <script id="searchIndex" type="application/json">{{SEARCH_INDEX}}</script>
+  <script id="searchIndex" type="application/json">[]</script>
 
   <script>
     (function() {

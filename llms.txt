@@ -1,0 +1,8 @@
+# Ship It With AI - A Field Manual for Agentic Coding
+
+> A vendor-neutral field manual for shipping software with AI coding agents.
+> Covers six primitives, the six-phase loop, AGENTS.md as team infrastructure,
+> governance in layers, kill signals, brownfield patterns, and 90-day adoption.
+
+## Docs
+- [Ship It With AI - the full manual](https://ship-it-with.ai/)

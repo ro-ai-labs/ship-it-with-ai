@@ -9,6 +9,7 @@ import re
 import sys
 import json
 import html as html_lib
+from datetime import datetime, timezone
 from pathlib import Path
 
 import markdown
@@ -231,11 +232,13 @@ def transform_part_headings(md_text: str) -> tuple[str, list[tuple[str, str, str
         title = match.group("title").strip()
         slug = f"part-{num.lower()}"
         parts.append((slug, num, title))
+        # H2 (not H1) so the article hero H1 is the only true H1 on the page.
+        # Visual styling preserved via .article h2.part-heading CSS.
         return (
-            f'<h1 id="{slug}" class="part-heading">'
+            f'<h2 id="{slug}" class="part-heading">'
             f'<span class="part-label">Part {num}</span>'
             f'<span class="part-title">{html_lib.escape(title)}</span>'
-            f"</h1>"
+            f"</h2>"
         )
 
     return PART_RE.sub(repl, md_text), parts
@@ -251,15 +254,35 @@ def transform_closing(md_text: str) -> tuple[str, tuple[str, str] | None]:
         nonlocal closing
         title = match.group("title").strip()
         closing = ("closing", title)
+        # H2 (not H1) — see transform_part_headings note.
         return (
-            f'<h1 id="closing" class="closing-heading">'
+            f'<h2 id="closing" class="closing-heading">'
             f'<span class="part-label">Closing</span>'
             f'<span class="part-title">{html_lib.escape(title)}</span>'
-            f"</h1>"
+            f"</h2>"
         )
 
     new_md = CLOSING_RE.sub(repl, md_text)
     return new_md, closing
+
+
+PROLOGUE_RE = re.compile(r"^# Prologue\s*$", re.MULTILINE)
+
+
+def transform_prologue(md_text: str) -> str:
+    """Replace bare `# Prologue` with an <h2> so the page has one true H1.
+
+    The actual story heading (`## Nine seconds`) provides the visible title;
+    this banner just signals the section boundary, mirroring Part / Closing.
+    """
+    def repl(_match: re.Match) -> str:
+        return (
+            '<h2 id="prologue" class="prologue-heading">'
+            '<span class="part-label">Prologue</span>'
+            '</h2>'
+        )
+
+    return PROLOGUE_RE.sub(repl, md_text)
 
 
 APPENDIX_RE = re.compile(r"^## (Appendix [A-Z])\. (.+)$", re.MULTILINE)
@@ -848,7 +871,7 @@ def build_toc(parts, chapters, appendices, foreword, closing, reading_times=None
                 time_html = f'<span class="toc-time">{mins} min</span>' if mins else ""
                 sections.append(
                     f'  <li><a href="#{ch_slug}"><span class="toc-num">{ch_n}</span>'
-                    f'<span class="toc-text">{html_lib.escape(ch_title)}</span>{time_html}</a></li>'
+                    f'<span class="toc-text">Chapter {ch_n} — {html_lib.escape(ch_title)}</span>{time_html}</a></li>'
                 )
         sections.append("</ul></div>")
 
@@ -883,17 +906,116 @@ def build_toc(parts, chapters, appendices, foreword, closing, reading_times=None
 
 TEMPLATE_PATH = HERE / "spa_template.html"
 
+CRITICAL_END = "/* @region-end critical */"
+DEFERRED_END = "/* @region-end deferred */"
 
-def render_template(title, subtitle, author, toc_html, content_html, search_index="[]") -> str:
-    template = TEMPLATE_PATH.read_text()
-    return (
+
+def split_template_css(template_html: str) -> tuple[str, str, str]:
+    """Return (template_with_critical_inline, critical_css, deferred_css).
+
+    Finds the inline <style>...</style> block, splits its contents on the
+    region markers, and returns the deferred CSS as a separate string so the
+    caller can write it to deferred.css. The returned template keeps the
+    critical CSS inlined and replaces the deferred portion with the
+    preload-link snippet.
+    """
+    style_open = template_html.find("<style>")
+    style_close = template_html.find("</style>", style_open)
+    if style_open == -1 or style_close == -1:
+        raise RuntimeError("template missing <style>...</style> block")
+
+    style_body = template_html[style_open + len("<style>"):style_close]
+    if CRITICAL_END not in style_body or DEFERRED_END not in style_body:
+        raise RuntimeError(
+            f"template style block missing region markers "
+            f"({CRITICAL_END!r} and {DEFERRED_END!r})"
+        )
+
+    critical, _, after_critical = style_body.partition(CRITICAL_END)
+    deferred, _, _ = after_critical.partition(DEFERRED_END)
+    critical = critical.strip()
+    deferred = deferred.strip()
+
+    preload_snippet = (
+        '<link rel="preload" href="/deferred.css" as="style" '
+        'onload="this.onload=null;this.rel=\'stylesheet\'">\n'
+        '    <noscript><link rel="stylesheet" href="/deferred.css"></noscript>'
+    )
+
+    new_style_block = f"<style>\n{critical}\n    </style>\n    {preload_snippet}"
+    new_template = (
+        template_html[:style_open]
+        + new_style_block
+        + template_html[style_close + len("</style>"):]
+    )
+    return new_template, critical, deferred
+
+
+def render_template(title, subtitle, author, toc_html, content_html,
+                    search_index="[]", total_word_count=0) -> tuple[str, str]:
+    """Render the SPA HTML and return (html, deferred_css).
+
+    Substitutes the standard placeholders plus the SEO-pass placeholders
+    {{NUMBER_OF_PAGES}} and {{DATE_MODIFIED}} used by the Book JSON-LD block.
+    """
+    template_raw = TEMPLATE_PATH.read_text()
+    template, _critical_css, deferred_css = split_template_css(template_raw)
+    html = (
         template.replace("{{TITLE}}", html_lib.escape(title))
         .replace("{{SUBTITLE}}", html_lib.escape(subtitle))
         .replace("{{AUTHOR}}", html_lib.escape(author))
         .replace("{{TOC}}", toc_html)
         .replace("{{CONTENT}}", content_html)
         .replace("{{SEARCH_INDEX}}", search_index)
+        .replace("{{DATE_MODIFIED}}",
+                 datetime.now(timezone.utc).strftime("%Y-%m-%d"))
+        .replace("{{NUMBER_OF_PAGES}}",
+                 str(max(1, round(total_word_count / 250))))
     )
+    return html, deferred_css
+
+
+def render_404(template: str) -> str:
+    """Render a 404 page using the site template chrome.
+
+    The body is a short "Page not found" message linking back to the homepage
+    and to the all-in-one /read/ mode where every section is reachable.
+    """
+    body = '''
+<main class="article" id="top">
+  <header class="article-header">
+    <h1 class="article-title">Page not found</h1>
+    <p class="article-subtitle">The page you were looking for doesn't exist (yet).</p>
+  </header>
+  <section style="text-align:center; margin-top:48px;">
+    <p>
+      <a href="/">← Back to the homepage</a>
+      &nbsp;·&nbsp;
+      <a href="/read/">Read the whole manual in one page</a>
+    </p>
+  </section>
+</main>
+'''
+    return template.replace("{{CONTENT}}", body)
+
+
+def render_llms_txt() -> str:
+    """Render llms.txt per the emerging convention at https://llmstxt.org/.
+
+    Lists all site sections so AI answer engines (ChatGPT, Perplexity, etc.)
+    can crawl an authoritative URL index without parsing the SPA. The chapter
+    URL list here is the Commit 1 stub — full per-chapter URLs land in Commit
+    3 when the SPA splits.
+    """
+    return """# Ship It With AI - A Field Manual for Agentic Coding
+
+> A vendor-neutral field manual for shipping software with AI coding agents.
+> Covers six primitives, the six-phase loop, AGENTS.md as team infrastructure,
+> governance in layers, kill signals, brownfield patterns, and 90-day adoption.
+
+## Docs
+- [Ship It With AI - the full manual](https://ship-it-with.ai/)
+"""
 
 
 # ---------------------------------------------------------------------------
@@ -954,6 +1076,7 @@ def main() -> int:
     body_md, closing = transform_closing(body_md)
     body_md, appendices = transform_appendices(body_md)
     body_md, foreword = transform_foreword(body_md)
+    body_md = transform_prologue(body_md)
 
     # Render markdown
     content_html = render_markdown(body_md)
@@ -1033,12 +1156,47 @@ def main() -> int:
     # Search index over headings + first-paragraph snippets
     search_json = build_search_index(md_text, parts, chapters, appendices, foreword, closing)
 
-    # Render full SPA
-    spa_html = render_template(title, subtitle, author, toc_html, content_html, search_json)
-    OUTPUT.write_text(spa_html)
+    # Total word count for Book.numberOfPages (~250 words/page is the
+    # convention). Commit 2 will switch this to Section-based counting.
+    total_word_count = len(md_text.split())
 
+    # Render full SPA
+    spa_html, deferred_css = render_template(
+        title, subtitle, author, toc_html, content_html, search_json,
+        total_word_count=total_word_count,
+    )
+    OUTPUT.write_text(spa_html)
     size_kb = OUTPUT.stat().st_size / 1024
     print(f"Wrote {OUTPUT.relative_to(HERE.parent)} ({size_kb:.1f} KB)")
+
+    # Deferred (async-loaded) CSS for search overlay, kbd-shortcuts overlay,
+    # and the anchor-link toast. Loaded via <link rel="preload" onload>.
+    (REPO_ROOT / "deferred.css").write_text(deferred_css + "\n")
+    print(f"Wrote deferred.css ({len(deferred_css) / 1024:.1f} KB)")
+
+    # 404 page (uses the same chrome).
+    template_raw = TEMPLATE_PATH.read_text()
+    template_for_404, _, _ = split_template_css(template_raw)
+    # Make the 404 self-contained re: substitutions — use the same flow as main.
+    html_404 = render_404(template_for_404)
+    html_404 = (
+        html_404.replace("{{TITLE}}", html_lib.escape("Page not found"))
+                .replace("{{SUBTITLE}}", "")
+                .replace("{{AUTHOR}}", html_lib.escape(author))
+                .replace("{{TOC}}", "")
+                .replace("{{SEARCH_INDEX}}", "[]")
+                .replace("{{DATE_MODIFIED}}",
+                         datetime.now(timezone.utc).strftime("%Y-%m-%d"))
+                .replace("{{NUMBER_OF_PAGES}}",
+                         str(max(1, round(total_word_count / 250))))
+    )
+    (REPO_ROOT / "404.html").write_text(html_404)
+    print(f"Wrote 404.html ({(REPO_ROOT / '404.html').stat().st_size / 1024:.1f} KB)")
+
+    # llms.txt for AI answer-engine crawlers.
+    (REPO_ROOT / "llms.txt").write_text(render_llms_txt())
+    print("Wrote llms.txt")
+
     return 0
 
 

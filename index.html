@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ship It With AI - Mihai Cvasnievschi</title>
+  <title>Agentic Coding: A Field Manual for Shipping Software With AI Agents</title>
 
   <meta name="description" content="How to ship software with AI agents. Architecture (six primitives), method (six-phase loop), and reality (eight kill signals) for agentic software delivery in 2026. A vendor-neutral field manual by Mihai Cvasnievschi." />
   <meta name="keywords" content="agentic coding, AI coding agents, write code with AI, ship code with AI, agentic software delivery, AGENTS.md, claude code, codex cli, opencode, AI development methodology, coding with AI agents, AI software engineering" />
@@ -33,41 +33,86 @@
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@type": "Book",
+    "@id": "https://ship-it-with.ai/#book",
+    "name": "Ship It With AI: A Field Manual for Agentic Coding",
     "headline": "Ship It With AI",
-    "alternativeHeadline": "A Field Manual for Agentic Software Delivery in 2026",
+    "alternateName": "Agentic Coding Field Manual",
     "author": {
       "@type": "Person",
       "name": "Mihai Cvasnievschi",
-      "url": "https://www.linkedin.com/in/mihaicvasnievschi/",
-      "sameAs": [
-        "https://www.linkedin.com/in/mihaicvasnievschi/",
-        "https://ai-leaders.ro"
-      ]
+      "url": "https://www.linkedin.com/in/mihaicvasnievschi/"
     },
-    "publisher": {
-      "@type": "Person",
-      "name": "Mihai Cvasnievschi",
-      "url": "https://ship-it-with.ai/"
-    },
-    "datePublished": "2026-05-26",
-    "dateModified": "2026-05-26",
+    "publisher": { "@id": "https://ship-it-with.ai/#org" },
+    "bookFormat": "https://schema.org/EBook",
     "inLanguage": "en",
+    "numberOfPages": 158,
+    "genre": "Technology / Software Engineering",
+    "about": [
+      "Agentic coding",
+      "AI software delivery",
+      "AGENTS.md",
+      "AI coding agents"
+    ],
+    "description": "A vendor-neutral field manual for shipping software with AI coding agents. Covers six primitives, the six-phase loop, AGENTS.md, governance in layers, kill signals, brownfield patterns, and 90-day adoption.",
     "url": "https://ship-it-with.ai/",
     "image": "https://ship-it-with.ai/cover.jpg",
-    "description": "How to ship software with AI agents. Architecture (six primitives), method (six-phase loop), and reality (eight kill signals) for agentic software delivery in 2026.",
-    "keywords": "agentic coding, AI coding agents, write code with AI, AGENTS.md, agentic software delivery, claude code, codex cli, opencode",
-    "about": [
-      { "@type": "Thing", "name": "Agentic AI" },
-      { "@type": "Thing", "name": "AI Coding Agents" },
-      { "@type": "Thing", "name": "Software Engineering" },
-      { "@type": "Thing", "name": "AI Development Methodology" }
+    "dateModified": "2026-05-26"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": "https://ship-it-with.ai/#org",
+    "name": "Ship It With AI",
+    "url": "https://ship-it-with.ai/",
+    "logo": "https://ship-it-with.ai/cover.jpg"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is agentic coding?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Agentic coding is the practice of using AI agents that read, write, run, and verify code largely on their own, with humans in the loop for review and governance rather than for every keystroke. Unlike autocomplete or chat-based assistants, an agentic system holds a multi-step plan, executes through real tools (filesystem, shell, browser, version control), and surfaces work for verification rather than producing isolated suggestions."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does agentic coding differ from AI autocomplete and from vibe coding?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Autocomplete completes the next token under your cursor. Vibe coding accepts whatever the model generates with minimal verification. Agentic coding sits between: the agent plans, edits across files, runs tests, and reports back, but the human controls the context the agent sees, the actions it can take, the verification gates it passes through, and the adoption surface it operates on. The difference is methodological discipline, not model quality."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is AGENTS.md and why does it matter?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "AGENTS.md is a plain-Markdown file at the root of a repository that tells coding agents how the project actually works — forbidden patterns, conventions, build commands, where things live, and the mistakes the team has already made. It is becoming the de-facto standard across Claude Code, Codex, Cursor, and Aider for instructing agents at the project level, and is now an open standard tracked at agents.md."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do you safely roll out AI coding agents in an engineering team?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A safe rollout treats agentic delivery as a control problem with five layers of governance: permissions, sandboxing, secrets, security hooks, and telemetry. Pair that with a clear methodology — a six-phase loop covering research, plan, execute, review, verify, ship — and a 90-day adoption arc with three named roles (Champion, Lead, Manager). Skip any of these and adoption produces more harm than benefit."
+        }
+      }
     ]
   }
   </script>
 
   <style>
-    :root {
+:root {
       --color-bg: #fdfdfb;
       --color-surface: #ffffff;
       --color-text: #1a1a1a;
@@ -435,6 +480,14 @@
       margin: 0 0 16px;
       letter-spacing: -0.02em;
     }
+    .article-title-keyword {
+      display: block;
+      font-size: 0.55em;
+      font-weight: 500;
+      color: var(--color-text-soft);
+      letter-spacing: normal;
+      margin-top: 8px;
+    }
     .article-subtitle {
       font-size: 20px;
       color: var(--color-text-soft);
@@ -530,7 +583,7 @@
       line-height: 1.2;
       scroll-margin-top: 80px;
     }
-    .article h1.part-heading, .article h1.closing-heading {
+    .article h2.part-heading, .article h2.closing-heading, .article h2.prologue-heading {
       font-size: 14px;
       font-weight: 600;
       text-transform: uppercase;
@@ -543,10 +596,12 @@
       flex-direction: column;
       gap: 8px;
     }
-    .article h1.part-heading .part-label,
-    .article h1.closing-heading .part-label { font-size: 14px; }
-    .article h1.part-heading .part-title,
-    .article h1.closing-heading .part-title {
+    .article h2.part-heading .part-label,
+    .article h2.closing-heading .part-label,
+    .article h2.prologue-heading .part-label { font-size: 14px; }
+    .article h2.part-heading .part-title,
+    .article h2.closing-heading .part-title,
+    .article h2.prologue-heading .part-title {
       font-size: 32px;
       font-weight: 700;
       text-transform: none;
@@ -911,22 +966,6 @@
     @media (prefers-reduced-motion: reduce) {
       .anchor-link { transition: none; }
     }
-    .anchor-toast {
-      position: fixed;
-      bottom: 32px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--color-text);
-      color: var(--color-bg);
-      padding: 8px 16px;
-      border-radius: 6px;
-      font-size: 13px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease;
-      z-index: 1000;
-    }
-    .anchor-toast.show { opacity: 1; }
 
     /* Source cards (Appendix C) */
     .source-card {
@@ -1603,315 +1642,6 @@
       border: 0;
     }
 
-    /* Search overlay */
-    .search-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 200;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding: 11vh 16px 16px;
-    }
-    .search-overlay[hidden] { display: none; }
-    .search-backdrop {
-      position: absolute;
-      inset: 0;
-      background: rgba(20, 18, 14, 0.32);
-      backdrop-filter: saturate(140%) blur(4px);
-      -webkit-backdrop-filter: saturate(140%) blur(4px);
-      animation: searchFade 0.18s ease-out;
-    }
-    [data-theme="dark"] .search-backdrop { background: rgba(0, 0, 0, 0.6); }
-    .search-modal {
-      position: relative;
-      width: min(640px, 100%);
-      max-height: min(72vh, 640px);
-      background: var(--color-surface);
-      border: 1px solid var(--color-border-strong);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-md);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      animation: searchRise 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-    }
-    @keyframes searchFade { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes searchRise {
-      from { opacity: 0; transform: translateY(8px) scale(0.985); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .search-backdrop, .search-modal { animation: none; }
-    }
-    .search-input-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--color-border);
-    }
-    .search-icon { color: var(--color-text-muted); flex-shrink: 0; }
-    .search-input {
-      flex: 1;
-      min-width: 0;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: var(--color-text);
-      font-family: inherit;
-      font-size: 18px;
-      line-height: 1.4;
-      padding: 4px 0;
-      letter-spacing: -0.005em;
-    }
-    .search-input::placeholder { color: var(--color-text-muted); }
-    .search-input::-webkit-search-cancel-button { display: none; }
-    .search-close {
-      background: var(--color-bg);
-      border: 1px solid var(--color-border-strong);
-      border-radius: 5px;
-      padding: 4px 10px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      color: var(--color-text-soft);
-      cursor: pointer;
-      font-family: inherit;
-      transition: color 0.12s ease, border-color 0.12s ease, background 0.12s ease;
-    }
-    .search-close:hover { color: var(--color-text); border-color: var(--color-accent); }
-    .search-close:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
-    .search-results-wrap { flex: 1; min-height: 0; overflow-y: auto; padding: 6px 8px; }
-    .search-results { list-style: none; margin: 0; padding: 0; }
-    .search-result {
-      display: block;
-      padding: 12px 14px;
-      border-radius: 8px;
-      cursor: pointer;
-      border: 1px solid transparent;
-      transition: background 0.1s ease, border-color 0.1s ease;
-    }
-    .search-result:hover, .search-result.is-active {
-      background: var(--color-accent-soft);
-      border-color: var(--color-accent);
-    }
-    .search-result-title {
-      font-size: 15.5px;
-      font-weight: 700;
-      color: var(--color-text);
-      letter-spacing: -0.005em;
-      line-height: 1.3;
-    }
-    .search-result-subtitle {
-      display: block;
-      font-size: 11.5px;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--color-text-muted);
-      margin: 2px 0 6px;
-    }
-    .search-result-snippet {
-      font-size: 13.5px;
-      color: var(--color-text-soft);
-      line-height: 1.5;
-      margin: 0;
-    }
-    .search-result mark {
-      background: var(--color-accent-soft);
-      color: var(--color-text);
-      padding: 0 2px;
-      border-radius: 3px;
-      font-weight: 600;
-    }
-    [data-theme="dark"] .search-result mark { background: var(--color-accent-soft); color: var(--color-accent); }
-    .search-empty, .search-hint-body {
-      margin: 0;
-      padding: 28px 18px;
-      text-align: center;
-      color: var(--color-text-muted);
-      font-size: 14px;
-    }
-    .search-hint-body { font-style: italic; }
-    .search-footer {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 10px 16px;
-      border-top: 1px solid var(--color-border);
-      background: var(--color-bg);
-      font-size: 12px;
-      color: var(--color-text-muted);
-      flex-wrap: wrap;
-    }
-    .search-kbd-row { display: inline-flex; align-items: center; gap: 6px; }
-    .search-kbd-row-spacer { flex: 1; }
-    .search-kbd {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 22px;
-      padding: 1px 6px;
-      font-family: inherit;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--color-text-soft);
-      background: var(--color-surface);
-      border: 1px solid var(--color-border-strong);
-      border-bottom-width: 2px;
-      border-radius: 4px;
-      line-height: 1.4;
-    }
-    .search-credit { font-size: 11.5px; color: var(--color-text-muted); }
-
-    /* Topbar search trigger */
-    .search-trigger { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; }
-    .search-trigger-kbd {
-      display: inline-flex;
-      gap: 2px;
-      font-size: 10.5px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      color: var(--color-text-muted);
-      padding: 1px 6px;
-      background: var(--color-bg);
-      border: 1px solid var(--color-border);
-      border-radius: 4px;
-    }
-    .search-trigger:hover .search-trigger-kbd {
-      color: var(--color-text-soft);
-      border-color: var(--color-border-strong);
-    }
-    @media (max-width: 640px) {
-      .search-overlay { padding: 0; align-items: stretch; }
-      .search-modal {
-        width: 100%;
-        max-height: 100vh;
-        height: 100vh;
-        border-radius: 0;
-        border: none;
-      }
-      .search-input { font-size: 17px; }
-      .search-trigger-kbd { display: none; }
-      .search-trigger-label { display: none; }
-    }
-
-    /* Keyboard shortcuts overlay */
-    .kbd-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 200;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-    .kbd-overlay[aria-hidden="true"] { display: none; }
-    .kbd-backdrop {
-      position: absolute;
-      inset: 0;
-      background: rgba(20, 20, 22, 0.45);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      animation: kbdFade 0.18s ease-out;
-    }
-    [data-theme="dark"] .kbd-backdrop { background: rgba(0, 0, 0, 0.6); }
-    .kbd-card {
-      position: relative;
-      background: var(--color-surface);
-      color: var(--color-text);
-      border: 1px solid var(--color-border-strong);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-md);
-      max-width: 520px;
-      width: 100%;
-      max-height: calc(100vh - 48px);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      animation: kbdRise 0.18s ease-out;
-      outline: none;
-    }
-    .kbd-card-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 18px 22px;
-      border-bottom: 1px solid var(--color-border);
-    }
-    .kbd-card-title { margin: 0; font-size: 15px; font-weight: 600; color: var(--color-text); }
-    .kbd-close {
-      background: transparent;
-      border: 1px solid transparent;
-      color: var(--color-text-soft);
-      font-size: 22px;
-      line-height: 1;
-      width: 32px;
-      height: 32px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-family: inherit;
-    }
-    .kbd-close:hover { color: var(--color-text); border-color: var(--color-border-strong); }
-    .kbd-card-body { padding: 14px 22px 20px; overflow-y: auto; }
-    .kbd-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-    .kbd-table th {
-      text-align: left;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--color-text-muted);
-      font-weight: 600;
-      padding: 8px 0;
-      border-bottom: 1px solid var(--color-border);
-    }
-    .kbd-table td {
-      padding: 10px 8px 10px 0;
-      border-bottom: 1px solid var(--color-border);
-      vertical-align: middle;
-      color: var(--color-text-soft);
-    }
-    .kbd-table td:first-child { white-space: nowrap; width: 42%; }
-    .kbd-table tr:last-child td { border-bottom: none; }
-    .kbd-chip {
-      display: inline-block;
-      font-family: inherit;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--color-text);
-      background: var(--color-bg);
-      border: 1px solid var(--color-border-strong);
-      border-bottom-width: 2px;
-      border-radius: 5px;
-      padding: 2px 7px;
-      min-width: 22px;
-      text-align: center;
-    }
-    .kbd-or { color: var(--color-text-muted); font-size: 12px; margin: 0 4px; }
-    .kbd-foot { margin: 14px 0 0; font-size: 12px; color: var(--color-text-muted); }
-    .kbd-hint { font-size: 12px; color: var(--color-text-muted); margin-right: 4px; display: none; }
-    .kbd-hint kbd {
-      font-family: inherit;
-      background: var(--color-bg);
-      border: 1px solid var(--color-border);
-      border-radius: 4px;
-      padding: 1px 5px;
-      font-size: 11px;
-      color: var(--color-text-soft);
-    }
-    @media (min-width: 980px) { .kbd-hint { display: inline; } }
-    @keyframes kbdFade { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes kbdRise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    @media (prefers-reduced-motion: reduce) {
-      .kbd-backdrop, .kbd-card { animation: none; }
-    }
-    @media (max-width: 600px) {
-      .kbd-overlay { padding: 0; align-items: stretch; }
-      .kbd-card { max-width: none; max-height: 100vh; border-radius: 0; border: none; }
-    }
-
     @media print {
       .topbar, .sidebar, .progress, .article-footer { display: none !important; }
       .layout { display: block; padding: 0; }
@@ -1919,7 +1649,9 @@
       .action-box, .try-box, .case-note, .artifact-box, .source-note, figure.diagram { break-inside: avoid; box-shadow: none; }
       .search-overlay, .kbd-overlay { display: none !important; }
     }
-  </style>
+    </style>
+    <link rel="preload" href="/deferred.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/deferred.css"></noscript>
 </head>
 <body>
   <div class="progress" id="progress"></div>
@@ -1983,24 +1715,24 @@
 <div class="toc-section">
 <div class="toc-section-title"><a href="#part-i">Part I - Architecture</a></div>
 <ul class="toc-list">
-  <li><a href="#chapter-1"><span class="toc-num">1</span><span class="toc-text">Six primitives</span><span class="toc-time">15 min</span></a></li>
-  <li><a href="#chapter-2"><span class="toc-num">2</span><span class="toc-text">The anatomy invariant</span><span class="toc-time">10 min</span></a></li>
-  <li><a href="#chapter-3"><span class="toc-num">3</span><span class="toc-text">Governance in layers</span><span class="toc-time">17 min</span></a></li>
+  <li><a href="#chapter-1"><span class="toc-num">1</span><span class="toc-text">Chapter 1 — Six primitives</span><span class="toc-time">15 min</span></a></li>
+  <li><a href="#chapter-2"><span class="toc-num">2</span><span class="toc-text">Chapter 2 — The anatomy invariant</span><span class="toc-time">10 min</span></a></li>
+  <li><a href="#chapter-3"><span class="toc-num">3</span><span class="toc-text">Chapter 3 — Governance in layers</span><span class="toc-time">17 min</span></a></li>
 </ul></div>
 <div class="toc-section">
 <div class="toc-section-title"><a href="#part-ii">Part II - Method</a></div>
 <ul class="toc-list">
-  <li><a href="#chapter-4"><span class="toc-num">4</span><span class="toc-text">From generating code to shipping software</span><span class="toc-time">13 min</span></a></li>
-  <li><a href="#chapter-5"><span class="toc-num">5</span><span class="toc-text">The six-phase loop</span><span class="toc-time">16 min</span></a></li>
-  <li><a href="#chapter-6"><span class="toc-num">6</span><span class="toc-text">AGENTS.md as team infrastructure</span><span class="toc-time">13 min</span></a></li>
-  <li><a href="#chapter-7"><span class="toc-num">7</span><span class="toc-text">Architecture Review: Documentation and Diagnosis</span><span class="toc-time">13 min</span></a></li>
+  <li><a href="#chapter-4"><span class="toc-num">4</span><span class="toc-text">Chapter 4 — From generating code to shipping software</span><span class="toc-time">13 min</span></a></li>
+  <li><a href="#chapter-5"><span class="toc-num">5</span><span class="toc-text">Chapter 5 — The six-phase loop</span><span class="toc-time">16 min</span></a></li>
+  <li><a href="#chapter-6"><span class="toc-num">6</span><span class="toc-text">Chapter 6 — AGENTS.md as team infrastructure</span><span class="toc-time">13 min</span></a></li>
+  <li><a href="#chapter-7"><span class="toc-num">7</span><span class="toc-text">Chapter 7 — Architecture Review: Documentation and Diagnosis</span><span class="toc-time">13 min</span></a></li>
 </ul></div>
 <div class="toc-section">
 <div class="toc-section-title"><a href="#part-iii">Part III - Reality</a></div>
 <ul class="toc-list">
-  <li><a href="#chapter-8"><span class="toc-num">8</span><span class="toc-text">Readiness: The Kill Signals and the Traffic Light</span><span class="toc-time">23 min</span></a></li>
-  <li><a href="#chapter-9"><span class="toc-num">9</span><span class="toc-text">Patterns for brownfield codebases</span><span class="toc-time">9 min</span></a></li>
-  <li><a href="#chapter-10"><span class="toc-num">10</span><span class="toc-text">Adoption: 90 days, three roles</span><span class="toc-time">19 min</span></a></li>
+  <li><a href="#chapter-8"><span class="toc-num">8</span><span class="toc-text">Chapter 8 — Readiness: The Kill Signals and the Traffic Light</span><span class="toc-time">23 min</span></a></li>
+  <li><a href="#chapter-9"><span class="toc-num">9</span><span class="toc-text">Chapter 9 — Patterns for brownfield codebases</span><span class="toc-time">9 min</span></a></li>
+  <li><a href="#chapter-10"><span class="toc-num">10</span><span class="toc-text">Chapter 10 — Adoption: 90 days, three roles</span><span class="toc-time">19 min</span></a></li>
 </ul></div>
 <div class="toc-section">
 <div class="toc-section-title"><a href="#closing">Closing</a></div>
@@ -2023,9 +1755,12 @@
 
     <main class="article" id="top">
       <header class="article-header">
-        <h1 class="article-title">Ship It With AI</h1>
+        <h1 class="article-title">
+          Ship It With AI
+          <span class="article-title-keyword">Agentic Coding Field Manual</span>
+        </h1>
         <p class="article-subtitle">A Field Manual for Agentic Software Delivery</p>
-        <p class="article-dek">Agentic software delivery is not a tooling problem. It is a control problem: control the context, control the actions, control the verification, control the adoption surface.</p>
+        <p class="article-dek">Agentic coding — letting an AI agent read, write, run, and verify your code — is now a control problem, not a tooling problem. Control the context, the actions, the verification, and the adoption surface. This field manual is the methodology.</p>
         <div class="article-author"><a href="#contact">Mihai Cvasnievschi</a></div>
         <nav class="hero-cta" aria-label="Quick start">
           <a class="cta-primary" href="#chapter-7">Start with the architecture review</a>
@@ -2113,7 +1848,7 @@
 <li><strong>20-engineer financial-services manager case</strong> - worked numbers for the manager's phase of the 90-day arc. Chapter 10.</li>
 </ul>
 <hr>
-<h1>Prologue</h1>
+<h2 id="prologue" class="prologue-heading"><span class="part-label">Prologue</span><a class="anchor-link" href="#prologue" aria-label="Copy link to section" tabindex="0">¶</a></h2>
 <h2 id="nine-seconds">Nine seconds<a class="anchor-link" href="#nine-seconds" aria-label="Copy link to section" tabindex="0">¶</a></h2>
 <p>On April 24, 2026, a small SaaS company called PocketOS, a car rental management product, lost its production database to an AI agent that decided to fix a credentials problem on its own.</p>
 <p>Here is what happened. A developer was using a coding agent (Cursor powered by Claude Opus 4.6) to work on the PocketOS codebase. The agent encountered a credentials mismatch during a routine task. Instead of stopping and asking, the agent decided to fix the problem itself. It found an API token that authenticated against Railway, the infrastructure platform PocketOS used. It invoked Railway's Volume Delete command. The destruction was total. PocketOS's production database, all the customer reservations, payment records, vehicle inventory, was wiped. The backups, which Railway stores on the same volume as the primary data, were wiped with it. The most recent recoverable snapshot was three months old. Recovery was ultimately possible, but not through the backup path the team expected; public accounts differ on the exact recovery timeline, and that ambiguity is part of the lesson. The CEO posted publicly about it. The post quickly became a reference point in discussions of AI safety in production.</p>
@@ -2127,7 +1862,7 @@
 <p>The hardest part for most teams is not the technical setup. The hardest part is the shift in stance. The agent is software, but the operational pattern is engineering: onboard it, constrain it, review its work, log its actions, and let trust accumulate through small bets. The frameworks in this manual are how you do that for an agent. The shift is recognizing that this contributor runs in parallel, never gets tired, and can violate a system-prompt instruction when a clever input convinces it to. PocketOS is what happens when that pattern is absent.</p>
 <p>The tools change. The methodology endures. That is the bet of this manual.</p>
 <hr>
-<h1 id="part-i" class="part-heading"><span class="part-label">Part I</span><span class="part-title">Architecture</span></h1>
+<h2 id="part-i" class="part-heading"><span class="part-label">Part I</span><span class="part-title">Architecture</span><a class="anchor-link" href="#part-i" aria-label="Copy link to section" tabindex="0">¶</a></h2>
 
 <blockquote>
 <p><em>How agents are built and how you control them.</em></p>
@@ -2419,7 +2154,7 @@
 <p>Part II is about how you deliver software with the agent now that it exists in your environment. Architecture answers "what is this thing." Method answers "how do we get work done with it." Both are required. Neither is sufficient on its own.</p>
 <p>Let's go.</p>
 <hr>
-<h1 id="part-ii" class="part-heading"><span class="part-label">Part II</span><span class="part-title">Method</span></h1>
+<h2 id="part-ii" class="part-heading"><span class="part-label">Part II</span><span class="part-title">Method</span><a class="anchor-link" href="#part-ii" aria-label="Copy link to section" tabindex="0">¶</a></h2>
 
 <blockquote>
 <p><em>How you ship software with agents.</em></p>
@@ -2845,7 +2580,7 @@ Configuration in <code>src/main/resources/application.yml</code></p>
 <p>Part II ends here. You have the method. You know how to formulate work in a way the agent can execute, the six-phase loop that turns formulation into delivery, the AGENTS.md infrastructure that makes the method portable, and the architecture review workflow that gets you productive in a new codebase in an afternoon - and that doubles as the cheapest diagnostic you have for whether agentic work will succeed on a given codebase.</p>
 <p>Part III is the reality check. The method works on a lot of things. It does not work on everything. The next three chapters are about the difference - the rubric that tells you which codebases are ready, the operational patterns for the brownfield ones that are, and the ninety-day arc for getting a team into sustained agentic delivery.</p>
 <hr>
-<h1 id="part-iii" class="part-heading"><span class="part-label">Part III</span><span class="part-title">Reality</span></h1>
+<h2 id="part-iii" class="part-heading"><span class="part-label">Part III</span><span class="part-title">Reality</span><a class="anchor-link" href="#part-iii" aria-label="Copy link to section" tabindex="0">¶</a></h2>
 
 <blockquote>
 <p><em>Where the method works, where it does not, and how to tell.</em></p>
@@ -3230,7 +2965,7 @@ Configuration in <code>src/main/resources/application.yml</code></p>
 <aside class="artifact-box" id="artifact-10"><div class="artifact-header"><a class="anchor-link" href="#artifact-10" aria-label="Copy link to artifact" tabindex="0">¶</a><svg class="artifact-icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="10" height="13" rx="1.5"></rect><rect x="5.5" y="0.75" width="5" height="2.5" rx="0.5"></rect><line x1="5" y1="6.5" x2="11" y2="6.5"></line><line x1="5" y1="9" x2="11" y2="9"></line><line x1="5" y1="11.5" x2="9" y2="11.5"></line></svg><span class="artifact-label">Artifact</span></div><h4 class="artifact-title">90-day rollout board</h4><p>A whiteboard or shared doc with the three role lanes (Champion, Lead, Manager) and the four artifact families (CLAUDE.md / AGENTS.md, hooks, skills, metrics dashboard). Use it as the working board for the rollout, not as a presentation slide.</p></aside><aside class="action-box"><div class="action-label">Ship this week</div>
 <p>Pick your role - champion, lead, manager. Make the first commitment from that role's checklist this week. Schedule the action. The arc starts when the calendar event is on someone's calendar.</p>
 </aside>
-<h1 id="closing" class="closing-heading"><span class="part-label">Closing</span><span class="part-title">A way of thinking that survives the tools</span></h1>
+<h2 id="closing" class="closing-heading"><span class="part-label">Closing</span><span class="part-title">A way of thinking that survives the tools</span><a class="anchor-link" href="#closing" aria-label="Copy link to section" tabindex="0">¶</a></h2>
 
 <p>Ending the manual where it started: a claim about durability.</p>
 <p>The specific tools I have named throughout - Claude Code, Codex CLI, opencode, Superpowers, hookify, Understand Anything, the various plugins and marketplaces - will all be different by the time the next edition of this manual would be due. Some of them will have been deprecated. Some will have been rebranded. Some will have been absorbed into larger products. The marketplace itself will have churned through hundreds of competing offerings. New entrants will appear. Old leaders will fall.</p>
