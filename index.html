@@ -939,6 +939,31 @@
       color: var(--color-text-muted);
       font-size: 14px;
     }
+    .footer-contact {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .footer-contact a {
+      color: var(--color-text-soft);
+      text-decoration: none;
+      transition: color 0.12s ease;
+    }
+    .footer-contact a:hover {
+      color: var(--color-accent);
+    }
+    .footer-sep {
+      color: var(--color-border-strong);
+      user-select: none;
+    }
+    .footer-copy {
+      margin: 0;
+      font-size: 13px;
+      color: var(--color-text-muted);
+    }
 
     /* Responsive */
     @media (max-width: 960px) {
@@ -2638,7 +2663,14 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
 <hr>
 
       <footer class="article-footer">
-        <p>© Mihai Cvasnievschi. Bucharest, 2026.</p>
+        <div class="footer-contact">
+          <a href="mailto:info@ship-it-with.ai">info@ship-it-with.ai</a>
+          <span class="footer-sep">·</span>
+          <a href="https://www.linkedin.com/in/mihaicvasnievschi/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <span class="footer-sep">·</span>
+          <a href="https://ai-leaders.ro" target="_blank" rel="noopener noreferrer">ai-leaders.ro</a>
+        </div>
+        <p class="footer-copy">© 2026 Mihai Cvasnievschi · Bucharest · All rights reserved</p>
       </footer>
     </main>
   </div>
