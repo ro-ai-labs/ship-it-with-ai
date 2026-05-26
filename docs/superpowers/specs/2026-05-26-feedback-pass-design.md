@@ -370,10 +370,10 @@ Automated: `node build/tests/verify_feedback_pass.js` per the spec above. Should
 - Per-section copy-link anchors on Ship-this-week / Try-it-yourself boxes (artifacts and headings only)
 - Optional hairline divider above chapter-end stack (revisit after seeing the built page)
 
-## Open items for user review
+## Resolved decisions (defaults applied — flag in review if you want to change)
 
-1. Exact wording of the trimmed foreword bio (suggested copy above is the reviewer's; you may want to rewrite in your voice).
-2. Whether the CTA row's first button should anchor to `#chapter-7` or a deeper anchor like `#chapter-7-try-it-yourself`.
-3. Whether to include the optional chapter-end-stack hairline divider in this round or defer.
-4. Confirm `info@ship-it-with.ai` (footer-consistent) is the right address for the "Book an assessment" mailto.
-5. The existing `#contact` anchor referenced by the author byline (`build/spa_template.html:1775`) doesn't exist anywhere in the source — a pre-existing bug. Fix in this pass (point it to the footer or the new About section) or leave for a follow-up?
+1. **Foreword bio wording**: use the reviewer's suggested copy verbatim as the starting point. You can rewrite in your voice during the diff review for commit 3.
+2. **CTA first button anchor**: `#chapter-7` (chapter top), not a deeper anchor. Simpler; no dependency on the copy-link-anchor pass landing first.
+3. **Hairline divider above chapter-end stack**: deferred (already in out-of-scope).
+4. **Mailto address for "Book an assessment"**: `info@ship-it-with.ai` (matches the footer).
+5. **Orphan `#contact` anchor in author byline** (`build/spa_template.html:1775`): fixed in this pass by repointing to `#about-the-author` — natural fit, since the About section will carry the contact/workshop sentence. Zero new surface; one-line template edit added to commit 3.
