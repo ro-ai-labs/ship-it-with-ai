@@ -37,7 +37,7 @@ def diagram_primitives() -> str:
     </div>
     <div class="harness-foot">the agent loop binds them together;<br/>subagents spawn constrained child instances of the agent itself</div>
   </div>
-  <figcaption>Figure 2.1. The six primitives and the harness that runs them. Subagents are the recursive primitive: each subagent is itself an instance of the other five.</figcaption>
+  <figcaption>Figure: The six primitives and the harness that runs them. Subagents are the recursive primitive: each subagent is itself an instance of the other five.</figcaption>
 </figure>""".format("◉", "⚙", "✦", "▣", "↔", "⟲")
 
 
@@ -58,7 +58,7 @@ def diagram_layers() -> str:
 {rows}
   </div>
   <div class="layers-spine">Least privilege is the spine. Each layer catches what the others miss.</div>
-  <figcaption>Figure 4.1. The five governance layers, layered as defense in depth.</figcaption>
+  <figcaption>Figure: The five governance layers, layered as defense in depth.</figcaption>
 </figure>"""
 
 
@@ -76,7 +76,7 @@ def diagram_loop() -> str:
     <span class="feedback-arrow">↻</span>
     <span class="feedback-text">Most failures route back to Plan, not back to Research</span>
   </div>
-  <figcaption>Figure 6.1. The six-phase loop.</figcaption>
+  <figcaption>Figure: The six-phase loop.</figcaption>
 </figure>"""
 
 
@@ -102,7 +102,7 @@ def diagram_traffic_light() -> str:
 {signal_html}
     </ol>
   </div>
-  <figcaption>Figure 9.1. The kill signals and the traffic light decision rule. Signal 6 weighs more heavily than the others.</figcaption>
+  <figcaption>Figure: The kill signals and the traffic light decision rule. Signal 6 weighs more heavily than the others.</figcaption>
 </figure>"""
 
 
@@ -142,17 +142,8 @@ def diagram_arc() -> str:
   <div class="arc-timeline">
 {cards}
   </div>
-  <figcaption>Figure 11.1. The 90-day adoption arc. Each phase has a primary role and a primary artifact set.</figcaption>
+  <figcaption>Figure: The 90-day adoption arc. Each phase has a primary role and a primary artifact set.</figcaption>
 </figure>"""
-
-
-FIGURE_RENDERERS = {
-    "2.1": diagram_primitives,
-    "4.1": diagram_layers,
-    "6.1": diagram_loop,
-    "9.1": diagram_traffic_light,
-    "11.1": diagram_arc,
-}
 
 
 # ---------------------------------------------------------------------------
@@ -160,25 +151,44 @@ FIGURE_RENDERERS = {
 # ---------------------------------------------------------------------------
 
 # Match a fenced code block followed (after blank lines) by an italicized
-# figure caption like `*Figure 2.1. ... *`. Capture the figure id so we can
-# render the right diagram.
+# figure caption like `*Figure: ...*`. Dispatch is by document order, not by
+# id (web-manual style drops figure numbering).
 FIGURE_BLOCK_RE = re.compile(
-    r"```\n(?P<body>.*?)\n```\s*\n+\*Figure\s+(?P<fid>\d+\.\d+)\.[^*]*\*\s*\n",
+    r"```\n.*?\n```\s*\n+\*Figure:\s+[^*]+\*\s*\n",
     re.DOTALL,
 )
+
+
+# Renderers applied in declaration order (matches document order of diagrams).
+FIGURE_RENDERERS_ORDERED = [
+    diagram_primitives,
+    diagram_layers,
+    diagram_loop,
+    diagram_traffic_light,
+    diagram_arc,
+]
 
 
 def replace_diagrams(md_text: str) -> str:
     """Replace ASCII figure blocks with HTML diagram placeholders."""
 
+    counter = {"i": 0}
+
     def repl(match: re.Match) -> str:
-        fid = match.group("fid")
-        renderer = FIGURE_RENDERERS.get(fid)
-        if renderer is None:
+        idx = counter["i"]
+        counter["i"] += 1
+        if idx >= len(FIGURE_RENDERERS_ORDERED):
             return match.group(0)
+        renderer = FIGURE_RENDERERS_ORDERED[idx]
         return f"\n\n<!--RAW_HTML_START-->\n{renderer()}\n<!--RAW_HTML_END-->\n\n"
 
-    return FIGURE_BLOCK_RE.sub(repl, md_text)
+    result = FIGURE_BLOCK_RE.sub(repl, md_text)
+    if counter["i"] != len(FIGURE_RENDERERS_ORDERED):
+        raise RuntimeError(
+            f"Figure renderer/caption count mismatch: "
+            f"{counter['i']} captions, {len(FIGURE_RENDERERS_ORDERED)} renderers"
+        )
+    return result
 
 
 # Chapter heading pattern: two consecutive `## ` lines. First is the number,
@@ -317,6 +327,132 @@ SOURCE_ENTRY_RE = re.compile(
 )
 
 
+SOURCE_NOTE_RE = re.compile(
+    r'<p><em>Source note\.\s*(?P<body>.*?)</em></p>',
+    re.DOTALL,
+)
+
+
+def transform_source_notes(html: str) -> str:
+    """Wrap inline `*Source note. ...*` italic paragraphs as styled callouts.
+
+    Note: the regex halts at the first `</em>`, so source-note bodies must not
+    contain nested italics. All current source notes are flat.
+    """
+    def repl(m):
+        body = m.group("body").strip()
+        return (
+            '<aside class="source-note">'
+            '<span class="source-note-label">Source</span>'
+            f'<p>{body}</p>'
+            '</aside>'
+        )
+    return SOURCE_NOTE_RE.sub(repl, html)
+
+
+CLIPBOARD_SVG = (
+    '<svg class="artifact-icon" viewBox="0 0 16 16" aria-hidden="true">'
+    '<rect x="3" y="2" width="10" height="13" rx="1.5"></rect>'
+    '<rect x="5.5" y="0.75" width="5" height="2.5" rx="0.5"></rect>'
+    '<line x1="5" y1="6.5" x2="11" y2="6.5"></line>'
+    '<line x1="5" y1="9" x2="11" y2="9"></line>'
+    '<line x1="5" y1="11.5" x2="9" y2="11.5"></line>'
+    '</svg>'
+)
+
+ARTIFACT_RE = re.compile(
+    r'<p><strong>Artifact:\s*(?P<title>[^<]+?)\.</strong>\s*(?P<body>.*?)</p>',
+    re.DOTALL,
+)
+
+
+def transform_artifacts(html: str) -> str:
+    """Wrap **Artifact: TITLE.** body paragraphs into styled cards."""
+    counter = {"n": 0}
+
+    def repl(m):
+        counter["n"] += 1
+        slug = f"artifact-{counter['n']}"
+        title = m.group("title").strip()
+        body = m.group("body").strip()
+        return (
+            f'<aside class="artifact-box" id="{slug}">'
+            '<div class="artifact-header">'
+            f'{CLIPBOARD_SVG}'
+            '<span class="artifact-label">Artifact</span>'
+            '</div>'
+            f'<h4 class="artifact-title">{title}</h4>'
+            f'<p>{body}</p>'
+            '</aside>'
+        )
+    return ARTIFACT_RE.sub(repl, html)
+
+
+AGENTS_LINK_RE = re.compile(r'<a href="https://agents\.md/?"[^>]*>AGENTS\.md</a>')
+CHAPTER_SPLIT_RE = re.compile(r'(<h2 id="chapter-\d+"[^>]*>)')
+
+
+def delink_repeated_agents_md(html: str) -> str:
+    """Keep only the first AGENTS.md link per chapter; unwrap subsequent ones."""
+    parts = CHAPTER_SPLIT_RE.split(html)
+    out = [parts[0]]
+    i = 1
+    while i < len(parts):
+        h2 = parts[i]
+        body = parts[i + 1] if i + 1 < len(parts) else ""
+        seen = {"flag": False}
+
+        def keep_first(m):
+            if seen["flag"]:
+                return "AGENTS.md"
+            seen["flag"] = True
+            return m.group(0)
+
+        new_body = AGENTS_LINK_RE.sub(keep_first, body)
+        out.extend([h2, new_body])
+        i += 2
+
+    return "".join(out)
+
+
+HEADING_RE = re.compile(
+    r'<(?P<tag>h2|h3) id="(?P<id>[^"]+)"(?P<attrs>[^>]*)>(?P<inner>.*?)</(?P=tag)>',
+    re.DOTALL,
+)
+ARTIFACT_HEADER_RE = re.compile(
+    r'(<aside class="artifact-box" id="(?P<aid>artifact-\d+)">\s*<div class="artifact-header">)',
+    re.DOTALL,
+)
+SKIP_IDS = {'top', 'contact', 'about-the-author'}
+
+
+def inject_anchor_links(html: str) -> str:
+    """Add `<a class="anchor-link" href="#id">¶</a>` to h2/h3 and artifact-boxes.
+
+    Preserves existing markdown {#anchor} ids (the markdown extension already set them).
+    Skips ids in SKIP_IDS to avoid noise on the byline target and the About heading.
+    """
+    def head_repl(m):
+        hid = m.group('id')
+        if hid in SKIP_IDS:
+            return m.group(0)
+        tag = m.group('tag')
+        attrs = m.group('attrs')
+        inner = m.group('inner')
+        anchor = f'<a class="anchor-link" href="#{hid}" aria-label="Copy link to section" tabindex="0">¶</a>'
+        return f'<{tag} id="{hid}"{attrs}>{inner}{anchor}</{tag}>'
+
+    html = HEADING_RE.sub(head_repl, html)
+
+    def art_repl(m):
+        aid = m.group('aid')
+        anchor = f'<a class="anchor-link" href="#{aid}" aria-label="Copy link to artifact" tabindex="0">¶</a>'
+        return m.group(1) + anchor
+
+    html = ARTIFACT_HEADER_RE.sub(art_repl, html)
+    return html
+
+
 def transform_source_cards(html: str) -> str:
     # Annotate the known H3 group headings with .source-group + id slug.
     for group_title in SOURCE_GROUPS:
@@ -400,7 +536,7 @@ _MD_MULTI_WS_RE = re.compile(r"\s+")
 _MD_ATTR_RE = re.compile(r"\{#[a-z0-9-]+\}")
 
 _NEXT_BOUNDARY_RE = re.compile(
-    r"(?m)^(?:## Chapter \d+\b|# Part [IVX]+\b|# Closing\b|## Appendix [A-Z]\.)"
+    r"(?m)^(?:## Chapter \d+\b|# Part [IVX]+\b|# Closing\b|## Appendix [A-Z]\.|## About the author\b)"
 )
 
 
@@ -537,6 +673,13 @@ def build_search_index(md_text, parts, chapters, appendices, foreword, closing):
                  "subtitle": "Closing",
                  "snippet": _snippet_for(md_text, m.start()), "kind": "section"})
 
+    # About the author (sits between Closing and Appendices)
+    m = re.search(r"^## About the author\b", md_text, re.MULTILINE)
+    if m:
+        add({"id": "about-the-author", "title": "About the author",
+             "subtitle": "Back matter",
+             "snippet": _snippet_for(md_text, m.start()), "kind": "section"})
+
     # Appendices
     for slug, label, title in appendices:
         m = re.search(rf"^## {re.escape(label)}\. {re.escape(title)}\b", md_text, re.MULTILINE)
@@ -649,14 +792,13 @@ def build_toc(parts, chapters, appendices, foreword, closing, reading_times=None
         "chapter-1": "part-i",
         "chapter-2": "part-i",
         "chapter-3": "part-i",
-        "chapter-4": "part-i",
+        "chapter-4": "part-ii",
         "chapter-5": "part-ii",
         "chapter-6": "part-ii",
         "chapter-7": "part-ii",
-        "chapter-8": "part-ii",
+        "chapter-8": "part-iii",
         "chapter-9": "part-iii",
         "chapter-10": "part-iii",
-        "chapter-11": "part-iii",
     }
 
     parts_map = {slug: (num, title) for slug, num, title in parts}
@@ -715,6 +857,11 @@ def build_toc(parts, chapters, appendices, foreword, closing, reading_times=None
         sections.append('<div class="toc-section">')
         sections.append('<div class="toc-section-title"><a href="#closing">Closing</a></div>')
         sections.append("</div>")
+
+    # About the author (sits between Closing and Appendices).
+    sections.append('<div class="toc-section">')
+    sections.append('<div class="toc-section-title"><a href="#about-the-author">About the author</a></div>')
+    sections.append("</div>")
 
     # Appendices
     if appendices:
@@ -811,6 +958,11 @@ def main() -> int:
     # Render markdown
     content_html = render_markdown(body_md)
 
+    # Source notes + artifact boxes — must run before action/try wrapping so
+    # the wrapped callouts are stable siblings in the chapter-end stack.
+    content_html = transform_source_notes(content_html)
+    content_html = transform_artifacts(content_html)
+
     # Wrap each "Ship this week" paragraph as a styled card, from the bold
     # marker to the next horizontal rule.
     content_html = content_html.replace(
@@ -819,7 +971,7 @@ def main() -> int:
     )
     content_html = re.sub(
         r'<div class="action-marker"><p><strong>Ship this week\.</strong></p>(.*?)<hr ?/?>',
-        r'<aside class="action-box"><div class="action-label">Ship this week</div>\1</aside><hr/>',
+        r'<aside class="action-box"><div class="action-label">Ship this week</div>\1</aside>',
         content_html,
         flags=re.DOTALL,
     )
@@ -831,9 +983,18 @@ def main() -> int:
     )
     content_html = re.sub(
         r'<div class="try-marker"><p><strong>Try it yourself\.</strong></p>(.*?)<hr ?/?>',
-        r'<aside class="try-box"><div class="try-label">Try it yourself</div>\1</aside><hr/>',
+        r'<aside class="try-box"><div class="try-label">Try it yourself</div>\1</aside>',
         content_html,
         flags=re.DOTALL,
+    )
+
+    # Chapter-end stack tightening: drop any <hr> sitting between adjacent
+    # callouts (artifact-box / action-box / try-box) so CSS sibling selectors
+    # take effect.
+    content_html = re.sub(
+        r'(</aside>)\s*<hr\s*/?>\s*(?=<aside class="(?:artifact-box|action-box|try-box)")',
+        r'\1',
+        content_html,
     )
 
     # Tag case notes
@@ -855,6 +1016,12 @@ def main() -> int:
 
     # Transform Appendix C source entries into card layout
     content_html = transform_source_cards(content_html)
+
+    # AGENTS.md de-linking — keep first link per chapter, unwrap the rest.
+    content_html = delink_repeated_agents_md(content_html)
+
+    # Per-section copy-link anchors on h2/h3 headings and artifact-boxes.
+    content_html = inject_anchor_links(content_html)
 
     # Reading times per chapter, then TOC
     reading_times = compute_chapter_reading_times(md_text, chapters)

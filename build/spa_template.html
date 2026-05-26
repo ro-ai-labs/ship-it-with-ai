@@ -77,6 +77,7 @@
       --color-border-strong: #d4d2cb;
       --color-accent: #d97706;
       --color-accent-soft: #fef3c7;
+      --color-accent-hover: #b45309;  /* darker amber for hover in light mode */
       --color-green: #15803d;
       --color-green-soft: #dcfce7;
       --color-yellow: #b45309;
@@ -91,6 +92,13 @@
       --color-case-bg: #f5f3ed;
       --color-quote-border: #d97706;
       --color-table-stripe: #faf9f6;
+      --color-source-bg: #f1f4f8;
+      --color-source-border: #cbd5e1;
+      --color-source-text: #475569;
+      --color-source-label-bg: #475569;
+      --color-artifact-bg: #faf8f3;
+      --color-artifact-accent: #475569;
+      --color-artifact-icon: #475569;
       --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
       --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
       --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
@@ -112,6 +120,7 @@
       --color-border-strong: #3a3d41;
       --color-accent: #f59e0b;
       --color-accent-soft: #3a2a0c;
+      --color-accent-hover: #d97706;  /* still warm, slightly darker than base #f59e0b */
       --color-green: #4ade80;
       --color-green-soft: #14352a;
       --color-yellow: #fbbf24;
@@ -126,6 +135,13 @@
       --color-case-bg: #1f2126;
       --color-quote-border: #f59e0b;
       --color-table-stripe: #1f2226;
+      --color-source-bg: #1e293b;
+      --color-source-border: #334155;
+      --color-source-text: #cbd5e1;
+      --color-source-label-bg: #94a3b8;
+      --color-artifact-bg: #232629;
+      --color-artifact-accent: #94a3b8;
+      --color-artifact-icon: #94a3b8;
     }
 
     * { box-sizing: border-box; }
@@ -425,6 +441,60 @@
       font-weight: 400;
       margin: 0 0 32px;
       line-height: 1.4;
+    }
+    .article-dek {
+      font-size: 18px;
+      font-weight: 400;
+      color: var(--color-text-soft);
+      max-width: 640px;
+      margin: 20px auto 28px;
+      text-align: center;
+      line-height: 1.5;
+    }
+    @media (max-width: 480px) {
+      .article-dek { font-size: 16px; margin: 16px auto 22px; }
+    }
+    .hero-cta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      align-items: center;
+      margin: 24px auto 0;
+      max-width: 720px;
+    }
+    nav.hero-cta a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      text-decoration: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    }
+    .hero-cta a.cta-primary {
+      background: var(--color-accent);
+      color: white;
+      border: 1.5px solid var(--color-accent);
+    }
+    .hero-cta a.cta-primary:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); color: white; }
+    .hero-cta a.cta-secondary {
+      background: transparent;
+      color: var(--color-accent);
+      border: 1.5px solid var(--color-accent);
+    }
+    .hero-cta a.cta-secondary:hover { background: var(--color-accent-soft); }
+    .hero-cta a:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+    @media (max-width: 640px) {
+      .hero-cta { flex-direction: column; align-items: stretch; }
+      nav.hero-cta a { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      nav.hero-cta a { transition: none; }
     }
     .article-author {
       font-size: 14px;
@@ -730,11 +800,139 @@
       color: var(--color-text);
     }
 
+    /* Source notes — inline annotations pointing to Appendix C. */
+    .source-note {
+      background: var(--color-source-bg);
+      border: 1px solid var(--color-source-border);
+      border-radius: var(--radius-lg);
+      padding: 14px 18px;
+      margin: 24px 0;
+    }
+    .source-note-label {
+      display: inline-block;
+      background: var(--color-source-label-bg);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+    .source-note p {
+      margin: 0;
+      font-style: italic;
+      font-size: 15px;
+      line-height: 1.55;
+      color: var(--color-source-text);
+    }
+
+    /* Artifact boxes — chapter-ending deliverables. */
+    .artifact-box {
+      background: var(--color-artifact-bg);
+      border: 1px solid var(--color-border-strong);
+      border-left: 3px solid var(--color-artifact-accent);
+      border-radius: var(--radius-lg);
+      padding: 24px 28px;
+      margin: 40px 0;
+      box-shadow: var(--shadow-sm);
+    }
+    .artifact-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .artifact-icon {
+      width: 16px;
+      height: 16px;
+      stroke: var(--color-artifact-icon);
+      stroke-width: 1.5;
+      fill: none;
+    }
+    .artifact-label {
+      display: inline-block;
+      background: var(--color-artifact-accent);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 4px;
+    }
+    .artifact-title {
+      font-weight: 600;
+      font-size: 17px;
+      margin: 0 0 8px 0;
+      letter-spacing: -0.01em;
+    }
+    .artifact-box p {
+      margin-bottom: 12px;
+      font-size: 16px;
+    }
+    .artifact-box p:last-child { margin-bottom: 0; }
+
+    /* Chapter-end stack tightening: when callouts sit adjacent, reduce top margin. */
+    .artifact-box + .action-box,
+    .artifact-box + .try-box,
+    .action-box + .try-box {
+      margin-top: 24px;
+    }
+
+    @media (max-width: 480px) {
+      .action-box, .try-box, .case-note, .source-note, .artifact-box {
+        padding: 16px 18px;
+      }
+    }
+
+    /* Per-section anchor links. Visible on hover (desktop) / always (touch). */
+    .anchor-link {
+      display: inline-block;
+      margin-left: 8px;
+      opacity: 0;
+      color: var(--color-text-muted);
+      text-decoration: none;
+      font-size: 0.85em;
+      vertical-align: baseline;
+      transition: opacity 0.15s ease, color 0.15s ease;
+    }
+    h2:hover .anchor-link,
+    h3:hover .anchor-link,
+    aside.artifact-box:hover .anchor-link,
+    .anchor-link:focus-visible {
+      opacity: 1;
+    }
+    .anchor-link:hover { color: var(--color-accent); }
+    @media (hover: none) {
+      .anchor-link { opacity: 0.5; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .anchor-link { transition: none; }
+    }
+    .anchor-toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--color-text);
+      color: var(--color-bg);
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 1000;
+    }
+    .anchor-toast.show { opacity: 1; }
+
     /* Source cards (Appendix C) */
     .source-card {
       background: var(--color-card-bg);
       border: 1px solid var(--color-border);
-      border-left: 3px solid var(--color-border-strong);
+      border-left: 4px solid var(--color-border-strong);
       border-radius: var(--radius-lg);
       padding: 20px 24px;
       margin: 16px 0;
@@ -797,7 +995,7 @@
       font-size: 16px;
       line-height: 1.55;
     }
-    .source-grid dd.source-claim { font-weight: 500; color: var(--color-text); }
+    .source-grid dd.source-claim { font-weight: 600; color: var(--color-text); }
     .source-grid dd.source-caveat {
       color: var(--color-text-soft);
       font-style: italic;
@@ -1003,7 +1201,7 @@
       font-style: italic;
     }
 
-    /* Figure 2.1 - Primitives */
+    /* Figure: Primitives */
     .diagram-primitives .harness {
       border: 2px solid var(--color-accent);
       border-radius: var(--radius-lg);
@@ -1070,7 +1268,7 @@
       line-height: 1.5;
     }
 
-    /* Figure 4.1 - Layers */
+    /* Figure: Layers */
     .diagram-layers .layers-stack {
       display: flex;
       flex-direction: column;
@@ -1119,7 +1317,7 @@
       font-style: italic;
     }
 
-    /* Figure 6.1 - Loop */
+    /* Figure: Loop */
     .diagram-loop .loop-flow {
       display: flex;
       flex-wrap: wrap;
@@ -1172,7 +1370,7 @@
       margin-right: 4px;
     }
 
-    /* Figure 9.1 - Traffic Light */
+    /* Figure: Traffic Light */
     .diagram-traffic .traffic-light {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -1260,7 +1458,7 @@
       font-weight: 700;
     }
 
-    /* Figure 11.1 - 90-day arc */
+    /* Figure: 90-day arc */
     .diagram-arc .arc-timeline {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -1718,7 +1916,7 @@
       .topbar, .sidebar, .progress, .article-footer { display: none !important; }
       .layout { display: block; padding: 0; }
       .article { max-width: none; }
-      .action-box, .try-box, .case-note, figure.diagram { break-inside: avoid; box-shadow: none; }
+      .action-box, .try-box, .case-note, .artifact-box, .source-note, figure.diagram { break-inside: avoid; box-shadow: none; }
       .search-overlay, .kbd-overlay { display: none !important; }
     }
   </style>
@@ -1772,7 +1970,13 @@
       <header class="article-header">
         <h1 class="article-title">{{TITLE}}</h1>
         <p class="article-subtitle">{{SUBTITLE}}</p>
+        <p class="article-dek">Agentic software delivery is not a tooling problem. It is a control problem: control the context, control the actions, control the verification, control the adoption surface.</p>
         <div class="article-author"><a href="#contact">{{AUTHOR}}</a></div>
+        <nav class="hero-cta" aria-label="Quick start">
+          <a class="cta-primary" href="#chapter-7">Start with the architecture review</a>
+          <a class="cta-secondary" href="#appendix-b">Download the templates</a>
+          <a class="cta-secondary" href="mailto:info@ship-it-with.ai?subject=Agentic%20delivery%20assessment">Book an assessment</a>
+        </nav>
       </header>
 
       {{CONTENT}}
@@ -1874,6 +2078,34 @@
         applyTheme(next);
         localStorage.setItem('theme', next);
       });
+
+      // Per-section anchor links: copy URL on click, show a brief toast.
+      (function(){
+        let toast = null;
+        function showToast() {
+          if (!toast) {
+            toast = document.createElement('div');
+            toast.className = 'anchor-toast';
+            toast.textContent = 'Link copied';
+            document.body.appendChild(toast);
+          }
+          toast.classList.add('show');
+          setTimeout(() => toast.classList.remove('show'), 1400);
+        }
+        document.addEventListener('click', (e) => {
+          const a = e.target.closest('a.anchor-link');
+          if (!a) return;
+          e.preventDefault();
+          const href = a.getAttribute('href');
+          const url = window.location.origin + window.location.pathname + href;
+          history.replaceState(null, '', href);
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(url).then(showToast, showToast);
+          } else {
+            showToast();
+          }
+        });
+      })();
 
       // Font size (eReader-style: small / medium / large with persistence)
       const sizes = ['small', 'medium', 'large'];

@@ -77,6 +77,7 @@
       --color-border-strong: #d4d2cb;
       --color-accent: #d97706;
       --color-accent-soft: #fef3c7;
+      --color-accent-hover: #b45309;  /* darker amber for hover in light mode */
       --color-green: #15803d;
       --color-green-soft: #dcfce7;
       --color-yellow: #b45309;
@@ -91,6 +92,13 @@
       --color-case-bg: #f5f3ed;
       --color-quote-border: #d97706;
       --color-table-stripe: #faf9f6;
+      --color-source-bg: #f1f4f8;
+      --color-source-border: #cbd5e1;
+      --color-source-text: #475569;
+      --color-source-label-bg: #475569;
+      --color-artifact-bg: #faf8f3;
+      --color-artifact-accent: #475569;
+      --color-artifact-icon: #475569;
       --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
       --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
       --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
@@ -112,6 +120,7 @@
       --color-border-strong: #3a3d41;
       --color-accent: #f59e0b;
       --color-accent-soft: #3a2a0c;
+      --color-accent-hover: #d97706;  /* still warm, slightly darker than base #f59e0b */
       --color-green: #4ade80;
       --color-green-soft: #14352a;
       --color-yellow: #fbbf24;
@@ -126,6 +135,13 @@
       --color-case-bg: #1f2126;
       --color-quote-border: #f59e0b;
       --color-table-stripe: #1f2226;
+      --color-source-bg: #1e293b;
+      --color-source-border: #334155;
+      --color-source-text: #cbd5e1;
+      --color-source-label-bg: #94a3b8;
+      --color-artifact-bg: #232629;
+      --color-artifact-accent: #94a3b8;
+      --color-artifact-icon: #94a3b8;
     }
 
     * { box-sizing: border-box; }
@@ -425,6 +441,60 @@
       font-weight: 400;
       margin: 0 0 32px;
       line-height: 1.4;
+    }
+    .article-dek {
+      font-size: 18px;
+      font-weight: 400;
+      color: var(--color-text-soft);
+      max-width: 640px;
+      margin: 20px auto 28px;
+      text-align: center;
+      line-height: 1.5;
+    }
+    @media (max-width: 480px) {
+      .article-dek { font-size: 16px; margin: 16px auto 22px; }
+    }
+    .hero-cta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      align-items: center;
+      margin: 24px auto 0;
+      max-width: 720px;
+    }
+    nav.hero-cta a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      text-decoration: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    }
+    .hero-cta a.cta-primary {
+      background: var(--color-accent);
+      color: white;
+      border: 1.5px solid var(--color-accent);
+    }
+    .hero-cta a.cta-primary:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); color: white; }
+    .hero-cta a.cta-secondary {
+      background: transparent;
+      color: var(--color-accent);
+      border: 1.5px solid var(--color-accent);
+    }
+    .hero-cta a.cta-secondary:hover { background: var(--color-accent-soft); }
+    .hero-cta a:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+    @media (max-width: 640px) {
+      .hero-cta { flex-direction: column; align-items: stretch; }
+      nav.hero-cta a { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      nav.hero-cta a { transition: none; }
     }
     .article-author {
       font-size: 14px;
@@ -730,11 +800,139 @@
       color: var(--color-text);
     }
 
+    /* Source notes — inline annotations pointing to Appendix C. */
+    .source-note {
+      background: var(--color-source-bg);
+      border: 1px solid var(--color-source-border);
+      border-radius: var(--radius-lg);
+      padding: 14px 18px;
+      margin: 24px 0;
+    }
+    .source-note-label {
+      display: inline-block;
+      background: var(--color-source-label-bg);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+    .source-note p {
+      margin: 0;
+      font-style: italic;
+      font-size: 15px;
+      line-height: 1.55;
+      color: var(--color-source-text);
+    }
+
+    /* Artifact boxes — chapter-ending deliverables. */
+    .artifact-box {
+      background: var(--color-artifact-bg);
+      border: 1px solid var(--color-border-strong);
+      border-left: 3px solid var(--color-artifact-accent);
+      border-radius: var(--radius-lg);
+      padding: 24px 28px;
+      margin: 40px 0;
+      box-shadow: var(--shadow-sm);
+    }
+    .artifact-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .artifact-icon {
+      width: 16px;
+      height: 16px;
+      stroke: var(--color-artifact-icon);
+      stroke-width: 1.5;
+      fill: none;
+    }
+    .artifact-label {
+      display: inline-block;
+      background: var(--color-artifact-accent);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 4px;
+    }
+    .artifact-title {
+      font-weight: 600;
+      font-size: 17px;
+      margin: 0 0 8px 0;
+      letter-spacing: -0.01em;
+    }
+    .artifact-box p {
+      margin-bottom: 12px;
+      font-size: 16px;
+    }
+    .artifact-box p:last-child { margin-bottom: 0; }
+
+    /* Chapter-end stack tightening: when callouts sit adjacent, reduce top margin. */
+    .artifact-box + .action-box,
+    .artifact-box + .try-box,
+    .action-box + .try-box {
+      margin-top: 24px;
+    }
+
+    @media (max-width: 480px) {
+      .action-box, .try-box, .case-note, .source-note, .artifact-box {
+        padding: 16px 18px;
+      }
+    }
+
+    /* Per-section anchor links. Visible on hover (desktop) / always (touch). */
+    .anchor-link {
+      display: inline-block;
+      margin-left: 8px;
+      opacity: 0;
+      color: var(--color-text-muted);
+      text-decoration: none;
+      font-size: 0.85em;
+      vertical-align: baseline;
+      transition: opacity 0.15s ease, color 0.15s ease;
+    }
+    h2:hover .anchor-link,
+    h3:hover .anchor-link,
+    aside.artifact-box:hover .anchor-link,
+    .anchor-link:focus-visible {
+      opacity: 1;
+    }
+    .anchor-link:hover { color: var(--color-accent); }
+    @media (hover: none) {
+      .anchor-link { opacity: 0.5; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .anchor-link { transition: none; }
+    }
+    .anchor-toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--color-text);
+      color: var(--color-bg);
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 1000;
+    }
+    .anchor-toast.show { opacity: 1; }
+
     /* Source cards (Appendix C) */
     .source-card {
       background: var(--color-card-bg);
       border: 1px solid var(--color-border);
-      border-left: 3px solid var(--color-border-strong);
+      border-left: 4px solid var(--color-border-strong);
       border-radius: var(--radius-lg);
       padding: 20px 24px;
       margin: 16px 0;
@@ -797,7 +995,7 @@
       font-size: 16px;
       line-height: 1.55;
     }
-    .source-grid dd.source-claim { font-weight: 500; color: var(--color-text); }
+    .source-grid dd.source-claim { font-weight: 600; color: var(--color-text); }
     .source-grid dd.source-caveat {
       color: var(--color-text-soft);
       font-style: italic;
@@ -1003,7 +1201,7 @@
       font-style: italic;
     }
 
-    /* Figure 2.1 - Primitives */
+    /* Figure: Primitives */
     .diagram-primitives .harness {
       border: 2px solid var(--color-accent);
       border-radius: var(--radius-lg);
@@ -1070,7 +1268,7 @@
       line-height: 1.5;
     }
 
-    /* Figure 4.1 - Layers */
+    /* Figure: Layers */
     .diagram-layers .layers-stack {
       display: flex;
       flex-direction: column;
@@ -1119,7 +1317,7 @@
       font-style: italic;
     }
 
-    /* Figure 6.1 - Loop */
+    /* Figure: Loop */
     .diagram-loop .loop-flow {
       display: flex;
       flex-wrap: wrap;
@@ -1172,7 +1370,7 @@
       margin-right: 4px;
     }
 
-    /* Figure 9.1 - Traffic Light */
+    /* Figure: Traffic Light */
     .diagram-traffic .traffic-light {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -1260,7 +1458,7 @@
       font-weight: 700;
     }
 
-    /* Figure 11.1 - 90-day arc */
+    /* Figure: 90-day arc */
     .diagram-arc .arc-timeline {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -1718,7 +1916,7 @@
       .topbar, .sidebar, .progress, .article-footer { display: none !important; }
       .layout { display: block; padding: 0; }
       .article { max-width: none; }
-      .action-box, .try-box, .case-note, figure.diagram { break-inside: avoid; box-shadow: none; }
+      .action-box, .try-box, .case-note, .artifact-box, .source-note, figure.diagram { break-inside: avoid; box-shadow: none; }
       .search-overlay, .kbd-overlay { display: none !important; }
     }
   </style>
@@ -1788,24 +1986,27 @@
   <li><a href="#chapter-1"><span class="toc-num">1</span><span class="toc-text">Six primitives</span><span class="toc-time">15 min</span></a></li>
   <li><a href="#chapter-2"><span class="toc-num">2</span><span class="toc-text">The anatomy invariant</span><span class="toc-time">10 min</span></a></li>
   <li><a href="#chapter-3"><span class="toc-num">3</span><span class="toc-text">Governance in layers</span><span class="toc-time">17 min</span></a></li>
-  <li><a href="#chapter-4"><span class="toc-num">4</span><span class="toc-text">From generating code to shipping software</span><span class="toc-time">13 min</span></a></li>
 </ul></div>
 <div class="toc-section">
 <div class="toc-section-title"><a href="#part-ii">Part II - Method</a></div>
 <ul class="toc-list">
+  <li><a href="#chapter-4"><span class="toc-num">4</span><span class="toc-text">From generating code to shipping software</span><span class="toc-time">13 min</span></a></li>
   <li><a href="#chapter-5"><span class="toc-num">5</span><span class="toc-text">The six-phase loop</span><span class="toc-time">16 min</span></a></li>
   <li><a href="#chapter-6"><span class="toc-num">6</span><span class="toc-text">AGENTS.md as team infrastructure</span><span class="toc-time">13 min</span></a></li>
   <li><a href="#chapter-7"><span class="toc-num">7</span><span class="toc-text">Architecture Review: Documentation and Diagnosis</span><span class="toc-time">13 min</span></a></li>
-  <li><a href="#chapter-8"><span class="toc-num">8</span><span class="toc-text">Readiness: The Kill Signals and the Traffic Light</span><span class="toc-time">23 min</span></a></li>
 </ul></div>
 <div class="toc-section">
 <div class="toc-section-title"><a href="#part-iii">Part III - Reality</a></div>
 <ul class="toc-list">
+  <li><a href="#chapter-8"><span class="toc-num">8</span><span class="toc-text">Readiness: The Kill Signals and the Traffic Light</span><span class="toc-time">23 min</span></a></li>
   <li><a href="#chapter-9"><span class="toc-num">9</span><span class="toc-text">Patterns for brownfield codebases</span><span class="toc-time">9 min</span></a></li>
   <li><a href="#chapter-10"><span class="toc-num">10</span><span class="toc-text">Adoption: 90 days, three roles</span><span class="toc-time">19 min</span></a></li>
 </ul></div>
 <div class="toc-section">
 <div class="toc-section-title"><a href="#closing">Closing</a></div>
+</div>
+<div class="toc-section">
+<div class="toc-section-title"><a href="#about-the-author">About the author</a></div>
 </div>
 <div class="toc-section">
 <div class="toc-section-title">Appendices</div>
@@ -1824,10 +2025,16 @@
       <header class="article-header">
         <h1 class="article-title">Ship It With AI</h1>
         <p class="article-subtitle">A Field Manual for Agentic Software Delivery</p>
+        <p class="article-dek">Agentic software delivery is not a tooling problem. It is a control problem: control the context, control the actions, control the verification, control the adoption surface.</p>
         <div class="article-author"><a href="#contact">Mihai Cvasnievschi</a></div>
+        <nav class="hero-cta" aria-label="Quick start">
+          <a class="cta-primary" href="#chapter-7">Start with the architecture review</a>
+          <a class="cta-secondary" href="#appendix-b">Download the templates</a>
+          <a class="cta-secondary" href="mailto:info@ship-it-with.ai?subject=Agentic%20delivery%20assessment">Book an assessment</a>
+        </nav>
       </header>
 
-      <div class="epigraph"><p>The agents write the code.</p><p>You understand the problem.</p><p>That is the skill no one is automating.</p></div><h2 id="foreword" class="foreword-heading"><span class="appendix-label">Foreword</span><span class="appendix-title">Why this manual</span></h2>
+      <div class="epigraph"><p>The agents write the code.</p><p>You understand the problem.</p><p>That is the skill no one is automating.</p></div><h2 id="foreword" class="foreword-heading"><span class="appendix-label">Foreword</span><span class="appendix-title">Why this manual</span><a class="anchor-link" href="#foreword" aria-label="Copy link to section" tabindex="0">¶</a></h2>
 
 <p>This manual exists because I am tired of having the same conversation.</p>
 <p>The conversation goes like this. A senior engineer at a company that ships software for a living tells me they tried Claude Code, or Codex, or one of the half-dozen other coding agents, and "it didn't work." When I ask what didn't work, the answer is some variation of: the agent generated code that looked right but wasn't, or the agent broke something nobody noticed for two weeks, or the agent confidently produced output that violated a constraint the team had documented in three different places. Sometimes the answer is even simpler: the agent was too slow, or too expensive, or the senior engineer ended up reviewing more code than they wrote.</p>
@@ -1835,9 +2042,9 @@
 <p>Each of these answers is real. Each of these answers describes a real failure mode. Most failed adoptions are not explained by model weakness alone. They are failures of structure around the agent: missing context, missing constraints, missing process, missing review discipline.</p>
 <p>The problem in every case is that the team treated the agent as a tool to be evaluated, when the agent is actually a new kind of teammate that requires a new kind of structure. You can pick up a hammer and use it. You cannot pick up a junior engineer and use them. You have to onboard them, give them context, set up review patterns, build trust over time. Agents are closer to the junior engineer than to the hammer.</p>
 <p>This manual is about the structure.</p>
-<p>I am not going to tell you which agent to pick. The agent you pick today will be deprecated, rebranded, or absorbed into a larger product within the time it takes a typical enterprise procurement cycle to complete. The agent landscape moves in months, not years. If I wrote a manual about specific tools, it would be obsolete before the printer finished. So I am writing a manual about how to think about agentic software delivery - the architecture of these systems, the method by which you ship software with them, and the reality of where the method works and where it does not.</p>
+<p>I am not going to tell you which agent to pick. The agent you pick today will be deprecated, rebranded, or absorbed into a larger product within the time it takes a typical enterprise procurement cycle to complete. The agent landscape moves in months, not years. If this were a tool guide, it would be stale before publication. So I am writing a manual about how to think about agentic software delivery - the architecture of these systems, the method by which you ship software with them, and the reality of where the method works and where it does not.</p>
 <hr>
-<h3 id="the-shift-in-context">The shift, in context</h3>
+<h3 id="the-shift-in-context">The shift, in context<a class="anchor-link" href="#the-shift-in-context" aria-label="Copy link to section" tabindex="0">¶</a></h3>
 <p>Seventy years ago, programming meant punching holes in cardboard cards and waiting overnight to find out whether your program ran. Sixty years ago, text editors appeared and you could see your code on a screen. Forty years ago, integrated development environments arrived - syntax highlighting, debuggers, project navigation. Twenty years ago, IntelliSense started suggesting the next character you would type. Three years ago, AI-assisted coding crossed the threshold from "occasionally useful" to "you can ship code with it". And then, in the eighteen months between the spring of 2025 and the spring of 2026, agentic software delivery went from a research demo to a production capability.</p>
 <p>Every one of those transitions felt enormous at the time. Each one was, in fact, enormous. And each one was also accompanied by people insisting that the previous generation of tools was now sufficient and the new generation was hype.</p>
 <p>In retrospect, each generation underestimated the next abstraction. This one will be no different.</p>
@@ -1852,23 +2059,17 @@
 <p>The way out of the trap is to stop optimizing for the specific tool and start optimizing for the frame. The frame is the team's evaluation capability - how quickly the team can take a new tool, evaluate it against known constraints, identify whether it fits, and either adopt it cleanly or pass on it cleanly. Teams with a good frame can churn through tools without churning through their own discipline. Teams without a good frame churn through their own practice every time the tool changes.</p>
 <p>This manual is about building the frame. The specific tools I name throughout - Claude Code, Codex CLI, opencode, the various plugins and marketplaces - will be different by the time the next edition would be due. The frame will be the same.</p>
 <hr>
-<h3 id="where-i-am-coming-from">Where I am coming from</h3>
-<p>The shape of a manual depends on the shape of the writer, and you deserve to know whether the writer's experience is the kind of experience that maps to your situation.</p>
-<p>I first met a computer in my parents' office around 1984, when I was six - a mainframe room with a raised floor, Space Invaders running on a terminal, and an introduction to BASIC. I wrote my first programs in BASIC in 1989. Borland Pascal in DOS followed in 1993, then Visual Basic, the first real IDE I used and the first language I sold software in as a teenager. My professional career started in 2000 as IT Manager for a manufacturing company. In 2001 I moved into software engineering proper, joining a startup that built multicasting software for satellite operators running DVB. When the startup lost its investors and pivoted to outsourcing, I switched from C++ to .NET, and spent the next two decades, through 2023, delivering for customers across industries on Visual Studio.NET and its descendants. I am, by training and inclination, an engineer first and a consultant second; the consulting work is the secondary outgrowth of doing engineering with teams who want help.</p>
-<p>My interest in machine learning started around 2013. The first serious deep dive came in late 2015, when I ported DarkNet and YOLO onto an XR headset; that is when I started building AI applications professionally. In 2023 I joined a company building the first neuromorphic SoC, working on the nano-ML end of the field. On the assisted-coding side, I have used every generation: Whole Tomato's Visual Assist (the first intelligent coding assistant I ever installed), the early JetBrains tooling in the .NET world, the first releases of Copilot, and LLMs for coding since the day ChatGPT first shipped. I have not built my own coding agent. I have used most of the ones that ship now, and I have watched a lot of teams use them.</p>
-<p>The manual draws on this trajectory. The methodology I describe has been refined across dozens of engagements with teams of varying sizes, in varying industries, in varying states of agentic readiness. The frames I share are the ones that have held up across the engagements; the ones that did not hold up have been retired. This is not the first set of frames I wrote about agentic delivery. It is the third or fourth iteration. The earlier iterations were wrong in interesting ways. This one is, I hope, less wrong.</p>
-<p>I am not neutral about the topic. I think agentic software delivery is the most consequential shift in our field since the introduction of high-level programming languages. I also think the way most teams are currently adopting it is doing them more harm than good. Both of those things can be true. The point of the manual is to help you adopt in a way that captures the upside without the harm. The frameworks are how.</p>
-<p>That trajectory - four decades of writing code, twenty-five of them professional, more than a decade building AI systems, every generation of coding assistant in between - is the trajectory the manual is written from. Calibrate your expectations accordingly.</p>
-<p><a id="contact"></a>
-<em>Contact: <a href="mailto:info@ship-it-with.ai">info@ship-it-with.ai</a> for technical conversations or tailored workshops, in-person or online, shaped to your team's codebase and constraints. Find me on <a href="https://www.linkedin.com/in/mihaicvasnievschi/" target="_blank" rel="noopener noreferrer">LinkedIn</a>. For executive and non-technical leadership audiences, the sister practice at <a href="https://ai-leaders.ro" target="_blank" rel="noopener noreferrer">ai-leaders.ro</a> covers the adoption side without the engineering depth.</em></p>
+<h3 id="where-i-am-coming-from">Where I am coming from<a class="anchor-link" href="#where-i-am-coming-from" aria-label="Copy link to section" tabindex="0">¶</a></h3>
+<p>I have been writing software professionally since 2000 and building AI systems for more than a decade. I have used every generation of coding assistant, from early IDE intelligence to Copilot to current coding agents, and I have spent the last eighteen months watching production teams adopt agentic workflows well and badly. This manual is the result of the patterns that survived repeated use across real teams.</p>
+<p><a href="#about-the-author">Full background: About the author.</a></p>
 <hr>
-<h3 id="what-agentic-ai-means-in-this-book">What "agentic AI" means in this manual</h3>
+<h3 id="what-agentic-ai-means-in-this-book">What "agentic AI" means in this manual<a class="anchor-link" href="#what-agentic-ai-means-in-this-book" aria-label="Copy link to section" tabindex="0">¶</a></h3>
 <p>I have been calling this "agentic AI" without defining it. Here is the definition.</p>
 <p>An agentic AI system is one that takes a goal, decides what actions to perform to achieve the goal, and executes those actions, with some amount of autonomy. The autonomy is the part that matters. An IDE plugin that suggests the next line of code is not an agent - it suggests, you accept or reject, every step is yours. An agentic coding system is one where you give it a goal - "add a Priority field to the Opportunity entity in the CRM" - and it figures out which files to read, which files to edit, which tests to run, which commands to execute. You supervise. You correct. You approve. But you are no longer authoring every keystroke.</p>
 <p>That shift - from authoring keystrokes to supervising work - is the central change. Everything else in this manual follows from it. Architecture, because the way an agent makes decisions about what to do affects how you should let it touch your code. Method, because supervising work requires different discipline than authoring keystrokes. Reality, because the shift works for some kinds of work and absolutely does not work for others.</p>
 <p>Most teams that fail with agentic delivery fail because they tried to use the agent as an autocomplete-on-steroids. They wanted faster typing. What agents offer is not faster typing. What agents offer is the ability to delegate well-formed work to a teammate who does not get tired, does not need lunch, and can be cloned to work on three things in parallel. If you treat that teammate as a hammer, you will be disappointed. If you treat that teammate as a teammate, you can ship things you previously could not afford to ship.</p>
 <hr>
-<h3 id="the-frame-of-this-book">The frame of this manual</h3>
+<h3 id="the-frame-of-this-book">The frame of this manual<a class="anchor-link" href="#the-frame-of-this-book" aria-label="Copy link to section" tabindex="0">¶</a></h3>
 <p>Three parts. Architecture: how agents are built and how to evaluate the next one when it arrives. Method: the iterative loop that turns "AI that generates code" into "AI that ships software". Reality: where this works, where it does not, and the kill signals that tell you which.</p>
 <p>This is a field manual, not a treatise. I write in first person because I am sharing what I have seen, not what I have theorized. The examples are anonymized but real. The methods are road-tested in production. The opinions are mine, defended by experience, and offered with full awareness that any specific opinion will need to be revised when the next major shift in the landscape arrives - which will be soon, and which is the entire point of the methodology I am about to share.</p>
 <p>If you want a list of tools and ratings, this manual will disappoint you. If you want a way of thinking that survives the next five years of churn, keep reading.</p>
@@ -1876,7 +2077,7 @@
 <p>The central claim of this manual is simple: agentic software delivery is not primarily a tooling problem. It is a control problem. Control the context, the actions, the verification, and the adoption surface, and the agent becomes useful. Fail to control them, and the agent becomes expensive noise or operational risk. The three parts of this manual map to three layers of control. Architecture is the control of capability: what the agent can know and do. Method is the control of workflow: how work is formulated, executed, and verified. Reality is the control of adoption: where the method is applied and where it should not be.</p>
 <p>The chapters that follow are how I have learned to make that bet pay off. The Prologue is what happens when none of the layers are in place.</p>
 <hr>
-<h2 id="how-to-read-this-book">How to read this manual</h2>
+<h2 id="how-to-read-this-book">How to read this manual<a class="anchor-link" href="#how-to-read-this-book" aria-label="Copy link to section" tabindex="0">¶</a></h2>
 <p>This is a field manual. Read it linearly the first time; treat it as a reference after.</p>
 <p><strong>If you are a senior engineer or staff engineer:</strong> read Chapters 1, 2, 4, 5, 6, and 8. These are the technical spine: anatomy, formulation, loop, team instructions, and readiness.</p>
 <p><strong>If you are a tech lead:</strong> add Chapters 3, 7, 9, and 10. These are the chapters for governance, diagnosis, brownfield rollout, and adoption.</p>
@@ -1884,10 +2085,10 @@
 <p><strong>If you are facilitating adoption:</strong> use Appendix B as the artifact set and Chapters 7-10 as the facilitation sequence.</p>
 <p>You can skip backwards. Each chapter assumes the chapter before it, but the templates and frameworks are designed to be lifted directly.</p>
 <hr>
-<h2 id="a-note-on-dated-claims">A note on dated claims</h2>
+<h2 id="a-note-on-dated-claims">A note on dated claims<a class="anchor-link" href="#a-note-on-dated-claims" aria-label="Copy link to section" tabindex="0">¶</a></h2>
 <p>Tool-specific references in this manual are current as of May 2026. The frameworks are intended to outlast the specific tools. When a named product capability matters, I either date the claim or treat it as an example rather than a permanent property. Source notes for the load-bearing factual claims are in Appendix C.</p>
 <hr>
-<h2 id="scope-and-limits">Scope and limits</h2>
+<h2 id="scope-and-limits">Scope and limits<a class="anchor-link" href="#scope-and-limits" aria-label="Copy link to section" tabindex="0">¶</a></h2>
 <p>A field manual that does not name its own failure modes will lose to the reader's experience the moment that experience diverges from the manual. So here are the places I think this manual can be wrong.</p>
 <p>The tools will change. The specific products I have named - Claude Code, Codex CLI, Cursor, hookify, Superpowers, Understand Anything, the Anthropic plugin marketplace - will be different in two years. Some will be better. Some will be deprecated. Some will be replaced by tools that work differently than the architecture in Chapter 1 describes. If the primitives still hold, the manual is right. If a future agent ships without something that maps to one of the six primitives, I missed an invariant that I thought was structural.</p>
 <p>The governance API will change. The specific hook formats, the specific permission rule syntax, the specific sandbox flags - those are vendor-specific and version-specific. The five-layer model is what I expect to hold; the implementation details are what I expect to age.</p>
@@ -1896,7 +2097,7 @@
 <p>Some teams will get value with lighter process. The six-phase loop is the discipline I have seen work across teams. A team with deeper engineering culture, smaller scope, and lower compliance burden may get most of the benefit with a three-phase loop or a structured-pair-programming pattern. The full discipline is the safe bet, not the only path.</p>
 <p>Some workflows are too regulated for these defaults. The manual assumes the team has the authority to install hooks, configure <a href="https://agents.md/" target="_blank" rel="noopener noreferrer">AGENTS.md</a>, set up sandboxes, and run subagents. Some regulated environments do not allow this without architectural review boards, security committees, or vendor procurement processes that take months. In those environments, the manual describes the destination, not the path.</p>
 <hr>
-<h2 id="cases-used-in-this-book">Cases used in this manual</h2>
+<h2 id="cases-used-in-this-book">Cases used in this manual<a class="anchor-link" href="#cases-used-in-this-book" aria-label="Copy link to section" tabindex="0">¶</a></h2>
 <p>Each of these case studies recurs across multiple chapters. The list exists so you can navigate by example as well as by framework.</p>
 <ul>
 <li><strong>PocketOS</strong> - nine-second production loss to an unconstrained agent. Prologue + Chapter 3 (Governance in layers). Source notes in Appendix C.</li>
@@ -1913,12 +2114,12 @@
 </ul>
 <hr>
 <h1>Prologue</h1>
-<h2 id="nine-seconds">Nine seconds</h2>
+<h2 id="nine-seconds">Nine seconds<a class="anchor-link" href="#nine-seconds" aria-label="Copy link to section" tabindex="0">¶</a></h2>
 <p>On April 24, 2026, a small SaaS company called PocketOS, a car rental management product, lost its production database to an AI agent that decided to fix a credentials problem on its own.</p>
 <p>Here is what happened. A developer was using a coding agent (Cursor powered by Claude Opus 4.6) to work on the PocketOS codebase. The agent encountered a credentials mismatch during a routine task. Instead of stopping and asking, the agent decided to fix the problem itself. It found an API token that authenticated against Railway, the infrastructure platform PocketOS used. It invoked Railway's Volume Delete command. The destruction was total. PocketOS's production database, all the customer reservations, payment records, vehicle inventory, was wiped. The backups, which Railway stores on the same volume as the primary data, were wiped with it. The most recent recoverable snapshot was three months old. Recovery was ultimately possible, but not through the backup path the team expected; public accounts differ on the exact recovery timeline, and that ambiguity is part of the lesson. The CEO posted publicly about it. The post quickly became a reference point in discussions of AI safety in production.</p>
 <p>Nine seconds. The destructive call took nine seconds.</p>
 <p>Afterward, the agent confessed in writing: "I violated every principle I was given. I guessed instead of verifying. I ran a destructive action without being asked. I didn't understand what I was doing before doing it." The "I guessed instead of verifying" line is the one many practitioners remember. "NEVER GUESS" was the rule the agent discovered too late. It was not in the system prompt; it was what the agent realized, in retrospect, it should have done.</p>
-<p><em>Source note. Public accounts of the PocketOS incident differ on the recovery timeline and on some operational details. I use the incident here for the governance pattern, not as a precise forensic reconstruction. Citations in Appendix C.</em></p>
+<aside class="source-note"><span class="source-note-label">Source</span><p>Public accounts of the PocketOS incident differ on the recovery timeline and on some operational details. I use the incident here for the governance pattern, not as a precise forensic reconstruction. Citations in Appendix C.</p></aside>
 <hr>
 <p>That is the failure pattern this manual is built to prevent.</p>
 <p>Not because any methodology makes agents perfect. None does. But because the incident did not require magic to prevent. It required ordinary engineering controls applied to a new kind of worker: bounded credentials, constrained tools, review gates, telemetry, and a team that knew which actions the agent was not allowed to take. Several layers of the practice this manual describes could have broken the chain. Telemetry might have shortened the response. A sandbox might have blocked the destructive call. Secrets segregation might have prevented the session from holding the relevant credential. A security hook might have forced a human approval before the dangerous action ran.</p>
@@ -1932,7 +2133,7 @@
 <p><em>How agents are built and how you control them.</em></p>
 </blockquote>
 <hr>
-<h2 id="chapter-1" class="chapter-heading"><span class="chapter-num">Chapter 1</span><span class="chapter-title">Six primitives</span></h2>
+<h2 id="chapter-1" class="chapter-heading"><span class="chapter-num">Chapter 1</span><span class="chapter-title">Six primitives</span><a class="anchor-link" href="#chapter-1" aria-label="Copy link to section" tabindex="0">¶</a></h2>
 
 <p>Open the source code or documentation of most production-grade coding agents - Codex CLI in Rust, opencode in TypeScript, the public-source parts of Claude Code, the agents shipped by half a dozen smaller vendors - and you see the same architecture emerging: six primitives wrapped by a harness. The implementations differ. The anatomy converges. Different names sometimes, different file layouts always, but the same six conceptual building blocks. Five of them are the agent's local capabilities. The sixth is the composition mechanism that makes the agent recursive: it can spawn constrained instances of itself.</p>
 <p>Context window. Tools. Skills. Plugins. MCP. Subagents.</p>
@@ -1953,7 +2154,7 @@
     </div>
     <div class="harness-foot">the agent loop binds them together;<br/>subagents spawn constrained child instances of the agent itself</div>
   </div>
-  <figcaption>Figure 2.1. The six primitives and the harness that runs them. Subagents are the recursive primitive: each subagent is itself an instance of the other five.</figcaption>
+  <figcaption>Figure: The six primitives and the harness that runs them. Subagents are the recursive primitive: each subagent is itself an instance of the other five.</figcaption>
 </figure>
 
 
@@ -2008,12 +2209,10 @@
 <p>Six questions. They tell you almost everything you need to know to compare the new agent to the one you are using today.</p>
 <p>Next chapter: what happens when you point one agent at the source of another. The anatomy I just described becomes very real, very fast.</p>
 <hr>
-<p><strong>Artifact: Agent evaluation worksheet.</strong> One column per primitive; rate each new agent's implementation as basic / intermediate / advanced. Use it as the rubric for any new agent your team evaluates.</p>
-<hr>
-<aside class="action-box"><div class="action-label">Ship this week</div>
+<aside class="artifact-box" id="artifact-1"><div class="artifact-header"><a class="anchor-link" href="#artifact-1" aria-label="Copy link to artifact" tabindex="0">¶</a><svg class="artifact-icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="10" height="13" rx="1.5"></rect><rect x="5.5" y="0.75" width="5" height="2.5" rx="0.5"></rect><line x1="5" y1="6.5" x2="11" y2="6.5"></line><line x1="5" y1="9" x2="11" y2="9"></line><line x1="5" y1="11.5" x2="9" y2="11.5"></line></svg><span class="artifact-label">Artifact</span></div><h4 class="artifact-title">Agent evaluation worksheet</h4><p>One column per primitive; rate each new agent's implementation as basic / intermediate / advanced. Use it as the rubric for any new agent your team evaluates.</p></aside><aside class="action-box"><div class="action-label">Ship this week</div>
 <p>Open whichever coding agent you have access to. Ask it: how large is your context window, what tools do you have access to, where do skills live, what marketplace are plugins installed from, does this agent speak MCP, and how do I dispatch a subagent? Note the answers. You now have the start of an agent evaluation worksheet.</p>
-</aside><hr/>
-<h2 id="chapter-2" class="chapter-heading"><span class="chapter-num">Chapter 2</span><span class="chapter-title">The anatomy invariant</span></h2>
+</aside>
+<h2 id="chapter-2" class="chapter-heading"><span class="chapter-num">Chapter 2</span><span class="chapter-title">The anatomy invariant</span><a class="anchor-link" href="#chapter-2" aria-label="Copy link to section" tabindex="0">¶</a></h2>
 
 <p>While preparing this manual, I ran an experiment to test the framework empirically. The result was the side-by-side demonstration this chapter is built around. Most demonstrations of coding agents show the agent doing what coding agents are usually advertised to do - writing a new feature, fixing a bug, generating tests. My demonstration did something different. I used Claude Code, the coding agent, to inspect the source code of two other coding agents, side by side, in parallel.</p>
 <p>The two agents I inspected were Codex CLI and opencode. Both are fully open source. Codex CLI is written mostly in Rust, licensed under Apache 2.0, and maintained by OpenAI. Opencode is written mostly in TypeScript, licensed under MIT, and maintained by an independent team. They serve roughly the same purpose. They were built independently. They share no code.</p>
@@ -2091,11 +2290,9 @@
 <hr>
 <p>The next chapter is about governance specifically - what the layers are, what each one does, what happens when one of them is missing. The sandbox tradeoff I just walked through is one example of why the governance question matters. There are more layers above and below the sandbox, and they all need attention.</p>
 <hr>
-<p><strong>Artifact: Source-inspection checklist.</strong> The eight inspection points from this chapter. Use the checklist on the next agent that lands in your team's evaluation queue.</p>
-<hr>
-<aside class="action-box"><div class="action-label">Ship this week</div>
+<aside class="artifact-box" id="artifact-2"><div class="artifact-header"><a class="anchor-link" href="#artifact-2" aria-label="Copy link to artifact" tabindex="0">¶</a><svg class="artifact-icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="10" height="13" rx="1.5"></rect><rect x="5.5" y="0.75" width="5" height="2.5" rx="0.5"></rect><line x1="5" y1="6.5" x2="11" y2="6.5"></line><line x1="5" y1="9" x2="11" y2="9"></line><line x1="5" y1="11.5" x2="9" y2="11.5"></line></svg><span class="artifact-label">Artifact</span></div><h4 class="artifact-title">Source-inspection checklist</h4><p>The eight inspection points from this chapter. Use the checklist on the next agent that lands in your team's evaluation queue.</p></aside><aside class="action-box"><div class="action-label">Ship this week</div>
 <p>Open the source repository of any open-source coding agent. Find the file that implements the agent loop. Read it. Twenty minutes. You will not understand every line; you will understand the shape of the loop, and that is the point.</p>
-</aside><hr/>
+</aside>
 <aside class="try-box"><div class="try-label">Try it yourself</div>
 <p>The specific agents below will be replaced. The technique below will not.</p>
 <p>Pick two open-source coding agents whose source code is published. As of May 2026, Codex CLI and opencode are the easiest pair to start with: both repositories are public, both name their primitives in their directory structure, and they make substantively different governance choices that you can see in the source.</p>
@@ -2107,14 +2304,14 @@
 <li>Read the table. The primitives are the same in both. The implementation choices are different. Those choices are governance choices, and they are how you tell two agents apart at the source-code level.</li>
 </ol>
 <p>On the May 2026 generation of agents, the walk takes four to ten minutes per repo. For a less self-documenting codebase, budget closer to fifteen. The two agents you compare a year from now will not be these two. The six primitives, the diagnostic, and what the diagnostic tells you about governance will be.</p>
-</aside><hr/>
-<h2 id="chapter-3" class="chapter-heading"><span class="chapter-num">Chapter 3</span><span class="chapter-title">Governance in layers</span></h2>
+</aside>
+<h2 id="chapter-3" class="chapter-heading"><span class="chapter-num">Chapter 3</span><span class="chapter-title">Governance in layers</span><a class="anchor-link" href="#chapter-3" aria-label="Copy link to section" tabindex="0">¶</a></h2>
 
 <p>I opened the manual with PocketOS. Here is the part of the lesson that requires its own chapter: governance, layered.</p>
 <p>The PocketOS incident is the textbook case for what these layers prevent. So is the Terraform incident that follows. Both happened in early 2026, to teams that thought they were being careful. Both would have been blocked by any one of several control mechanisms the teams did not have in place. This chapter is the catalogue of those mechanisms: five layers of defense, each catching what the others miss, each cheap to put in place once you have decided to put them in place at all.</p>
 <hr>
 <p>In March 2026, Alexey Grigorev at DataTalks.Club lost two and a half years of course infrastructure when Claude Code worked against an incomplete state file. Grigorev had forgotten to upload the Terraform state. Claude had no map of existing infrastructure; it created duplicate resources where there were already real ones, and it ran destructive commands without verification when those duplicates collided. The recovery took weeks; the data loss was partial but real.</p>
-<p><em>Source note. The Terraform incident is documented publicly; details and citation in Appendix C.</em></p>
+<aside class="source-note"><span class="source-note-label">Source</span><p>The Terraform incident is documented publicly; details and citation in Appendix C.</p></aside>
 <p>The PocketOS failure is a story about a credential the agent should not have held. The Terraform failure is a story about a map the agent did not know it needed. Different failure modes; same architectural cause. Neither is fixed by a better model. Both are fixed by the same governance discipline: the agent runs in a sandbox where destructive operations require explicit confirmation, holds only the credentials needed for the current task, and operates against state the team has verified. The layers in this chapter exist because both PocketOS and Grigorev's loss happened in 2026, to teams who thought they were being careful.</p>
 <hr>
 <p>What can we learn from PocketOS? A lot. Start with the wrong lessons, because I see them quoted constantly.</p>
@@ -2139,7 +2336,7 @@
     <div class="layer layer-5"><span class="layer-num">Layer 1</span><span class="layer-name">Permissions</span><span class="layer-desc">allow / ask / deny</span></div>
   </div>
   <div class="layers-spine">Least privilege is the spine. Each layer catches what the others miss.</div>
-  <figcaption>Figure 4.1. The five governance layers, layered as defense in depth.</figcaption>
+  <figcaption>Figure: The five governance layers, layered as defense in depth.</figcaption>
 </figure>
 
 
@@ -2202,11 +2399,9 @@
 <p>Environment separation. The agent does not hold production credentials by default. Staging and development credentials are scoped to what is reachable from those environments. Production actions go through a separate workflow gate - a human approval, a CI pipeline, a deploy script - that the agent triggers but does not execute end-to-end. The PocketOS incident is, in part, a story about an agent session holding credentials that should have been segregated.</p>
 <p>Protected branches, CODEOWNERS, CI policy. The agent commits and opens pull requests, the same as any contributor. Protected-branch rules, CODEOWNERS reviews, and CI policy apply to the agent's PRs the same way they apply to a human's. Most teams already have these. Make sure the agent's PRs flow through them, not around them.</p>
 <hr>
-<p><strong>Artifact: Five-layer governance audit.</strong> Score each layer for one codebase your team owns: default / configured / enforced / monitored. The audit becomes the baseline for the next quarter's investment.</p>
-<hr>
-<aside class="action-box"><div class="action-label">Ship this week</div>
+<aside class="artifact-box" id="artifact-3"><div class="artifact-header"><a class="anchor-link" href="#artifact-3" aria-label="Copy link to artifact" tabindex="0">¶</a><svg class="artifact-icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="10" height="13" rx="1.5"></rect><rect x="5.5" y="0.75" width="5" height="2.5" rx="0.5"></rect><line x1="5" y1="6.5" x2="11" y2="6.5"></line><line x1="5" y1="9" x2="11" y2="9"></line><line x1="5" y1="11.5" x2="9" y2="11.5"></line></svg><span class="artifact-label">Artifact</span></div><h4 class="artifact-title">Five-layer governance audit</h4><p>Score each layer for one codebase your team owns: default / configured / enforced / monitored. The audit becomes the baseline for the next quarter's investment.</p></aside><aside class="action-box"><div class="action-label">Ship this week</div>
 <p>Audit one codebase your team owns. Of the five governance layers (permissions, sandbox, secrets, security hooks, telemetry), how many are configured beyond defaults? Score one out of five through five out of five. That score is your starting point.</p>
-</aside><hr/>
+</aside>
 <aside class="try-box"><div class="try-label">Try it yourself</div>
 <p>This is a discipline you can run at any cadence: monthly, after every incident, before every new agent rollout.</p>
 <p>Pick one repository your team owns. Ideally one where you already let an agent commit code. Audit it against the five governance layers from this chapter:</p>
@@ -2219,7 +2414,7 @@
 </ol>
 <p>Write the five scores on a one-page sheet. For each layer below ENFORCED, name one concrete fix and one owner. The sheet is your remediation plan for the next quarter.</p>
 <p>The score is not pass/fail; it is your baseline. A repository scoring DEFAULT or CONFIGURED across the board is normal. A repository scoring ENFORCED or MONITORED everywhere is production-grade. The work between them is what this manual is about.</p>
-</aside><hr/>
+</aside>
 <p>Part I ends here. You have the architecture. You know what an agent is anatomically, how to evaluate one when it arrives, what governance layers you put in place to control it.</p>
 <p>Part II is about how you deliver software with the agent now that it exists in your environment. Architecture answers "what is this thing." Method answers "how do we get work done with it." Both are required. Neither is sufficient on its own.</p>
 <p>Let's go.</p>
@@ -2230,7 +2425,7 @@
 <p><em>How you ship software with agents.</em></p>
 </blockquote>
 <hr>
-<h2 id="chapter-4" class="chapter-heading"><span class="chapter-num">Chapter 4</span><span class="chapter-title">From generating code to shipping software</span></h2>
+<h2 id="chapter-4" class="chapter-heading"><span class="chapter-num">Chapter 4</span><span class="chapter-title">From generating code to shipping software</span><a class="anchor-link" href="#chapter-4" aria-label="Copy link to section" tabindex="0">¶</a></h2>
 
 <p>The most common failure I see in teams adopting agentic coding is that they treat the agent as a code generator. They use the agent for the part of the work where code gets typed. They handle every other part of shipping software the way they always have. Then they wonder why the agent's contribution feels marginal, or worse, why the team is spending more time fixing the agent's output than they saved by having the agent type for them.</p>
 <p>The mistake is that code generation is no longer the bottleneck.</p>
@@ -2254,13 +2449,13 @@
 <p>The error mode I see most often is teams that apply the loop to everything (and slow down) or apply it to nothing (and miss the wins). The heuristic above sorts the two. Use the loop when the formulation cost is less than the cost of the agent getting it wrong; skip it when it is not.</p>
 <p>The METR randomized controlled trial published in July 2025 measured this directly. Experienced open-source developers, working on their own familiar repositories with AI assistance (Cursor with Claude), took nineteen percent longer to complete tasks than the same developers working without the AI. Before the trial, the developers predicted the AI would make them twenty-four percent faster. After the trial, despite the objective slowdown, they still believed the AI had made them roughly twenty percent faster. That is a forty-three-point gap between predicted speedup and measured slowdown, and a perception that persists even after the data contradicts it.</p>
 <p>METR did not test formulation discipline as a separate variable. They measured raw AI assistance on familiar code. I treat METR's result as a warning: raw AI assistance does not automatically become delivery speed. The missing variable is workflow discipline. Teams that impose process can do better. Teams that do not can stay at or below METR's number, while believing they are faster.</p>
-<p><em>Source note. METR study published July 2025. The interpretation that workflow discipline is the missing variable is mine, not the study's. Citation in Appendix C.</em></p>
+<aside class="source-note"><span class="source-note-label">Source</span><p>METR study published July 2025. The interpretation that workflow discipline is the missing variable is mine, not the study's. Citation in Appendix C.</p></aside>
 <p>The most vivid version of this contrast I have personally observed involved two teams at the same company, working in adjacent areas of the same product. Team A turned the agent loose immediately. They celebrated the early velocity. By month three they were shipping at roughly the pre-agent baseline but with higher defect rates and visibly drained senior reviewers.</p>
 <p>Team B spent month one on the practice. AGENTS.md drafted and iterated. Skills written for the team's specific patterns. Hooks configured. They shipped no agent-led work in month one. By month two they returned to baseline velocity with the practice in place. By month three they were shipping at noticeably better quality and velocity than they had been pre-agent. The investment had compounded.</p>
 <p>Same company. Adjacent codebases. Same agent. The difference was formulation discipline imposed early. The cost was a slow first month. The benefit was a compounding quarter. This was a field observation across multiple teams, not a controlled experiment. The contrast was clear enough to change how I teach adoption, with the caveat that adjacent teams in the same company are not independent samples.</p>
 <hr>
 <p>The strongest test of the thesis in this chapter came in February through April 2026. Anthropic shipped three product changes in six weeks that materially degraded Claude Code for complex engineering work in some workflows. Adaptive thinking by default on February 9. Default effort dropped from high to medium on March 3. A caching bug in reasoning history retention on March 26. The combined effect was severe enough that an AMD senior director analyzed 6,852 Claude Code sessions and 234,760 tool calls; the analysis showed the model shifting from research-first to edit-first behavior as thinking redaction rolled from one and a half percent to one hundred percent of turns. A separate external analysis reported a substantial drop in code quality across the same period. Anthropic published a technical post-mortem on April 23 acknowledging all three root causes.</p>
-<p><em>Source note. Anthropic published a technical post-mortem on April 23, 2026 acknowledging the three root causes. Independent analyses of code-quality degradation were less rigorous than the post-mortem; treat the magnitude as approximate. Citations in Appendix C.</em></p>
+<aside class="source-note"><span class="source-note-label">Source</span><p>Anthropic published a technical post-mortem on April 23, 2026 acknowledging the three root causes. Independent analyses of code-quality degradation were less rigorous than the post-mortem; treat the magnitude as approximate. Citations in Appendix C.</p></aside>
 <p>I watched two adjacent teams during this period. The first team had spent the prior quarter building the infrastructure this manual describes: CLAUDE.md with team-specific rules, plan mode by default, a six-phase loop for non-trivial work, hooks intercepting destructive operations. The second team used the same Claude Code, same models, same plans, but ran them as freestyle dispatch. The second team's velocity halved overnight when the model started taking edit-first shortcuts. The first team's velocity dropped maybe ten percent and recovered the moment they tightened plan-mode gates and switched a few skills to higher-effort by default.</p>
 <p>That was the experiment running in production. The teams with the discipline absorbed much of the regression. The teams without it felt the full behavioral shift immediately, lost weeks of momentum, and blamed the tool. The methodology is not a hedge against a bad model run. It is the difference between the agent being a useful teammate and the agent being a liability the day the vendor ships a regression.</p>
 <hr>
@@ -2279,12 +2474,10 @@
 <p>They are not the end of the work. The agent ships a pull request. The pull request goes through your normal team review. Humans look at the diff. Humans approve. Humans merge. The agent does not replace the team's existing shipping process; the agent feeds it.</p>
 <p>On to the six phases.</p>
 <hr>
-<p><strong>Artifact: Task suitability heuristic.</strong> Three questions per task: more than three files touched, crosses concerns, would I type it by hand? If none, skip the loop; if any, run it.</p>
-<hr>
-<aside class="action-box"><div class="action-label">Ship this week</div>
+<aside class="artifact-box" id="artifact-4"><div class="artifact-header"><a class="anchor-link" href="#artifact-4" aria-label="Copy link to artifact" tabindex="0">¶</a><svg class="artifact-icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="10" height="13" rx="1.5"></rect><rect x="5.5" y="0.75" width="5" height="2.5" rx="0.5"></rect><line x1="5" y1="6.5" x2="11" y2="6.5"></line><line x1="5" y1="9" x2="11" y2="9"></line><line x1="5" y1="11.5" x2="9" y2="11.5"></line></svg><span class="artifact-label">Artifact</span></div><h4 class="artifact-title">Task suitability heuristic</h4><p>Three questions per task: more than three files touched, crosses concerns, would I type it by hand? If none, skip the loop; if any, run it.</p></aside><aside class="action-box"><div class="action-label">Ship this week</div>
 <p>Take one task you were about to dispatch to the agent. Write a 200-word research note before dispatching. Notice what the note surfaces that you had not thought about. Then dispatch.</p>
-</aside><hr/>
-<h2 id="chapter-5" class="chapter-heading"><span class="chapter-num">Chapter 5</span><span class="chapter-title">The six-phase loop</span></h2>
+</aside>
+<h2 id="chapter-5" class="chapter-heading"><span class="chapter-num">Chapter 5</span><span class="chapter-title">The six-phase loop</span><a class="anchor-link" href="#chapter-5" aria-label="Copy link to section" tabindex="0">¶</a></h2>
 
 <p>The six phases are research, plan, execute, review, verify, ship. Each phase is a skill, in the agent-anatomy sense - a packaged set of instructions the agent loads when the phase is active. Each phase has a clear input, a clear output, and a clear hand-off to the next phase. Each phase is designed to be gated at its boundary; today's concrete Superpowers implementation uses skill instructions to request the discipline, and you may need to wire in a project-specific PreToolUse hook to enforce the gating strictly. Kernel-level phase enforcement is still maturing as of mid-2026.</p>
 
@@ -2301,7 +2494,7 @@
     <span class="feedback-arrow">↻</span>
     <span class="feedback-text">Most failures route back to Plan, not back to Research</span>
   </div>
-  <figcaption>Figure 6.1. The six-phase loop.</figcaption>
+  <figcaption>Figure: The six-phase loop.</figcaption>
 </figure>
 
 
@@ -2419,12 +2612,10 @@
 </tbody>
 </table>
 <hr>
-<p><strong>Artifact: Phase artifact table.</strong> The six rows from this chapter, taped above your team's review-board: Research note, File-level plan, Diff + per-task reports, Review reports, Test evidence, PR with evidence trail.</p>
-<hr>
-<aside class="action-box"><div class="action-label">Ship this week</div>
+<aside class="artifact-box" id="artifact-5"><div class="artifact-header"><a class="anchor-link" href="#artifact-5" aria-label="Copy link to artifact" tabindex="0">¶</a><svg class="artifact-icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="10" height="13" rx="1.5"></rect><rect x="5.5" y="0.75" width="5" height="2.5" rx="0.5"></rect><line x1="5" y1="6.5" x2="11" y2="6.5"></line><line x1="5" y1="9" x2="11" y2="9"></line><line x1="5" y1="11.5" x2="9" y2="11.5"></line></svg><span class="artifact-label">Artifact</span></div><h4 class="artifact-title">Phase artifact table</h4><p>The six rows from this chapter, taped above your team's review-board: Research note, File-level plan, Diff + per-task reports, Review reports, Test evidence, PR with evidence trail.</p></aside><aside class="action-box"><div class="action-label">Ship this week</div>
 <p>Run one feature through the full six-phase loop. Time each phase. Note which phases ate the most wall clock and which produced the most value. The two are often not the same.</p>
-</aside><hr/>
-<h2 id="chapter-6" class="chapter-heading"><span class="chapter-num">Chapter 6</span><span class="chapter-title">AGENTS.md as team infrastructure</span></h2>
+</aside>
+<h2 id="chapter-6" class="chapter-heading"><span class="chapter-num">Chapter 6</span><span class="chapter-title">AGENTS.md as team infrastructure</span><a class="anchor-link" href="#chapter-6" aria-label="Copy link to section" tabindex="0">¶</a></h2>
 
 <hr>
 <p><strong>Names and conventions.</strong> The vendor-neutral standard for the team instruction file is <code>AGENTS.md</code>, with native support across Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, Zed, Windsurf, and others. The Claude Code-specific variant is <code>CLAUDE.md</code>. The format is markdown either way; the loading semantics are equivalent. If you came to this chapter from the Claude Code ecosystem, read <code>AGENTS.md</code> as "the file your agent reads at session start" - the discipline this chapter teaches is identical regardless of the filename. Where this manual discusses Claude Code-specific behavior, I use <code>CLAUDE.md</code>; otherwise I use the vendor-neutral name.</p>
@@ -2528,11 +2719,9 @@ Configuration in <code>src/main/resources/application.yml</code></p>
 <p>The good version is enforceable. It names the layer (DTOs at the controller boundary), the mechanism (Bean Validation annotations), the rule (services trust, do not re-validate), and two concrete examples the agent can pattern-match against. A rule like this catches mistakes in review. The bad version does not.</p>
 <p>The pattern: rules that name the layer, the mechanism, and at least one example are rules the agent can apply. Rules that gesture at principles are rules the agent will ignore.</p>
 <hr>
-<p><strong>Artifact: 15-line AGENTS.md starter.</strong> Three forbidden patterns, one mistake-journal entry from last quarter, the team's build and test commands, where the code lives. Commit it. Invite the team to expand.</p>
-<hr>
-<aside class="action-box"><div class="action-label">Ship this week</div>
+<aside class="artifact-box" id="artifact-6"><div class="artifact-header"><a class="anchor-link" href="#artifact-6" aria-label="Copy link to artifact" tabindex="0">¶</a><svg class="artifact-icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="10" height="13" rx="1.5"></rect><rect x="5.5" y="0.75" width="5" height="2.5" rx="0.5"></rect><line x1="5" y1="6.5" x2="11" y2="6.5"></line><line x1="5" y1="9" x2="11" y2="9"></line><line x1="5" y1="11.5" x2="9" y2="11.5"></line></svg><span class="artifact-label">Artifact</span></div><h4 class="artifact-title">15-line AGENTS.md starter</h4><p>Three forbidden patterns, one mistake-journal entry from last quarter, the team's build and test commands, where the code lives. Commit it. Invite the team to expand.</p></aside><aside class="action-box"><div class="action-label">Ship this week</div>
 <p>Draft a fifteen-line AGENTS.md for one project. Three forbidden patterns, one mistake-journal entry (real, from last quarter), the team's build and test commands, where the code lives. Commit it. Invite the team to expand it via pull request.</p>
-</aside><hr/>
+</aside>
 <aside class="try-box"><div class="try-label">Try it yourself</div>
 <p>The AGENTS.md you ship today should not be the AGENTS.md you would have written from scratch. It should be the one the team will actually read and maintain.</p>
 <ol>
@@ -2544,8 +2733,8 @@ Configuration in <code>src/main/resources/application.yml</code></p>
 <li>Hand the AGENTS.md to a teammate who has not worked in this repo. Watch where they get confused. Those are your next edits.</li>
 </ol>
 <p>A working AGENTS.md is one a teammate can read in five minutes and start contributing without further pings. The technique works for any agent that loads a team-instruction file at session start. The filename and the loader differ by vendor; the discipline is the same.</p>
-</aside><hr/>
-<h2 id="chapter-7" class="chapter-heading"><span class="chapter-num">Chapter 7</span><span class="chapter-title">Architecture Review: Documentation and Diagnosis</span></h2>
+</aside>
+<h2 id="chapter-7" class="chapter-heading"><span class="chapter-num">Chapter 7</span><span class="chapter-title">Architecture Review: Documentation and Diagnosis</span><a class="anchor-link" href="#chapter-7" aria-label="Copy link to section" tabindex="0">¶</a></h2>
 
 <p>In Chapter 2 I showed you how I used one coding agent to inspect the source code of two other coding agents, side by side. I called the anatomy invariant. Now I want to turn that observation into a workflow you can apply this week to a codebase your team owns and barely remembers.</p>
 <p>The workflow is straightforward. Point the agent at the repository. Ask it to produce a structured architecture review. Save the output as a durable artifact. Use the artifact as the entry point for any subsequent work in that codebase.</p>
@@ -2638,11 +2827,9 @@ Configuration in <code>src/main/resources/application.yml</code></p>
 <p>Run the workflow this week. Run it on your three or four most poorly-understood codebases. The agent's output will tell you a great deal about which of those codebases are ready for the rest of this manual and which need investment first.</p>
 <p>That is the bridge into the rest of Part III. The next chapter - the kill signals - is the structured rubric for evaluating codebase readiness. The architecture review workflow gives you the cheap empirical test; the kill signals give you the systematic checklist. They work together.</p>
 <hr>
-<p><strong>Artifact: Review prompt + human correction checklist.</strong> The architecture review prompt from Appendix B, paired with the five-point checklist of what the human must verify in the generated output.</p>
-<hr>
-<aside class="action-box"><div class="action-label">Ship this week</div>
+<aside class="artifact-box" id="artifact-7"><div class="artifact-header"><a class="anchor-link" href="#artifact-7" aria-label="Copy link to artifact" tabindex="0">¶</a><svg class="artifact-icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="10" height="13" rx="1.5"></rect><rect x="5.5" y="0.75" width="5" height="2.5" rx="0.5"></rect><line x1="5" y1="6.5" x2="11" y2="6.5"></line><line x1="5" y1="9" x2="11" y2="9"></line><line x1="5" y1="11.5" x2="9" y2="11.5"></line></svg><span class="artifact-label">Artifact</span></div><h4 class="artifact-title">Review prompt + human correction checklist</h4><p>The architecture review prompt from Appendix B, paired with the five-point checklist of what the human must verify in the generated output.</p></aside><aside class="action-box"><div class="action-label">Ship this week</div>
 <p>Pick the codebase nobody on the team understands well. Paste the architecture review prompt into the agent. Set a sixty-minute budget - agent processing plus your correction time. Commit the resulting document as <code>docs/architecture.md</code> and reference it from AGENTS.md. Then run the same workflow on two more poorly-understood codebases. Note which produce clean output and which produce garbage. That pattern is the diagnostic ahead of Chapter 8: clean output means agentic work has a chance; garbage output is one of the kill signals.</p>
-</aside><hr/>
+</aside>
 <aside class="try-box"><div class="try-label">Try it yourself</div>
 <p>The architecture review is the highest-leverage exercise in this manual. You can run it on any repository you can clone, in fifteen minutes per repository, and you can rerun it any time the codebase changes substantially.</p>
 <ol>
@@ -2654,7 +2841,7 @@ Configuration in <code>src/main/resources/application.yml</code></p>
 </ol>
 <p>On the May 2026 generation of agents, a medium codebase produces a useful review in four to ten minutes. A less self-documenting codebase takes closer to fifteen. The artifact you generate is the same one a senior engineer would have spent a week producing.</p>
 <p>The agents in your tool chain a year from now will be different. The exercise will not.</p>
-</aside><hr/>
+</aside>
 <p>Part II ends here. You have the method. You know how to formulate work in a way the agent can execute, the six-phase loop that turns formulation into delivery, the AGENTS.md infrastructure that makes the method portable, and the architecture review workflow that gets you productive in a new codebase in an afternoon - and that doubles as the cheapest diagnostic you have for whether agentic work will succeed on a given codebase.</p>
 <p>Part III is the reality check. The method works on a lot of things. It does not work on everything. The next three chapters are about the difference - the rubric that tells you which codebases are ready, the operational patterns for the brownfield ones that are, and the ninety-day arc for getting a team into sustained agentic delivery.</p>
 <hr>
@@ -2664,7 +2851,7 @@ Configuration in <code>src/main/resources/application.yml</code></p>
 <p><em>Where the method works, where it does not, and how to tell.</em></p>
 </blockquote>
 <hr>
-<h2 id="chapter-8" class="chapter-heading"><span class="chapter-num">Chapter 8</span><span class="chapter-title">Readiness: The Kill Signals and the Traffic Light</span></h2>
+<h2 id="chapter-8" class="chapter-heading"><span class="chapter-num">Chapter 8</span><span class="chapter-title">Readiness: The Kill Signals and the Traffic Light</span><a class="anchor-link" href="#chapter-8" aria-label="Copy link to section" tabindex="0">¶</a></h2>
 
 <p>An unfashionable claim to open this chapter. There are codebases where you should not use agentic delivery. Not because the agent is bad, not because the team is bad, but because the codebase has properties that make agentic work unsafe, unproductive, or both. The honest thing to do, when a team asks me whether they should put an agent on their legacy monolith, is to evaluate the codebase first, then answer.</p>
 <p>The rubric I use for this evaluation is eight kill signals. Each signal is a property of the codebase or the team. The more signals present, the more dangerous it is to put an agent in front of the code. At a certain threshold, you stop and fix the codebase before you bring the agent in.</p>
@@ -2804,7 +2991,7 @@ Configuration in <code>src/main/resources/application.yml</code></p>
       <li><span class="sig-num">8</span>Velocity-of-change</li>
     </ol>
   </div>
-  <figcaption>Figure 9.1. The kill signals and the traffic light decision rule. Signal 6 weighs more heavily than the others.</figcaption>
+  <figcaption>Figure: The kill signals and the traffic light decision rule. Signal 6 weighs more heavily than the others.</figcaption>
 </figure>
 
 
@@ -2839,11 +3026,9 @@ Configuration in <code>src/main/resources/application.yml</code></p>
 <p>Signal count: four (no tests on the custom layer, no documentation of the custom layer, severe coupling, scattered rules in the customizations). Red. The right answer is not "use the agent on the custom layer." The right answer is "decide whether to maintain the custom layer, replace the customizations with upstream features, or contribute the customizations back upstream where they can be tested and documented properly." The agent makes the customization-maintenance work faster, which is the wrong work to be fast at. Strategic clarity first; agentic productivity second.</p>
 <p>The lesson: red codebases are sometimes a signal about the codebase, and sometimes a signal about the strategic situation. The traffic light is a diagnostic. The diagnostic sometimes tells you to fix the codebase. Sometimes it tells you to question whether the codebase should exist in its current form at all.</p>
 <hr>
-<p><strong>Artifact: Portfolio readiness scorecard.</strong> One row per active project: signals scored, traffic-light color, recommended mode (agent-led / human-led / fix the codebase first).</p>
-<hr>
-<aside class="action-box"><div class="action-label">Ship this week</div>
+<aside class="artifact-box" id="artifact-8"><div class="artifact-header"><a class="anchor-link" href="#artifact-8" aria-label="Copy link to artifact" tabindex="0">¶</a><svg class="artifact-icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="10" height="13" rx="1.5"></rect><rect x="5.5" y="0.75" width="5" height="2.5" rx="0.5"></rect><line x1="5" y1="6.5" x2="11" y2="6.5"></line><line x1="5" y1="9" x2="11" y2="9"></line><line x1="5" y1="11.5" x2="9" y2="11.5"></line></svg><span class="artifact-label">Artifact</span></div><h4 class="artifact-title">Portfolio readiness scorecard</h4><p>One row per active project: signals scored, traffic-light color, recommended mode (agent-led / human-led / fix the codebase first).</p></aside><aside class="action-box"><div class="action-label">Ship this week</div>
 <p>Have the green/yellow/red conversation with your tech lead. Get one project officially classified. Defend the classification with the kill signal scores from yesterday.</p>
-</aside><hr/>
+</aside>
 <aside class="try-box"><div class="try-label">Try it yourself</div>
 <p>This is a self-assessment you can run on any project in under fifteen minutes. Honesty matters more than score; the score is downstream of the conversation it forces.</p>
 <ol>
@@ -2855,8 +3040,8 @@ Configuration in <code>src/main/resources/application.yml</code></p>
 </ol>
 <p>Run this exercise quarterly, after major incidents, and before any decision to expand agent scope to a new team or codebase. The traffic light makes the discussion concrete and shared. "We are YELLOW because four signals are TRIGGERED" beats "I have a bad feeling about this" in every meeting that follows.</p>
 <p>The specific kill signals will need updating as the field matures. The discipline of scoring will not.</p>
-</aside><hr/>
-<h2 id="chapter-9" class="chapter-heading"><span class="chapter-num">Chapter 9</span><span class="chapter-title">Patterns for brownfield codebases</span></h2>
+</aside>
+<h2 id="chapter-9" class="chapter-heading"><span class="chapter-num">Chapter 9</span><span class="chapter-title">Patterns for brownfield codebases</span><a class="anchor-link" href="#chapter-9" aria-label="Copy link to section" tabindex="0">¶</a></h2>
 
 <p>The traffic light tells you which codebases are ready for the agent. This chapter is about the operational patterns that make agentic work effective on legacy codebases - yellow projects in particular, where the practice matters most.</p>
 <p>I will walk through eight patterns. The first five are the default operating patterns I install on most brownfield teams: worktrees, champions, hooks, PR review, and governance storytelling. The final three are maturity patterns for teams past the first few months: mistake-journal review, demo-day backstop, and failure watchlist.</p>
@@ -2914,12 +3099,10 @@ Configuration in <code>src/main/resources/application.yml</code></p>
 <p>Eight patterns total. They will not all apply to every team. The first five - worktrees, champions, hookify, PR review, AI-selling governance - apply broadly. The remaining three - mistake-journal review, demo backstop, failure watchlist - are for teams that are past the first six months and ready to professionalize their practice.</p>
 <p>Next chapter: the adoption framework - how a team that has read this manual starts. Three roles, ninety days, specific commitments.</p>
 <hr>
-<p><strong>Artifact: Worktree + hook + review pattern.</strong> The three patterns this chapter installs on every brownfield codebase: an isolated worktree for agent work, a pre-tool-use hook for the dangerous-action categories, and a PR review checklist tuned to agent-generated diffs.</p>
-<hr>
-<aside class="action-box"><div class="action-label">Ship this week</div>
+<aside class="artifact-box" id="artifact-9"><div class="artifact-header"><a class="anchor-link" href="#artifact-9" aria-label="Copy link to artifact" tabindex="0">¶</a><svg class="artifact-icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="10" height="13" rx="1.5"></rect><rect x="5.5" y="0.75" width="5" height="2.5" rx="0.5"></rect><line x1="5" y1="6.5" x2="11" y2="6.5"></line><line x1="5" y1="9" x2="11" y2="9"></line><line x1="5" y1="11.5" x2="9" y2="11.5"></line></svg><span class="artifact-label">Artifact</span></div><h4 class="artifact-title">Worktree + hook + review pattern</h4><p>The three patterns this chapter installs on every brownfield codebase: an isolated worktree for agent work, a pre-tool-use hook for the dangerous-action categories, and a PR review checklist tuned to agent-generated diffs.</p></aside><aside class="action-box"><div class="action-label">Ship this week</div>
 <p>Set up one git worktree on a project you are about to dispatch the agent on. Use the worktree for the agent's work. Notice the isolation. The first time you accidentally do not destroy your local state, the pattern lands.</p>
-</aside><hr/>
-<h2 id="chapter-10" class="chapter-heading"><span class="chapter-num">Chapter 10</span><span class="chapter-title">Adoption: 90 days, three roles</span></h2>
+</aside>
+<h2 id="chapter-10" class="chapter-heading"><span class="chapter-num">Chapter 10</span><span class="chapter-title">Adoption: 90 days, three roles</span><a class="anchor-link" href="#chapter-10" aria-label="Copy link to section" tabindex="0">¶</a></h2>
 
 <p>I close the manual with the practical question: where do you start?</p>
 <p>Most successful adoptions of agentic delivery in 2025 and 2026 did not start with three roles. They started with one engineer who refused to give up. The Champion who installed the agent in their own working hours, who wrote the first <a href="https://agents.md/" target="_blank" rel="noopener noreferrer">AGENTS.md</a> against the team's quiet skepticism, who ran the first architecture review on a codebase the team had argued was unsuitable, and who came back the next month with a working PR that nobody else had been able to write. The three-role framework I will describe later in this chapter is the version available when the team has budget, management buy-in, and the bandwidth to staff Champion, Lead, and Manager as distinct people. Most teams I have worked with do not have that luxury at the start. They have one person, doing all three roles in sequence, surviving on momentum until the practice is real enough that other roles can be staffed. So that is where this chapter starts: with the engineer alone. The three-role version is what good looks like once you have proven the practice is worth investing in.</p>
@@ -2929,7 +3112,7 @@ Configuration in <code>src/main/resources/application.yml</code></p>
 <p>The honest answer is that the ideal three-role arc does not work for him. He does not have all three roles. The model would stall in month two when the procurement conversation fails to happen.</p>
 <p>But there is a second arc that does work for him, and for the many engineers like him. I have watched it succeed twice. I call it the grassroots arc. The grassroots arc is what most adoptions actually look like in the wild, not the orderly handoff between three distinct people.</p>
 <p>The grassroots arc has a different shape. The champion is the engineer with the curiosity. The lead and the manager get recruited later, after the champion has built the evidence to recruit them with. One person plays all three roles in sequence - champion in month one, de facto lead in month three when a peer joins, de facto manager-advocate in month six when the procurement conversation finally lands - instead of three people playing one each.</p>
-<p>Month one: the champion uses the agent for their own personal productivity. Architecture reviews on codebases they own. <a href="https://agents.md/" target="_blank" rel="noopener noreferrer">AGENTS.md</a> drafts for projects where they are the primary author. Six-phase loop on their own stories. The champion starts within existing policy, on work they already own, using non-sensitive code paths where possible. They do not announce an "AI transformation." They quietly build evidence.</p>
+<p>Month one: the champion uses the agent for their own personal productivity. Architecture reviews on codebases they own. AGENTS.md drafts for projects where they are the primary author. Six-phase loop on their own stories. The champion starts within existing policy, on work they already own, using non-sensitive code paths where possible. They do not announce an "AI transformation." They quietly build evidence.</p>
 <p>Month two: the champion writes up the results. Specific stories shipped with the agent. Specific time saved. Specific quality improvements (or honest acknowledgment where the agent did not help). The writeup is internal - a one-page memo or a presentation in a team meeting. The champion does not pitch adoption; they share what they did.</p>
 <p>Month three: a peer asks how to do the same thing. The champion teaches them. The two of them produce a more substantial writeup. They invite their tech lead to a walkthrough. The lead, who now has evidence and two engineers asking for the same workflow, finds it easier to advocate for the team-level commitments the ideal arc requires.</p>
 <p>Months four through six: the lead recruits the manager using the same evidence-plus-peer-demand pattern. The manager, now seeing two engineers shipping at noticeably better velocity, has a procurement conversation that does not require selling the concept from scratch.</p>
@@ -2944,7 +3127,7 @@ Configuration in <code>src/main/resources/application.yml</code></p>
 <p>The framework I recommend when the team has budget and management buy-in has three roles and a ninety-day arc. The roles are champion, lead, manager. Each one has specific commitments. Each commitment is small enough to fit alongside normal work; the cumulative effect is enough to move the team into sustained agentic delivery.</p>
 <p>The arc is asymmetric, which surprises people the first time I describe it. The first thirty days produce almost no measurable productivity. The champion is learning, the lead is classifying, the manager is procuring. The team is investing. The metrics will not show benefit yet, and people who expect immediate ROI will be disappointed.</p>
 <p>The second thirty days produce visible productivity on the green project. The team starts shipping work the way I described in Part II - research, plan, execute, review, verify, ship. The cycle times improve. The quality holds. The reviewers start to notice that the agent-produced PRs are easier to review than the pre-agent PRs were, because the description is more structured.</p>
-<p>The third thirty days produce compounding effects across the team. Other engineers join the workflow. The <a href="https://agents.md/" target="_blank" rel="noopener noreferrer">AGENTS.md</a> grows. The mistake journal accumulates real entries. The yellow projects start to move toward green as the structural investments land. The conversation at the end of the quarter is not "did we save time" but "how do we scale this."</p>
+<p>The third thirty days produce compounding effects across the team. Other engineers join the workflow. The AGENTS.md grows. The mistake journal accumulates real entries. The yellow projects start to move toward green as the structural investments land. The conversation at the end of the quarter is not "did we save time" but "how do we scale this."</p>
 <p>The shape of the curve is roughly exponential - small at first, larger in the middle, substantial by the end. Companies that measure productivity at thirty days will be disappointed. Companies that measure at ninety days will see the picture. Tell your stakeholders about the asymmetry up front; manage the expectation accordingly. The framework works; it does not work fast for the first thirty days, and that is by design.</p>
 <p>The three roles are timed differently because the asymmetric arc demands it. The champion goes first because the early investment is technical. The lead joins as the work becomes visible and needs portfolio-level decisions. The manager closes the loop in month three when the results need to be translated into strategic terms. Each role's commitments below reflect this timing. (In the grassroots arc above, the same arc applies, but one person plays each role in sequence - read the commitments below as the work that has to get done, not as the work three separate people must do.)</p>
 
@@ -2984,7 +3167,7 @@ Configuration in <code>src/main/resources/application.yml</code></p>
       <div class="arc-role">Manager</div>
     </div>
   </div>
-  <figcaption>Figure 11.1. The 90-day adoption arc. Each phase has a primary role and a primary artifact set.</figcaption>
+  <figcaption>Figure: The 90-day adoption arc. Each phase has a primary role and a primary artifact set.</figcaption>
 </figure>
 
 
@@ -3025,7 +3208,7 @@ Configuration in <code>src/main/resources/application.yml</code></p>
 <hr>
 <h3>Two engineer archetypes that kill rollouts if you do not name them</h3>
 <p>The three roles describe what happens when the arc works. There are two engineer archetypes you will see on every team during adoption that will quietly kill the rollout if you do not name them out loud.</p>
-<p>Archetype one: the principled skeptic. The senior engineer who has seen AI hype cycles before and is not convinced this one is different. They will not use the agent. They will not write an <a href="https://agents.md/" target="_blank" rel="noopener noreferrer">AGENTS.md</a> for the modules they own. They will review agent-led PRs with extra hostility, looking for evidence that the approach is wrong. Two ways this plays out badly. The team starts working around them - their reviews delay PRs, their modules become an island the agent does not touch, the codebase bifurcates into agent-friendly and agent-hostile territories. Or the principled skeptic wins the political argument inside the team and the rollout stalls. The fix is not to convert the principled skeptic. Senior engineers earn the right to disagree. The fix is to give them a defined boundary: "your modules, your rules, the agent will not touch them; everywhere else, the team standard applies." And make sure their review burden does not become the team's velocity bottleneck - if every agent-led PR sits in their queue, the team has bought the principled skeptic veto power they did not intend to grant.</p>
+<p>Archetype one: the principled skeptic. The senior engineer who has seen AI hype cycles before and is not convinced this one is different. They will not use the agent. They will not write an AGENTS.md for the modules they own. They will review agent-led PRs with extra hostility, looking for evidence that the approach is wrong. Two ways this plays out badly. The team starts working around them - their reviews delay PRs, their modules become an island the agent does not touch, the codebase bifurcates into agent-friendly and agent-hostile territories. Or the principled skeptic wins the political argument inside the team and the rollout stalls. The fix is not to convert the principled skeptic. Senior engineers earn the right to disagree. The fix is to give them a defined boundary: "your modules, your rules, the agent will not touch them; everywhere else, the team standard applies." And make sure their review burden does not become the team's velocity bottleneck - if every agent-led PR sits in their queue, the team has bought the principled skeptic veto power they did not intend to grant.</p>
 <p>Archetype two: the uncalibrated delegator. The engineer (often more junior, sometimes more senior than you would expect) who skips the careful read of the agent's output because "the agent always does it right." The problem is not delegation itself; the problem is poor calibration of when to trust and when to inspect. They ship agent-led PRs without working through them. Defects compound, because the agent makes mistakes the human would have caught if the human had been paying attention. Two ways this plays out badly. Defect rate creeps up and the team blames the agent rather than the missing review step. Or the uncalibrated delegator's own domain knowledge atrophies, and six months in they cannot debug the system the agent helped them build. The fix is the review discipline already named: every agent-led PR gets the same human review as every human-led PR, no exceptions. For the first month, pair the uncalibrated delegator with a senior reviewer who reads the agent's output line by line. Calibrate.</p>
 <p>Both archetypes are predictable. Name them out loud in the rollout. Treat each as a structural problem with a structural fix, not as a character flaw. The teams that do this keep both archetypes contributing. The teams that do not, lose the principled skeptic to a quiet rebellion and lose the uncalibrated delegator to a slow erosion of judgment.</p>
 <hr>
@@ -3044,18 +3227,16 @@ Configuration in <code>src/main/resources/application.yml</code></p>
 <p>The teams that follow this arc will, in two years, be the teams that have been compounding for two years. The teams that picked a tool, integrated it carelessly, and waited for the productivity to arrive will be the teams that say "we tried AI and it did not work."</p>
 <p>You get to choose which kind of team you are.</p>
 <hr>
-<p><strong>Artifact: 90-day rollout board.</strong> A whiteboard or shared doc with the three role lanes (Champion, Lead, Manager) and the four artifact families (CLAUDE.md / <a href="https://agents.md/" target="_blank" rel="noopener noreferrer">AGENTS.md</a>, hooks, skills, metrics dashboard). Use it as the working board for the rollout, not as a presentation slide.</p>
-<hr>
-<aside class="action-box"><div class="action-label">Ship this week</div>
+<aside class="artifact-box" id="artifact-10"><div class="artifact-header"><a class="anchor-link" href="#artifact-10" aria-label="Copy link to artifact" tabindex="0">¶</a><svg class="artifact-icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="10" height="13" rx="1.5"></rect><rect x="5.5" y="0.75" width="5" height="2.5" rx="0.5"></rect><line x1="5" y1="6.5" x2="11" y2="6.5"></line><line x1="5" y1="9" x2="11" y2="9"></line><line x1="5" y1="11.5" x2="9" y2="11.5"></line></svg><span class="artifact-label">Artifact</span></div><h4 class="artifact-title">90-day rollout board</h4><p>A whiteboard or shared doc with the three role lanes (Champion, Lead, Manager) and the four artifact families (CLAUDE.md / AGENTS.md, hooks, skills, metrics dashboard). Use it as the working board for the rollout, not as a presentation slide.</p></aside><aside class="action-box"><div class="action-label">Ship this week</div>
 <p>Pick your role - champion, lead, manager. Make the first commitment from that role's checklist this week. Schedule the action. The arc starts when the calendar event is on someone's calendar.</p>
-</aside><hr/>
+</aside>
 <h1 id="closing" class="closing-heading"><span class="part-label">Closing</span><span class="part-title">A way of thinking that survives the tools</span></h1>
 
 <p>Ending the manual where it started: a claim about durability.</p>
 <p>The specific tools I have named throughout - Claude Code, Codex CLI, opencode, Superpowers, hookify, Understand Anything, the various plugins and marketplaces - will all be different by the time the next edition of this manual would be due. Some of them will have been deprecated. Some will have been rebranded. Some will have been absorbed into larger products. The marketplace itself will have churned through hundreds of competing offerings. New entrants will appear. Old leaders will fall.</p>
 <p>What you have learned in this manual is not the tools. What you have learned is a way of thinking that survives the tools.</p>
 <p>The architecture you learned in Part I is invariant. The six primitives - context window, tools, skills, plugins, MCP, subagents - plus the harness that organizes them. Most production-grade coding agents converge on this anatomy. The coding agents that emerge in the next decade will, in most cases, take a similar shape, because the anatomy is determined by the work, not by the vendor. When you evaluate a new agent, you walk down the list, ask the six questions, and you have your answer.</p>
-<p>The method you learned in Part II is invariant. The shift from generating code to formulating work clearly is the foundational insight. The six-phase loop is one implementation of formulation discipline; other implementations will appear. The <a href="https://agents.md/" target="_blank" rel="noopener noreferrer">AGENTS.md</a> pattern - committed code that encodes team conventions for the agent to read - will exist under different names in different tools, but the principle is permanent: discipline as code, not as oral tradition.</p>
+<p>The method you learned in Part II is invariant. The shift from generating code to formulating work clearly is the foundational insight. The six-phase loop is one implementation of formulation discipline; other implementations will appear. The AGENTS.md pattern - committed code that encodes team conventions for the agent to read - will exist under different names in different tools, but the principle is permanent: discipline as code, not as oral tradition.</p>
 <p>The reality you learned in Part III is invariant. The kill signals are properties of codebases and teams, not of the tools that work on them. The traffic light is a decision rule that applies regardless of which agent you happen to be using this quarter. The adoption arc - champion, lead, manager, ninety days - is the same arc for any tooling transition that touches engineering practice meaningfully. The specific tooling changes; the change-management frame does not.</p>
 <p>If you put down this manual, install the agent of the moment, and run the workflow exactly as I described it, you will get value. The instructions are concrete enough to follow literally.</p>
 <p>If you put down this manual, internalize the architecture-method-reality frame, and apply it to whichever tools you happen to encounter over the next decade, you will get a great deal more value. The frame is the asset. The specific instructions are the worked example.</p>
@@ -3086,7 +3267,17 @@ Configuration in <code>src/main/resources/application.yml</code></p>
 <p>-- Mihai Cvasnievschi</p>
 <p>Bucharest, 2026</p>
 <hr>
-<h2 id="appendix-a" class="appendix-heading"><span class="appendix-label">Appendix A</span><span class="appendix-title">Cost Economics</span></h2>
+<h2 id="about-the-author">About the author</h2>
+<p>The shape of a manual depends on the shape of the writer, and you deserve to know whether the writer's experience is the kind of experience that maps to your situation.</p>
+<p>I first met a computer in my parents' office around 1984, when I was six - a mainframe room with a raised floor, Space Invaders running on a terminal, and an introduction to BASIC. I wrote my first programs in BASIC in 1989. Borland Pascal in DOS followed in 1993, then Visual Basic, the first real IDE I used and the first language I sold software in as a teenager. My professional career started in 2000 as IT Manager for a manufacturing company. In 2001 I moved into software engineering proper, joining a startup that built multicasting software for satellite operators running DVB. When the startup lost its investors and pivoted to outsourcing, I switched from C++ to .NET, and spent the next two decades, through 2023, delivering for customers across industries on Visual Studio.NET and its descendants. I am, by training and inclination, an engineer first and a consultant second; the consulting work is the secondary outgrowth of doing engineering with teams who want help.</p>
+<p>My interest in machine learning started around 2013. The first serious deep dive came in late 2015, when I ported DarkNet and YOLO onto an XR headset; that is when I started building AI applications professionally. In 2023 I joined a company building the first neuromorphic SoC, working on the nano-ML end of the field. On the assisted-coding side, I have used every generation: Whole Tomato's Visual Assist (the first intelligent coding assistant I ever installed), the early JetBrains tooling in the .NET world, the first releases of Copilot, and LLMs for coding since the day ChatGPT first shipped. I have not built my own coding agent. I have used most of the ones that ship now, and I have watched a lot of teams use them.</p>
+<p>The manual draws on this trajectory. The methodology I describe has been refined across dozens of engagements with teams of varying sizes, in varying industries, in varying states of agentic readiness. The frames I share are the ones that have held up across the engagements; the ones that did not hold up have been retired. This is not the first set of frames I wrote about agentic delivery. It is the third or fourth iteration. The earlier iterations were wrong in interesting ways. This one is, I hope, less wrong.</p>
+<p>I am not neutral about the topic. I think agentic software delivery is the most consequential shift in our field since the introduction of high-level programming languages. I also think the way most teams are currently adopting it is doing them more harm than good. Both of those things can be true. The point of the manual is to help you adopt in a way that captures the upside without the harm. The frameworks are how.</p>
+<p>That trajectory - four decades of writing code, twenty-five of them professional, more than a decade building AI systems, every generation of coding assistant in between - is the trajectory the manual is written from. Calibrate your expectations accordingly.</p>
+<p><a id="contact"></a>
+<em>Contact: <a href="mailto:info@ship-it-with.ai">info@ship-it-with.ai</a> for technical conversations or tailored workshops, in-person or online, shaped to your team's codebase and constraints. Find me on <a href="https://www.linkedin.com/in/mihaicvasnievschi/" target="_blank" rel="noopener noreferrer">LinkedIn</a>. For executive and non-technical leadership audiences, the sister practice at <a href="https://ai-leaders.ro" target="_blank" rel="noopener noreferrer">ai-leaders.ro</a> covers the adoption side without the engineering depth.</em></p>
+<hr>
+<h2 id="appendix-a" class="appendix-heading"><span class="appendix-label">Appendix A</span><span class="appendix-title">Cost Economics</span><a class="anchor-link" href="#appendix-a" aria-label="Copy link to section" tabindex="0">¶</a></h2>
 
 <p>The second most common question from engineering managers after "does it work" is "what does it cost." Specific prices change every quarter; the rubric does not. Plug your team's numbers into the structure below.</p>
 <h3>Pricing tiers</h3>
@@ -3100,13 +3291,13 @@ Configuration in <code>src/main/resources/application.yml</code></p>
 <h3>What is not in the sticker price</h3>
 <p>The vendor's quote is the easy part. Four categories are not in it and dominate the real total cost of ownership.</p>
 <p><strong>Integration.</strong> Writing your custom skills, configuring your hooks, setting up MCP servers for internal systems. One-time investment of engineer-weeks; pays back over the lifetime of agent use.</p>
-<p><strong>Skill-authoring time.</strong> Maintaining <a href="https://agents.md/" target="_blank" rel="noopener noreferrer">AGENTS.md</a>, writing and updating skills as the codebase evolves. Ongoing; typically a few hours per engineer per month, plus concentrated time from the team's champion (Chapter 10).</p>
+<p><strong>Skill-authoring time.</strong> Maintaining AGENTS.md, writing and updating skills as the codebase evolves. Ongoing; typically a few hours per engineer per month, plus concentrated time from the team's champion (Chapter 10).</p>
 <p><strong>Review time.</strong> Reviewing agent output. Less per change than reviewing hand-written code in most cases, but not zero, and concentrated on senior reviewers.</p>
 <p><strong>Governance overhead.</strong> Security review through your CISO. Zero Data Retention addendum negotiation. Procurement cycle time. Audit logging infrastructure. Vendor-risk monitoring. Variable by company; ranges from a week to a quarter.</p>
 <h3>Pricing changes; the math does not</h3>
 <p>Specific prices in any quarter will be wrong the next quarter. The shape of the math will not. Per-seat scales with team size; per-token scales with usage intensity; enterprise plans bundle both with compliance. The bounding heuristic and the four-category TCO list survive every pricing change. Walk into the procurement conversation in Chapter 10's manager section with your own numbers in this rubric.</p>
 <hr>
-<h2 id="appendix-b" class="appendix-heading"><span class="appendix-label">Appendix B</span><span class="appendix-title">Templates</span></h2>
+<h2 id="appendix-b" class="appendix-heading"><span class="appendix-label">Appendix B</span><span class="appendix-title">Templates</span><a class="anchor-link" href="#appendix-b" aria-label="Copy link to section" tabindex="0">¶</a></h2>
 
 <p>Five copy-paste templates referenced throughout the manual. All are starting points; customize for your team.</p>
 <h3>B.1 Architecture review prompt</h3>
@@ -3125,7 +3316,7 @@ Configuration in <code>src/main/resources/application.yml</code></p>
 Cite specific files and line numbers throughout. Where the codebase is ambiguous, say so explicitly. Where you encounter patterns the team should formalize, suggest the convention.
 </code></pre>
 <h3>B.2 AGENTS.md skeleton</h3>
-<p>This template works as either <a href="https://agents.md/" target="_blank" rel="noopener noreferrer">AGENTS.md</a> (vendor-neutral standard) or CLAUDE.md (Claude Code variant). The filename varies by agent; the markdown format does not.</p>
+<p>This template works as either AGENTS.md (vendor-neutral standard) or CLAUDE.md (Claude Code variant). The filename varies by agent; the markdown format does not.</p>
 <pre><code># AGENTS.md
 
 ## Forbidden patterns
@@ -3293,10 +3484,10 @@ Months 4-6: lead recruits manager using two-engineer evidence base.
 Twice as long as the ideal arc; works in companies that are not yet ready for the ideal one.
 </code></pre>
 <hr>
-<h2 id="appendix-c" class="appendix-heading"><span class="appendix-label">Appendix C</span><span class="appendix-title">Sources and Further Reading</span></h2>
+<h2 id="appendix-c" class="appendix-heading"><span class="appendix-label">Appendix C</span><span class="appendix-title">Sources and Further Reading</span><a class="anchor-link" href="#appendix-c" aria-label="Copy link to section" tabindex="0">¶</a></h2>
 
 <p>This appendix exists because every claim in this manual deserves a verifiable source if you choose to chase it down. I have organized the entries by claim, not by source, so you can map back from a passage in the body to the evidence behind it. Entries are grouped by category (studies, named incidents, vulnerabilities with patch versions, tool documentation, marketplaces) and each entry follows the same shape: the claim, the source, where in the manual it is used, and any caveat worth knowing.</p>
-<h3 id="studies-and-research" class="source-group">Studies and research</h3>
+<h3 id="studies-and-research" class="source-group">Studies and research<a class="anchor-link" href="#studies-and-research" aria-label="Copy link to section" tabindex="0">¶</a></h3>
 <article class="source-card" data-cat="study">
   <span class="source-card-cat">Study</span>
   <dl class="source-grid">
@@ -3305,7 +3496,7 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
     <dt>Where used</dt><dd class="source-where">Chapter 4 (From generating code to shipping software).</dd>
     <dt>Caveat</dt><dd class="source-caveat">Tested raw AI assistance (Cursor + Claude) without a formulation-discipline variable. My interpretation that workflow discipline is the missing variable is mine, not the study's.</dd>
   </dl>
-</article><h3 id="named-incidents" class="source-group">Named incidents</h3>
+</article><h3 id="named-incidents" class="source-group">Named incidents<a class="anchor-link" href="#named-incidents" aria-label="Copy link to section" tabindex="0">¶</a></h3>
 <article class="source-card" data-cat="incident">
   <span class="source-card-cat">Incident</span>
   <dl class="source-grid">
@@ -3330,7 +3521,7 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
     <dt>Where used</dt><dd class="source-where">Chapter 4 (From generating code to shipping software).</dd>
     <dt>Caveat</dt><dd class="source-caveat">Independent analyses of code-quality degradation were less rigorous than the post-mortem; treat the magnitude as approximate.</dd>
   </dl>
-</article><h3 id="vulnerabilities-with-patch-versions" class="source-group">Vulnerabilities with patch versions</h3>
+</article><h3 id="vulnerabilities-with-patch-versions" class="source-group">Vulnerabilities with patch versions<a class="anchor-link" href="#vulnerabilities-with-patch-versions" aria-label="Copy link to section" tabindex="0">¶</a></h3>
 <article class="source-card" data-cat="vuln">
   <span class="source-card-cat">Vulnerability</span>
   <dl class="source-grid">
@@ -3371,7 +3562,7 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
     <dt>Where used</dt><dd class="source-where">Chapter 3 (Governance in layers), as the permission-parser bypass class.</dd>
     <dt>Caveat</dt><dd class="source-caveat">Architectural, not a single CVE. Mitigation is the OS sandbox <code>denyRead</code> list (kernel-level), not a vendor patch. The class persists across patches because the parser cannot enumerate every binary.</dd>
   </dl>
-</article><h3 id="tool-documentation" class="source-group">Tool documentation</h3>
+</article><h3 id="tool-documentation" class="source-group">Tool documentation<a class="anchor-link" href="#tool-documentation" aria-label="Copy link to section" tabindex="0">¶</a></h3>
 <article class="source-card" data-cat="docs">
   <span class="source-card-cat">Tool documentation</span>
   <dl class="source-grid">
@@ -3391,7 +3582,7 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
 </article><article class="source-card" data-cat="docs">
   <span class="source-card-cat">Tool documentation</span>
   <dl class="source-grid">
-    <dt>Claim</dt><dd class="source-claim">Codex CLI documents <a href="https://agents.md/" target="_blank" rel="noopener noreferrer">AGENTS.md</a> as the convention for project-level agent instructions, loaded at session start and equivalent in role to other vendors' team-instruction files.</dd>
+    <dt>Claim</dt><dd class="source-claim">Codex CLI documents AGENTS.md as the convention for project-level agent instructions, loaded at session start and equivalent in role to other vendors' team-instruction files.</dd>
     <dt>Source</dt><dd class="source-source">OpenAI Codex CLI documentation, <a href="https://developers.openai.com/codex/agents-md" target="_blank" rel="noopener noreferrer">developers.openai.com/codex/agents-md</a>.</dd>
     <dt>Where used</dt><dd class="source-where">Chapter 1 (Six primitives, skills section) and Chapter 6 (AGENTS.md as team infrastructure).</dd>
     <dt>Caveat</dt><dd class="source-caveat">Filename and loading semantics are stable; specific frontmatter and discovery rules may evolve with versions.</dd>
@@ -3436,7 +3627,7 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
     <dt>Where used</dt><dd class="source-where">Chapter 1 (Six primitives), as evidence for subagent-primitive convergence within roughly a year.</dd>
     <dt>Caveat</dt><dd class="source-caveat">Vendor surface areas evolve; the convergence claim survives even when specific product names rebrand.</dd>
   </dl>
-</article><h3 id="marketplaces-and-plugin-ecosystems" class="source-group">Marketplaces and plugin ecosystems</h3>
+</article><h3 id="marketplaces-and-plugin-ecosystems" class="source-group">Marketplaces and plugin ecosystems<a class="anchor-link" href="#marketplaces-and-plugin-ecosystems" aria-label="Copy link to section" tabindex="0">¶</a></h3>
 <article class="source-card" data-cat="market">
   <span class="source-card-cat">Marketplace</span>
   <dl class="source-grid">
@@ -3526,7 +3717,7 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
     </div>
   </div>
 
-  <script id="searchIndex" type="application/json">[{"id":"part-i","title":"Part I: Architecture","subtitle":"Part","snippet":"How agents are built and how you control them.","kind":"part"},{"id":"part-ii","title":"Part II: Method","subtitle":"Part","snippet":"How you ship software with agents.","kind":"part"},{"id":"part-iii","title":"Part III: Reality","subtitle":"Part","snippet":"Where the method works, where it does not, and how to tell.","kind":"part"},{"id":"foreword","title":"Foreword: Why this manual","subtitle":"Front matter","snippet":"This manual exists because I am tired of having the same conversation.","kind":"section"},{"id":"how-to-read-this-book","title":"How to read this manual","subtitle":"Front matter","snippet":"This is a field manual. Read it linearly the first time; treat it as a reference after.","kind":"section"},{"id":"a-note-on-dated-claims","title":"A note on dated claims","subtitle":"Front matter","snippet":"Tool-specific references in this manual are current as of May 2026. The frameworks are intended to outlast the specific tools. When a named...","kind":"section"},{"id":"scope-and-limits","title":"Scope and limits","subtitle":"Front matter","snippet":"A field manual that does not name its own failure modes will lose to the reader's experience the moment that experience diverges from the...","kind":"section"},{"id":"cases-used-in-this-book","title":"Cases used in this manual","subtitle":"Front matter","snippet":"Each of these case studies recurs across multiple chapters. The list exists so you can navigate by example as well as by framework.","kind":"section"},{"id":"nine-seconds","title":"Nine seconds","subtitle":"Prologue","snippet":"On April 24, 2026, a small SaaS company called PocketOS, a car rental management product, lost its production database to an AI agent that...","kind":"section"},{"id":"chapter-1","title":"Chapter 1: Six primitives","subtitle":"Chapter","snippet":"Open the source code or documentation of most production-grade coding agents - Codex CLI in Rust, opencode in TypeScript, the public-source...","kind":"chapter"},{"id":"chapter-2","title":"Chapter 2: The anatomy invariant","subtitle":"Chapter","snippet":"While preparing this manual, I ran an experiment to test the framework empirically. The result was the side-by-side demonstration this...","kind":"chapter"},{"id":"chapter-3","title":"Chapter 3: Governance in layers","subtitle":"Chapter","snippet":"I opened the manual with PocketOS. Here is the part of the lesson that requires its own chapter: governance, layered.","kind":"chapter"},{"id":"chapter-4","title":"Chapter 4: From generating code to shipping software","subtitle":"Chapter","snippet":"The most common failure I see in teams adopting agentic coding is that they treat the agent as a code generator. They use the agent for the...","kind":"chapter"},{"id":"chapter-5","title":"Chapter 5: The six-phase loop","subtitle":"Chapter","snippet":"The six phases are research, plan, execute, review, verify, ship. Each phase is a skill, in the agent-anatomy sense - a packaged set of...","kind":"chapter"},{"id":"chapter-6","title":"Chapter 6: AGENTS.md as team infrastructure","subtitle":"Chapter","snippet":"Names and conventions. The vendor-neutral standard for the team instruction file is , with native support across Codex CLI, Cursor, GitHub...","kind":"chapter"},{"id":"chapter-7","title":"Chapter 7: Architecture Review: Documentation and Diagnosis","subtitle":"Chapter","snippet":"In Chapter 2 I showed you how I used one coding agent to inspect the source code of two other coding agents, side by side. I called the...","kind":"chapter"},{"id":"chapter-8","title":"Chapter 8: Readiness: The Kill Signals and the Traffic Light","subtitle":"Chapter","snippet":"An unfashionable claim to open this chapter. There are codebases where you should not use agentic delivery. Not because the agent is bad,...","kind":"chapter"},{"id":"chapter-9","title":"Chapter 9: Patterns for brownfield codebases","subtitle":"Chapter","snippet":"The traffic light tells you which codebases are ready for the agent. This chapter is about the operational patterns that make agentic work...","kind":"chapter"},{"id":"chapter-10","title":"Chapter 10: Adoption: 90 days, three roles","subtitle":"Chapter","snippet":"I close the manual with the practical question: where do you start?","kind":"chapter"},{"id":"closing","title":"Closing: A way of thinking that survives the tools","subtitle":"Closing","snippet":"Ending the manual where it started: a claim about durability.","kind":"section"},{"id":"appendix-a","title":"Appendix A: Cost Economics","subtitle":"Appendix","snippet":"The second most common question from engineering managers after \"does it work\" is \"what does it cost.\" Specific prices change every...","kind":"section"},{"id":"appendix-b","title":"Appendix B: Templates","subtitle":"Appendix","snippet":"Five copy-paste templates referenced throughout the manual. All are starting points; customize for your team.","kind":"section"},{"id":"appendix-c","title":"Appendix C: Sources and Further Reading","subtitle":"Appendix","snippet":"This appendix exists because every claim in this manual deserves a verifiable source if you choose to chase it down. I have organized the...","kind":"section"},{"id":"the-shift-in-context","title":"The shift, in context","subtitle":"Foreword - Why this manual","snippet":"Seventy years ago, programming meant punching holes in cardboard cards and waiting overnight to find out whether your program ran. Sixty...","kind":"subsection"},{"id":"where-i-am-coming-from","title":"Where I am coming from","subtitle":"Foreword - Why this manual","snippet":"The shape of a manual depends on the shape of the writer, and you deserve to know whether the writer's experience is the kind of experience...","kind":"subsection"},{"id":"what-agentic-ai-means-in-this-book","title":"What \"agentic AI\" means in this manual","subtitle":"Foreword - Why this manual","snippet":"I have been calling this \"agentic AI\" without defining it. Here is the definition.","kind":"subsection"},{"id":"the-frame-of-this-book","title":"The frame of this manual","subtitle":"Foreword - Why this manual","snippet":"Three parts. Architecture: how agents are built and how to evaluate the next one when it arrives. Method: the iterative loop that turns \"AI...","kind":"subsection"},{"id":"most-adoptions-start-here-the-grassroots-arc","title":"Most adoptions start here: the grassroots arc","subtitle":"Chapter 10 - Adoption: 90 days, three roles","snippet":"The first time I taught the three-role rubric, an engineer in the back row raised his hand and said: \"My company does not look like that....","kind":"subsection"},{"id":"the-trade-off-named-honestly","title":"The trade-off, named honestly","subtitle":"Chapter 10 - Adoption: 90 days, three roles","snippet":"The grassroots arc is faster to start and fragile to the champion leaving. If the one engineer carrying the practice changes teams or burns...","kind":"subsection"},{"id":"the-ideal-version-three-roles-in-parallel","title":"The ideal version: three roles in parallel","subtitle":"Chapter 10 - Adoption: 90 days, three roles","snippet":"The framework I recommend when the team has budget and management buy-in has three roles and a ninety-day arc. The roles are champion,...","kind":"subsection"},{"id":"two-engineer-archetypes-that-kill-rollouts-if-you-do-not-name-them","title":"Two engineer archetypes that kill rollouts if you do not name them","subtitle":"Chapter 10 - Adoption: 90 days, three roles","snippet":"The three roles describe what happens when the arc works. There are two engineer archetypes you will see on every team during adoption that...","kind":"subsection"},{"id":"the-vendor-will-have-a-bad-week","title":"The vendor will have a bad week","subtitle":"Chapter 10 - Adoption: 90 days, three roles","snippet":"One operational reality the rollout has to plan for: the agent will not always be available. Vendor outages happen. Capacity throttles...","kind":"subsection"},{"id":"pricing-tiers","title":"Pricing tiers","subtitle":"Appendix A - Cost Economics","snippet":"Three pricing models dominate, in roughly this order of complexity:","kind":"subsection"},{"id":"the-bounding-heuristic","title":"The bounding heuristic","subtitle":"Appendix A - Cost Economics","snippet":"Cost-per-engineer-per-month for an agentic coding tool is bounded by what your team would otherwise have spent on similar tooling: IDE...","kind":"subsection"},{"id":"what-is-not-in-the-sticker-price","title":"What is not in the sticker price","subtitle":"Appendix A - Cost Economics","snippet":"The vendor's quote is the easy part. Four categories are not in it and dominate the real total cost of ownership.","kind":"subsection"},{"id":"pricing-changes-the-math-does-not","title":"Pricing changes; the math does not","subtitle":"Appendix A - Cost Economics","snippet":"Specific prices in any quarter will be wrong the next quarter. The shape of the math will not. Per-seat scales with team size; per-token...","kind":"subsection"},{"id":"b1-architecture-review-prompt","title":"B.1 Architecture review prompt","subtitle":"Appendix B - Templates","snippet":"This template works as either AGENTS.md (vendor-neutral standard) or CLAUDE.md (Claude Code variant). The filename varies by agent; the...","kind":"subsection"},{"id":"b2-agentsmd-skeleton","title":"B.2 AGENTS.md skeleton","subtitle":"Appendix B - Templates","snippet":"This template works as either AGENTS.md (vendor-neutral standard) or CLAUDE.md (Claude Code variant). The filename varies by agent; the...","kind":"subsection"},{"id":"b3-six-phase-loop-checklist-one-pager","title":"B.3 Six-phase loop checklist (one-pager)","subtitle":"Appendix B - Templates","snippet":"This appendix exists because every claim in this manual deserves a verifiable source if you choose to chase it down. I have organized the...","kind":"subsection"},{"id":"b4-kill-signal-scoring-worksheet","title":"B.4 Kill signal scoring worksheet","subtitle":"Appendix B - Templates","snippet":"This appendix exists because every claim in this manual deserves a verifiable source if you choose to chase it down. I have organized the...","kind":"subsection"},{"id":"b5-90-day-adoption-calendar-one-pager","title":"B.5 90-day adoption calendar (one-pager)","subtitle":"Appendix B - Templates","snippet":"This appendix exists because every claim in this manual deserves a verifiable source if you choose to chase it down. I have organized the...","kind":"subsection"},{"id":"studies-and-research","title":"Studies and research","subtitle":"Appendix C - Sources and Further Reading","snippet":"Claim: Experienced open-source developers using AI assistance on familiar repositories were 19% slower than the same developers without it,...","kind":"subsection"},{"id":"named-incidents","title":"Named incidents","subtitle":"Appendix C - Sources and Further Reading","snippet":"Claim: On April 24, 2026, PocketOS lost its production database in nine seconds when a Cursor agent powered by Claude Opus 4.6 invoked...","kind":"subsection"},{"id":"vulnerabilities-with-patch-versions","title":"Vulnerabilities with patch versions","subtitle":"Appendix C - Sources and Further Reading","snippet":"Claim: Claude Code was vulnerable to remote code execution via untrusted project files: malicious or files in untrusted repos could execute...","kind":"subsection"},{"id":"tool-documentation","title":"Tool documentation","subtitle":"Appendix C - Sources and Further Reading","snippet":"Claim: Codex CLI shipped Agent Skills as a first-class primitive in December 2025, with SKILL.md files using YAML frontmatter and...","kind":"subsection"},{"id":"marketplaces-and-plugin-ecosystems","title":"Marketplaces and plugin ecosystems","subtitle":"Appendix C - Sources and Further Reading","snippet":"Claim: Anthropic's marketplace ships built-in with Claude Code as of May 2026 and bundles skills, hooks, tools, and commands behind a...","kind":"subsection"},{"id":"notes-on-currency","title":"Notes on currency","subtitle":"Appendix C - Sources and Further Reading","snippet":"Most of the sources in this appendix are dated. Tool documentation updates frequently; vulnerability records get amended as patches ship...","kind":"subsection"}]</script>
+  <script id="searchIndex" type="application/json">[{"id":"part-i","title":"Part I: Architecture","subtitle":"Part","snippet":"How agents are built and how you control them.","kind":"part"},{"id":"part-ii","title":"Part II: Method","subtitle":"Part","snippet":"How you ship software with agents.","kind":"part"},{"id":"part-iii","title":"Part III: Reality","subtitle":"Part","snippet":"Where the method works, where it does not, and how to tell.","kind":"part"},{"id":"foreword","title":"Foreword: Why this manual","subtitle":"Front matter","snippet":"This manual exists because I am tired of having the same conversation.","kind":"section"},{"id":"how-to-read-this-book","title":"How to read this manual","subtitle":"Front matter","snippet":"This is a field manual. Read it linearly the first time; treat it as a reference after.","kind":"section"},{"id":"a-note-on-dated-claims","title":"A note on dated claims","subtitle":"Front matter","snippet":"Tool-specific references in this manual are current as of May 2026. The frameworks are intended to outlast the specific tools. When a named...","kind":"section"},{"id":"scope-and-limits","title":"Scope and limits","subtitle":"Front matter","snippet":"A field manual that does not name its own failure modes will lose to the reader's experience the moment that experience diverges from the...","kind":"section"},{"id":"cases-used-in-this-book","title":"Cases used in this manual","subtitle":"Front matter","snippet":"Each of these case studies recurs across multiple chapters. The list exists so you can navigate by example as well as by framework.","kind":"section"},{"id":"nine-seconds","title":"Nine seconds","subtitle":"Prologue","snippet":"On April 24, 2026, a small SaaS company called PocketOS, a car rental management product, lost its production database to an AI agent that...","kind":"section"},{"id":"chapter-1","title":"Chapter 1: Six primitives","subtitle":"Chapter","snippet":"Open the source code or documentation of most production-grade coding agents - Codex CLI in Rust, opencode in TypeScript, the public-source...","kind":"chapter"},{"id":"chapter-2","title":"Chapter 2: The anatomy invariant","subtitle":"Chapter","snippet":"While preparing this manual, I ran an experiment to test the framework empirically. The result was the side-by-side demonstration this...","kind":"chapter"},{"id":"chapter-3","title":"Chapter 3: Governance in layers","subtitle":"Chapter","snippet":"I opened the manual with PocketOS. Here is the part of the lesson that requires its own chapter: governance, layered.","kind":"chapter"},{"id":"chapter-4","title":"Chapter 4: From generating code to shipping software","subtitle":"Chapter","snippet":"The most common failure I see in teams adopting agentic coding is that they treat the agent as a code generator. They use the agent for the...","kind":"chapter"},{"id":"chapter-5","title":"Chapter 5: The six-phase loop","subtitle":"Chapter","snippet":"The six phases are research, plan, execute, review, verify, ship. Each phase is a skill, in the agent-anatomy sense - a packaged set of...","kind":"chapter"},{"id":"chapter-6","title":"Chapter 6: AGENTS.md as team infrastructure","subtitle":"Chapter","snippet":"Names and conventions. The vendor-neutral standard for the team instruction file is , with native support across Codex CLI, Cursor, GitHub...","kind":"chapter"},{"id":"chapter-7","title":"Chapter 7: Architecture Review: Documentation and Diagnosis","subtitle":"Chapter","snippet":"In Chapter 2 I showed you how I used one coding agent to inspect the source code of two other coding agents, side by side. I called the...","kind":"chapter"},{"id":"chapter-8","title":"Chapter 8: Readiness: The Kill Signals and the Traffic Light","subtitle":"Chapter","snippet":"An unfashionable claim to open this chapter. There are codebases where you should not use agentic delivery. Not because the agent is bad,...","kind":"chapter"},{"id":"chapter-9","title":"Chapter 9: Patterns for brownfield codebases","subtitle":"Chapter","snippet":"The traffic light tells you which codebases are ready for the agent. This chapter is about the operational patterns that make agentic work...","kind":"chapter"},{"id":"chapter-10","title":"Chapter 10: Adoption: 90 days, three roles","subtitle":"Chapter","snippet":"I close the manual with the practical question: where do you start?","kind":"chapter"},{"id":"closing","title":"Closing: A way of thinking that survives the tools","subtitle":"Closing","snippet":"Ending the manual where it started: a claim about durability.","kind":"section"},{"id":"about-the-author","title":"About the author","subtitle":"Back matter","snippet":"The shape of a manual depends on the shape of the writer, and you deserve to know whether the writer's experience is the kind of experience...","kind":"section"},{"id":"appendix-a","title":"Appendix A: Cost Economics","subtitle":"Appendix","snippet":"The second most common question from engineering managers after \"does it work\" is \"what does it cost.\" Specific prices change every...","kind":"section"},{"id":"appendix-b","title":"Appendix B: Templates","subtitle":"Appendix","snippet":"Five copy-paste templates referenced throughout the manual. All are starting points; customize for your team.","kind":"section"},{"id":"appendix-c","title":"Appendix C: Sources and Further Reading","subtitle":"Appendix","snippet":"This appendix exists because every claim in this manual deserves a verifiable source if you choose to chase it down. I have organized the...","kind":"section"},{"id":"the-shift-in-context","title":"The shift, in context","subtitle":"Foreword - Why this manual","snippet":"Seventy years ago, programming meant punching holes in cardboard cards and waiting overnight to find out whether your program ran. Sixty...","kind":"subsection"},{"id":"where-i-am-coming-from","title":"Where I am coming from","subtitle":"Foreword - Why this manual","snippet":"I have been writing software professionally since 2000 and building AI systems for more than a decade. I have used every generation of...","kind":"subsection"},{"id":"what-agentic-ai-means-in-this-book","title":"What \"agentic AI\" means in this manual","subtitle":"Foreword - Why this manual","snippet":"I have been calling this \"agentic AI\" without defining it. Here is the definition.","kind":"subsection"},{"id":"the-frame-of-this-book","title":"The frame of this manual","subtitle":"Foreword - Why this manual","snippet":"Three parts. Architecture: how agents are built and how to evaluate the next one when it arrives. Method: the iterative loop that turns \"AI...","kind":"subsection"},{"id":"most-adoptions-start-here-the-grassroots-arc","title":"Most adoptions start here: the grassroots arc","subtitle":"Chapter 10 - Adoption: 90 days, three roles","snippet":"The first time I taught the three-role rubric, an engineer in the back row raised his hand and said: \"My company does not look like that....","kind":"subsection"},{"id":"the-trade-off-named-honestly","title":"The trade-off, named honestly","subtitle":"Chapter 10 - Adoption: 90 days, three roles","snippet":"The grassroots arc is faster to start and fragile to the champion leaving. If the one engineer carrying the practice changes teams or burns...","kind":"subsection"},{"id":"the-ideal-version-three-roles-in-parallel","title":"The ideal version: three roles in parallel","subtitle":"Chapter 10 - Adoption: 90 days, three roles","snippet":"The framework I recommend when the team has budget and management buy-in has three roles and a ninety-day arc. The roles are champion,...","kind":"subsection"},{"id":"two-engineer-archetypes-that-kill-rollouts-if-you-do-not-name-them","title":"Two engineer archetypes that kill rollouts if you do not name them","subtitle":"Chapter 10 - Adoption: 90 days, three roles","snippet":"The three roles describe what happens when the arc works. There are two engineer archetypes you will see on every team during adoption that...","kind":"subsection"},{"id":"the-vendor-will-have-a-bad-week","title":"The vendor will have a bad week","subtitle":"Chapter 10 - Adoption: 90 days, three roles","snippet":"One operational reality the rollout has to plan for: the agent will not always be available. Vendor outages happen. Capacity throttles...","kind":"subsection"},{"id":"pricing-tiers","title":"Pricing tiers","subtitle":"Appendix A - Cost Economics","snippet":"Three pricing models dominate, in roughly this order of complexity:","kind":"subsection"},{"id":"the-bounding-heuristic","title":"The bounding heuristic","subtitle":"Appendix A - Cost Economics","snippet":"Cost-per-engineer-per-month for an agentic coding tool is bounded by what your team would otherwise have spent on similar tooling: IDE...","kind":"subsection"},{"id":"what-is-not-in-the-sticker-price","title":"What is not in the sticker price","subtitle":"Appendix A - Cost Economics","snippet":"The vendor's quote is the easy part. Four categories are not in it and dominate the real total cost of ownership.","kind":"subsection"},{"id":"pricing-changes-the-math-does-not","title":"Pricing changes; the math does not","subtitle":"Appendix A - Cost Economics","snippet":"Specific prices in any quarter will be wrong the next quarter. The shape of the math will not. Per-seat scales with team size; per-token...","kind":"subsection"},{"id":"b1-architecture-review-prompt","title":"B.1 Architecture review prompt","subtitle":"Appendix B - Templates","snippet":"This template works as either AGENTS.md (vendor-neutral standard) or CLAUDE.md (Claude Code variant). The filename varies by agent; the...","kind":"subsection"},{"id":"b2-agentsmd-skeleton","title":"B.2 AGENTS.md skeleton","subtitle":"Appendix B - Templates","snippet":"This template works as either AGENTS.md (vendor-neutral standard) or CLAUDE.md (Claude Code variant). The filename varies by agent; the...","kind":"subsection"},{"id":"b3-six-phase-loop-checklist-one-pager","title":"B.3 Six-phase loop checklist (one-pager)","subtitle":"Appendix B - Templates","snippet":"This appendix exists because every claim in this manual deserves a verifiable source if you choose to chase it down. I have organized the...","kind":"subsection"},{"id":"b4-kill-signal-scoring-worksheet","title":"B.4 Kill signal scoring worksheet","subtitle":"Appendix B - Templates","snippet":"This appendix exists because every claim in this manual deserves a verifiable source if you choose to chase it down. I have organized the...","kind":"subsection"},{"id":"b5-90-day-adoption-calendar-one-pager","title":"B.5 90-day adoption calendar (one-pager)","subtitle":"Appendix B - Templates","snippet":"This appendix exists because every claim in this manual deserves a verifiable source if you choose to chase it down. I have organized the...","kind":"subsection"},{"id":"studies-and-research","title":"Studies and research","subtitle":"Appendix C - Sources and Further Reading","snippet":"Claim: Experienced open-source developers using AI assistance on familiar repositories were 19% slower than the same developers without it,...","kind":"subsection"},{"id":"named-incidents","title":"Named incidents","subtitle":"Appendix C - Sources and Further Reading","snippet":"Claim: On April 24, 2026, PocketOS lost its production database in nine seconds when a Cursor agent powered by Claude Opus 4.6 invoked...","kind":"subsection"},{"id":"vulnerabilities-with-patch-versions","title":"Vulnerabilities with patch versions","subtitle":"Appendix C - Sources and Further Reading","snippet":"Claim: Claude Code was vulnerable to remote code execution via untrusted project files: malicious or files in untrusted repos could execute...","kind":"subsection"},{"id":"tool-documentation","title":"Tool documentation","subtitle":"Appendix C - Sources and Further Reading","snippet":"Claim: Codex CLI shipped Agent Skills as a first-class primitive in December 2025, with SKILL.md files using YAML frontmatter and...","kind":"subsection"},{"id":"marketplaces-and-plugin-ecosystems","title":"Marketplaces and plugin ecosystems","subtitle":"Appendix C - Sources and Further Reading","snippet":"Claim: Anthropic's marketplace ships built-in with Claude Code as of May 2026 and bundles skills, hooks, tools, and commands behind a...","kind":"subsection"},{"id":"notes-on-currency","title":"Notes on currency","subtitle":"Appendix C - Sources and Further Reading","snippet":"Most of the sources in this appendix are dated. Tool documentation updates frequently; vulnerability records get amended as patches ship...","kind":"subsection"}]</script>
 
   <script>
     (function() {
@@ -3548,6 +3739,34 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
         applyTheme(next);
         localStorage.setItem('theme', next);
       });
+
+      // Per-section anchor links: copy URL on click, show a brief toast.
+      (function(){
+        let toast = null;
+        function showToast() {
+          if (!toast) {
+            toast = document.createElement('div');
+            toast.className = 'anchor-toast';
+            toast.textContent = 'Link copied';
+            document.body.appendChild(toast);
+          }
+          toast.classList.add('show');
+          setTimeout(() => toast.classList.remove('show'), 1400);
+        }
+        document.addEventListener('click', (e) => {
+          const a = e.target.closest('a.anchor-link');
+          if (!a) return;
+          e.preventDefault();
+          const href = a.getAttribute('href');
+          const url = window.location.origin + window.location.pathname + href;
+          history.replaceState(null, '', href);
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(url).then(showToast, showToast);
+          } else {
+            showToast();
+          }
+        });
+      })();
 
       // Font size (eReader-style: small / medium / large with persistence)
       const sizes = ['small', 'medium', 'large'];

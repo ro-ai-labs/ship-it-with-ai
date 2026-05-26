@@ -1,13 +1,13 @@
 {
-  "name": "deliverables",
+  "name": "ship-it-with-ai-build",
   "version": "1.0.0",
-  "description": "",
-  "main": "screenshot_spa.js",
+  "private": true,
+  "description": "Build + verification scripts for ship-it-with.ai",
+  "type": "commonjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "verify": "node tests/verify_feedback_pass.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs"
+  "devDependencies": {
+    "playwright": "^1.60.0"
+  }
 }

@@ -376,4 +376,4 @@ Automated: `node build/tests/verify_feedback_pass.js` per the spec above. Should
 2. **CTA first button anchor**: `#chapter-7` (chapter top), not a deeper anchor. Simpler; no dependency on the copy-link-anchor pass landing first.
 3. **Hairline divider above chapter-end stack**: deferred (already in out-of-scope).
 4. **Mailto address for "Book an assessment"**: `info@ship-it-with.ai` (matches the footer).
-5. **Orphan `#contact` anchor in author byline** (`build/spa_template.html:1775`): fixed in this pass by repointing to `#about-the-author` — natural fit, since the About section will carry the contact/workshop sentence. Zero new surface; one-line template edit added to commit 3.
+5. **`#contact` anchor in author byline**: the anchor exists at `source/Ship_It_With_AI.md:113` (`<a id="contact"></a>`) inside the bio. Since the bio is being trimmed, the anchor must move to the new About-the-author section so the byline link keeps working. No template change needed.
