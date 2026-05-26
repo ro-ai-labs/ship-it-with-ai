@@ -1,4 +1,4 @@
-# Ship It With Agents
+# Ship It With AI
 
 ### A Field Manual for Agentic Software Delivery
 
