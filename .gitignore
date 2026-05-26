@@ -1,2 +1,4 @@
 .superpowers/
 build/node_modules/
+build/__pycache__/
+_site/

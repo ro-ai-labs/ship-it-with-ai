@@ -9,15 +9,285 @@ import re
 import sys
 import json
 import html as html_lib
+import shutil
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Literal
 
 import markdown
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parent
 SOURCE = REPO_ROOT / "source" / "Ship_It_With_AI.md"
-OUTPUT = REPO_ROOT / "index.html"
+SITE_DIR = REPO_ROOT / "_site"
+STATIC_DIR = HERE / "static"
+TEMPLATE_PATH = HERE / "spa_template.html"
+
+
+# ---------------------------------------------------------------------------
+# Section model — SECTION_SLUGS + parser + anchor index
+# ---------------------------------------------------------------------------
+
+# (kind, identifying_text) → URL slug. identifying_text is the chapter title
+# for chapters/about/foreword/etc., or "Appendix X" for appendices, or the
+# heading-detected anchor for prologue.
+SECTION_SLUGS: dict[tuple[str, str], str] = {
+    ("foreword", "Foreword"):                                       "foreword",
+    ("prologue", "Nine seconds"):                                   "prologue-nine-seconds",
+    ("chapter", "Six primitives"):                                  "chapter-1-six-primitives",
+    ("chapter", "The anatomy invariant"):                           "chapter-2-anatomy-invariant",
+    ("chapter", "Governance in layers"):                            "chapter-3-governance-in-layers",
+    ("chapter", "From generating code to shipping software"):       "chapter-4-from-generating-code-to-shipping-software",
+    ("chapter", "The six-phase loop"):                              "chapter-5-six-phase-loop",
+    ("chapter", "AGENTS.md as team infrastructure"):                "chapter-6-agents-md",
+    ("chapter", "Architecture Review: Documentation and Diagnosis"):"chapter-7-architecture-review",
+    ("chapter", "Readiness: The Kill Signals and the Traffic Light"):"chapter-8-readiness-kill-signals",
+    ("chapter", "Patterns for brownfield codebases"):               "chapter-9-brownfield-patterns",
+    ("chapter", "Adoption: 90 days, three roles"):                  "chapter-10-adoption-90-days",
+    ("closing", "Closing"):                                         "closing",
+    ("acknowledgments", "Acknowledgments"):                         "acknowledgments",
+    ("about", "About the author"):                                  "about-the-author",
+    ("appendix", "A"):                                              "appendix-a-cost-economics",
+    ("appendix", "B"):                                              "appendix-b-templates",
+    ("appendix", "C"):                                              "appendix-c-sources",
+}
+
+# Sanity: no slug collisions.
+_seen: set[str] = set()
+for _k, _v in SECTION_SLUGS.items():
+    if _v in _seen:
+        raise RuntimeError(f"duplicate slug in SECTION_SLUGS: {_v}")
+    _seen.add(_v)
+
+
+SectionKind = Literal["foreword", "prologue", "chapter", "closing",
+                      "acknowledgments", "about", "appendix"]
+
+
+@dataclass
+class Section:
+    kind: SectionKind
+    slug: str
+    title: str            # H1 text on the chapter page
+    body_md: str          # raw markdown for the body
+    reading_time_min: int | None = None
+    part_slug: str | None = None  # "part-i" / "part-ii" / "part-iii" — chapters only
+    h2_subsections: list[tuple[str, str]] = field(default_factory=list)
+
+
+_PART_RE = re.compile(r"^# Part ([IVX]+) - (.+)$")
+_PROLOGUE_RE = re.compile(r"^# Prologue\s*$")
+_CLOSING_RE = re.compile(r"^# Closing\b.*$")
+_CHAPTER_NUM_RE = re.compile(r"^## Chapter \d+\s*$")
+_CHAPTER_TITLE_RE = re.compile(r"^## (.+)$")
+_FOREWORD_RE = re.compile(r"^## Foreword\b.*$")
+_PROLOGUE_H2_RE = re.compile(r"^## (.+?)(?:\s*\{#([^}]+)\})?\s*$")
+_ACK_RE = re.compile(r"^## Acknowledgments\b.*$")
+_ABOUT_RE = re.compile(r"^## About the author\b.*$")
+_APPENDIX_RE = re.compile(r"^## Appendix ([A-Z])\.\s*(.+)$")
+
+
+def _part_slug(roman: str) -> str:
+    return f"part-{roman.lower()}"
+
+
+def parse_sections(md_text: str) -> list[Section]:
+    """Walk the source markdown line-by-line, emit a Section per page-worthy
+    heading. # Part X and # Prologue are containers (state) not sections.
+    """
+    lines = md_text.split("\n")
+    sections: list[Section] = []
+    current_part: str | None = None
+    in_prologue_container = False
+
+    cur_meta: tuple[str, str] | None = None
+    cur_title: str = ""
+    cur_part: str | None = None
+    cur_body: list[str] = []
+
+    def flush():
+        nonlocal cur_meta, cur_title, cur_part, cur_body
+        if cur_meta is None:
+            cur_body = []
+            return
+        slug = SECTION_SLUGS.get(cur_meta)
+        if slug is None:
+            raise RuntimeError(f"unknown section in SECTION_SLUGS: {cur_meta}")
+        kind = cur_meta[0]
+        body = "\n".join(cur_body).strip("\n")
+        sections.append(Section(
+            kind=kind, slug=slug, title=cur_title, body_md=body,
+            part_slug=cur_part if kind == "chapter" else None,
+        ))
+        cur_meta = None
+        cur_title = ""
+        cur_part = None
+        cur_body = []
+
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+
+        m_part = _PART_RE.match(line)
+        if m_part:
+            current_part = _part_slug(m_part.group(1))
+            i += 1
+            continue
+
+        if _PROLOGUE_RE.match(line):
+            flush()
+            in_prologue_container = True
+            i += 1
+            continue
+
+        if _CLOSING_RE.match(line):
+            flush()
+            in_prologue_container = False
+            cur_meta = ("closing", "Closing")
+            cur_title = "Closing"
+            i += 1
+            continue
+
+        if _CHAPTER_NUM_RE.match(line):
+            j = i + 1
+            while j < len(lines) and lines[j].strip() == "":
+                j += 1
+            if j < len(lines):
+                m = _CHAPTER_TITLE_RE.match(lines[j])
+                if m:
+                    flush()
+                    in_prologue_container = False
+                    title = m.group(1).strip()
+                    cur_meta = ("chapter", title)
+                    cur_title = title
+                    cur_part = current_part
+                    i = j + 1
+                    continue
+
+        if _FOREWORD_RE.match(line):
+            flush()
+            in_prologue_container = False
+            cur_meta = ("foreword", "Foreword")
+            cur_title = "Foreword"
+            i += 1
+            continue
+
+        if _ACK_RE.match(line):
+            flush()
+            cur_meta = ("acknowledgments", "Acknowledgments")
+            cur_title = "Acknowledgments"
+            i += 1
+            continue
+
+        if _ABOUT_RE.match(line):
+            flush()
+            cur_meta = ("about", "About the author")
+            cur_title = "About the author"
+            i += 1
+            continue
+
+        m_app = _APPENDIX_RE.match(line)
+        if m_app:
+            flush()
+            letter = m_app.group(1)
+            cur_meta = ("appendix", letter)
+            cur_title = f"Appendix {letter}. {m_app.group(2).strip()}"
+            i += 1
+            continue
+
+        if in_prologue_container:
+            m = _PROLOGUE_H2_RE.match(line)
+            if m and not line.startswith("### "):
+                if cur_meta is None or cur_meta[0] != "prologue":
+                    flush()
+                    title = m.group(1).strip()
+                    cur_meta = ("prologue", title)
+                    cur_title = title
+                i += 1
+                continue
+
+        cur_body.append(line)
+        i += 1
+
+    flush()
+
+    if len(sections) != len(SECTION_SLUGS):
+        raise RuntimeError(
+            f"parse_sections produced {len(sections)} sections, "
+            f"expected {len(SECTION_SLUGS)} (per SECTION_SLUGS table)"
+        )
+
+    return sections
+
+
+_ANCHOR_RE = re.compile(r"\{#([a-z0-9-]+)\}")
+_ATX_HEADING_RE = re.compile(r"^#{1,6}\s+(.+?)\s*$")
+
+
+def build_anchor_index(sections: list[Section]) -> dict[str, str]:
+    """Map every anchor id in the source → the slug of the section that owns it.
+
+    Anchors come from:
+      - The section itself (the section's own slug is its primary anchor)
+      - {#explicit-anchor} attributes on h2/h3 inside the section body
+      - Auto-generated heading ids (markdown extension generates these from
+        heading text); we mirror its slugify rule here approximately.
+    """
+    def _slugify(text: str) -> str:
+        s = re.sub(r"[^\w\s-]", "", text.lower())
+        s = re.sub(r"[\s_]+", "-", s).strip("-")
+        return s
+
+    index: dict[str, str] = {}
+
+    for s in sections:
+        index[s.slug] = s.slug
+        if s.kind == "chapter":
+            m = re.match(r"^chapter-(\d+)-", s.slug)
+            if m:
+                index[f"chapter-{m.group(1)}"] = s.slug
+        if s.kind == "appendix":
+            m = re.match(r"^appendix-([a-z])-", s.slug)
+            if m:
+                index[f"appendix-{m.group(1)}"] = s.slug
+        if s.slug == "about-the-author":
+            index["contact"] = s.slug
+        if s.slug == "prologue-nine-seconds":
+            index["nine-seconds"] = s.slug
+        if s.slug == "foreword":
+            index["foreword"] = s.slug
+
+        for line in s.body_md.split("\n"):
+            for m in _ANCHOR_RE.finditer(line):
+                index[m.group(1)] = s.slug
+            mh = _ATX_HEADING_RE.match(line)
+            if mh and "{#" not in line:
+                slug = _slugify(mh.group(1))
+                if slug and slug not in index:
+                    index[slug] = s.slug
+
+    return index
+
+
+# ---------------------------------------------------------------------------
+# Site dir helpers
+# ---------------------------------------------------------------------------
+
+def reset_site_dir() -> None:
+    """Empty _site/ so we don't leak deleted files between builds."""
+    if SITE_DIR.exists():
+        shutil.rmtree(SITE_DIR)
+    SITE_DIR.mkdir()
+
+
+def copy_static() -> None:
+    """Copy every file in build/static/ verbatim into _site/."""
+    if not STATIC_DIR.exists():
+        raise RuntimeError(f"missing static dir: {STATIC_DIR}")
+    for p in STATIC_DIR.iterdir():
+        if p.is_file():
+            shutil.copy2(p, SITE_DIR / p.name)
 
 
 # ---------------------------------------------------------------------------
@@ -804,13 +1074,16 @@ def render_markdown(md_text: str) -> str:
 # TOC
 # ---------------------------------------------------------------------------
 
-def build_toc(parts, chapters, appendices, foreword, closing, reading_times=None) -> str:
+def build_toc(parts, chapters, appendices, foreword, closing,
+              reading_times=None, *, mode: str = "in-page") -> str:
+    """Build TOC HTML structured by Part.
+
+    mode controls URL style on the anchor hrefs:
+      'in-page':    #anchor           — used on /read/
+      'transition': /read/#anchor     — used on landing during Commit 2 transition
+      'chapter-url': /<slug>/         — used on landing + chapter sidebars from Commit 3
+    """
     reading_times = reading_times or {}
-    """Build TOC HTML structured by Part."""
-    # Map each chapter slug to which Part it belongs to.
-    # Chapters list is in document order. Parts list is in document order.
-    # We re-derive grouping from the source markdown's chapter-to-part mapping.
-    # Hard-code the mapping for this book (small, fixed structure):
     chapter_to_part = {
         "chapter-1": "part-i",
         "chapter-2": "part-i",
@@ -824,7 +1097,10 @@ def build_toc(parts, chapters, appendices, foreword, closing, reading_times=None
         "chapter-10": "part-iii",
     }
 
-    parts_map = {slug: (num, title) for slug, num, title in parts}
+    def _href(anchor: str) -> str:
+        if mode == "transition":
+            return f"/read/#{anchor}"
+        return f"#{anchor}"
 
     sections = []
 
@@ -835,33 +1111,33 @@ def build_toc(parts, chapters, appendices, foreword, closing, reading_times=None
     sections.append('<ul class="toc-list toc-list-flat">')
     if foreword:
         sections.append(
-            f'  <li><a href="#foreword">Foreword - {html_lib.escape(foreword[1])}</a>'
+            f'  <li><a href="{_href("foreword")}">Foreword - {html_lib.escape(foreword[1])}</a>'
         )
         sections.append('    <ul class="toc-sublist">')
-        sections.append('      <li><a href="#the-shift-in-context">The shift, in context</a></li>')
-        sections.append('      <li><a href="#where-i-am-coming-from">Where I am coming from</a></li>')
-        sections.append('      <li><a href="#what-agentic-ai-means-in-this-book">What "agentic AI" means in this manual</a></li>')
-        sections.append('      <li><a href="#the-frame-of-this-book">The frame of this manual</a></li>')
+        sections.append(f'      <li><a href="{_href("the-shift-in-context")}">The shift, in context</a></li>')
+        sections.append(f'      <li><a href="{_href("where-i-am-coming-from")}">Where I am coming from</a></li>')
+        sections.append(f'      <li><a href="{_href("what-agentic-ai-means-in-this-book")}">What "agentic AI" means in this manual</a></li>')
+        sections.append(f'      <li><a href="{_href("the-frame-of-this-book")}">The frame of this manual</a></li>')
         sections.append('    </ul>')
         sections.append('  </li>')
-    sections.append('  <li><a href="#how-to-read-this-book">How to read this manual</a></li>')
-    sections.append('  <li><a href="#a-note-on-dated-claims">A note on dated claims</a></li>')
-    sections.append('  <li><a href="#scope-and-limits">Scope and limits</a></li>')
-    sections.append('  <li><a href="#cases-used-in-this-book">Cases used in this manual</a></li>')
+    sections.append(f'  <li><a href="{_href("how-to-read-this-book")}">How to read this manual</a></li>')
+    sections.append(f'  <li><a href="{_href("a-note-on-dated-claims")}">A note on dated claims</a></li>')
+    sections.append(f'  <li><a href="{_href("scope-and-limits")}">Scope and limits</a></li>')
+    sections.append(f'  <li><a href="{_href("cases-used-in-this-book")}">Cases used in this manual</a></li>')
     sections.append("</ul></div>")
 
     # Prologue
     sections.append('<div class="toc-section">')
     sections.append('<div class="toc-section-title">Prologue</div>')
     sections.append('<ul class="toc-list toc-list-flat">')
-    sections.append('  <li><a href="#nine-seconds">Nine seconds</a></li>')
+    sections.append(f'  <li><a href="{_href("nine-seconds")}">Nine seconds</a></li>')
     sections.append("</ul></div>")
 
     # Parts + chapters
     for slug, num, title in parts:
         sections.append('<div class="toc-section">')
         sections.append(
-            f'<div class="toc-section-title"><a href="#{slug}">Part {num} - {html_lib.escape(title)}</a></div>'
+            f'<div class="toc-section-title"><a href="{_href(slug)}">Part {num} - {html_lib.escape(title)}</a></div>'
         )
         sections.append('<ul class="toc-list">')
         for ch_slug, ch_num, ch_title in chapters:
@@ -870,7 +1146,7 @@ def build_toc(parts, chapters, appendices, foreword, closing, reading_times=None
                 mins = reading_times.get(ch_slug)
                 time_html = f'<span class="toc-time">{mins} min</span>' if mins else ""
                 sections.append(
-                    f'  <li><a href="#{ch_slug}"><span class="toc-num">{ch_n}</span>'
+                    f'  <li><a href="{_href(ch_slug)}"><span class="toc-num">{ch_n}</span>'
                     f'<span class="toc-text">Chapter {ch_n} — {html_lib.escape(ch_title)}</span>{time_html}</a></li>'
                 )
         sections.append("</ul></div>")
@@ -878,12 +1154,12 @@ def build_toc(parts, chapters, appendices, foreword, closing, reading_times=None
     # Closing
     if closing:
         sections.append('<div class="toc-section">')
-        sections.append('<div class="toc-section-title"><a href="#closing">Closing</a></div>')
+        sections.append(f'<div class="toc-section-title"><a href="{_href("closing")}">Closing</a></div>')
         sections.append("</div>")
 
     # About the author (sits between Closing and Appendices).
     sections.append('<div class="toc-section">')
-    sections.append('<div class="toc-section-title"><a href="#about-the-author">About the author</a></div>')
+    sections.append(f'<div class="toc-section-title"><a href="{_href("about-the-author")}">About the author</a></div>')
     sections.append("</div>")
 
     # Appendices
@@ -893,7 +1169,7 @@ def build_toc(parts, chapters, appendices, foreword, closing, reading_times=None
         sections.append('<ul class="toc-list">')
         for slug, label, title in appendices:
             sections.append(
-                f'  <li><a href="#{slug}"><span class="toc-num">{label.replace("Appendix ", "")}</span>{html_lib.escape(title)}</a></li>'
+                f'  <li><a href="{_href(slug)}"><span class="toc-num">{label.replace("Appendix ", "")}</span>{html_lib.escape(title)}</a></li>'
             )
         sections.append("</ul></div>")
 
@@ -903,8 +1179,6 @@ def build_toc(parts, chapters, appendices, foreword, closing, reading_times=None
 # ---------------------------------------------------------------------------
 # Template
 # ---------------------------------------------------------------------------
-
-TEMPLATE_PATH = HERE / "spa_template.html"
 
 CRITICAL_END = "/* @region-end critical */"
 DEFERRED_END = "/* @region-end deferred */"
@@ -951,17 +1225,21 @@ def split_template_css(template_html: str) -> tuple[str, str, str]:
     return new_template, critical, deferred
 
 
-# Homepage hero + content + end-cover figure. The {{CONTENT}} and {{AUTHOR}}
-# slots inside this fragment are resolved by the homepage's substitution dict
-# in render_template (NOT by nesting another placeholder pass).
-HOMEPAGE_ARTICLE_BODY = '''<header class="article-header">
+# All-in-one body for /read/: hero + content + end-cover figure. The {CONTENT},
+# {AUTHOR}, {SUBTITLE}, and {BYLINE_HREF} slots inside this fragment are resolved
+# by the /read/ body builder (_read_article_body) via .format() before being
+# substituted into the template — NOT via nesting another {{...}} placeholder
+# pass. /read/'s byline points to #contact (the in-page About anchor); the
+# CTAs link to /read/#chapter-7 / #appendix-b so they keep working as in-page
+# jumps when viewing the all-in-one page.
+READ_ARTICLE_BODY = '''<header class="article-header">
         <h1 class="article-title">
           Ship It With AI
           <span class="article-title-keyword">Agentic Coding Field Manual</span>
         </h1>
         <p class="article-subtitle">{SUBTITLE}</p>
         <p class="article-dek">Agentic coding — letting an AI agent read, write, run, and verify your code — is now a control problem, not a tooling problem. Control the context, the actions, the verification, and the adoption surface. This field manual is the methodology.</p>
-        <div class="article-author"><a href="#contact">{AUTHOR}</a></div>
+        <div class="article-author"><a href="{BYLINE_HREF}">{AUTHOR}</a></div>
         <nav class="hero-cta" aria-label="Quick start">
           <a class="cta-primary" href="#chapter-7">Start with the architecture review</a>
           <a class="cta-secondary" href="#appendix-b">Download the templates</a>
@@ -969,10 +1247,42 @@ HOMEPAGE_ARTICLE_BODY = '''<header class="article-header">
         </nav>
       </header>
 
+      <aside class="read-mode-note">
+        You're reading in single-page mode. The landing page at <a href="/">ship-it-with.ai</a> indexes every chapter.
+      </aside>
+
       {CONTENT}
 
       <figure class="article-cover article-cover-end">
-        <img src="cover.jpg" alt="Ship It With AI - A Manual for Shipping Software with AI Agents, by {AUTHOR}" width="1200" height="630" loading="lazy" decoding="async" />
+        <img src="/cover.jpg" alt="Ship It With AI - A Manual for Shipping Software with AI Agents, by {AUTHOR}" width="1200" height="630" loading="lazy" decoding="async" />
+      </figure>'''
+
+
+# Landing body: thin marketing landing — hero + TOC. The {SUBTITLE}, {AUTHOR},
+# {BYLINE_HREF}, and {TOC_HTML} slots are resolved by the landing body builder
+# (_landing_article_body) via .format(). CTAs link to /read/#chapter-7 etc.
+# during Commit 2 (per-chapter URLs land in Commit 3).
+LANDING_ARTICLE_BODY = '''<header class="article-header">
+        <h1 class="article-title">
+          Ship It With AI
+          <span class="article-title-keyword">Agentic Coding Field Manual</span>
+        </h1>
+        <p class="article-subtitle">{SUBTITLE}</p>
+        <p class="article-dek">Agentic coding — letting an AI agent read, write, run, and verify your code — is now a control problem, not a tooling problem. Control the context, the actions, the verification, and the adoption surface. This field manual is the methodology.</p>
+        <div class="article-author"><a href="{BYLINE_HREF}">{AUTHOR}</a></div>
+        <nav class="hero-cta" aria-label="Quick start">
+          <a class="cta-primary" href="/read/#chapter-7">Start with the architecture review</a>
+          <a class="cta-secondary" href="/read/#appendix-b">Download the templates</a>
+          <a class="cta-secondary" href="mailto:info@ship-it-with.ai?subject=Agentic%20delivery%20assessment">Book an assessment</a>
+        </nav>
+      </header>
+
+      <section class="landing-toc">
+        {TOC_HTML}
+      </section>
+
+      <figure class="article-cover article-cover-end">
+        <img src="/cover.jpg" alt="Ship It With AI - A Manual for Shipping Software with AI Agents, by {AUTHOR}" width="1200" height="630" loading="lazy" decoding="async" />
       </figure>'''
 
 
@@ -1088,21 +1398,40 @@ def render_template_with_placeholders(template: str, substitutions: dict) -> str
     return template
 
 
-def _homepage_article_body(content_html: str, subtitle: str, author: str) -> str:
-    """Build the homepage's full article body (hero + content + end-cover).
+def _read_article_body(content_html: str, subtitle: str, author: str,
+                       byline_href: str) -> str:
+    """Build /read/'s full article body (hero + content + end-cover).
 
-    Author/subtitle are inlined here (not left as nested placeholders) so the
-    substitution helper sees zero leftover tokens after a single pass.
+    Author/subtitle/byline_href are inlined here (not left as nested {{...}}
+    placeholders) so the substitution helper sees zero leftover tokens after a
+    single pass.
     """
-    return HOMEPAGE_ARTICLE_BODY.format(
+    return READ_ARTICLE_BODY.format(
         SUBTITLE=html_lib.escape(subtitle),
         CONTENT=content_html,
         AUTHOR=html_lib.escape(author),
+        BYLINE_HREF=html_lib.escape(byline_href),
+    )
+
+
+def _landing_article_body(subtitle: str, author: str, byline_href: str,
+                          toc_html: str) -> str:
+    """Build the landing page's article body (hero + landing TOC + cover)."""
+    return LANDING_ARTICLE_BODY.format(
+        SUBTITLE=html_lib.escape(subtitle),
+        AUTHOR=html_lib.escape(author),
+        BYLINE_HREF=html_lib.escape(byline_href),
+        TOC_HTML=toc_html,
     )
 
 
 def _homepage_head_schema(author: str, number_of_pages: int, date_modified: str) -> str:
-    """Build the homepage's JSON-LD (Book + Organization + FAQPage)."""
+    """Build the JSON-LD for landing + /read/ (Book + Organization + FAQPage).
+
+    Same schema on both pages is defensible because /read/'s canonical points
+    to / — they are alternate formats of the same Book entity, not separate
+    works.
+    """
     return HOMEPAGE_HEAD_SCHEMA.format(
         AUTHOR=html_lib.escape(author),
         NUMBER_OF_PAGES=number_of_pages,
@@ -1110,28 +1439,98 @@ def _homepage_head_schema(author: str, number_of_pages: int, date_modified: str)
     )
 
 
-def render_template(title, subtitle, author, toc_html, content_html,
-                    search_index="[]", total_word_count=0,
-                    page_title: str | None = None) -> tuple[str, str]:
-    """Render the homepage SPA HTML and return (html, deferred_css)."""
-    template_raw = TEMPLATE_PATH.read_text()
-    template, _critical_css, deferred_css = split_template_css(template_raw)
+def render_hash_redirect_js(sections: list[Section]) -> str:
+    """Landing-only hash-redirect shim. Migrates old /#chapter-N bookmarks
+    that pointed at the SPA's in-page anchors to the new per-chapter URLs.
 
-    number_of_pages = max(1, round(total_word_count / 250))
-    date_modified = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    page_title = page_title or "Agentic Coding: A Field Manual for Shipping Software With AI Agents"
+    Generated from SECTION_SLUGS so it always stays in sync with the slug
+    table. During Commit 2 the per-chapter URLs don't exist yet — the
+    redirect still rewrites to /<slug>/, which will 404 until Commit 3 ships.
+    That is the desired behaviour: better a 404 (with the chrome and the
+    chapter index) than a silent dead-end on the landing page.
+    """
+    redirects: dict[str, str] = {}
+    for s in sections:
+        redirects[f"#{s.slug}"] = f"/{s.slug}/"
+        if s.kind == "chapter":
+            m = re.match(r"^chapter-(\d+)-", s.slug)
+            if m:
+                redirects[f"#chapter-{m.group(1)}"] = f"/{s.slug}/"
+        if s.kind == "appendix":
+            m = re.match(r"^appendix-([a-z])-", s.slug)
+            if m:
+                redirects[f"#appendix-{m.group(1)}"] = f"/{s.slug}/"
+        if s.slug == "about-the-author":
+            redirects["#contact"] = "/about-the-author/#contact"
+        if s.slug == "prologue-nine-seconds":
+            redirects["#nine-seconds"] = "/prologue-nine-seconds/"
+        if s.slug == "foreword":
+            redirects["#foreword"] = "/foreword/"
 
+    map_json = json.dumps(redirects, indent=2)
+    return (
+        '<script>\n'
+        '  (function() {\n'
+        '    var hash = location.hash;\n'
+        '    if (!hash) return;\n'
+        f'    var REDIRECTS = {map_json};\n'
+        '    var target = REDIRECTS[hash];\n'
+        '    if (target) location.replace(target);\n'
+        '  })();\n'
+        '</script>'
+    )
+
+
+def render_sitemap_minimal() -> str:
+    """Commit 2 sitemap stub. Commit 3 expands this to all 20 URLs."""
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    return f'''<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://ship-it-with.ai/</loc><lastmod>{today}</lastmod></url>
+  <url><loc>https://ship-it-with.ai/read/</loc><lastmod>{today}</lastmod></url>
+</urlset>
+'''
+
+
+def render_landing(template: str, *, title: str, subtitle: str, author: str,
+                   toc_html_sidebar: str, toc_html_landing: str,
+                   search_index: str, head_schema: str,
+                   hash_redirect_js: str) -> str:
+    """Render the landing page (/)."""
     substitutions = {
-        "PAGE_TITLE": html_lib.escape(page_title),
+        "PAGE_TITLE": html_lib.escape("Agentic Coding: A Field Manual for Shipping Software With AI Agents"),
+        "PAGE_URL": "https://ship-it-with.ai/",
+        "SITE_MODE": "landing",
         "TITLE": html_lib.escape(title),
         "AUTHOR": html_lib.escape(author),
-        "HEAD_SCHEMA": _homepage_head_schema(author, number_of_pages, date_modified),
-        "TOC": toc_html,
-        "ARTICLE_BODY": _homepage_article_body(content_html, subtitle, author),
+        "HEAD_SCHEMA": head_schema,
+        "HEAD_EXTRA": hash_redirect_js,
+        "TOC": toc_html_sidebar,
+        "ARTICLE_BODY": _landing_article_body(subtitle, author,
+                                              "/about-the-author/#contact",
+                                              toc_html_landing),
         "SEARCH_INDEX": search_index,
     }
-    html = render_template_with_placeholders(template, substitutions)
-    return html, deferred_css
+    return render_template_with_placeholders(template, substitutions)
+
+
+def render_read(template: str, *, title: str, subtitle: str, author: str,
+                toc_html_sidebar: str, content_html: str,
+                search_index: str, head_schema: str) -> str:
+    """Render the all-in-one /read/ page."""
+    substitutions = {
+        "PAGE_TITLE": html_lib.escape("Ship It With AI: A Field Manual for Agentic Coding (full text)"),
+        "PAGE_URL": "https://ship-it-with.ai/",  # alternate format of /
+        "SITE_MODE": "read",
+        "TITLE": html_lib.escape(title),
+        "AUTHOR": html_lib.escape(author),
+        "HEAD_SCHEMA": head_schema,
+        "HEAD_EXTRA": "",
+        "TOC": toc_html_sidebar,
+        "ARTICLE_BODY": _read_article_body(content_html, subtitle, author, "#contact"),
+        "SEARCH_INDEX": search_index,
+    }
+    return render_template_with_placeholders(template, substitutions)
 
 
 # 404 body: one H1, dedicated subtitle, and links back into the live site.
@@ -1145,27 +1544,30 @@ _FOUR_OH_FOUR_ARTICLE_BODY = '''<header class="article-header">
         <p>
           <a href="/">← Back to the homepage</a>
           &nbsp;·&nbsp;
-          <a href="/#foreword">Start reading the manual</a>
+          <a href="/read/">Read the whole manual in one page</a>
         </p>
       </section>'''
 
 
-def render_404(title: str, author: str, toc_html: str, search_index: str = "[]") -> str:
+def render_404(template: str, *, title: str, author: str, toc_html: str,
+               search_index: str = "[]") -> str:
     """Render the 404 page reusing the homepage chrome (topbar / TOC / footer).
 
-    Crucially, the 404 substitutes its own minimal {{ARTICLE_BODY}} and an
-    empty {{HEAD_SCHEMA}} — no Book / FAQPage JSON-LD, no homepage hero, no
-    cover figure. Its <title> is also unique so crawlers don't deduplicate it
-    against the homepage.
+    Crucially, the 404 substitutes its own minimal {{ARTICLE_BODY}}, an empty
+    {{HEAD_SCHEMA}} (no Book / FAQPage JSON-LD), and a noindex robots meta in
+    {{HEAD_EXTRA}} (the only place a later meta in <head> can override the
+    template's default index, follow). PAGE_URL points to the 404 path itself
+    so canonical/og:url/twitter:url don't claim to be the homepage.
     """
-    template_raw = TEMPLATE_PATH.read_text()
-    template, _critical_css, _deferred_css = split_template_css(template_raw)
-
+    head_extra = '<meta name="robots" content="noindex, follow">'
     substitutions = {
         "PAGE_TITLE": html_lib.escape("Page not found — Ship It With AI"),
+        "PAGE_URL": "https://ship-it-with.ai/404.html",
+        "SITE_MODE": "404",
         "TITLE": html_lib.escape(title),
         "AUTHOR": html_lib.escape(author),
         "HEAD_SCHEMA": "",
+        "HEAD_EXTRA": head_extra,
         "TOC": toc_html,
         "ARTICLE_BODY": _FOUR_OH_FOUR_ARTICLE_BODY,
         "SEARCH_INDEX": search_index,
@@ -1196,9 +1598,14 @@ def render_llms_txt() -> str:
 # Main
 # ---------------------------------------------------------------------------
 
-def main() -> int:
-    md_text = SOURCE.read_text()
+def render_all_in_one_body(md_text: str) -> tuple[str, dict, str, str, str, str, list, list, list, tuple | None, tuple | None]:
+    """Run the full transforms pipeline on the whole source markdown and
+    return the rendered <main>-body HTML plus the per-section metadata the
+    TOC + search index need.
 
+    Returns: (content_html, reading_times, title, subtitle, author,
+              search_json, parts, chapters, appendices, foreword, closing).
+    """
     # Pull out front-matter title/subtitle/author from the top lines.
     title_match = re.search(r"^# (.+)$", md_text, re.MULTILINE)
     subtitle_match = re.search(r"^### (.+)$", md_text, re.MULTILINE)
@@ -1209,8 +1616,6 @@ def main() -> int:
     author = author_match.group(1).strip() if author_match else "Mihai Cvasnievschi"
 
     # Strip the front-matter from the body so it's not duplicated.
-    # Remove the title line and any lines up to and including the FIRST --- divider.
-    # The epigraph and Contents come after that divider; we extract them separately.
     lines = md_text.split("\n")
     out = []
     in_body = False
@@ -1235,7 +1640,6 @@ def main() -> int:
             + "</div>"
         )
         body_md = body_md[len(epigraph_md):]
-        # Skip a trailing --- after the epigraph
         body_md = re.sub(r"^\s*---\s*\n", "", body_md, count=1)
 
     # Strip the Contents block (we'll render TOC ourselves)
@@ -1255,13 +1659,11 @@ def main() -> int:
     # Render markdown
     content_html = render_markdown(body_md)
 
-    # Source notes + artifact boxes — must run before action/try wrapping so
-    # the wrapped callouts are stable siblings in the chapter-end stack.
+    # Source notes + artifact boxes
     content_html = transform_source_notes(content_html)
     content_html = transform_artifacts(content_html)
 
-    # Wrap each "Ship this week" paragraph as a styled card, from the bold
-    # marker to the next horizontal rule.
+    # "Ship this week" wrapping
     content_html = content_html.replace(
         "<p><strong>Ship this week.</strong></p>",
         '<div class="action-marker"><p><strong>Ship this week.</strong></p>',
@@ -1273,7 +1675,7 @@ def main() -> int:
         flags=re.DOTALL,
     )
 
-    # Same wrapping for "Try it yourself" boxes (cyan-accented variant).
+    # "Try it yourself" wrapping
     content_html = content_html.replace(
         "<p><strong>Try it yourself.</strong></p>",
         '<div class="try-marker"><p><strong>Try it yourself.</strong></p>',
@@ -1285,22 +1687,19 @@ def main() -> int:
         flags=re.DOTALL,
     )
 
-    # Chapter-end stack tightening: drop any <hr> sitting between adjacent
-    # callouts (artifact-box / action-box / try-box) so CSS sibling selectors
-    # take effect.
+    # Drop <hr> between adjacent callouts
     content_html = re.sub(
         r'(</aside>)\s*<hr\s*/?>\s*(?=<aside class="(?:artifact-box|action-box|try-box)")',
         r'\1',
         content_html,
     )
 
-    # Tag case notes
+    # Case notes
     content_html = re.sub(
         r"<p><strong>Case note:([^<]+)</strong></p>",
         r'<aside class="case-note"><div class="case-note-label">Case Note</div><div class="case-note-title">\1</div>',
         content_html,
     )
-    # Close case notes at next hr (best-effort)
     content_html = re.sub(
         r'(<aside class="case-note">.*?<table>.*?</table>)',
         r"\1</aside>",
@@ -1308,21 +1707,17 @@ def main() -> int:
         flags=re.DOTALL,
     )
 
-    # Tag the "When the agent confidently lies" subsection bold paragraph
-    # already body-bold, no change needed
-
-    # Transform Appendix C source entries into card layout
+    # Appendix C source entries → card layout
     content_html = transform_source_cards(content_html)
 
-    # AGENTS.md de-linking — keep first link per chapter, unwrap the rest.
+    # AGENTS.md de-linking — keep first link per chapter
     content_html = delink_repeated_agents_md(content_html)
 
     # Per-section copy-link anchors on h2/h3 headings and artifact-boxes.
     content_html = inject_anchor_links(content_html)
 
-    # Reading times per chapter, then TOC
+    # Reading times per chapter
     reading_times = compute_chapter_reading_times(md_text, chapters)
-    toc_html = build_toc(parts, chapters, appendices, foreword, closing, reading_times=reading_times)
 
     # Inject epigraph at the top of content
     content_html = (epigraph_html + content_html) if epigraph_html else content_html
@@ -1330,32 +1725,95 @@ def main() -> int:
     # Search index over headings + first-paragraph snippets
     search_json = build_search_index(md_text, parts, chapters, appendices, foreword, closing)
 
-    # Total word count for Book.numberOfPages (~250 words/page is the
-    # convention). Commit 2 will switch this to Section-based counting.
-    total_word_count = len(md_text.split())
+    return (content_html, reading_times, title, subtitle, author, search_json,
+            parts, chapters, appendices, foreword, closing)
 
-    # Render full SPA
-    spa_html, deferred_css = render_template(
-        title, subtitle, author, toc_html, content_html, search_json,
-        total_word_count=total_word_count,
+
+def main() -> int:
+    md_text = SOURCE.read_text()
+
+    # Parse the source into Section objects (used by hash-redirect shim and,
+    # in Commit 3, per-chapter rendering).
+    sections = parse_sections(md_text)
+    anchor_index = build_anchor_index(sections)
+    _ = anchor_index  # used by Commit 3's cross-section rewriter
+
+    # Load the template and split inline CSS into critical-inlined + deferred.
+    template_raw = TEMPLATE_PATH.read_text()
+    template, _critical_css, deferred_css = split_template_css(template_raw)
+
+    # Reset the build directory.
+    reset_site_dir()
+
+    # Run the full transforms pipeline (produces all-in-one body for /read/
+    # and the metadata the landing TOC + search index need).
+    (content_html, reading_times, title, subtitle, author, search_json,
+     parts, chapters, appendices, foreword, closing) = render_all_in_one_body(md_text)
+
+    # /read/'s sidebar uses in-page anchors (jumps within the SPA body).
+    toc_sidebar_read = build_toc(parts, chapters, appendices, foreword, closing,
+                                 reading_times=reading_times, mode="in-page")
+    # Landing has no in-page chapter content to jump to; both its sidebar
+    # and its body TOC link to /read/#anchor (transition mode). Commit 3
+    # rewrites the landing TOCs to /<slug>/ via mode="chapter-url".
+    toc_landing = build_toc(parts, chapters, appendices, foreword, closing,
+                            reading_times=reading_times, mode="transition")
+
+    # JSON-LD shared by landing + /read/ (alternate format of same Book).
+    number_of_pages = max(1, round(len(md_text.split()) / 250))
+    date_modified = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    head_schema = _homepage_head_schema(author, number_of_pages, date_modified)
+
+    # Hash-redirect shim (landing only; migrates /#chapter-N → /<slug>/).
+    hash_redirect_js = render_hash_redirect_js(sections)
+
+    # Landing
+    landing_html = render_landing(
+        template,
+        title=title, subtitle=subtitle, author=author,
+        toc_html_sidebar=toc_landing,   # transition mode in the sidebar too
+        toc_html_landing=toc_landing,
+        search_index=search_json,
+        head_schema=head_schema,
+        hash_redirect_js=hash_redirect_js,
     )
-    OUTPUT.write_text(spa_html)
-    size_kb = OUTPUT.stat().st_size / 1024
-    print(f"Wrote {OUTPUT.relative_to(HERE.parent)} ({size_kb:.1f} KB)")
+    (SITE_DIR / "index.html").write_text(landing_html)
+    print(f"Wrote _site/index.html ({len(landing_html) / 1024:.1f} KB)")
 
-    # Deferred (async-loaded) CSS for search overlay, kbd-shortcuts overlay,
-    # and the anchor-link toast. Loaded via <link rel="preload" onload>.
-    (REPO_ROOT / "deferred.css").write_text(deferred_css + "\n")
-    print(f"Wrote deferred.css ({len(deferred_css) / 1024:.1f} KB)")
+    # /read/ all-in-one
+    (SITE_DIR / "read").mkdir()
+    read_html = render_read(
+        template,
+        title=title, subtitle=subtitle, author=author,
+        toc_html_sidebar=toc_sidebar_read,
+        content_html=content_html,
+        search_index=search_json,
+        head_schema=head_schema,
+    )
+    (SITE_DIR / "read" / "index.html").write_text(read_html)
+    print(f"Wrote _site/read/index.html ({len(read_html) / 1024:.1f} KB)")
 
-    # 404 page (reuses site chrome; no homepage hero or Book/FAQ JSON-LD).
-    html_404 = render_404(title, author, toc_html, search_json)
-    (REPO_ROOT / "404.html").write_text(html_404)
-    print(f"Wrote 404.html ({(REPO_ROOT / '404.html').stat().st_size / 1024:.1f} KB)")
+    # 404, llms.txt, deferred.css, sitemap.
+    # 404 sidebar uses transition mode so chapter clicks land in /read/
+    # (the all-in-one mode is always reachable, regardless of which per-
+    # chapter URLs exist in this commit).
+    html_404 = render_404(template, title=title, author=author,
+                          toc_html=toc_landing, search_index=search_json)
+    (SITE_DIR / "404.html").write_text(html_404)
+    print(f"Wrote _site/404.html ({(SITE_DIR / '404.html').stat().st_size / 1024:.1f} KB)")
 
-    # llms.txt for AI answer-engine crawlers.
-    (REPO_ROOT / "llms.txt").write_text(render_llms_txt())
-    print("Wrote llms.txt")
+    (SITE_DIR / "deferred.css").write_text(deferred_css + "\n")
+    print(f"Wrote _site/deferred.css ({len(deferred_css) / 1024:.1f} KB)")
+
+    (SITE_DIR / "llms.txt").write_text(render_llms_txt())
+    print("Wrote _site/llms.txt")
+
+    (SITE_DIR / "sitemap.xml").write_text(render_sitemap_minimal())
+    print("Wrote _site/sitemap.xml")
+
+    # Copy static files (CNAME, .nojekyll, robots.txt, cover.jpg, cover.webp).
+    copy_static()
+    print(f"Copied static files from {STATIC_DIR.relative_to(REPO_ROOT)}/")
 
     return 0
 
