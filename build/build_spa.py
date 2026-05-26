@@ -1,0 +1,879 @@
+#!/usr/bin/env python3
+"""Build the single-file SPA HTML from Ship_It_With_AI.md.
+
+Usage: python3 build_spa.py
+Output: ship_it_with_ai.html (single self-contained file)
+"""
+
+import re
+import sys
+import json
+import html as html_lib
+from pathlib import Path
+
+import markdown
+
+HERE = Path(__file__).resolve().parent
+REPO_ROOT = HERE.parent
+SOURCE = REPO_ROOT / "source" / "Ship_It_With_AI.md"
+OUTPUT = REPO_ROOT / "index.html"
+
+
+# ---------------------------------------------------------------------------
+# Diagram HTML generators
+# ---------------------------------------------------------------------------
+
+def diagram_primitives() -> str:
+    return """<figure class="diagram diagram-primitives">
+  <div class="harness">
+    <div class="harness-label">THE HARNESS</div>
+    <div class="primitives-grid">
+      <div class="primitive"><div class="primitive-icon">{}</div><div class="primitive-name">context window</div></div>
+      <div class="primitive"><div class="primitive-icon">{}</div><div class="primitive-name">tools</div></div>
+      <div class="primitive"><div class="primitive-icon">{}</div><div class="primitive-name">skills</div></div>
+      <div class="primitive"><div class="primitive-icon">{}</div><div class="primitive-name">plugins</div></div>
+      <div class="primitive"><div class="primitive-icon">{}</div><div class="primitive-name">MCP</div></div>
+      <div class="primitive primitive-recursive"><div class="primitive-icon">{}</div><div class="primitive-name">subagents</div><div class="primitive-note">the agent, recursively</div></div>
+    </div>
+    <div class="harness-foot">the agent loop binds them together;<br/>subagents spawn constrained child instances of the agent itself</div>
+  </div>
+  <figcaption>Figure 2.1. The six primitives and the harness that runs them. Subagents are the recursive primitive: each subagent is itself an instance of the other five.</figcaption>
+</figure>""".format("◉", "⚙", "✦", "▣", "↔", "⟲")
+
+
+def diagram_layers() -> str:
+    layers = [
+        ("Layer 5", "Telemetry", "detective"),
+        ("Layer 4", "Security hooks", "per-action enforcement"),
+        ("Layer 3", "Secrets", "structural protection"),
+        ("Layer 2", "Sandbox", "OS-level isolation"),
+        ("Layer 1", "Permissions", "allow / ask / deny"),
+    ]
+    rows = "\n".join(
+        f'    <div class="layer layer-{i+1}"><span class="layer-num">{n}</span><span class="layer-name">{name}</span><span class="layer-desc">{desc}</span></div>'
+        for i, (n, name, desc) in enumerate(layers)
+    )
+    return f"""<figure class="diagram diagram-layers">
+  <div class="layers-stack">
+{rows}
+  </div>
+  <div class="layers-spine">Least privilege is the spine. Each layer catches what the others miss.</div>
+  <figcaption>Figure 4.1. The five governance layers, layered as defense in depth.</figcaption>
+</figure>"""
+
+
+def diagram_loop() -> str:
+    phases = ["Research", "Plan", "Execute", "Review", "Verify", "Ship"]
+    nodes = "\n".join(
+        f'    <div class="phase phase-{i+1}"><span class="phase-num">{i+1}</span><span class="phase-name">{name}</span></div>'
+        for i, name in enumerate(phases)
+    )
+    return f"""<figure class="diagram diagram-loop">
+  <div class="loop-flow">
+{nodes}
+  </div>
+  <div class="loop-feedback">
+    <span class="feedback-arrow">↻</span>
+    <span class="feedback-text">Most failures route back to Plan, not back to Research</span>
+  </div>
+  <figcaption>Figure 6.1. The six-phase loop.</figcaption>
+</figure>"""
+
+
+def diagram_traffic_light() -> str:
+    signals = [
+        "No tests", "No documentation", "Tight coupling", "Scattered rules",
+        "Regulatory constraints", "Team cannot evaluate output",
+        "Model-context fit", "Velocity-of-change",
+    ]
+    signal_html = "\n".join(
+        f'      <li><span class="sig-num">{i+1}</span>{name}</li>'
+        for i, name in enumerate(signals)
+    )
+    return f"""<figure class="diagram diagram-traffic">
+  <div class="traffic-light">
+    <div class="light light-green"><span class="light-count">0 - 1</span><span class="light-label">GREEN</span><span class="light-mode">Agent-led, normal velocity</span></div>
+    <div class="light light-yellow"><span class="light-count">2 - 3</span><span class="light-label">YELLOW</span><span class="light-mode">Human-led, agent support</span></div>
+    <div class="light light-red"><span class="light-count">4 +</span><span class="light-label">RED</span><span class="light-mode">Stop. Fix codebase first.</span></div>
+  </div>
+  <div class="signal-list">
+    <div class="signal-list-title">Signals (count each present)</div>
+    <ol class="signal-grid">
+{signal_html}
+    </ol>
+  </div>
+  <figcaption>Figure 9.1. The kill signals and the traffic light decision rule. Signal 6 weighs more heavily than the others.</figcaption>
+</figure>"""
+
+
+def diagram_arc() -> str:
+    phases = [
+        ("Days 1 - 30", "Foundation", "Champion", [
+            "Champion installs",
+            "CLAUDE.md drafted",
+            "First green-light project",
+            "Architecture review workflow proven",
+        ]),
+        ("Days 31 - 60", "Expansion", "Lead", [
+            "Lead onboards 2 - 3 more engineers",
+            "CLAUDE.md hardened",
+            "Hooks configured",
+            "Skills written",
+            "Kill signals applied to portfolio",
+        ]),
+        ("Days 61 - 90", "Productionization", "Manager", [
+            "Manager folds metrics into normal velocity tracking",
+            "Vendor governance signed",
+            "Plugin marketplace policy in place",
+        ]),
+    ]
+    cards = "\n".join(
+        f"""    <div class="arc-card">
+      <div class="arc-period">{period}</div>
+      <div class="arc-phase">{phase}</div>
+      <ul class="arc-items">
+{chr(10).join(f'        <li>{item}</li>' for item in items)}
+      </ul>
+      <div class="arc-role">{role}</div>
+    </div>"""
+        for period, phase, role, items in phases
+    )
+    return f"""<figure class="diagram diagram-arc">
+  <div class="arc-timeline">
+{cards}
+  </div>
+  <figcaption>Figure 11.1. The 90-day adoption arc. Each phase has a primary role and a primary artifact set.</figcaption>
+</figure>"""
+
+
+FIGURE_RENDERERS = {
+    "2.1": diagram_primitives,
+    "4.1": diagram_layers,
+    "6.1": diagram_loop,
+    "9.1": diagram_traffic_light,
+    "11.1": diagram_arc,
+}
+
+
+# ---------------------------------------------------------------------------
+# Preprocessing
+# ---------------------------------------------------------------------------
+
+# Match a fenced code block followed (after blank lines) by an italicized
+# figure caption like `*Figure 2.1. ... *`. Capture the figure id so we can
+# render the right diagram.
+FIGURE_BLOCK_RE = re.compile(
+    r"```\n(?P<body>.*?)\n```\s*\n+\*Figure\s+(?P<fid>\d+\.\d+)\.[^*]*\*\s*\n",
+    re.DOTALL,
+)
+
+
+def replace_diagrams(md_text: str) -> str:
+    """Replace ASCII figure blocks with HTML diagram placeholders."""
+
+    def repl(match: re.Match) -> str:
+        fid = match.group("fid")
+        renderer = FIGURE_RENDERERS.get(fid)
+        if renderer is None:
+            return match.group(0)
+        return f"\n\n<!--RAW_HTML_START-->\n{renderer()}\n<!--RAW_HTML_END-->\n\n"
+
+    return FIGURE_BLOCK_RE.sub(repl, md_text)
+
+
+# Chapter heading pattern: two consecutive `## ` lines. First is the number,
+# second is the title.
+CHAPTER_PAIR_RE = re.compile(
+    r"^## (?P<num>Chapter \d+)\n## (?P<title>[^\n]+)$",
+    re.MULTILINE,
+)
+
+
+def transform_chapter_headings(md_text: str) -> tuple[str, list[tuple[str, str, str]]]:
+    """Collapse `## Chapter N` + `## Title` pairs into one heading with an id.
+    Returns (rewritten_md, [(id, num, title), ...])."""
+    chapters: list[tuple[str, str, str]] = []
+
+    def repl(match: re.Match) -> str:
+        num = match.group("num")
+        title = match.group("title").strip()
+        slug = slugify(num)
+        chapters.append((slug, num, title))
+        # Use HTML directly so we have full control over markup
+        return (
+            f'<h2 id="{slug}" class="chapter-heading">'
+            f'<span class="chapter-num">{num}</span>'
+            f'<span class="chapter-title">{html_lib.escape(title)}</span>'
+            f"</h2>"
+        )
+
+    return CHAPTER_PAIR_RE.sub(repl, md_text), chapters
+
+
+PART_RE = re.compile(r"^# Part (?P<num>[IVX]+)\s*-\s*(?P<title>.+)$", re.MULTILINE)
+
+
+def transform_part_headings(md_text: str) -> tuple[str, list[tuple[str, str, str]]]:
+    parts: list[tuple[str, str, str]] = []
+
+    def repl(match: re.Match) -> str:
+        num = match.group("num")
+        title = match.group("title").strip()
+        slug = f"part-{num.lower()}"
+        parts.append((slug, num, title))
+        return (
+            f'<h1 id="{slug}" class="part-heading">'
+            f'<span class="part-label">Part {num}</span>'
+            f'<span class="part-title">{html_lib.escape(title)}</span>'
+            f"</h1>"
+        )
+
+    return PART_RE.sub(repl, md_text), parts
+
+
+CLOSING_RE = re.compile(r"^# Closing\s*-\s*(?P<title>.+)$", re.MULTILINE)
+
+
+def transform_closing(md_text: str) -> tuple[str, tuple[str, str] | None]:
+    closing: tuple[str, str] | None = None
+
+    def repl(match: re.Match) -> str:
+        nonlocal closing
+        title = match.group("title").strip()
+        closing = ("closing", title)
+        return (
+            f'<h1 id="closing" class="closing-heading">'
+            f'<span class="part-label">Closing</span>'
+            f'<span class="part-title">{html_lib.escape(title)}</span>'
+            f"</h1>"
+        )
+
+    new_md = CLOSING_RE.sub(repl, md_text)
+    return new_md, closing
+
+
+APPENDIX_RE = re.compile(r"^## (Appendix [A-Z])\. (.+)$", re.MULTILINE)
+
+
+def transform_appendices(md_text: str) -> tuple[str, list[tuple[str, str, str]]]:
+    appendices: list[tuple[str, str, str]] = []
+
+    def repl(match: re.Match) -> str:
+        label = match.group(1)
+        title = match.group(2).strip()
+        slug = slugify(label)
+        appendices.append((slug, label, title))
+        return (
+            f'<h2 id="{slug}" class="appendix-heading">'
+            f'<span class="appendix-label">{label}</span>'
+            f'<span class="appendix-title">{html_lib.escape(title)}</span>'
+            f"</h2>"
+        )
+
+    return APPENDIX_RE.sub(repl, md_text), appendices
+
+
+def transform_foreword(md_text: str) -> tuple[str, tuple[str, str] | None]:
+    foreword: tuple[str, str] | None = None
+    pattern = re.compile(r"^## Foreword\s*-\s*(?P<title>.+)$", re.MULTILINE)
+
+    def repl(match: re.Match) -> str:
+        nonlocal foreword
+        title = match.group("title").strip()
+        foreword = ("foreword", title)
+        return (
+            f'<h2 id="foreword" class="foreword-heading">'
+            f'<span class="appendix-label">Foreword</span>'
+            f'<span class="appendix-title">{html_lib.escape(title)}</span>'
+            f"</h2>"
+        )
+
+    return pattern.sub(repl, md_text), foreword
+
+
+def slugify(text: str) -> str:
+    text = re.sub(r"[^\w\s-]", "", text.strip().lower())
+    return re.sub(r"[\s_-]+", "-", text)
+
+
+# Appendix C - Sources and Further Reading: rewrite the four-bold-paragraph
+# entries as semantic <article> cards with category accent.
+SOURCE_GROUPS = {
+    "Studies and research":                ("study",    "Study"),
+    "Named incidents":                     ("incident", "Incident"),
+    "Vulnerabilities with patch versions": ("vuln",     "Vulnerability"),
+    "Tool documentation":                  ("docs",     "Tool documentation"),
+    "Marketplaces and plugin ecosystems":  ("market",   "Marketplace"),
+}
+
+SOURCE_ENTRY_RE = re.compile(
+    r"<p>\s*"
+    r"<strong>Claim:</strong>\s*(?P<claim>.*?)\s*"
+    r"<strong>Source:</strong>\s*(?P<source>.*?)\s*"
+    r"<strong>Where used:</strong>\s*(?P<where>.*?)\s*"
+    r"<strong>Caveat:</strong>\s*(?P<caveat>.*?)\s*"
+    r"</p>",
+    re.DOTALL,
+)
+
+
+def transform_source_cards(html: str) -> str:
+    # Annotate the known H3 group headings with .source-group + id slug.
+    for group_title in SOURCE_GROUPS:
+        html = re.sub(
+            rf"<h3>{re.escape(group_title)}</h3>",
+            lambda m, t=group_title: f'<h3 id="{slugify(t)}" class="source-group">{t}</h3>',
+            html,
+            count=1,
+        )
+    # Walk headings and entries in document order so each card picks up
+    # the category from the most recent group heading.
+    heading_re = re.compile(
+        r'<h3 id="[^"]+" class="source-group">(?P<title>[^<]+)</h3>'
+    )
+    current_cat = ("docs", "Tool documentation")
+    events = []
+    for m in heading_re.finditer(html):
+        events.append((m.start(), "heading", m))
+    for m in SOURCE_ENTRY_RE.finditer(html):
+        events.append((m.start(), "entry", m))
+    events.sort(key=lambda e: e[0])
+
+    pieces: list[str] = []
+    cursor = 0
+    for pos, kind, m in events:
+        pieces.append(html[cursor:m.start()])
+        if kind == "heading":
+            title = m.group("title").strip()
+            current_cat = SOURCE_GROUPS.get(title, current_cat)
+            pieces.append(m.group(0))
+        else:
+            cat_attr, cat_label = current_cat
+            claim = m.group("claim").strip()
+            source = m.group("source").strip()
+            where = m.group("where").strip()
+            caveat = m.group("caveat").strip()
+            pieces.append(
+                f'<article class="source-card" data-cat="{cat_attr}">\n'
+                f'  <span class="source-card-cat">{cat_label}</span>\n'
+                f'  <dl class="source-grid">\n'
+                f'    <dt>Claim</dt><dd class="source-claim">{claim}</dd>\n'
+                f'    <dt>Source</dt><dd class="source-source">{source}</dd>\n'
+                f'    <dt>Where used</dt><dd class="source-where">{where}</dd>\n'
+                f'    <dt>Caveat</dt><dd class="source-caveat">{caveat}</dd>\n'
+                f'  </dl>\n'
+                f'</article>'
+            )
+        cursor = m.end()
+    pieces.append(html[cursor:])
+    html = "".join(pieces)
+
+    # Drop the <hr> dividers between cards / before group headings.
+    html = re.sub(
+        r'(</article>)\s*<hr\s*/?>\s*(?=<article class="source-card")',
+        r'\1',
+        html,
+    )
+    html = re.sub(
+        r'(</article>)\s*<hr\s*/?>\s*(?=<h3 id="[^"]+" class="source-group")',
+        r'\1',
+        html,
+    )
+    return html
+
+
+# ---------------------------------------------------------------------------
+# Reading time + search index (post-transform helpers, work on raw markdown)
+# ---------------------------------------------------------------------------
+
+_MD_FENCE_RE = re.compile(r"```.*?```", re.DOTALL)
+_MD_INLINE_CODE_RE = re.compile(r"`[^`]*`")
+_MD_IMAGE_RE = re.compile(r"!\[[^\]]*\]\([^)]*\)")
+_MD_LINK_RE = re.compile(r"\[([^\]]+)\]\([^)]*\)")
+_MD_HEADING_RE = re.compile(r"^#{1,6}\s+.*$", re.MULTILINE)
+_MD_HTML_TAG_RE = re.compile(r"<[^>]+>")
+_MD_EMPH_RE = re.compile(r"[*_]{1,3}")
+_MD_BLOCKQUOTE_RE = re.compile(r"^>\s?", re.MULTILINE)
+_MD_LISTMARK_RE = re.compile(r"^\s*([-*+]|\d+\.)\s+", re.MULTILINE)
+_MD_WORD_RE = re.compile(r"\b[\w'-]+\b")
+_MD_MULTI_WS_RE = re.compile(r"\s+")
+_MD_ATTR_RE = re.compile(r"\{#[a-z0-9-]+\}")
+
+_NEXT_BOUNDARY_RE = re.compile(
+    r"(?m)^(?:## Chapter \d+\b|# Part [IVX]+\b|# Closing\b|## Appendix [A-Z]\.)"
+)
+
+
+def _strip_markdown(text: str) -> str:
+    text = _MD_FENCE_RE.sub(" ", text)
+    text = _MD_IMAGE_RE.sub(" ", text)
+    text = _MD_LINK_RE.sub(r"\1", text)
+    text = _MD_INLINE_CODE_RE.sub(" ", text)
+    text = _MD_HEADING_RE.sub(" ", text)
+    text = _MD_HTML_TAG_RE.sub(" ", text)
+    text = _MD_BLOCKQUOTE_RE.sub("", text)
+    text = _MD_LISTMARK_RE.sub("", text)
+    text = _MD_ATTR_RE.sub("", text)
+    text = _MD_EMPH_RE.sub("", text)
+    return text
+
+
+def compute_chapter_reading_times(md_text, chapters, wpm=200):
+    result = {}
+    for slug, num, title in chapters:
+        head_re = re.compile(rf"(?m)^## {re.escape(num)}\n## {re.escape(title)}\s*$")
+        m = head_re.search(md_text)
+        if not m:
+            result[slug] = 1
+            continue
+        start = m.end()
+        nxt = _NEXT_BOUNDARY_RE.search(md_text, pos=start)
+        body = md_text[start:nxt.start()] if nxt else md_text[start:]
+        words = len(_MD_WORD_RE.findall(_strip_markdown(body)))
+        result[slug] = max(1, round(words / wpm))
+    return result
+
+
+def _snippet_for(md_text, start, limit=140):
+    lines = md_text[start:].split("\n")
+    paragraph = []
+    in_fence = False
+    started = False
+    for line in lines[1:]:
+        stripped = line.strip()
+        if stripped.startswith("```"):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        if not stripped:
+            if started:
+                break
+            continue
+        if stripped.startswith("#"):
+            if started:
+                break
+            continue
+        if stripped.startswith(("---", "===")):
+            continue
+        if stripped.startswith(">"):
+            stripped = stripped.lstrip("> ").strip()
+            if not stripped:
+                continue
+        paragraph.append(stripped)
+        started = True
+        if sum(len(p) for p in paragraph) > 400:
+            break
+    raw = " ".join(paragraph)
+    clean = _MD_MULTI_WS_RE.sub(" ", _strip_markdown(raw)).strip()
+    if len(clean) <= limit:
+        return clean
+    cut = clean[:limit].rsplit(" ", 1)[0]
+    return cut + "..."
+
+
+H3_ANCHOR_RE = re.compile(r"^###\s+(?P<title>.+?)\s*\{#(?P<slug>[a-z0-9-]+)\}\s*$", re.MULTILINE)
+
+
+def build_search_index(md_text, parts, chapters, appendices, foreword, closing):
+    entries = []
+    seen = set()
+
+    def add(entry):
+        if entry["id"] in seen:
+            return
+        seen.add(entry["id"])
+        entries.append(entry)
+
+    # Parts
+    for slug, num, title in parts:
+        m = re.search(rf"^# Part {re.escape(num)}\b", md_text, re.MULTILINE)
+        pos = m.start() if m else 0
+        add({"id": slug, "title": f"Part {num}: {title}", "subtitle": "Part",
+             "snippet": _snippet_for(md_text, pos), "kind": "part"})
+
+    # Foreword
+    if foreword:
+        m = re.search(r"^## Foreword\b", md_text, re.MULTILINE)
+        if m:
+            add({"id": "foreword", "title": f"Foreword: {foreword[1]}",
+                 "subtitle": "Front matter",
+                 "snippet": _snippet_for(md_text, m.start()), "kind": "section"})
+
+    # Other front matter H2s
+    for slug, label in [
+        ("how-to-read-this-book", "How to read this manual"),
+        ("a-note-on-dated-claims", "A note on dated claims"),
+        ("scope-and-limits", "Scope and limits"),
+        ("cases-used-in-this-book", "Cases used in this manual"),
+    ]:
+        m = re.search(rf"^## {re.escape(label)}\b", md_text, re.MULTILINE)
+        if m:
+            add({"id": slug, "title": label, "subtitle": "Front matter",
+                 "snippet": _snippet_for(md_text, m.start()), "kind": "section"})
+
+    # Prologue
+    m = re.search(r"^## Nine seconds\b", md_text, re.MULTILINE)
+    if m:
+        add({"id": "nine-seconds", "title": "Nine seconds", "subtitle": "Prologue",
+             "snippet": _snippet_for(md_text, m.start()), "kind": "section"})
+
+    # Chapters
+    for slug, num, title in chapters:
+        pair_re = re.compile(rf"^## {re.escape(num)}\n## {re.escape(title)}\s*$", re.MULTILINE)
+        m = pair_re.search(md_text)
+        if not m:
+            continue
+        end_of_heading = md_text.find("\n", m.end())
+        pos = end_of_heading if end_of_heading > 0 else m.start()
+        add({"id": slug, "title": f"{num}: {title}", "subtitle": "Chapter",
+             "snippet": _snippet_for(md_text, pos), "kind": "chapter"})
+
+    # Closing
+    if closing:
+        m = re.search(r"^# Closing\b", md_text, re.MULTILINE)
+        if m:
+            add({"id": "closing", "title": f"Closing: {closing[1]}",
+                 "subtitle": "Closing",
+                 "snippet": _snippet_for(md_text, m.start()), "kind": "section"})
+
+    # Appendices
+    for slug, label, title in appendices:
+        m = re.search(rf"^## {re.escape(label)}\. {re.escape(title)}\b", md_text, re.MULTILINE)
+        if m:
+            add({"id": slug, "title": f"{label}: {title}", "subtitle": "Appendix",
+                 "snippet": _snippet_for(md_text, m.start()), "kind": "section"})
+
+    # H3 subsections (with explicit anchors)
+    parent_label = ""
+    parent_title = ""
+    line_offsets = [0]
+    for i, ch in enumerate(md_text):
+        if ch == "\n":
+            line_offsets.append(i + 1)
+    for i, line in enumerate(md_text.split("\n")):
+        line_start = line_offsets[i] if i < len(line_offsets) else 0
+        stripped = line.strip()
+        if stripped.startswith("## Foreword"):
+            parent_label = "Foreword"
+            parent_title = foreword[1] if foreword else "Foreword"
+            continue
+        if stripped.startswith("## Chapter "):
+            for cslug, cnum, ctitle in chapters:
+                if stripped == f"## {cnum}":
+                    parent_label = cnum
+                    parent_title = ctitle
+                    break
+            continue
+        if stripped.startswith("## Appendix "):
+            apm = re.match(r"## (Appendix [A-Z])\. (.+)", stripped)
+            if apm:
+                parent_label = apm.group(1)
+                parent_title = apm.group(2).strip()
+            continue
+        if stripped.startswith("# Part "):
+            pm = re.match(r"# Part ([IVX]+)\s*-\s*(.+)", stripped)
+            if pm:
+                parent_label = f"Part {pm.group(1)}"
+                parent_title = pm.group(2).strip()
+            continue
+        if stripped.startswith("# Closing"):
+            parent_label = "Closing"
+            parent_title = closing[1] if closing else "Closing"
+            continue
+        if stripped.startswith("# Prologue"):
+            parent_label = "Prologue"
+            parent_title = "Prologue"
+            continue
+        if stripped.startswith("### "):
+            if i < 10:
+                continue
+            anchor_match = H3_ANCHOR_RE.match(line)
+            if anchor_match:
+                title = anchor_match.group("title").strip()
+                slug = anchor_match.group("slug").strip()
+            else:
+                title = stripped[4:].strip()
+                if title.endswith("}"):
+                    title = re.sub(r"\s*\{#[a-z0-9-]+\}\s*$", "", title)
+                slug = slugify(title)
+            subtitle = f"{parent_label} - {parent_title}" if parent_label else ""
+            add({"id": slug, "title": title, "subtitle": subtitle,
+                 "snippet": _snippet_for(md_text, line_start), "kind": "subsection"})
+
+    # Source-group anchors from Appendix C
+    for group_title in SOURCE_GROUPS:
+        slug = slugify(group_title)
+        m = re.search(rf"^### {re.escape(group_title)}\b", md_text, re.MULTILINE)
+        if not m:
+            continue
+        add({"id": slug, "title": group_title, "subtitle": "Appendix C - Sources",
+             "snippet": _snippet_for(md_text, m.start()), "kind": "subsection"})
+
+    return json.dumps(entries, ensure_ascii=False, separators=(",", ":"))
+
+
+# ---------------------------------------------------------------------------
+# Markdown rendering
+# ---------------------------------------------------------------------------
+
+def render_markdown(md_text: str) -> str:
+    md = markdown.Markdown(
+        extensions=["tables", "fenced_code", "attr_list", "md_in_html"],
+        output_format="html5",
+    )
+    html = md.convert(md_text)
+    # Strip the placeholder comments around our injected HTML
+    html = html.replace("<!--RAW_HTML_START-->", "").replace("<!--RAW_HTML_END-->", "")
+    # External links open in a new tab with safe rel; mailto and #anchor untouched.
+    html = re.sub(
+        r'<a href="(https?://[^"]+)"',
+        r'<a href="\1" target="_blank" rel="noopener noreferrer"',
+        html,
+    )
+    return html
+
+
+# ---------------------------------------------------------------------------
+# TOC
+# ---------------------------------------------------------------------------
+
+def build_toc(parts, chapters, appendices, foreword, closing, reading_times=None) -> str:
+    reading_times = reading_times or {}
+    """Build TOC HTML structured by Part."""
+    # Map each chapter slug to which Part it belongs to.
+    # Chapters list is in document order. Parts list is in document order.
+    # We re-derive grouping from the source markdown's chapter-to-part mapping.
+    # Hard-code the mapping for this book (small, fixed structure):
+    chapter_to_part = {
+        "chapter-1": "part-i",
+        "chapter-2": "part-i",
+        "chapter-3": "part-i",
+        "chapter-4": "part-i",
+        "chapter-5": "part-ii",
+        "chapter-6": "part-ii",
+        "chapter-7": "part-ii",
+        "chapter-8": "part-ii",
+        "chapter-9": "part-iii",
+        "chapter-10": "part-iii",
+        "chapter-11": "part-iii",
+    }
+
+    parts_map = {slug: (num, title) for slug, num, title in parts}
+
+    sections = []
+
+    # Front matter: Foreword (with its 4 H3 subsections nested) + the other
+    # H2 sections that orient the reader before Part I.
+    sections.append('<div class="toc-section">')
+    sections.append('<div class="toc-section-title">Front Matter</div>')
+    sections.append('<ul class="toc-list toc-list-flat">')
+    if foreword:
+        sections.append(
+            f'  <li><a href="#foreword">Foreword - {html_lib.escape(foreword[1])}</a>'
+        )
+        sections.append('    <ul class="toc-sublist">')
+        sections.append('      <li><a href="#the-shift-in-context">The shift, in context</a></li>')
+        sections.append('      <li><a href="#where-i-am-coming-from">Where I am coming from</a></li>')
+        sections.append('      <li><a href="#what-agentic-ai-means-in-this-book">What "agentic AI" means in this manual</a></li>')
+        sections.append('      <li><a href="#the-frame-of-this-book">The frame of this manual</a></li>')
+        sections.append('    </ul>')
+        sections.append('  </li>')
+    sections.append('  <li><a href="#how-to-read-this-book">How to read this manual</a></li>')
+    sections.append('  <li><a href="#a-note-on-dated-claims">A note on dated claims</a></li>')
+    sections.append('  <li><a href="#scope-and-limits">Scope and limits</a></li>')
+    sections.append('  <li><a href="#cases-used-in-this-book">Cases used in this manual</a></li>')
+    sections.append("</ul></div>")
+
+    # Prologue
+    sections.append('<div class="toc-section">')
+    sections.append('<div class="toc-section-title">Prologue</div>')
+    sections.append('<ul class="toc-list toc-list-flat">')
+    sections.append('  <li><a href="#nine-seconds">Nine seconds</a></li>')
+    sections.append("</ul></div>")
+
+    # Parts + chapters
+    for slug, num, title in parts:
+        sections.append('<div class="toc-section">')
+        sections.append(
+            f'<div class="toc-section-title"><a href="#{slug}">Part {num} - {html_lib.escape(title)}</a></div>'
+        )
+        sections.append('<ul class="toc-list">')
+        for ch_slug, ch_num, ch_title in chapters:
+            if chapter_to_part.get(ch_slug) == slug:
+                ch_n = ch_num.replace("Chapter ", "")
+                mins = reading_times.get(ch_slug)
+                time_html = f'<span class="toc-time">{mins} min</span>' if mins else ""
+                sections.append(
+                    f'  <li><a href="#{ch_slug}"><span class="toc-num">{ch_n}</span>'
+                    f'<span class="toc-text">{html_lib.escape(ch_title)}</span>{time_html}</a></li>'
+                )
+        sections.append("</ul></div>")
+
+    # Closing
+    if closing:
+        sections.append('<div class="toc-section">')
+        sections.append('<div class="toc-section-title"><a href="#closing">Closing</a></div>')
+        sections.append("</div>")
+
+    # Appendices
+    if appendices:
+        sections.append('<div class="toc-section">')
+        sections.append('<div class="toc-section-title">Appendices</div>')
+        sections.append('<ul class="toc-list">')
+        for slug, label, title in appendices:
+            sections.append(
+                f'  <li><a href="#{slug}"><span class="toc-num">{label.replace("Appendix ", "")}</span>{html_lib.escape(title)}</a></li>'
+            )
+        sections.append("</ul></div>")
+
+    return "\n".join(sections)
+
+
+# ---------------------------------------------------------------------------
+# Template
+# ---------------------------------------------------------------------------
+
+TEMPLATE_PATH = HERE / "spa_template.html"
+
+
+def render_template(title, subtitle, author, toc_html, content_html, search_index="[]") -> str:
+    template = TEMPLATE_PATH.read_text()
+    return (
+        template.replace("{{TITLE}}", html_lib.escape(title))
+        .replace("{{SUBTITLE}}", html_lib.escape(subtitle))
+        .replace("{{AUTHOR}}", html_lib.escape(author))
+        .replace("{{TOC}}", toc_html)
+        .replace("{{CONTENT}}", content_html)
+        .replace("{{SEARCH_INDEX}}", search_index)
+    )
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+def main() -> int:
+    md_text = SOURCE.read_text()
+
+    # Pull out front-matter title/subtitle/author from the top lines.
+    title_match = re.search(r"^# (.+)$", md_text, re.MULTILINE)
+    subtitle_match = re.search(r"^### (.+)$", md_text, re.MULTILINE)
+    author_match = re.search(r"^\*\*([^*]+)\*\*\s*$", md_text, re.MULTILINE)
+
+    title = title_match.group(1).strip() if title_match else "Ship It With AI"
+    subtitle = subtitle_match.group(1).strip() if subtitle_match else ""
+    author = author_match.group(1).strip() if author_match else "Mihai Cvasnievschi"
+
+    # Strip the front-matter from the body so it's not duplicated.
+    # Remove the title line and any lines up to and including the FIRST --- divider.
+    # The epigraph and Contents come after that divider; we extract them separately.
+    lines = md_text.split("\n")
+    out = []
+    in_body = False
+    for line in lines:
+        if not in_body:
+            if line.strip() == "---":
+                in_body = True
+                continue
+            continue
+        out.append(line)
+    body_md = "\n".join(out).lstrip("\n")
+
+    # Stash the epigraph (blockquote at top of body, if present)
+    epigraph_match = re.match(r"^\s*(>.*(?:\n>.*)*)", body_md)
+    epigraph_html = ""
+    if epigraph_match:
+        epigraph_md = epigraph_match.group(1)
+        epigraph_lines = [ln[1:].strip() for ln in epigraph_md.split("\n") if ln.startswith(">")]
+        epigraph_html = (
+            '<div class="epigraph">'
+            + "".join(f"<p>{html_lib.escape(l)}</p>" for l in epigraph_lines if l)
+            + "</div>"
+        )
+        body_md = body_md[len(epigraph_md):]
+        # Skip a trailing --- after the epigraph
+        body_md = re.sub(r"^\s*---\s*\n", "", body_md, count=1)
+
+    # Strip the Contents block (we'll render TOC ourselves)
+    body_md = re.sub(
+        r"^## Contents.*?(?=^##|^#\s|\Z)", "", body_md, count=1, flags=re.DOTALL | re.MULTILINE
+    )
+
+    # Pre-processing pipeline
+    body_md = replace_diagrams(body_md)
+    body_md, chapters = transform_chapter_headings(body_md)
+    body_md, parts = transform_part_headings(body_md)
+    body_md, closing = transform_closing(body_md)
+    body_md, appendices = transform_appendices(body_md)
+    body_md, foreword = transform_foreword(body_md)
+
+    # Render markdown
+    content_html = render_markdown(body_md)
+
+    # Wrap each "Ship this week" paragraph as a styled card, from the bold
+    # marker to the next horizontal rule.
+    content_html = content_html.replace(
+        "<p><strong>Ship this week.</strong></p>",
+        '<div class="action-marker"><p><strong>Ship this week.</strong></p>',
+    )
+    content_html = re.sub(
+        r'<div class="action-marker"><p><strong>Ship this week\.</strong></p>(.*?)<hr ?/?>',
+        r'<aside class="action-box"><div class="action-label">Ship this week</div>\1</aside><hr/>',
+        content_html,
+        flags=re.DOTALL,
+    )
+
+    # Same wrapping for "Try it yourself" boxes (cyan-accented variant).
+    content_html = content_html.replace(
+        "<p><strong>Try it yourself.</strong></p>",
+        '<div class="try-marker"><p><strong>Try it yourself.</strong></p>',
+    )
+    content_html = re.sub(
+        r'<div class="try-marker"><p><strong>Try it yourself\.</strong></p>(.*?)<hr ?/?>',
+        r'<aside class="try-box"><div class="try-label">Try it yourself</div>\1</aside><hr/>',
+        content_html,
+        flags=re.DOTALL,
+    )
+
+    # Tag case notes
+    content_html = re.sub(
+        r"<p><strong>Case note:([^<]+)</strong></p>",
+        r'<aside class="case-note"><div class="case-note-label">Case Note</div><div class="case-note-title">\1</div>',
+        content_html,
+    )
+    # Close case notes at next hr (best-effort)
+    content_html = re.sub(
+        r'(<aside class="case-note">.*?<table>.*?</table>)',
+        r"\1</aside>",
+        content_html,
+        flags=re.DOTALL,
+    )
+
+    # Tag the "When the agent confidently lies" subsection bold paragraph
+    # already body-bold, no change needed
+
+    # Transform Appendix C source entries into card layout
+    content_html = transform_source_cards(content_html)
+
+    # Reading times per chapter, then TOC
+    reading_times = compute_chapter_reading_times(md_text, chapters)
+    toc_html = build_toc(parts, chapters, appendices, foreword, closing, reading_times=reading_times)
+
+    # Inject epigraph at the top of content
+    content_html = (epigraph_html + content_html) if epigraph_html else content_html
+
+    # Search index over headings + first-paragraph snippets
+    search_json = build_search_index(md_text, parts, chapters, appendices, foreword, closing)
+
+    # Render full SPA
+    spa_html = render_template(title, subtitle, author, toc_html, content_html, search_json)
+    OUTPUT.write_text(spa_html)
+
+    size_kb = OUTPUT.stat().st_size / 1024
+    print(f"Wrote {OUTPUT.relative_to(HERE.parent)} ({size_kb:.1f} KB)")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
