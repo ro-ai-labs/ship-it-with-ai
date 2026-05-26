@@ -158,6 +158,80 @@ async function main() {
         else ok('mobile CTAs stacked');
       }
 
+      // About-the-author section: heading + #contact anchor present.
+      if (theme === 'light' && vp.name === 'desktop') {
+        const about = page.locator('#about-the-author');
+        if (await about.count() !== 1) fail('#about-the-author heading missing');
+        else ok('#about-the-author present');
+
+        const contact = page.locator('#contact');
+        if (await contact.count() !== 1) fail('#contact anchor missing (should be inside About)');
+        else ok('#contact anchor present in About');
+
+        const aboutLink = page.locator('#where-i-am-coming-from ~ p a[href="#about-the-author"]');
+        if (await aboutLink.count() < 1) fail('foreword "About the author" link missing');
+        else ok('foreword links to About');
+      }
+
+      // AGENTS.md de-linking: per chapter, at most one link.
+      if (theme === 'light' && vp.name === 'desktop') {
+        const tooMany = await page.evaluate(() => {
+          const chapters = Array.from(document.querySelectorAll('h2[id^="chapter-"]'));
+          for (let i = 0; i < chapters.length; i++) {
+            const start = chapters[i];
+            const end = chapters[i + 1] || null;
+            const links = [];
+            let n = start.nextElementSibling;
+            while (n && n !== end) {
+              if (n.querySelectorAll) {
+                n.querySelectorAll('a[href^="https://agents.md"]').forEach(a => links.push(a));
+              }
+              n = n.nextElementSibling;
+            }
+            if (links.length > 1) return { chapter: start.id, count: links.length };
+          }
+          return null;
+        });
+        if (tooMany) fail(`chapter ${tooMany.chapter} has ${tooMany.count} AGENTS.md links (max 1)`);
+        else ok('AGENTS.md links: <= 1 per chapter');
+      }
+
+      // Anchor links: at least one on a chapter h2 and one on an artifact-box.
+      if (theme === 'light' && vp.name === 'desktop') {
+        const headingAnchors = await page.locator('h2[id^="chapter-"] a.anchor-link').count();
+        if (headingAnchors < 10) fail(`expected >= 10 anchor links on chapter h2s, got ${headingAnchors}`);
+        else ok(`anchor links on chapter h2s: ${headingAnchors}`);
+
+        const artifactAnchors = await page.locator('aside.artifact-box a.anchor-link').count();
+        if (artifactAnchors < 10) fail(`expected >= 10 anchor links on artifact-boxes, got ${artifactAnchors}`);
+        else ok(`anchor links on artifact-boxes: ${artifactAnchors}`);
+
+        await page.locator('h2[id^="chapter-"] a.anchor-link').first().click();
+        await page.waitForTimeout(200);
+        const toastVisible = await page.locator('.anchor-toast.show').count();
+        if (!toastVisible) fail('anchor-link click did not show toast');
+        else ok('anchor-link click shows toast');
+      }
+
+      // No horizontal scrollbar on any viewport.
+      const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+      const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
+      if (scrollWidth > clientWidth + 1) {
+        fail(`${vp.name}/${theme}: horizontal overflow (scrollWidth ${scrollWidth} > clientWidth ${clientWidth})`);
+      } else {
+        ok(`${vp.name}/${theme}: no horizontal overflow`);
+      }
+
+      // Reading times: every chapter TOC entry should have a non-empty min value.
+      if (theme === 'light' && vp.name === 'desktop') {
+        const missing = await page.evaluate(() =>
+          Array.from(document.querySelectorAll('.toc-list .toc-time'))
+            .filter(s => !s.textContent || !/\d+ min/.test(s.textContent)).length
+        );
+        if (missing > 0) fail(`${missing} chapters have missing/malformed reading-time`);
+        else ok('all chapter reading-times present');
+      }
+
       // Re-navigate to the clean URL (no #hash) then scroll to top so the
       // hero screenshot captures the actual hero, not whatever the previous
       // scrollIntoView left behind.

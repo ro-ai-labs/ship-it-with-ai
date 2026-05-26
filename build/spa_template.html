@@ -885,6 +885,47 @@
       }
     }
 
+    /* Per-section anchor links. Visible on hover (desktop) / always (touch). */
+    .anchor-link {
+      display: inline-block;
+      margin-left: 8px;
+      opacity: 0;
+      color: var(--color-text-muted);
+      text-decoration: none;
+      font-size: 0.85em;
+      vertical-align: baseline;
+      transition: opacity 0.15s ease, color 0.15s ease;
+    }
+    h2:hover .anchor-link,
+    h3:hover .anchor-link,
+    aside.artifact-box:hover .anchor-link,
+    .anchor-link:focus-visible {
+      opacity: 1;
+    }
+    .anchor-link:hover { color: var(--color-accent); }
+    @media (hover: none) {
+      .anchor-link { opacity: 0.5; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .anchor-link { transition: none; }
+    }
+    .anchor-toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--color-text);
+      color: var(--color-bg);
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 1000;
+    }
+    .anchor-toast.show { opacity: 1; }
+
     /* Source cards (Appendix C) */
     .source-card {
       background: var(--color-card-bg);
@@ -2035,6 +2076,34 @@
         applyTheme(next);
         localStorage.setItem('theme', next);
       });
+
+      // Per-section anchor links: copy URL on click, show a brief toast.
+      (function(){
+        let toast = null;
+        function showToast() {
+          if (!toast) {
+            toast = document.createElement('div');
+            toast.className = 'anchor-toast';
+            toast.textContent = 'Link copied';
+            document.body.appendChild(toast);
+          }
+          toast.classList.add('show');
+          setTimeout(() => toast.classList.remove('show'), 1400);
+        }
+        document.addEventListener('click', (e) => {
+          const a = e.target.closest('a.anchor-link');
+          if (!a) return;
+          e.preventDefault();
+          const href = a.getAttribute('href');
+          const url = window.location.origin + window.location.pathname + href;
+          history.replaceState(null, '', href);
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(url).then(showToast, showToast);
+          } else {
+            showToast();
+          }
+        });
+      })();
 
       // Font size (eReader-style: small / medium / large with persistence)
       const sizes = ['small', 'medium', 'large'];

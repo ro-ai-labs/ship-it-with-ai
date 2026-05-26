@@ -98,20 +98,9 @@ This manual is about building the frame. The specific tools I name throughout - 
 
 ### Where I am coming from {#where-i-am-coming-from}
 
-The shape of a manual depends on the shape of the writer, and you deserve to know whether the writer's experience is the kind of experience that maps to your situation.
+I have been writing software professionally since 2000 and building AI systems for more than a decade. I have used every generation of coding assistant, from early IDE intelligence to Copilot to current coding agents, and I have spent the last eighteen months watching production teams adopt agentic workflows well and badly. This manual is the result of the patterns that survived repeated use across real teams.
 
-I first met a computer in my parents' office around 1984, when I was six - a mainframe room with a raised floor, Space Invaders running on a terminal, and an introduction to BASIC. I wrote my first programs in BASIC in 1989. Borland Pascal in DOS followed in 1993, then Visual Basic, the first real IDE I used and the first language I sold software in as a teenager. My professional career started in 2000 as IT Manager for a manufacturing company. In 2001 I moved into software engineering proper, joining a startup that built multicasting software for satellite operators running DVB. When the startup lost its investors and pivoted to outsourcing, I switched from C++ to .NET, and spent the next two decades, through 2023, delivering for customers across industries on Visual Studio.NET and its descendants. I am, by training and inclination, an engineer first and a consultant second; the consulting work is the secondary outgrowth of doing engineering with teams who want help.
-
-My interest in machine learning started around 2013. The first serious deep dive came in late 2015, when I ported DarkNet and YOLO onto an XR headset; that is when I started building AI applications professionally. In 2023 I joined a company building the first neuromorphic SoC, working on the nano-ML end of the field. On the assisted-coding side, I have used every generation: Whole Tomato's Visual Assist (the first intelligent coding assistant I ever installed), the early JetBrains tooling in the .NET world, the first releases of Copilot, and LLMs for coding since the day ChatGPT first shipped. I have not built my own coding agent. I have used most of the ones that ship now, and I have watched a lot of teams use them.
-
-The manual draws on this trajectory. The methodology I describe has been refined across dozens of engagements with teams of varying sizes, in varying industries, in varying states of agentic readiness. The frames I share are the ones that have held up across the engagements; the ones that did not hold up have been retired. This is not the first set of frames I wrote about agentic delivery. It is the third or fourth iteration. The earlier iterations were wrong in interesting ways. This one is, I hope, less wrong.
-
-I am not neutral about the topic. I think agentic software delivery is the most consequential shift in our field since the introduction of high-level programming languages. I also think the way most teams are currently adopting it is doing them more harm than good. Both of those things can be true. The point of the manual is to help you adopt in a way that captures the upside without the harm. The frameworks are how.
-
-That trajectory - four decades of writing code, twenty-five of them professional, more than a decade building AI systems, every generation of coding assistant in between - is the trajectory the manual is written from. Calibrate your expectations accordingly.
-
-<a id="contact"></a>
-*Contact: [info@ship-it-with.ai](mailto:info@ship-it-with.ai) for technical conversations or tailored workshops, in-person or online, shaped to your team's codebase and constraints. Find me on [LinkedIn](https://www.linkedin.com/in/mihaicvasnievschi/). For executive and non-technical leadership audiences, the sister practice at [ai-leaders.ro](https://ai-leaders.ro) covers the adoption side without the engineering depth.*
+[Full background: About the author.](#about-the-author)
 
 ---
 
@@ -1951,6 +1940,25 @@ If you have questions, comments, or stories from your own adoption - successes o
 -- Mihai Cvasnievschi
 
 Bucharest, 2026
+
+---
+
+## About the author {#about-the-author}
+
+The shape of a manual depends on the shape of the writer, and you deserve to know whether the writer's experience is the kind of experience that maps to your situation.
+
+I first met a computer in my parents' office around 1984, when I was six - a mainframe room with a raised floor, Space Invaders running on a terminal, and an introduction to BASIC. I wrote my first programs in BASIC in 1989. Borland Pascal in DOS followed in 1993, then Visual Basic, the first real IDE I used and the first language I sold software in as a teenager. My professional career started in 2000 as IT Manager for a manufacturing company. In 2001 I moved into software engineering proper, joining a startup that built multicasting software for satellite operators running DVB. When the startup lost its investors and pivoted to outsourcing, I switched from C++ to .NET, and spent the next two decades, through 2023, delivering for customers across industries on Visual Studio.NET and its descendants. I am, by training and inclination, an engineer first and a consultant second; the consulting work is the secondary outgrowth of doing engineering with teams who want help.
+
+My interest in machine learning started around 2013. The first serious deep dive came in late 2015, when I ported DarkNet and YOLO onto an XR headset; that is when I started building AI applications professionally. In 2023 I joined a company building the first neuromorphic SoC, working on the nano-ML end of the field. On the assisted-coding side, I have used every generation: Whole Tomato's Visual Assist (the first intelligent coding assistant I ever installed), the early JetBrains tooling in the .NET world, the first releases of Copilot, and LLMs for coding since the day ChatGPT first shipped. I have not built my own coding agent. I have used most of the ones that ship now, and I have watched a lot of teams use them.
+
+The manual draws on this trajectory. The methodology I describe has been refined across dozens of engagements with teams of varying sizes, in varying industries, in varying states of agentic readiness. The frames I share are the ones that have held up across the engagements; the ones that did not hold up have been retired. This is not the first set of frames I wrote about agentic delivery. It is the third or fourth iteration. The earlier iterations were wrong in interesting ways. This one is, I hope, less wrong.
+
+I am not neutral about the topic. I think agentic software delivery is the most consequential shift in our field since the introduction of high-level programming languages. I also think the way most teams are currently adopting it is doing them more harm than good. Both of those things can be true. The point of the manual is to help you adopt in a way that captures the upside without the harm. The frameworks are how.
+
+That trajectory - four decades of writing code, twenty-five of them professional, more than a decade building AI systems, every generation of coding assistant in between - is the trajectory the manual is written from. Calibrate your expectations accordingly.
+
+<a id="contact"></a>
+*Contact: [info@ship-it-with.ai](mailto:info@ship-it-with.ai) for technical conversations or tailored workshops, in-person or online, shaped to your team's codebase and constraints. Find me on [LinkedIn](https://www.linkedin.com/in/mihaicvasnievschi/). For executive and non-technical leadership audiences, the sister practice at [ai-leaders.ro](https://ai-leaders.ro) covers the adoption side without the engineering depth.*
 
 ---
 

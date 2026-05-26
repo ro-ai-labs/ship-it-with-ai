@@ -364,11 +364,15 @@ ARTIFACT_RE = re.compile(
 
 def transform_artifacts(html: str) -> str:
     """Wrap **Artifact: TITLE.** body paragraphs into styled cards."""
+    counter = {"n": 0}
+
     def repl(m):
+        counter["n"] += 1
+        slug = f"artifact-{counter['n']}"
         title = m.group("title").strip()
         body = m.group("body").strip()
         return (
-            '<aside class="artifact-box">'
+            f'<aside class="artifact-box" id="{slug}">'
             '<div class="artifact-header">'
             f'{CLIPBOARD_SVG}'
             '<span class="artifact-label">Artifact</span>'
@@ -378,6 +382,71 @@ def transform_artifacts(html: str) -> str:
             '</aside>'
         )
     return ARTIFACT_RE.sub(repl, html)
+
+
+AGENTS_LINK_RE = re.compile(r'<a href="https://agents\.md/?"[^>]*>AGENTS\.md</a>')
+CHAPTER_SPLIT_RE = re.compile(r'(<h2 id="chapter-\d+"[^>]*>)')
+
+
+def delink_repeated_agents_md(html: str) -> str:
+    """Keep only the first AGENTS.md link per chapter; unwrap subsequent ones."""
+    parts = CHAPTER_SPLIT_RE.split(html)
+    out = [parts[0]]
+    i = 1
+    while i < len(parts):
+        h2 = parts[i]
+        body = parts[i + 1] if i + 1 < len(parts) else ""
+        seen = {"flag": False}
+
+        def keep_first(m):
+            if seen["flag"]:
+                return "AGENTS.md"
+            seen["flag"] = True
+            return m.group(0)
+
+        new_body = AGENTS_LINK_RE.sub(keep_first, body)
+        out.extend([h2, new_body])
+        i += 2
+
+    return "".join(out)
+
+
+HEADING_RE = re.compile(
+    r'<(?P<tag>h2|h3) id="(?P<id>[^"]+)"(?P<attrs>[^>]*)>(?P<inner>.*?)</(?P=tag)>',
+    re.DOTALL,
+)
+ARTIFACT_HEADER_RE = re.compile(
+    r'(<aside class="artifact-box" id="(?P<aid>artifact-\d+)">\s*<div class="artifact-header">)',
+    re.DOTALL,
+)
+SKIP_IDS = {'top', 'contact', 'about-the-author'}
+
+
+def inject_anchor_links(html: str) -> str:
+    """Add `<a class="anchor-link" href="#id">¶</a>` to h2/h3 and artifact-boxes.
+
+    Preserves existing markdown {#anchor} ids (the markdown extension already set them).
+    Skips ids in SKIP_IDS to avoid noise on the byline target and the About heading.
+    """
+    def head_repl(m):
+        hid = m.group('id')
+        if hid in SKIP_IDS:
+            return m.group(0)
+        tag = m.group('tag')
+        attrs = m.group('attrs')
+        inner = m.group('inner')
+        anchor = f'<a class="anchor-link" href="#{hid}" aria-label="Copy link to section" tabindex="0">¶</a>'
+        return f'<{tag} id="{hid}"{attrs}>{inner}{anchor}</{tag}>'
+
+    html = HEADING_RE.sub(head_repl, html)
+
+    def art_repl(m):
+        aid = m.group('aid')
+        anchor = f'<a class="anchor-link" href="#{aid}" aria-label="Copy link to artifact" tabindex="0">¶</a>'
+        return m.group(1) + anchor
+
+    html = ARTIFACT_HEADER_RE.sub(art_repl, html)
+    return html
 
 
 def transform_source_cards(html: str) -> str:
@@ -463,7 +532,7 @@ _MD_MULTI_WS_RE = re.compile(r"\s+")
 _MD_ATTR_RE = re.compile(r"\{#[a-z0-9-]+\}")
 
 _NEXT_BOUNDARY_RE = re.compile(
-    r"(?m)^(?:## Chapter \d+\b|# Part [IVX]+\b|# Closing\b|## Appendix [A-Z]\.)"
+    r"(?m)^(?:## Chapter \d+\b|# Part [IVX]+\b|# Closing\b|## Appendix [A-Z]\.|## About the author\b)"
 )
 
 
@@ -778,6 +847,11 @@ def build_toc(parts, chapters, appendices, foreword, closing, reading_times=None
         sections.append('<div class="toc-section-title"><a href="#closing">Closing</a></div>')
         sections.append("</div>")
 
+    # About the author (sits between Closing and Appendices).
+    sections.append('<div class="toc-section">')
+    sections.append('<div class="toc-section-title"><a href="#about-the-author">About the author</a></div>')
+    sections.append("</div>")
+
     # Appendices
     if appendices:
         sections.append('<div class="toc-section">')
@@ -931,6 +1005,12 @@ def main() -> int:
 
     # Transform Appendix C source entries into card layout
     content_html = transform_source_cards(content_html)
+
+    # AGENTS.md de-linking — keep first link per chapter, unwrap the rest.
+    content_html = delink_repeated_agents_md(content_html)
+
+    # Per-section copy-link anchors on h2/h3 headings and artifact-boxes.
+    content_html = inject_anchor_links(content_html)
 
     # Reading times per chapter, then TOC
     reading_times = compute_chapter_reading_times(md_text, chapters)
