@@ -257,6 +257,10 @@
       color: var(--color-text-muted);
       font-weight: 600;
       margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
     }
     .toc-section { margin-bottom: 20px; }
     .toc-section-title {
@@ -650,6 +654,262 @@
       width: 35%;
       font-weight: 600;
       color: var(--color-text);
+    }
+
+    /* Source cards (Appendix C) */
+    .source-card {
+      background: var(--color-card-bg);
+      border: 1px solid var(--color-border);
+      border-left: 3px solid var(--color-border-strong);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      margin: 16px 0;
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+    }
+    .source-card:hover {
+      border-color: var(--color-border-strong);
+      border-left-color: var(--color-accent);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+    .source-card:focus-within {
+      outline: 2px solid var(--color-accent);
+      outline-offset: 2px;
+    }
+    .source-card-cat {
+      display: inline-block;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      background: var(--color-case-bg);
+      padding: 3px 9px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+    }
+    .source-card[data-cat="study"]    { border-left-color: var(--color-try-accent); }
+    .source-card[data-cat="incident"] { border-left-color: var(--color-red); }
+    .source-card[data-cat="vuln"]     { border-left-color: var(--color-yellow); }
+    .source-card[data-cat="docs"]     { border-left-color: var(--color-accent); }
+    .source-card[data-cat="market"]   { border-left-color: var(--color-green); }
+    .source-card[data-cat="study"]    .source-card-cat { color: var(--color-try-accent); }
+    .source-card[data-cat="incident"] .source-card-cat { color: var(--color-red); }
+    .source-card[data-cat="vuln"]     .source-card-cat { color: var(--color-yellow); }
+    .source-card[data-cat="docs"]     .source-card-cat { color: var(--color-accent); }
+    .source-card[data-cat="market"]   .source-card-cat { color: var(--color-green); }
+    .source-grid {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      column-gap: 20px;
+      row-gap: 10px;
+      align-items: baseline;
+      margin: 0;
+    }
+    .source-grid dt {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      grid-column: 1;
+      padding-top: 2px;
+    }
+    .source-grid dd {
+      margin: 0;
+      grid-column: 2;
+      color: var(--color-text);
+      font-size: 16px;
+      line-height: 1.55;
+    }
+    .source-grid dd.source-claim { font-weight: 500; color: var(--color-text); }
+    .source-grid dd.source-caveat {
+      color: var(--color-text-soft);
+      font-style: italic;
+      font-size: 15px;
+    }
+    .source-grid dd a {
+      color: var(--color-accent);
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+      word-break: break-word;
+    }
+    .source-grid dd a:hover { text-decoration-thickness: 2px; }
+    .article h3.source-group {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--color-text-soft);
+      margin: 40px 0 14px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--color-border);
+    }
+    @media (max-width: 720px) {
+      .source-card { padding: 18px 18px; }
+      .source-grid {
+        grid-template-columns: 1fr;
+        row-gap: 4px;
+      }
+      .source-grid dt {
+        grid-column: 1;
+        padding-top: 10px;
+      }
+      .source-grid dt:first-of-type { padding-top: 0; }
+      .source-grid dd { grid-column: 1; font-size: 15.5px; }
+      .source-grid dd.source-caveat { font-size: 14.5px; }
+    }
+
+    /* Copy buttons on pre and blockquote */
+    .article pre,
+    .article blockquote:not(.epigraph blockquote) {
+      position: relative;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 9px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--color-text-muted);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border-strong);
+      border-radius: 5px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.15s ease, color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .article pre:hover .copy-btn,
+    .article blockquote:hover .copy-btn,
+    .copy-btn:focus-visible { opacity: 1; }
+    .copy-btn:hover {
+      color: var(--color-text);
+      border-color: var(--color-accent);
+    }
+    .copy-btn:focus-visible {
+      outline: 2px solid var(--color-accent);
+      outline-offset: 2px;
+    }
+    .copy-btn .copy-icon {
+      width: 11px;
+      height: 11px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.75;
+      flex-shrink: 0;
+    }
+    .copy-btn.is-copied {
+      color: var(--color-accent);
+      border-color: var(--color-accent);
+      background: var(--color-accent-soft);
+    }
+    .article blockquote .copy-btn { background: var(--color-bg); }
+    .article pre { padding-right: 64px; }
+    @media (hover: none) {
+      .copy-btn { opacity: 0.7; }
+      .copy-btn:active { opacity: 1; }
+    }
+    @media print {
+      .copy-btn { display: none !important; }
+    }
+
+    /* Reading width variants (eReader-style) */
+    [data-width="narrow"] { --content-width: 620px; }
+    [data-width="medium"] { --content-width: 720px; }
+    [data-width="wide"]   { --content-width: 880px; }
+    .width-btn { padding: 6px 8px; }
+    .width-btn svg line { transition: transform 0.2s ease; }
+    [data-width="narrow"] #widthIcon line:nth-child(1),
+    [data-width="narrow"] #widthIcon line:nth-child(3) { transform: translateX(2px) scaleX(0.66); transform-origin: center; }
+    [data-width="narrow"] #widthIcon line:nth-child(2) { transform: scaleX(0.7); transform-origin: center; }
+    [data-width="wide"] #widthIcon line:nth-child(1),
+    [data-width="wide"] #widthIcon line:nth-child(3) { transform: scaleX(1.15); transform-origin: center; }
+    [data-width="wide"] #widthIcon line { stroke-width: 2.2; }
+
+    /* TOC collapse / expand (desktop only) */
+    .toc-collapse {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--color-text-muted);
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      padding: 0;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+    .toc-collapse:hover {
+      color: var(--color-text);
+      border-color: var(--color-border-strong);
+      background: var(--color-surface);
+    }
+    .toc-collapse:focus-visible {
+      outline: 2px solid var(--color-accent);
+      outline-offset: 2px;
+    }
+    @media (min-width: 961px) {
+      .layout {
+        transition: grid-template-columns 0.28s ease, gap 0.28s ease;
+      }
+      [data-toc="collapsed"] .layout {
+        grid-template-columns: 0 1fr;
+        gap: 0;
+      }
+      [data-toc="collapsed"] .sidebar {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 0.18s ease, visibility 0s linear 0.18s;
+      }
+      .sidebar { transition: opacity 0.18s ease; }
+      .toc-rail {
+        position: fixed;
+        top: 96px;
+        left: 0;
+        z-index: 40;
+        display: none;
+        align-items: center;
+        gap: 6px;
+        background: var(--color-surface);
+        color: var(--color-text-soft);
+        border: 1px solid var(--color-border-strong);
+        border-left: none;
+        border-radius: 0 6px 6px 0;
+        padding: 8px 10px 8px 8px;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        cursor: pointer;
+        box-shadow: var(--shadow-sm);
+        transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+      }
+      .toc-rail:hover {
+        color: var(--color-text);
+        border-color: var(--color-accent);
+      }
+      .toc-rail:focus-visible {
+        outline: 2px solid var(--color-accent);
+        outline-offset: 2px;
+      }
+      [data-toc="collapsed"] .toc-rail { display: inline-flex; }
+    }
+    @media (max-width: 960px) {
+      .toc-collapse { display: none; }
+      .toc-rail { display: none !important; }
     }
 
     /* Figures (diagrams) */
@@ -1075,6 +1335,13 @@
     <button class="topbar-btn menu-toggle" id="menuToggle" aria-label="Toggle navigation">☰</button>
     <a href="#top" class="topbar-title">Ship It With AI</a>
     <div class="topbar-actions">
+      <button class="topbar-btn width-btn" id="widthToggle" aria-label="Reading width: medium" title="Reading width">
+        <svg id="widthIcon" width="16" height="14" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <line x1="6" y1="4" x2="18" y2="4"/>
+          <line x1="3" y1="9" x2="21" y2="9"/>
+          <line x1="6" y1="14" x2="18" y2="14"/>
+        </svg>
+      </button>
       <button class="topbar-btn size-btn" id="fontDec" aria-label="Decrease font size"><span class="small-a">A</span></button>
       <button class="topbar-btn size-btn" id="fontInc" aria-label="Increase font size"><span class="large-a">A</span></button>
       <button class="topbar-btn" id="themeToggle" aria-label="Toggle theme">
@@ -1085,7 +1352,12 @@
 
   <div class="layout">
     <aside class="sidebar" id="sidebar">
-      <div class="sidebar-header">Contents</div>
+      <div class="sidebar-header">
+        <span>Contents</span>
+        <button class="toc-collapse" id="tocCollapse" aria-label="Hide contents" aria-controls="sidebar" aria-expanded="true" title="Hide contents">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 6 9 12 15 18"/></svg>
+        </button>
+      </div>
       <div class="toc-section">
 <div class="toc-section-title">Front Matter</div>
 <ul class="toc-list toc-list-flat">
@@ -1140,6 +1412,10 @@
   <li><a href="#appendix-c"><span class="toc-num">C</span>Sources and Further Reading</a></li>
 </ul></div>
     </aside>
+    <button class="toc-rail" id="tocRail" aria-label="Show contents" aria-controls="sidebar" aria-expanded="false" hidden>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"/></svg>
+      <span class="toc-rail-label">Contents</span>
+    </button>
 
     <main class="article" id="top">
       <header class="article-header">
@@ -2617,100 +2893,156 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
 <h2 id="appendix-c" class="appendix-heading"><span class="appendix-label">Appendix C</span><span class="appendix-title">Sources and Further Reading</span></h2>
 
 <p>This appendix exists because every claim in this book deserves a verifiable source if you choose to chase it down. I have organized the entries by claim, not by source, so you can map back from a passage in the body to the evidence behind it. Entries are grouped by category (studies, named incidents, vulnerabilities with patch versions, tool documentation, marketplaces) and each entry follows the same shape: the claim, the source, where in the book it is used, and any caveat worth knowing.</p>
-<h3>Studies and research</h3>
-<p><strong>Claim:</strong> Experienced open-source developers using AI assistance on familiar repositories were 19% slower than the same developers without it, while predicting beforehand they would be 24% faster - a 43-point gap between expected speedup and measured slowdown that persisted in their self-reports even after the data contradicted it.
-<strong>Source:</strong> Becker et al., METR, "Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity," July 10, 2025. arXiv: <a href="https://arxiv.org/abs/2507.09089" target="_blank" rel="noopener noreferrer">arxiv.org/abs/2507.09089</a>. Writeup: <a href="https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/" target="_blank" rel="noopener noreferrer">metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/</a>.
-<strong>Where used:</strong> Chapter 4 (From generating code to shipping software).
-<strong>Caveat:</strong> Tested raw AI assistance (Cursor + Claude) without a formulation-discipline variable. My interpretation that workflow discipline is the missing variable is mine, not the study's.</p>
-<hr>
-<h3>Named incidents</h3>
-<p><strong>Claim:</strong> On April 24, 2026, PocketOS lost its production database in nine seconds when a Cursor agent powered by Claude Opus 4.6 invoked Railway's Volume Delete via a found API token during a credentials-mismatch recovery attempt. Backups stored on the same volume were destroyed with the primary data.
-<strong>Source:</strong> Reported by DevOps.com ("When AI Goes Really, Really Wrong"), Business Insider (Jer Crane statement), and others. Anthropic's Claude Opus 4.6 system card (February 2026) describes the model that powered the agent.
-<strong>Where used:</strong> Prologue (Nine seconds) and Chapter 3 (Governance in layers).
-<strong>Caveat:</strong> Recovery timeline differs across public accounts - Railway's restore was reportedly ~30 minutes after Crane contacted them, while other accounts describe ~30 hours or two days for full operational restoration. I use the incident for the governance pattern, not as a precise forensic reconstruction.</p>
-<hr>
-<p><strong>Claim:</strong> In March 2026, Alexey Grigorev at DataTalks.Club lost two and a half years of course infrastructure when Claude Code worked against an incomplete Terraform state file, created duplicate resources where real ones existed, and ran destructive commands when the duplicates collided.
-<strong>Source:</strong> Public account by Alexey Grigorev (DataTalks.Club), March 2026.
-<strong>Where used:</strong> Chapter 3 (Governance in layers).
-<strong>Caveat:</strong> Data loss was partial; recovery took weeks. The incident is documented publicly but with less coverage than PocketOS.</p>
-<hr>
-<p><strong>Claim:</strong> Anthropic published a technical post-mortem on April 23, 2026 acknowledging three product regressions that collectively broke Claude Code for complex engineering work between February 9 and March 26, 2026: adaptive thinking by default (Feb 9), default effort dropped from high to medium (March 3), and a caching bug in reasoning history retention (March 26). An AMD senior director's analysis of 6,852 Claude Code sessions and 234,760 tool calls showed the model shifting from research-first to edit-first behavior as thinking redaction rolled from 1.5% to 100% of turns.
-<strong>Source:</strong> Anthropic technical post-mortem, April 23, 2026. AMD analysis published separately.
-<strong>Where used:</strong> Chapter 4 (From generating code to shipping software).
-<strong>Caveat:</strong> Independent analyses of code-quality degradation were less rigorous than the post-mortem; treat the magnitude as approximate.</p>
-<hr>
-<h3>Vulnerabilities with patch versions</h3>
-<p><strong>Claim:</strong> Claude Code was vulnerable to remote code execution via untrusted project files: malicious <code>.mcp.json</code> or <code>.claude/settings.json</code> files in untrusted repos could execute hooks before the trust dialog, enabling RCE.
-<strong>Source:</strong> Check Point Research, February 2026. CVE-2025-59536. NVD: <a href="https://nvd.nist.gov/vuln/detail/CVE-2025-59536" target="_blank" rel="noopener noreferrer">nvd.nist.gov/vuln/detail/CVE-2025-59536</a>. Writeup: <a href="https://research.checkpoint.com/2026/rce-and-api-token-exfiltration-through-claude-code-project-files-cve-2025-59536/" target="_blank" rel="noopener noreferrer">research.checkpoint.com/2026/rce-and-api-token-exfiltration-through-claude-code-project-files-cve-2025-59536/</a>.
-<strong>Where used:</strong> Chapter 3 (Governance in layers); referenced in Chapter 10 (Adoption, security committee scene).
-<strong>Caveat:</strong> Patched in Claude Code v1.0.111. Versions earlier than the patch remain vulnerable; the class survives even after the specific patch.</p>
-<hr>
-<p><strong>Claim:</strong> Claude Code was vulnerable to API-key exfiltration via configuration injection: attacker-controlled settings overriding <code>ANTHROPIC_BASE_URL</code> before the trust prompt could leak API keys.
-<strong>Source:</strong> Check Point Research, February 2026. CVE-2026-21852.
-<strong>Where used:</strong> Chapter 3 (Governance in layers).
-<strong>Caveat:</strong> Patched in Claude Code v2.0.65. Same class as CVE-2025-59536: pre-trust execution of untrusted project configuration.</p>
-<hr>
-<p><strong>Claim:</strong> Claude Code automatically loads <code>.env*</code> files in the working directory at session start without explicit user permission, exposing secrets to the agent's context.
-<strong>Source:</strong> Knostic, December 2025. Blog: <a href="https://knostic.ai/blog/claude-loads-secrets-without-permission" target="_blank" rel="noopener noreferrer">knostic.ai/blog/claude-loads-secrets-without-permission</a>.
-<strong>Where used:</strong> Chapter 3 (Governance in layers), named in the dot-env auto-loading vulnerability class.
-<strong>Caveat:</strong> Mitigation is sandbox <code>denyRead</code> of the <code>.env*</code> patterns rather than a vendor patch. The behavior may change in future versions; the class (agents loading local config at session start) is enduring.</p>
-<hr>
-<p><strong>Claim:</strong> Claude Code's deny rules were silently bypassed when a shell command chained more than 50 subcommands (MAX_SUBCOMMANDS_FOR_SECURITY_CHECK = 50 hard cap), with the security check falling through to a generic "ask" prompt.
-<strong>Source:</strong> Adversa AI Red Team, disclosed April 1, 2026. Writeup: <a href="https://adversa.ai/blog/claude-code-security-bypass-deny-rules-disabled/" target="_blank" rel="noopener noreferrer">adversa.ai/blog/claude-code-security-bypass-deny-rules-disabled/</a>.
-<strong>Where used:</strong> Chapter 3 (Governance in layers), as the parser-cap bypass example for "any single layer can have a quiet-failure mode."
-<strong>Caveat:</strong> Patched in Claude Code v2.1.90 on April 6, 2026 (within a week of disclosure). The class - governance layers with parser caps that silently fail - is what to remember after the specific cap is gone.</p>
-<hr>
-<p><strong>Claim:</strong> Permission parsers in coding agents recognize only a known set of shell-read commands; agents invoking Python's <code>open()</code>, Node's <code>fs.readFile</code>, or any unrecognized binary bypass the deny rules entirely.
-<strong>Source:</strong> <a href="https://eve.gd" target="_blank" rel="noopener noreferrer">eve.gd</a> (Eve Cailey), public writeup of the architectural class.
-<strong>Where used:</strong> Chapter 3 (Governance in layers), as the permission-parser bypass class.
-<strong>Caveat:</strong> Architectural, not a single CVE. Mitigation is the OS sandbox <code>denyRead</code> list (kernel-level), not a vendor patch. The class persists across patches because the parser cannot enumerate every binary.</p>
-<hr>
-<h3>Tool documentation</h3>
-<p><strong>Claim:</strong> Codex CLI shipped Agent Skills as a first-class primitive in December 2025, with SKILL.md files using YAML frontmatter and progressive disclosure semantics comparable to Claude Code Skills.
-<strong>Source:</strong> OpenAI Codex CLI docs, <a href="https://developers.openai.com/codex/skills" target="_blank" rel="noopener noreferrer">developers.openai.com/codex/skills</a>.
-<strong>Where used:</strong> Chapter 1 (Six primitives), as the Codex side of the skill-primitive convergence.
-<strong>Caveat:</strong> Vendor documentation; the GA dates are accurate as of mid-2026 but may be revised retroactively.</p>
-<hr>
-<p><strong>Claim:</strong> Codex CLI subagents went GA in early 2026 and can run up to eight in parallel.
-<strong>Source:</strong> OpenAI Codex CLI docs, <a href="https://developers.openai.com/codex/" target="_blank" rel="noopener noreferrer">developers.openai.com/codex/</a>.
-<strong>Where used:</strong> Chapter 1 (Six primitives) and Chapter 5 (the six-phase loop, Execute phase).
-<strong>Caveat:</strong> Vendor documentation; parallel count may change with subsequent versions.</p>
-<hr>
-<p><strong>Claim:</strong> Codex CLI documents AGENTS.md as the convention for project-level agent instructions, loaded at session start and equivalent in role to other vendors' team-instruction files.
-<strong>Source:</strong> OpenAI Codex CLI documentation, <a href="https://developers.openai.com/codex/agents-md" target="_blank" rel="noopener noreferrer">developers.openai.com/codex/agents-md</a>.
-<strong>Where used:</strong> Chapter 1 (Six primitives, skills section) and Chapter 6 (AGENTS.md as team infrastructure).
-<strong>Caveat:</strong> Filename and loading semantics are stable; specific frontmatter and discovery rules may evolve with versions.</p>
-<hr>
-<p><strong>Claim:</strong> AGENTS.md as the vendor-neutral team-instruction-file convention has native support across Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, Zed, and Windsurf. The format is markdown; the loading semantics are equivalent across tools.
-<strong>Source:</strong> Cross-vendor documentation: Codex CLI (<a href="https://developers.openai.com/codex/agents-md" target="_blank" rel="noopener noreferrer">developers.openai.com/codex/agents-md</a>), Cursor (<a href="https://cursor.sh/docs" target="_blank" rel="noopener noreferrer">cursor.sh/docs</a>), GitHub Copilot (<a href="https://docs.github.com/copilot" target="_blank" rel="noopener noreferrer">docs.github.com/copilot</a>), Gemini CLI (<a href="https://cloud.google.com/gemini/docs/codeassist" target="_blank" rel="noopener noreferrer">cloud.google.com/gemini/docs/codeassist</a>), Aider (<a href="https://aider.chat/docs" target="_blank" rel="noopener noreferrer">aider.chat/docs</a>), Zed (<a href="https://zed.dev/docs/ai" target="_blank" rel="noopener noreferrer">zed.dev/docs/ai</a>), Windsurf (<a href="https://codeium.com/windsurf/docs" target="_blank" rel="noopener noreferrer">codeium.com/windsurf/docs</a>).
-<strong>Where used:</strong> Chapter 1 (Six primitives, skills section) and Chapter 6 (Names and conventions).
-<strong>Caveat:</strong> The list of supporting tools grows over time; the claim is that AGENTS.md is the de facto vendor-neutral convention, not that the list is exhaustive.</p>
-<hr>
-<p><strong>Claim:</strong> opencode is an open-source coding agent maintained by an independent team, written in TypeScript and licensed under MIT. Source-organized around the same six primitives this book identifies in Codex CLI and Claude Code.
-<strong>Source:</strong> opencode repository (<a href="https://github.com/opencode-ai/opencode" target="_blank" rel="noopener noreferrer">github.com/opencode-ai/opencode</a>); LICENSE and README.
-<strong>Where used:</strong> Chapter 1 (Six primitives, source survey) and Chapter 2 (Anatomy invariant, two-agent demo).
-<strong>Caveat:</strong> Project naming and maintainer composition may evolve; the architectural convergence claim survives renames.</p>
-<hr>
-<p><strong>Claim:</strong> Playwright drives a real browser through scripted interactions; the accessibility tree is the semantic structure browsers expose for assistive technology and is stable across visual restyles or component-library swaps. Tests written against the accessibility tree assert behavior rather than presentation.
-<strong>Source:</strong> Playwright documentation (<a href="https://playwright.dev/docs/accessibility-testing" target="_blank" rel="noopener noreferrer">playwright.dev/docs/accessibility-testing</a>); W3C ARIA Accessibility Object Model spec.
-<strong>Where used:</strong> Chapter 5 (Verify), as the recommended frontend-verification pattern; Appendix B.3 checklist.
-<strong>Caveat:</strong> Some UI behavior (animation, drag-and-drop, complex canvas surfaces) is not fully captured by the accessibility tree and needs supplementary verification.</p>
-<hr>
-<p><strong>Claim:</strong> Claude Code supports OS-level sandboxing on Linux (bubblewrap with Landlock and seccomp), macOS (Seatbelt), and Windows (restricted tokens with job objects), and is opt-in by configuration. Codex CLI enforces sandbox by default on Linux and macOS; you have to opt out, not opt in.
-<strong>Source:</strong> Claude Code docs (<a href="https://code.claude.com/docs/en/sandboxing" target="_blank" rel="noopener noreferrer">code.claude.com/docs/en/sandboxing</a>) and Codex CLI agent approvals and security docs (<a href="https://developers.openai.com/codex/agent-approvals-security" target="_blank" rel="noopener noreferrer">developers.openai.com/codex/agent-approvals-security</a>).
-<strong>Where used:</strong> Chapter 2 (Anatomy invariant, sandbox-divergence finding) and Chapter 3 (Governance in layers, layer two).
-<strong>Caveat:</strong> Default-on versus opt-in is a versioned implementation detail. Verify the current default for your installed version before relying on it.</p>
-<hr>
-<p><strong>Claim:</strong> Cursor 2.0 introduced a subagent system; Cline shipped subagents natively; Claude Code added Agent Teams as a higher-level coordination layer on top of the Task tool.
-<strong>Source:</strong> Vendor announcements and docs for Cursor, Cline, and Claude Code; collated across early-to-mid 2026.
-<strong>Where used:</strong> Chapter 1 (Six primitives), as evidence for subagent-primitive convergence within roughly a year.
-<strong>Caveat:</strong> Vendor surface areas evolve; the convergence claim survives even when specific product names rebrand.</p>
-<hr>
-<h3>Marketplaces and plugin ecosystems</h3>
-<p><strong>Claim:</strong> Anthropic's <code>claude-plugins-official</code> marketplace ships built-in with Claude Code as of May 2026 and bundles skills, hooks, tools, and commands behind a single install command. The marketplace warns users to trust plugins before installing.
-<strong>Source:</strong> Claude Code docs (<a href="https://code.claude.com/docs/en/discover-plugins" target="_blank" rel="noopener noreferrer">code.claude.com/docs/en/discover-plugins</a>); the marketplace itself.
-<strong>Where used:</strong> Chapter 1 (Six primitives, plugins section).
-<strong>Caveat:</strong> Plugin counts and marketplace policies will drift; the supply-chain discipline described in Chapter 1 is what to take away rather than any specific count.</p>
+<h3 id="studies-and-research" class="source-group">Studies and research</h3>
+<article class="source-card" data-cat="study">
+  <span class="source-card-cat">Study</span>
+  <dl class="source-grid">
+    <dt>Claim</dt><dd class="source-claim">Experienced open-source developers using AI assistance on familiar repositories were 19% slower than the same developers without it, while predicting beforehand they would be 24% faster - a 43-point gap between expected speedup and measured slowdown that persisted in their self-reports even after the data contradicted it.</dd>
+    <dt>Source</dt><dd class="source-source">Becker et al., METR, "Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity," July 10, 2025. arXiv: <a href="https://arxiv.org/abs/2507.09089" target="_blank" rel="noopener noreferrer">arxiv.org/abs/2507.09089</a>. Writeup: <a href="https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/" target="_blank" rel="noopener noreferrer">metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/</a>.</dd>
+    <dt>Where used</dt><dd class="source-where">Chapter 4 (From generating code to shipping software).</dd>
+    <dt>Caveat</dt><dd class="source-caveat">Tested raw AI assistance (Cursor + Claude) without a formulation-discipline variable. My interpretation that workflow discipline is the missing variable is mine, not the study's.</dd>
+  </dl>
+</article><h3 id="named-incidents" class="source-group">Named incidents</h3>
+<article class="source-card" data-cat="incident">
+  <span class="source-card-cat">Incident</span>
+  <dl class="source-grid">
+    <dt>Claim</dt><dd class="source-claim">On April 24, 2026, PocketOS lost its production database in nine seconds when a Cursor agent powered by Claude Opus 4.6 invoked Railway's Volume Delete via a found API token during a credentials-mismatch recovery attempt. Backups stored on the same volume were destroyed with the primary data.</dd>
+    <dt>Source</dt><dd class="source-source">Reported by DevOps.com ("When AI Goes Really, Really Wrong"), Business Insider (Jer Crane statement), and others. Anthropic's Claude Opus 4.6 system card (February 2026) describes the model that powered the agent.</dd>
+    <dt>Where used</dt><dd class="source-where">Prologue (Nine seconds) and Chapter 3 (Governance in layers).</dd>
+    <dt>Caveat</dt><dd class="source-caveat">Recovery timeline differs across public accounts - Railway's restore was reportedly ~30 minutes after Crane contacted them, while other accounts describe ~30 hours or two days for full operational restoration. I use the incident for the governance pattern, not as a precise forensic reconstruction.</dd>
+  </dl>
+</article><article class="source-card" data-cat="incident">
+  <span class="source-card-cat">Incident</span>
+  <dl class="source-grid">
+    <dt>Claim</dt><dd class="source-claim">In March 2026, Alexey Grigorev at DataTalks.Club lost two and a half years of course infrastructure when Claude Code worked against an incomplete Terraform state file, created duplicate resources where real ones existed, and ran destructive commands when the duplicates collided.</dd>
+    <dt>Source</dt><dd class="source-source">Public account by Alexey Grigorev (DataTalks.Club), March 2026.</dd>
+    <dt>Where used</dt><dd class="source-where">Chapter 3 (Governance in layers).</dd>
+    <dt>Caveat</dt><dd class="source-caveat">Data loss was partial; recovery took weeks. The incident is documented publicly but with less coverage than PocketOS.</dd>
+  </dl>
+</article><article class="source-card" data-cat="incident">
+  <span class="source-card-cat">Incident</span>
+  <dl class="source-grid">
+    <dt>Claim</dt><dd class="source-claim">Anthropic published a technical post-mortem on April 23, 2026 acknowledging three product regressions that collectively broke Claude Code for complex engineering work between February 9 and March 26, 2026: adaptive thinking by default (Feb 9), default effort dropped from high to medium (March 3), and a caching bug in reasoning history retention (March 26). An AMD senior director's analysis of 6,852 Claude Code sessions and 234,760 tool calls showed the model shifting from research-first to edit-first behavior as thinking redaction rolled from 1.5% to 100% of turns.</dd>
+    <dt>Source</dt><dd class="source-source">Anthropic technical post-mortem, April 23, 2026. AMD analysis published separately.</dd>
+    <dt>Where used</dt><dd class="source-where">Chapter 4 (From generating code to shipping software).</dd>
+    <dt>Caveat</dt><dd class="source-caveat">Independent analyses of code-quality degradation were less rigorous than the post-mortem; treat the magnitude as approximate.</dd>
+  </dl>
+</article><h3 id="vulnerabilities-with-patch-versions" class="source-group">Vulnerabilities with patch versions</h3>
+<article class="source-card" data-cat="vuln">
+  <span class="source-card-cat">Vulnerability</span>
+  <dl class="source-grid">
+    <dt>Claim</dt><dd class="source-claim">Claude Code was vulnerable to remote code execution via untrusted project files: malicious <code>.mcp.json</code> or <code>.claude/settings.json</code> files in untrusted repos could execute hooks before the trust dialog, enabling RCE.</dd>
+    <dt>Source</dt><dd class="source-source">Check Point Research, February 2026. CVE-2025-59536. NVD: <a href="https://nvd.nist.gov/vuln/detail/CVE-2025-59536" target="_blank" rel="noopener noreferrer">nvd.nist.gov/vuln/detail/CVE-2025-59536</a>. Writeup: <a href="https://research.checkpoint.com/2026/rce-and-api-token-exfiltration-through-claude-code-project-files-cve-2025-59536/" target="_blank" rel="noopener noreferrer">research.checkpoint.com/2026/rce-and-api-token-exfiltration-through-claude-code-project-files-cve-2025-59536/</a>.</dd>
+    <dt>Where used</dt><dd class="source-where">Chapter 3 (Governance in layers); referenced in Chapter 10 (Adoption, security committee scene).</dd>
+    <dt>Caveat</dt><dd class="source-caveat">Patched in Claude Code v1.0.111. Versions earlier than the patch remain vulnerable; the class survives even after the specific patch.</dd>
+  </dl>
+</article><article class="source-card" data-cat="vuln">
+  <span class="source-card-cat">Vulnerability</span>
+  <dl class="source-grid">
+    <dt>Claim</dt><dd class="source-claim">Claude Code was vulnerable to API-key exfiltration via configuration injection: attacker-controlled settings overriding <code>ANTHROPIC_BASE_URL</code> before the trust prompt could leak API keys.</dd>
+    <dt>Source</dt><dd class="source-source">Check Point Research, February 2026. CVE-2026-21852.</dd>
+    <dt>Where used</dt><dd class="source-where">Chapter 3 (Governance in layers).</dd>
+    <dt>Caveat</dt><dd class="source-caveat">Patched in Claude Code v2.0.65. Same class as CVE-2025-59536: pre-trust execution of untrusted project configuration.</dd>
+  </dl>
+</article><article class="source-card" data-cat="vuln">
+  <span class="source-card-cat">Vulnerability</span>
+  <dl class="source-grid">
+    <dt>Claim</dt><dd class="source-claim">Claude Code automatically loads <code>.env*</code> files in the working directory at session start without explicit user permission, exposing secrets to the agent's context.</dd>
+    <dt>Source</dt><dd class="source-source">Knostic, December 2025. Blog: <a href="https://knostic.ai/blog/claude-loads-secrets-without-permission" target="_blank" rel="noopener noreferrer">knostic.ai/blog/claude-loads-secrets-without-permission</a>.</dd>
+    <dt>Where used</dt><dd class="source-where">Chapter 3 (Governance in layers), named in the dot-env auto-loading vulnerability class.</dd>
+    <dt>Caveat</dt><dd class="source-caveat">Mitigation is sandbox <code>denyRead</code> of the <code>.env*</code> patterns rather than a vendor patch. The behavior may change in future versions; the class (agents loading local config at session start) is enduring.</dd>
+  </dl>
+</article><article class="source-card" data-cat="vuln">
+  <span class="source-card-cat">Vulnerability</span>
+  <dl class="source-grid">
+    <dt>Claim</dt><dd class="source-claim">Claude Code's deny rules were silently bypassed when a shell command chained more than 50 subcommands (MAX_SUBCOMMANDS_FOR_SECURITY_CHECK = 50 hard cap), with the security check falling through to a generic "ask" prompt.</dd>
+    <dt>Source</dt><dd class="source-source">Adversa AI Red Team, disclosed April 1, 2026. Writeup: <a href="https://adversa.ai/blog/claude-code-security-bypass-deny-rules-disabled/" target="_blank" rel="noopener noreferrer">adversa.ai/blog/claude-code-security-bypass-deny-rules-disabled/</a>.</dd>
+    <dt>Where used</dt><dd class="source-where">Chapter 3 (Governance in layers), as the parser-cap bypass example for "any single layer can have a quiet-failure mode."</dd>
+    <dt>Caveat</dt><dd class="source-caveat">Patched in Claude Code v2.1.90 on April 6, 2026 (within a week of disclosure). The class - governance layers with parser caps that silently fail - is what to remember after the specific cap is gone.</dd>
+  </dl>
+</article><article class="source-card" data-cat="vuln">
+  <span class="source-card-cat">Vulnerability</span>
+  <dl class="source-grid">
+    <dt>Claim</dt><dd class="source-claim">Permission parsers in coding agents recognize only a known set of shell-read commands; agents invoking Python's <code>open()</code>, Node's <code>fs.readFile</code>, or any unrecognized binary bypass the deny rules entirely.</dd>
+    <dt>Source</dt><dd class="source-source"><a href="https://eve.gd" target="_blank" rel="noopener noreferrer">eve.gd</a> (Eve Cailey), public writeup of the architectural class.</dd>
+    <dt>Where used</dt><dd class="source-where">Chapter 3 (Governance in layers), as the permission-parser bypass class.</dd>
+    <dt>Caveat</dt><dd class="source-caveat">Architectural, not a single CVE. Mitigation is the OS sandbox <code>denyRead</code> list (kernel-level), not a vendor patch. The class persists across patches because the parser cannot enumerate every binary.</dd>
+  </dl>
+</article><h3 id="tool-documentation" class="source-group">Tool documentation</h3>
+<article class="source-card" data-cat="docs">
+  <span class="source-card-cat">Tool documentation</span>
+  <dl class="source-grid">
+    <dt>Claim</dt><dd class="source-claim">Codex CLI shipped Agent Skills as a first-class primitive in December 2025, with SKILL.md files using YAML frontmatter and progressive disclosure semantics comparable to Claude Code Skills.</dd>
+    <dt>Source</dt><dd class="source-source">OpenAI Codex CLI docs, <a href="https://developers.openai.com/codex/skills" target="_blank" rel="noopener noreferrer">developers.openai.com/codex/skills</a>.</dd>
+    <dt>Where used</dt><dd class="source-where">Chapter 1 (Six primitives), as the Codex side of the skill-primitive convergence.</dd>
+    <dt>Caveat</dt><dd class="source-caveat">Vendor documentation; the GA dates are accurate as of mid-2026 but may be revised retroactively.</dd>
+  </dl>
+</article><article class="source-card" data-cat="docs">
+  <span class="source-card-cat">Tool documentation</span>
+  <dl class="source-grid">
+    <dt>Claim</dt><dd class="source-claim">Codex CLI subagents went GA in early 2026 and can run up to eight in parallel.</dd>
+    <dt>Source</dt><dd class="source-source">OpenAI Codex CLI docs, <a href="https://developers.openai.com/codex/" target="_blank" rel="noopener noreferrer">developers.openai.com/codex/</a>.</dd>
+    <dt>Where used</dt><dd class="source-where">Chapter 1 (Six primitives) and Chapter 5 (the six-phase loop, Execute phase).</dd>
+    <dt>Caveat</dt><dd class="source-caveat">Vendor documentation; parallel count may change with subsequent versions.</dd>
+  </dl>
+</article><article class="source-card" data-cat="docs">
+  <span class="source-card-cat">Tool documentation</span>
+  <dl class="source-grid">
+    <dt>Claim</dt><dd class="source-claim">Codex CLI documents AGENTS.md as the convention for project-level agent instructions, loaded at session start and equivalent in role to other vendors' team-instruction files.</dd>
+    <dt>Source</dt><dd class="source-source">OpenAI Codex CLI documentation, <a href="https://developers.openai.com/codex/agents-md" target="_blank" rel="noopener noreferrer">developers.openai.com/codex/agents-md</a>.</dd>
+    <dt>Where used</dt><dd class="source-where">Chapter 1 (Six primitives, skills section) and Chapter 6 (AGENTS.md as team infrastructure).</dd>
+    <dt>Caveat</dt><dd class="source-caveat">Filename and loading semantics are stable; specific frontmatter and discovery rules may evolve with versions.</dd>
+  </dl>
+</article><article class="source-card" data-cat="docs">
+  <span class="source-card-cat">Tool documentation</span>
+  <dl class="source-grid">
+    <dt>Claim</dt><dd class="source-claim">AGENTS.md as the vendor-neutral team-instruction-file convention has native support across Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, Zed, and Windsurf. The format is markdown; the loading semantics are equivalent across tools.</dd>
+    <dt>Source</dt><dd class="source-source">Cross-vendor documentation: Codex CLI (<a href="https://developers.openai.com/codex/agents-md" target="_blank" rel="noopener noreferrer">developers.openai.com/codex/agents-md</a>), Cursor (<a href="https://cursor.sh/docs" target="_blank" rel="noopener noreferrer">cursor.sh/docs</a>), GitHub Copilot (<a href="https://docs.github.com/copilot" target="_blank" rel="noopener noreferrer">docs.github.com/copilot</a>), Gemini CLI (<a href="https://cloud.google.com/gemini/docs/codeassist" target="_blank" rel="noopener noreferrer">cloud.google.com/gemini/docs/codeassist</a>), Aider (<a href="https://aider.chat/docs" target="_blank" rel="noopener noreferrer">aider.chat/docs</a>), Zed (<a href="https://zed.dev/docs/ai" target="_blank" rel="noopener noreferrer">zed.dev/docs/ai</a>), Windsurf (<a href="https://codeium.com/windsurf/docs" target="_blank" rel="noopener noreferrer">codeium.com/windsurf/docs</a>).</dd>
+    <dt>Where used</dt><dd class="source-where">Chapter 1 (Six primitives, skills section) and Chapter 6 (Names and conventions).</dd>
+    <dt>Caveat</dt><dd class="source-caveat">The list of supporting tools grows over time; the claim is that AGENTS.md is the de facto vendor-neutral convention, not that the list is exhaustive.</dd>
+  </dl>
+</article><article class="source-card" data-cat="docs">
+  <span class="source-card-cat">Tool documentation</span>
+  <dl class="source-grid">
+    <dt>Claim</dt><dd class="source-claim">opencode is an open-source coding agent maintained by an independent team, written in TypeScript and licensed under MIT. Source-organized around the same six primitives this book identifies in Codex CLI and Claude Code.</dd>
+    <dt>Source</dt><dd class="source-source">opencode repository (<a href="https://github.com/opencode-ai/opencode" target="_blank" rel="noopener noreferrer">github.com/opencode-ai/opencode</a>); LICENSE and README.</dd>
+    <dt>Where used</dt><dd class="source-where">Chapter 1 (Six primitives, source survey) and Chapter 2 (Anatomy invariant, two-agent demo).</dd>
+    <dt>Caveat</dt><dd class="source-caveat">Project naming and maintainer composition may evolve; the architectural convergence claim survives renames.</dd>
+  </dl>
+</article><article class="source-card" data-cat="docs">
+  <span class="source-card-cat">Tool documentation</span>
+  <dl class="source-grid">
+    <dt>Claim</dt><dd class="source-claim">Playwright drives a real browser through scripted interactions; the accessibility tree is the semantic structure browsers expose for assistive technology and is stable across visual restyles or component-library swaps. Tests written against the accessibility tree assert behavior rather than presentation.</dd>
+    <dt>Source</dt><dd class="source-source">Playwright documentation (<a href="https://playwright.dev/docs/accessibility-testing" target="_blank" rel="noopener noreferrer">playwright.dev/docs/accessibility-testing</a>); W3C ARIA Accessibility Object Model spec.</dd>
+    <dt>Where used</dt><dd class="source-where">Chapter 5 (Verify), as the recommended frontend-verification pattern; Appendix B.3 checklist.</dd>
+    <dt>Caveat</dt><dd class="source-caveat">Some UI behavior (animation, drag-and-drop, complex canvas surfaces) is not fully captured by the accessibility tree and needs supplementary verification.</dd>
+  </dl>
+</article><article class="source-card" data-cat="docs">
+  <span class="source-card-cat">Tool documentation</span>
+  <dl class="source-grid">
+    <dt>Claim</dt><dd class="source-claim">Claude Code supports OS-level sandboxing on Linux (bubblewrap with Landlock and seccomp), macOS (Seatbelt), and Windows (restricted tokens with job objects), and is opt-in by configuration. Codex CLI enforces sandbox by default on Linux and macOS; you have to opt out, not opt in.</dd>
+    <dt>Source</dt><dd class="source-source">Claude Code docs (<a href="https://code.claude.com/docs/en/sandboxing" target="_blank" rel="noopener noreferrer">code.claude.com/docs/en/sandboxing</a>) and Codex CLI agent approvals and security docs (<a href="https://developers.openai.com/codex/agent-approvals-security" target="_blank" rel="noopener noreferrer">developers.openai.com/codex/agent-approvals-security</a>).</dd>
+    <dt>Where used</dt><dd class="source-where">Chapter 2 (Anatomy invariant, sandbox-divergence finding) and Chapter 3 (Governance in layers, layer two).</dd>
+    <dt>Caveat</dt><dd class="source-caveat">Default-on versus opt-in is a versioned implementation detail. Verify the current default for your installed version before relying on it.</dd>
+  </dl>
+</article><article class="source-card" data-cat="docs">
+  <span class="source-card-cat">Tool documentation</span>
+  <dl class="source-grid">
+    <dt>Claim</dt><dd class="source-claim">Cursor 2.0 introduced a subagent system; Cline shipped subagents natively; Claude Code added Agent Teams as a higher-level coordination layer on top of the Task tool.</dd>
+    <dt>Source</dt><dd class="source-source">Vendor announcements and docs for Cursor, Cline, and Claude Code; collated across early-to-mid 2026.</dd>
+    <dt>Where used</dt><dd class="source-where">Chapter 1 (Six primitives), as evidence for subagent-primitive convergence within roughly a year.</dd>
+    <dt>Caveat</dt><dd class="source-caveat">Vendor surface areas evolve; the convergence claim survives even when specific product names rebrand.</dd>
+  </dl>
+</article><h3 id="marketplaces-and-plugin-ecosystems" class="source-group">Marketplaces and plugin ecosystems</h3>
+<article class="source-card" data-cat="market">
+  <span class="source-card-cat">Marketplace</span>
+  <dl class="source-grid">
+    <dt>Claim</dt><dd class="source-claim">Anthropic's <code>claude-plugins-official</code> marketplace ships built-in with Claude Code as of May 2026 and bundles skills, hooks, tools, and commands behind a single install command. The marketplace warns users to trust plugins before installing.</dd>
+    <dt>Source</dt><dd class="source-source">Claude Code docs (<a href="https://code.claude.com/docs/en/discover-plugins" target="_blank" rel="noopener noreferrer">code.claude.com/docs/en/discover-plugins</a>); the marketplace itself.</dd>
+    <dt>Where used</dt><dd class="source-where">Chapter 1 (Six primitives, plugins section).</dd>
+    <dt>Caveat</dt><dd class="source-caveat">Plugin counts and marketplace policies will drift; the supply-chain discipline described in Chapter 1 is what to take away rather than any specific count.</dd>
+  </dl>
+</article>
 <hr>
 <h3>Notes on currency</h3>
 <p>Most of the sources in this appendix are dated. Tool documentation updates frequently; vulnerability records get amended as patches ship and new variants surface. The frameworks in the body of the book are intended to outlast any specific source URL. If a URL breaks, the underlying claim should still be searchable by the named incident, study, or product.</p>
@@ -2771,6 +3103,130 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
         const idx = sizes.indexOf(root.getAttribute('data-font') || 'medium');
         if (idx < sizes.length - 1) applyFontSize(sizes[idx + 1]);
       });
+
+      // Content width (narrow / medium / wide) with persistence
+      const widths = ['narrow', 'medium', 'wide'];
+      const widthBtn = document.getElementById('widthToggle');
+      function applyWidth(w) {
+        root.setAttribute('data-width', w);
+        widthBtn.setAttribute('aria-label', 'Reading width: ' + w);
+        localStorage.setItem('contentWidth', w);
+      }
+      const storedWidth = localStorage.getItem('contentWidth');
+      applyWidth(widths.includes(storedWidth) ? storedWidth : 'medium');
+      widthBtn.addEventListener('click', () => {
+        const idx = widths.indexOf(root.getAttribute('data-width') || 'medium');
+        applyWidth(widths[(idx + 1) % widths.length]);
+      });
+
+      // TOC collapse / expand (desktop only) with persistence
+      const tocCollapse = document.getElementById('tocCollapse');
+      const tocRail = document.getElementById('tocRail');
+      const sidebarEl = document.getElementById('sidebar');
+      function applyTocState(state) {
+        const collapsed = state === 'collapsed';
+        root.setAttribute('data-toc', collapsed ? 'collapsed' : 'expanded');
+        tocCollapse.setAttribute('aria-expanded', String(!collapsed));
+        tocCollapse.setAttribute('aria-label', collapsed ? 'Show contents' : 'Hide contents');
+        tocRail.setAttribute('aria-expanded', String(!collapsed));
+        tocRail.hidden = !collapsed;
+        sidebarEl.setAttribute('aria-hidden', collapsed ? 'true' : 'false');
+        localStorage.setItem('tocCollapsed', collapsed ? '1' : '0');
+      }
+      applyTocState(localStorage.getItem('tocCollapsed') === '1' ? 'collapsed' : 'expanded');
+      tocCollapse.addEventListener('click', () => applyTocState('collapsed'));
+      tocRail.addEventListener('click', () => {
+        applyTocState('expanded');
+        tocCollapse.focus();
+      });
+
+      // Copy buttons for <pre> and <blockquote> in the article
+      const SVG_NS = 'http://www.w3.org/2000/svg';
+      function buildCopyIcon() {
+        const svg = document.createElementNS(SVG_NS, 'svg');
+        svg.setAttribute('class', 'copy-icon');
+        svg.setAttribute('viewBox', '0 0 16 16');
+        svg.setAttribute('aria-hidden', 'true');
+        const rect = document.createElementNS(SVG_NS, 'rect');
+        rect.setAttribute('x', '4'); rect.setAttribute('y', '4');
+        rect.setAttribute('width', '9'); rect.setAttribute('height', '9');
+        rect.setAttribute('rx', '1.5');
+        svg.appendChild(rect);
+        const path = document.createElementNS(SVG_NS, 'path');
+        path.setAttribute('d', 'M3 11V3.5A1.5 1.5 0 0 1 4.5 2H11');
+        svg.appendChild(path);
+        return svg;
+      }
+      function copyText(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+          return navigator.clipboard.writeText(text);
+        }
+        return new Promise((resolve, reject) => {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.setAttribute('readonly', '');
+          ta.style.position = 'fixed';
+          ta.style.top = '-1000px';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          try {
+            document.execCommand('copy') ? resolve() : reject(new Error('execCommand failed'));
+          } catch (e) { reject(e); } finally { document.body.removeChild(ta); }
+        });
+      }
+      function makeCopyButton(getText) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'copy-btn';
+        btn.setAttribute('aria-label', 'Copy to clipboard');
+        btn.appendChild(buildCopyIcon());
+        const label = document.createElement('span');
+        label.className = 'copy-label';
+        label.textContent = 'Copy';
+        btn.appendChild(label);
+        let resetId = null;
+        btn.addEventListener('click', () => {
+          const text = getText();
+          if (!text) return;
+          copyText(text).then(() => {
+            btn.classList.add('is-copied');
+            btn.setAttribute('aria-label', 'Copied to clipboard');
+            label.textContent = 'Copied';
+            if (resetId) clearTimeout(resetId);
+            resetId = setTimeout(() => {
+              btn.classList.remove('is-copied');
+              btn.setAttribute('aria-label', 'Copy to clipboard');
+              label.textContent = 'Copy';
+              resetId = null;
+            }, 1500);
+          }).catch(() => {
+            label.textContent = 'Press Ctrl+C';
+            if (resetId) clearTimeout(resetId);
+            resetId = setTimeout(() => { label.textContent = 'Copy'; }, 1800);
+          });
+        });
+        return btn;
+      }
+      const articleEl = document.querySelector('.article');
+      if (articleEl) {
+        articleEl.querySelectorAll('pre').forEach(pre => {
+          if (pre.querySelector(':scope > .copy-btn')) return;
+          const code = pre.querySelector('code');
+          const btn = makeCopyButton(() => (code ? code.textContent : pre.textContent).replace(/^\n+|\s+$/g, ''));
+          pre.appendChild(btn);
+        });
+        articleEl.querySelectorAll('blockquote').forEach(bq => {
+          if (bq.closest('.epigraph')) return;
+          if (bq.querySelector(':scope > .copy-btn')) return;
+          const btn = makeCopyButton(() => {
+            const clone = bq.cloneNode(true);
+            clone.querySelectorAll('.copy-btn').forEach(b => b.remove());
+            return (clone.innerText || clone.textContent || '').trim();
+          });
+          bq.appendChild(btn);
+        });
+      }
 
       // Mobile menu toggle
       const sidebar = document.getElementById('sidebar');
