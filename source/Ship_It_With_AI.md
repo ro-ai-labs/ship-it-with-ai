@@ -267,7 +267,7 @@ Six primitives.
         instances of itself
 ```
 
-*Figure 2.1. The six primitives and the harness that runs them. Subagents are the recursive primitive: each subagent is itself an instance of the other five.*
+*Figure: The six primitives and the harness that runs them. Subagents are the recursive primitive: each subagent is itself an instance of the other five.*
 
 ---
 
@@ -554,7 +554,7 @@ The governing principle underneath all five layers is least privilege: at every 
        Each layer catches what the others miss.
 ```
 
-*Figure 4.1. The five governance layers, layered as defense in depth.*
+*Figure: The five governance layers, layered as defense in depth.*
 
 ---
 
@@ -834,7 +834,7 @@ The six phases are research, plan, execute, review, verify, ship. Each phase is 
        +----- failed plan? ---- replan       failed verify? --- back to plan
 ```
 
-*Figure 6.1. The six-phase loop. Most failures route back to Plan, not back to Research.*
+*Figure: The six-phase loop. Most failures route back to Plan, not back to Research.*
 
 I will walk through the phases in order, and at the end I will tell you what the whole thing looks like when it runs end to end on a real piece of work.
 
@@ -1474,7 +1474,7 @@ The signals are not a rejection of the agent. They are the discipline that lets 
    4. Scattered rules   8. Velocity-of-change
 ```
 
-*Figure 9.1. The kill signals and the traffic light decision rule. Signal 6 weighs more heavily than the others.*
+*Figure: The kill signals and the traffic light decision rule. Signal 6 weighs more heavily than the others.*
 
 ---
 
@@ -1758,7 +1758,7 @@ The three roles are timed differently because the asymmetric arc demands it. The
   Champion                          Lead                            Manager
 ```
 
-*Figure 11.1. The 90-day adoption arc. Each phase has a primary role and a primary artifact set.*
+*Figure: The 90-day adoption arc. Each phase has a primary role and a primary artifact set.*
 
 ---
 

@@ -37,7 +37,7 @@ def diagram_primitives() -> str:
     </div>
     <div class="harness-foot">the agent loop binds them together;<br/>subagents spawn constrained child instances of the agent itself</div>
   </div>
-  <figcaption>Figure 2.1. The six primitives and the harness that runs them. Subagents are the recursive primitive: each subagent is itself an instance of the other five.</figcaption>
+  <figcaption>Figure: The six primitives and the harness that runs them. Subagents are the recursive primitive: each subagent is itself an instance of the other five.</figcaption>
 </figure>""".format("◉", "⚙", "✦", "▣", "↔", "⟲")
 
 
@@ -58,7 +58,7 @@ def diagram_layers() -> str:
 {rows}
   </div>
   <div class="layers-spine">Least privilege is the spine. Each layer catches what the others miss.</div>
-  <figcaption>Figure 4.1. The five governance layers, layered as defense in depth.</figcaption>
+  <figcaption>Figure: The five governance layers, layered as defense in depth.</figcaption>
 </figure>"""
 
 
@@ -76,7 +76,7 @@ def diagram_loop() -> str:
     <span class="feedback-arrow">↻</span>
     <span class="feedback-text">Most failures route back to Plan, not back to Research</span>
   </div>
-  <figcaption>Figure 6.1. The six-phase loop.</figcaption>
+  <figcaption>Figure: The six-phase loop.</figcaption>
 </figure>"""
 
 
@@ -102,7 +102,7 @@ def diagram_traffic_light() -> str:
 {signal_html}
     </ol>
   </div>
-  <figcaption>Figure 9.1. The kill signals and the traffic light decision rule. Signal 6 weighs more heavily than the others.</figcaption>
+  <figcaption>Figure: The kill signals and the traffic light decision rule. Signal 6 weighs more heavily than the others.</figcaption>
 </figure>"""
 
 
@@ -142,17 +142,8 @@ def diagram_arc() -> str:
   <div class="arc-timeline">
 {cards}
   </div>
-  <figcaption>Figure 11.1. The 90-day adoption arc. Each phase has a primary role and a primary artifact set.</figcaption>
+  <figcaption>Figure: The 90-day adoption arc. Each phase has a primary role and a primary artifact set.</figcaption>
 </figure>"""
-
-
-FIGURE_RENDERERS = {
-    "2.1": diagram_primitives,
-    "4.1": diagram_layers,
-    "6.1": diagram_loop,
-    "9.1": diagram_traffic_light,
-    "11.1": diagram_arc,
-}
 
 
 # ---------------------------------------------------------------------------
@@ -160,22 +151,36 @@ FIGURE_RENDERERS = {
 # ---------------------------------------------------------------------------
 
 # Match a fenced code block followed (after blank lines) by an italicized
-# figure caption like `*Figure 2.1. ... *`. Capture the figure id so we can
-# render the right diagram.
+# figure caption like `*Figure: ...*`. Also accept the legacy `*Figure N.N. ...*`
+# form for backward compatibility — but in either case dispatch by document
+# order, not by id (web-manual style drops figure numbering).
 FIGURE_BLOCK_RE = re.compile(
-    r"```\n(?P<body>.*?)\n```\s*\n+\*Figure\s+(?P<fid>\d+\.\d+)\.[^*]*\*\s*\n",
+    r"```\n(?P<body>.*?)\n```\s*\n+\*Figure(?:\s+\d+\.\d+)?[:.][^*]*\*\s*\n",
     re.DOTALL,
 )
+
+
+# Renderers applied in declaration order (matches document order of diagrams).
+FIGURE_RENDERERS_ORDERED = [
+    diagram_primitives,
+    diagram_layers,
+    diagram_loop,
+    diagram_traffic_light,
+    diagram_arc,
+]
 
 
 def replace_diagrams(md_text: str) -> str:
     """Replace ASCII figure blocks with HTML diagram placeholders."""
 
+    counter = {"i": 0}
+
     def repl(match: re.Match) -> str:
-        fid = match.group("fid")
-        renderer = FIGURE_RENDERERS.get(fid)
-        if renderer is None:
+        idx = counter["i"]
+        counter["i"] += 1
+        if idx >= len(FIGURE_RENDERERS_ORDERED):
             return match.group(0)
+        renderer = FIGURE_RENDERERS_ORDERED[idx]
         return f"\n\n<!--RAW_HTML_START-->\n{renderer()}\n<!--RAW_HTML_END-->\n\n"
 
     return FIGURE_BLOCK_RE.sub(repl, md_text)
