@@ -151,11 +151,10 @@ def diagram_arc() -> str:
 # ---------------------------------------------------------------------------
 
 # Match a fenced code block followed (after blank lines) by an italicized
-# figure caption like `*Figure: ...*`. Also accept the legacy `*Figure N.N. ...*`
-# form for backward compatibility — but in either case dispatch by document
-# order, not by id (web-manual style drops figure numbering).
+# figure caption like `*Figure: ...*`. Dispatch is by document order, not by
+# id (web-manual style drops figure numbering).
 FIGURE_BLOCK_RE = re.compile(
-    r"```\n(?P<body>.*?)\n```\s*\n+\*Figure(?:\s+\d+\.\d+)?[:.][^*]*\*\s*\n",
+    r"```\n.*?\n```\s*\n+\*Figure:\s+[^*]+\*\s*\n",
     re.DOTALL,
 )
 
@@ -183,7 +182,13 @@ def replace_diagrams(md_text: str) -> str:
         renderer = FIGURE_RENDERERS_ORDERED[idx]
         return f"\n\n<!--RAW_HTML_START-->\n{renderer()}\n<!--RAW_HTML_END-->\n\n"
 
-    return FIGURE_BLOCK_RE.sub(repl, md_text)
+    result = FIGURE_BLOCK_RE.sub(repl, md_text)
+    if counter["i"] != len(FIGURE_RENDERERS_ORDERED):
+        raise RuntimeError(
+            f"Figure renderer/caption count mismatch: "
+            f"{counter['i']} captions, {len(FIGURE_RENDERERS_ORDERED)} renderers"
+        )
+    return result
 
 
 # Chapter heading pattern: two consecutive `## ` lines. First is the number,
