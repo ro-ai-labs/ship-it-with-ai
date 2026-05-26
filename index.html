@@ -3868,13 +3868,22 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
           if (window.innerWidth < 960) sidebar.classList.remove('open');
         });
       });
-      // Push state on TOC anchor clicks so Back walks the trail
+      // TOC anchor clicks: take full control. Compute the absolute target
+      // position from getBoundingClientRect + current scrollY, subtract a topbar
+      // offset, scroll there. Then pushState so Back walks the trail.
+      const SCROLL_TOP_OFFSET = 72; // topbar height + small gap
       sidebar.querySelectorAll('a[href^="#"]').forEach(a => {
         a.addEventListener('click', (e) => {
           const href = a.getAttribute('href');
           if (!href || href === '#') return;
           if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-          if (history.pushState) history.pushState(null, '', href);
+          const id = href.slice(1);
+          const target = document.getElementById(id);
+          if (!target) return;
+          e.preventDefault();
+          const targetY = target.getBoundingClientRect().top + window.scrollY - SCROLL_TOP_OFFSET;
+          window.scrollTo({ top: targetY, behavior: 'auto' });
+          history.pushState(null, '', href);
         });
       });
 
@@ -3907,12 +3916,14 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
         tocLinks.forEach(l => l.classList.remove('active'));
         if (activeIdx >= 0) {
           targets[activeIdx].link.classList.add('active');
-          // Scroll active link into view in sidebar if needed
+          // Scroll active link into view within the sidebar only (never the window)
           const link = targets[activeIdx].link;
-          const rect = link.getBoundingClientRect();
+          const linkRect = link.getBoundingClientRect();
           const sidebarRect = sidebar.getBoundingClientRect();
-          if (rect.top < sidebarRect.top || rect.bottom > sidebarRect.bottom) {
-            link.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+          if (linkRect.top < sidebarRect.top) {
+            sidebar.scrollTop += (linkRect.top - sidebarRect.top) - 12;
+          } else if (linkRect.bottom > sidebarRect.bottom) {
+            sidebar.scrollTop += (linkRect.bottom - sidebarRect.bottom) + 12;
           }
         }
       }
