@@ -680,6 +680,24 @@ Audit one codebase your team owns. Of the five governance layers (permissions, s
 
 ---
 
+**Try it yourself.**
+
+This is a discipline you can run at any cadence: monthly, after every incident, before every new agent rollout.
+
+Pick one repository your team owns. Ideally one where you already let an agent commit code. Audit it against the five governance layers from this chapter:
+
+1. Permissions. What can the agent run without a confirmation prompt? Are destructive operations (rm, terraform destroy, drop table, force push to main) gated? Score the layer as DEFAULT, CONFIGURED, ENFORCED, or MONITORED.
+2. Sandbox. Does the agent run inside a kernel-enforced sandbox, or is its "isolation" path validation in the agent's own code? Same four-step score.
+3. Secrets. Where do credentials live? Are .env files committed? Can the agent reach production tokens from its current working environment? Score.
+4. Hooks. Are there pre-tool-call hooks that audit, log, or gate dangerous operations? Score.
+5. Telemetry. When the agent runs a destructive command, does it surface in a dashboard the team will see within minutes? Score.
+
+Write the five scores on a one-page sheet. For each layer below ENFORCED, name one concrete fix and one owner. The sheet is your remediation plan for the next quarter.
+
+The score is not pass/fail; it is your baseline. A repository scoring DEFAULT or CONFIGURED across the board is normal. A repository scoring ENFORCED or MONITORED everywhere is production-grade. The work between them is what this book is about.
+
+---
+
 Part I ends here. You have the architecture. You know what an agent is anatomically, how to evaluate one when it arrives, what governance layers you put in place to control it.
 
 Part II is about how you deliver software with the agent now that it exists in your environment. Architecture answers "what is this thing." Method answers "how do we get work done with it." Both are required. Neither is sufficient on its own.
@@ -1136,6 +1154,21 @@ Draft a fifteen-line AGENTS.md for one project. Three forbidden patterns, one mi
 
 ---
 
+**Try it yourself.**
+
+The AGENTS.md you ship today should not be the AGENTS.md you would have written from scratch. It should be the one the team will actually read and maintain.
+
+1. Pick a repository whose team-instruction file (AGENTS.md, or CLAUDE.md, or .github/copilot-instructions.md - whichever file your agent loads at session start) is empty, stale, or written by someone no longer on the team.
+2. Open your primary coding agent in that repository.
+3. Ask it: "Walk this codebase for twenty minutes and tell me what a new teammate would need to know before contributing. Cover layout, conventions, test discipline, build and deploy commands, and anything documented partly or wrong."
+4. From the answer, draft a one-to-two-page AGENTS.md. Keep it concrete to this repo. Cut generic best-practice advice; the agent already has that in its training.
+5. Commit the file. Reload the agent in the same repository. Ask: "What would you change about this codebase if I asked you to add a Priority field to the main entity?" Compare the answer to what the agent would have said before the AGENTS.md existed.
+6. Hand the AGENTS.md to a teammate who has not worked in this repo. Watch where they get confused. Those are your next edits.
+
+A working AGENTS.md is one a teammate can read in five minutes and start contributing without further pings. The technique works for any agent that loads a team-instruction file at session start. The filename and the loader differ by vendor; the discipline is the same.
+
+---
+
 ## Chapter 7
 ## Architecture Review: Documentation and Diagnosis
 
@@ -1246,6 +1279,22 @@ That is the bridge into the rest of Part III. The next chapter - the kill signal
 **Ship this week.**
 
 Pick the codebase nobody on the team understands well. Paste the architecture review prompt into the agent. Set a sixty-minute budget - agent processing plus your correction time. Commit the resulting document as `docs/architecture.md` and reference it from AGENTS.md. Then run the same workflow on two more poorly-understood codebases. Note which produce clean output and which produce garbage. That pattern is the diagnostic ahead of Chapter 8: clean output means agentic work has a chance; garbage output is one of the kill signals.
+
+---
+
+**Try it yourself.**
+
+The architecture review is the highest-leverage exercise in this book. You can run it on any repository you can clone, in fifteen minutes per repository, and you can rerun it any time the codebase changes substantially.
+
+1. Pick the codebase your team understands least well. Original author gone, partial docs, "do not touch this unless you have to" - that codebase.
+2. Open your primary coding agent at the repository root.
+3. Send a prompt like this one (works on any coding agent in the May 2026 generation; adapt to your agent's calling convention): "Explain the architecture of this codebase. Map the main execution loop, the tool or capability registration surface, the permission or approval logic, the sandbox or isolation mechanism, and the plugin or extension model. Cite file:line for each finding."
+4. Save the output verbatim as `docs/architecture-review.md`. Commit it. Reference it from AGENTS.md so every new session reads it at startup.
+5. Use the same artifact as a diagnostic. If the agent could not produce a coherent map, that is a kill signal: the codebase is not yet ready for autonomous agent work. The fix is human-led documentation first, not a different prompt.
+
+On the May 2026 generation of agents, a medium codebase produces a useful review in four to ten minutes. A less self-documenting codebase takes closer to fifteen. The artifact you generate is the same one a senior engineer would have spent a week producing.
+
+The agents in your tool chain a year from now will be different. The exercise will not.
 
 ---
 
@@ -1495,6 +1544,22 @@ The lesson: red codebases are sometimes a signal about the codebase, and sometim
 **Ship this week.**
 
 Have the green/yellow/red conversation with your tech lead. Get one project officially classified. Defend the classification with the kill signal scores from yesterday.
+
+---
+
+**Try it yourself.**
+
+This is a self-assessment you can run on any project in under fifteen minutes. Honesty matters more than score; the score is downstream of the conversation it forces.
+
+1. Pick an in-flight project where the team is debating whether to lean harder on agentic work.
+2. Open the eight kill signals from this chapter side by side with the project.
+3. For each kill signal, ask the team (not just yourself): is this true of our project right now? Mark each TRIGGERED, BORDERLINE, or CLEAR. Use the team's answers, not your impression of them. Borderline counts as half.
+4. Count the TRIGGERED marks. Apply the rubric: zero or one is GREEN, agent-led work at normal velocity. Two or three is YELLOW, human-led with the agent supporting narrow tasks. Four or more is RED, stop autonomous agent work in this codebase until kill signals close.
+5. Before scoring, write your gut answer (GREEN, YELLOW, or RED) on a separate sheet. Compare it to the rubric result. The gap between intuition and rubric is the data point worth keeping; it tells you which signals you systematically over- or under-weight.
+
+Run this exercise quarterly, after major incidents, and before any decision to expand agent scope to a new team or codebase. The traffic light makes the discussion concrete and shared. "We are YELLOW because four signals are TRIGGERED" beats "I have a bad feeling about this" in every meeting that follows.
+
+The specific kill signals will need updating as the field matures. The discipline of scoring will not.
 
 ---
 
