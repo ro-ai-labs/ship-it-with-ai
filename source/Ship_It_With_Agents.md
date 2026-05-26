@@ -110,6 +110,8 @@ I am not neutral about the topic. I think agentic software delivery is the most 
 
 That trajectory - four decades of writing code, twenty-five of them professional, more than a decade building AI systems, every generation of coding assistant in between - is the trajectory the book is written from. Calibrate your expectations accordingly.
 
+*Contact: mc@ai-labs.ro. For executive and non-technical leadership audiences, the sister practice at ai-leaders.ro covers the adoption side without the engineering depth.*
+
 ---
 
 ### What "agentic AI" means in this book
@@ -474,6 +476,22 @@ The next chapter is about governance specifically - what the layers are, what ea
 **Ship this week.**
 
 Open the source repository of any open-source coding agent. Find the file that implements the agent loop. Read it. Twenty minutes. You will not understand every line; you will understand the shape of the loop, and that is the point.
+
+---
+
+**Try it yourself.**
+
+The specific agents below will be replaced. The technique below will not.
+
+Pick two open-source coding agents whose source code is published. As of May 2026, Codex CLI and opencode are the easiest pair to start with: both repositories are public, both name their primitives in their directory structure, and they make substantively different governance choices that you can see in the source.
+
+1. Clone both repositories.
+2. Open your primary coding agent (whichever one you use day-to-day) in one repo. Open a second instance in the other.
+3. Ask each instance the same question: "Walk this codebase and name the six primitives - context window, tools, skills, plugins, MCP, subagents. For each, tell me which file or module implements it, and rate the implementation basic, intermediate, or advanced."
+4. Save the two answers in a two-column markdown table.
+5. Read the table. The primitives are the same in both. The implementation choices are different. Those choices are governance choices, and they are how you tell two agents apart at the source-code level.
+
+On the May 2026 generation of agents, the walk takes four to ten minutes per repo. For a less self-documenting codebase, budget closer to fifteen. The two agents you compare a year from now will not be these two. The six primitives, the diagnostic, and what the diagnostic tells you about governance will be.
 
 ---
 

@@ -25,6 +25,8 @@
       --color-card-bg: #ffffff;
       --color-action-bg: #fff8ee;
       --color-action-accent: #d97706;
+      --color-try-bg: #ecfeff;
+      --color-try-accent: #0e7490;
       --color-case-bg: #f5f3ed;
       --color-quote-border: #d97706;
       --color-table-stripe: #faf9f6;
@@ -58,6 +60,8 @@
       --color-card-bg: #1c1f23;
       --color-action-bg: #2a200f;
       --color-action-accent: #f59e0b;
+      --color-try-bg: #0f262b;
+      --color-try-accent: #22d3ee;
       --color-case-bg: #1f2126;
       --color-quote-border: #f59e0b;
       --color-table-stripe: #1f2226;
@@ -146,7 +150,31 @@
       color: var(--color-text);
       border-color: var(--color-accent);
     }
+    .topbar-btn.size-btn {
+      padding: 4px 10px;
+      font-weight: 600;
+      font-size: 13px;
+      min-width: 32px;
+    }
+    .topbar-btn.size-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+    .topbar-btn.size-btn .small-a { font-size: 11px; }
+    .topbar-btn.size-btn .large-a { font-size: 16px; }
     .menu-toggle { display: none; }
+
+    /* Font-size variants (eReader-style) - scale body text in article only */
+    [data-font="small"] .article p,
+    [data-font="small"] .article li,
+    [data-font="small"] .article blockquote { font-size: 16px; }
+    [data-font="large"] .article p,
+    [data-font="large"] .article li,
+    [data-font="large"] .article blockquote { font-size: 20px; }
+    [data-font="small"] .action-box p, [data-font="small"] .try-box p,
+    [data-font="small"] .action-box li, [data-font="small"] .try-box li { font-size: 15px; }
+    [data-font="large"] .action-box p, [data-font="large"] .try-box p,
+    [data-font="large"] .action-box li, [data-font="large"] .try-box li { font-size: 19px; }
 
     /* Layout */
     .layout {
@@ -480,6 +508,32 @@
     }
     .action-box p { margin-bottom: 12px; font-size: 17px; }
     .action-box p:last-child { margin-bottom: 0; }
+
+    /* Try-it-yourself boxes (cyan, hands-on counterpart to action box) */
+    .try-box {
+      background: var(--color-try-bg);
+      border: 1px solid var(--color-try-accent);
+      border-radius: var(--radius-lg);
+      padding: 24px 28px;
+      margin: 40px 0;
+      box-shadow: var(--shadow-sm);
+    }
+    .try-label {
+      display: inline-block;
+      background: var(--color-try-accent);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 4px;
+      margin-bottom: 14px;
+    }
+    .try-box p { margin-bottom: 12px; font-size: 17px; }
+    .try-box p:last-child { margin-bottom: 0; }
+    .try-box ol, .try-box ul { margin-top: 8px; margin-bottom: 12px; padding-left: 24px; }
+    .try-box li { font-size: 17px; margin-bottom: 6px; }
 
     /* Case notes */
     .case-note {
@@ -906,7 +960,7 @@
       .topbar, .sidebar, .progress, .article-footer { display: none !important; }
       .layout { display: block; padding: 0; }
       .article { max-width: none; }
-      .action-box, .case-note, figure.diagram { break-inside: avoid; box-shadow: none; }
+      .action-box, .try-box, .case-note, figure.diagram { break-inside: avoid; box-shadow: none; }
     }
   </style>
 </head>
@@ -917,6 +971,8 @@
     <button class="topbar-btn menu-toggle" id="menuToggle" aria-label="Toggle navigation">☰</button>
     <a href="#top" class="topbar-title">Ship It With Agents</a>
     <div class="topbar-actions">
+      <button class="topbar-btn size-btn" id="fontDec" aria-label="Decrease font size"><span class="small-a">A</span></button>
+      <button class="topbar-btn size-btn" id="fontInc" aria-label="Increase font size"><span class="large-a">A</span></button>
       <button class="topbar-btn" id="themeToggle" aria-label="Toggle theme">
         <span id="themeIcon">☾</span>
       </button>
@@ -1003,6 +1059,7 @@
 <p>The book draws on this trajectory. The methodology I describe has been refined across dozens of engagements with teams of varying sizes, in varying industries, in varying states of agentic readiness. The frames I share are the ones that have held up across the engagements; the ones that did not hold up have been retired. This is not the first set of frames I wrote about agentic delivery. It is the third or fourth iteration. The earlier iterations were wrong in interesting ways. This one is, I hope, less wrong.</p>
 <p>I am not neutral about the topic. I think agentic software delivery is the most consequential shift in our field since the introduction of high-level programming languages. I also think the way most teams are currently adopting it is doing them more harm than good. Both of those things can be true. The point of the book is to help you adopt in a way that captures the upside without the harm. The frameworks are how.</p>
 <p>That trajectory - four decades of writing code, twenty-five of them professional, more than a decade building AI systems, every generation of coding assistant in between - is the trajectory the book is written from. Calibrate your expectations accordingly.</p>
+<p><em>Contact: mc@ai-labs.ro. For executive and non-technical leadership audiences, the sister practice at ai-leaders.ro covers the adoption side without the engineering depth.</em></p>
 <hr>
 <h3>What "agentic AI" means in this book</h3>
 <p>I have been calling this "agentic AI" without defining it. Here is the definition.</p>
@@ -1237,6 +1294,18 @@
 <hr>
 <aside class="action-box"><div class="action-label">Ship this week</div>
 <p>Open the source repository of any open-source coding agent. Find the file that implements the agent loop. Read it. Twenty minutes. You will not understand every line; you will understand the shape of the loop, and that is the point.</p>
+</aside><hr/>
+<aside class="try-box"><div class="try-label">Try it yourself</div>
+<p>The specific agents below will be replaced. The technique below will not.</p>
+<p>Pick two open-source coding agents whose source code is published. As of May 2026, Codex CLI and opencode are the easiest pair to start with: both repositories are public, both name their primitives in their directory structure, and they make substantively different governance choices that you can see in the source.</p>
+<ol>
+<li>Clone both repositories.</li>
+<li>Open your primary coding agent (whichever one you use day-to-day) in one repo. Open a second instance in the other.</li>
+<li>Ask each instance the same question: "Walk this codebase and name the six primitives - context window, tools, skills, plugins, MCP, subagents. For each, tell me which file or module implements it, and rate the implementation basic, intermediate, or advanced."</li>
+<li>Save the two answers in a two-column markdown table.</li>
+<li>Read the table. The primitives are the same in both. The implementation choices are different. Those choices are governance choices, and they are how you tell two agents apart at the source-code level.</li>
+</ol>
+<p>On the May 2026 generation of agents, the walk takes four to ten minutes per repo. For a less self-documenting codebase, budget closer to fifteen. The two agents you compare a year from now will not be these two. The six primitives, the diagnostic, and what the diagnostic tells you about governance will be.</p>
 </aside><hr/>
 <h2 id="chapter-3" class="chapter-heading"><span class="chapter-num">Chapter 3</span><span class="chapter-title">Governance in layers</span></h2>
 
@@ -2501,6 +2570,28 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
         const next = current === 'dark' ? 'light' : 'dark';
         applyTheme(next);
         localStorage.setItem('theme', next);
+      });
+
+      // Font size (eReader-style: small / medium / large with persistence)
+      const sizes = ['small', 'medium', 'large'];
+      const fontDec = document.getElementById('fontDec');
+      const fontInc = document.getElementById('fontInc');
+      const storedSize = localStorage.getItem('fontSize') || 'medium';
+      function applyFontSize(size) {
+        root.setAttribute('data-font', size);
+        localStorage.setItem('fontSize', size);
+        const idx = sizes.indexOf(size);
+        fontDec.disabled = idx <= 0;
+        fontInc.disabled = idx >= sizes.length - 1;
+      }
+      applyFontSize(sizes.includes(storedSize) ? storedSize : 'medium');
+      fontDec.addEventListener('click', () => {
+        const idx = sizes.indexOf(root.getAttribute('data-font') || 'medium');
+        if (idx > 0) applyFontSize(sizes[idx - 1]);
+      });
+      fontInc.addEventListener('click', () => {
+        const idx = sizes.indexOf(root.getAttribute('data-font') || 'medium');
+        if (idx < sizes.length - 1) applyFontSize(sizes[idx + 1]);
       });
 
       // Mobile menu toggle
