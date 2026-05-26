@@ -3870,8 +3870,18 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
       });
       // TOC anchor clicks: take full control. Compute the absolute target
       // position from getBoundingClientRect + current scrollY, subtract a topbar
-      // offset, scroll there. Then pushState so Back walks the trail.
-      const SCROLL_TOP_OFFSET = 72; // topbar height + small gap
+      // offset, scroll there. Then pushState so Back walks the trail. Set
+      // active link immediately + suppress the scroll-spy until the smooth
+      // scroll settles, so the active highlight does not sweep through every
+      // section during the animation.
+      const SCROLL_TOP_OFFSET = 72;
+      window.__programmaticScroll = false;
+      let programmaticScrollTimer = null;
+      function setActiveLink(link) {
+        if (!link) return;
+        tocLinks.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+      }
       sidebar.querySelectorAll('a[href^="#"]').forEach(a => {
         a.addEventListener('click', (e) => {
           const href = a.getAttribute('href');
@@ -3881,9 +3891,20 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
           const target = document.getElementById(id);
           if (!target) return;
           e.preventDefault();
+          setActiveLink(a);
+          window.__programmaticScroll = true;
+          if (programmaticScrollTimer) clearTimeout(programmaticScrollTimer);
           const targetY = target.getBoundingClientRect().top + window.scrollY - SCROLL_TOP_OFFSET;
           window.scrollTo({ top: targetY, behavior: 'auto' });
           history.pushState(null, '', href);
+          // Reset suppression once scrolling settles. Prefer 'scrollend'
+          // (modern), fall back to a safe timeout for older browsers.
+          const settle = () => {
+            window.__programmaticScroll = false;
+            programmaticScrollTimer = null;
+          };
+          window.addEventListener('scrollend', settle, { once: true });
+          programmaticScrollTimer = setTimeout(settle, 3000);
         });
       });
 
@@ -3933,7 +3954,7 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
         if (!ticking) {
           requestAnimationFrame(() => {
             updateProgress();
-            updateActive();
+            if (!window.__programmaticScroll) updateActive();
             ticking = false;
           });
           ticking = true;
