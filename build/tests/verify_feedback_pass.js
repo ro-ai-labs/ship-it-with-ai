@@ -141,13 +141,14 @@ async function main() {
         if (ctas.length !== 3) fail(`expected 3 hero CTAs, got ${ctas.length}`);
         const hrefs = await Promise.all(ctas.map(c => c.getAttribute('href')));
         const expected = ['#chapter-7', '#appendix-b', /^mailto:info@ship-it-with\.ai\?subject=/];
+        let ctaOk = true;
         for (let i = 0; i < 3; i++) {
           const h = hrefs[i] || '';
           const want = expected[i];
-          const ok_ = (want instanceof RegExp) ? want.test(h) : h === want;
-          if (!ok_) fail(`hero CTA ${i} href: got ${h}, want ${want}`);
+          const matched = (want instanceof RegExp) ? want.test(h) : h === want;
+          if (!matched) { ctaOk = false; fail(`hero CTA ${i} href: got ${h}, want ${want}`); }
         }
-        if (process.exitCode !== 1) ok('hero CTA row: 3 correct targets');
+        if (ctaOk) ok('hero CTA row: 3 correct targets');
       }
 
       // Mobile CTA stack: buttons full-width.

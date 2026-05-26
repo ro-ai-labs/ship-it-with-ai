@@ -334,7 +334,11 @@ SOURCE_NOTE_RE = re.compile(
 
 
 def transform_source_notes(html: str) -> str:
-    """Wrap inline `*Source note. ...*` italic paragraphs as styled callouts."""
+    """Wrap inline `*Source note. ...*` italic paragraphs as styled callouts.
+
+    Note: the regex halts at the first `</em>`, so source-note bodies must not
+    contain nested italics. All current source notes are flat.
+    """
     def repl(m):
         body = m.group("body").strip()
         return (
@@ -668,6 +672,13 @@ def build_search_index(md_text, parts, chapters, appendices, foreword, closing):
             add({"id": "closing", "title": f"Closing: {closing[1]}",
                  "subtitle": "Closing",
                  "snippet": _snippet_for(md_text, m.start()), "kind": "section"})
+
+    # About the author (sits between Closing and Appendices)
+    m = re.search(r"^## About the author\b", md_text, re.MULTILINE)
+    if m:
+        add({"id": "about-the-author", "title": "About the author",
+             "subtitle": "Back matter",
+             "snippet": _snippet_for(md_text, m.start()), "kind": "section"})
 
     # Appendices
     for slug, label, title in appendices:
