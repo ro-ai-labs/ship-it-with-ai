@@ -127,6 +127,9 @@
       scroll-behavior: smooth;
       scroll-padding-top: 80px;
     }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
 
     body {
       margin: 0;
@@ -146,12 +149,15 @@
       position: fixed;
       top: 0;
       left: 0;
-      height: 3px;
-      background: var(--color-accent);
+      height: 2px;
       width: 0%;
       z-index: 100;
+      background: linear-gradient(90deg, var(--color-accent) 0%, color-mix(in srgb, var(--color-accent) 70%, white) 100%);
+      border-radius: 0 2px 2px 0;
+      box-shadow: 0 0 8px color-mix(in srgb, var(--color-accent) 45%, transparent);
       transition: width 0.1s linear;
     }
+    .progress[style*="width: 0%"] { box-shadow: none; }
 
     /* Top bar */
     .topbar {
@@ -288,11 +294,12 @@
       display: flex;
       align-items: baseline;
       gap: 8px;
-      padding: 4px 0 4px 8px;
+      padding: 4px 8px;
       color: var(--color-text-soft);
       text-decoration: none;
       border-left: 2px solid transparent;
-      transition: all 0.12s ease;
+      border-radius: 0 4px 4px 0;
+      transition: color 0.18s ease, background-color 0.22s ease, border-left-color 0.22s ease, font-weight 0.18s ease;
       line-height: 1.4;
     }
     .toc-list a:hover {
@@ -302,7 +309,17 @@
     .toc-list a.active {
       color: var(--color-accent);
       border-left-color: var(--color-accent);
+      background: var(--color-accent-soft);
       font-weight: 600;
+      animation: tocActiveIn 0.28s ease-out;
+    }
+    @keyframes tocActiveIn {
+      from { background-color: transparent; }
+      to   { background-color: var(--color-accent-soft); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .toc-list a, .toc-sublist a { transition: none; }
+      .toc-list a.active { animation: none; }
     }
     .toc-num {
       display: inline-block;
@@ -312,6 +329,21 @@
       font-size: 12px;
       font-weight: 600;
     }
+    .toc-text { flex: 1; min-width: 0; }
+    .toc-time {
+      flex-shrink: 0;
+      margin-left: 8px;
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+      color: var(--color-text-muted);
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      opacity: 0.85;
+      transition: color 0.12s ease, opacity 0.12s ease;
+    }
+    .toc-list a:hover .toc-time { opacity: 1; }
+    .toc-list a.active .toc-time { color: var(--color-accent); opacity: 1; }
+    [data-toc="collapsed"] .toc-time { display: none; }
     .toc-list a.active .toc-num { color: var(--color-accent); }
     .toc-sublist {
       list-style: none;
@@ -336,7 +368,9 @@
     .toc-sublist a.active {
       color: var(--color-accent);
       border-left-color: var(--color-accent);
+      background: var(--color-accent-soft);
       font-weight: 600;
+      box-shadow: inset 2px 0 0 var(--color-accent);
     }
 
     /* Article */
@@ -1320,11 +1354,332 @@
       .case-note td:first-child { width: 40%; }
     }
 
+    /* Visually-hidden helper (used by overlays) */
+    .visually-hidden {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Search overlay */
+    .search-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 11vh 16px 16px;
+    }
+    .search-overlay[hidden] { display: none; }
+    .search-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(20, 18, 14, 0.32);
+      backdrop-filter: saturate(140%) blur(4px);
+      -webkit-backdrop-filter: saturate(140%) blur(4px);
+      animation: searchFade 0.18s ease-out;
+    }
+    [data-theme="dark"] .search-backdrop { background: rgba(0, 0, 0, 0.6); }
+    .search-modal {
+      position: relative;
+      width: min(640px, 100%);
+      max-height: min(72vh, 640px);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: searchRise 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    @keyframes searchFade { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes searchRise {
+      from { opacity: 0; transform: translateY(8px) scale(0.985); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .search-backdrop, .search-modal { animation: none; }
+    }
+    .search-input-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .search-icon { color: var(--color-text-muted); flex-shrink: 0; }
+    .search-input {
+      flex: 1;
+      min-width: 0;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--color-text);
+      font-family: inherit;
+      font-size: 18px;
+      line-height: 1.4;
+      padding: 4px 0;
+      letter-spacing: -0.005em;
+    }
+    .search-input::placeholder { color: var(--color-text-muted); }
+    .search-input::-webkit-search-cancel-button { display: none; }
+    .search-close {
+      background: var(--color-bg);
+      border: 1px solid var(--color-border-strong);
+      border-radius: 5px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--color-text-soft);
+      cursor: pointer;
+      font-family: inherit;
+      transition: color 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+    }
+    .search-close:hover { color: var(--color-text); border-color: var(--color-accent); }
+    .search-close:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+    .search-results-wrap { flex: 1; min-height: 0; overflow-y: auto; padding: 6px 8px; }
+    .search-results { list-style: none; margin: 0; padding: 0; }
+    .search-result {
+      display: block;
+      padding: 12px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: background 0.1s ease, border-color 0.1s ease;
+    }
+    .search-result:hover, .search-result.is-active {
+      background: var(--color-accent-soft);
+      border-color: var(--color-accent);
+    }
+    .search-result-title {
+      font-size: 15.5px;
+      font-weight: 700;
+      color: var(--color-text);
+      letter-spacing: -0.005em;
+      line-height: 1.3;
+    }
+    .search-result-subtitle {
+      display: block;
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      margin: 2px 0 6px;
+    }
+    .search-result-snippet {
+      font-size: 13.5px;
+      color: var(--color-text-soft);
+      line-height: 1.5;
+      margin: 0;
+    }
+    .search-result mark {
+      background: var(--color-accent-soft);
+      color: var(--color-text);
+      padding: 0 2px;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+    [data-theme="dark"] .search-result mark { background: var(--color-accent-soft); color: var(--color-accent); }
+    .search-empty, .search-hint-body {
+      margin: 0;
+      padding: 28px 18px;
+      text-align: center;
+      color: var(--color-text-muted);
+      font-size: 14px;
+    }
+    .search-hint-body { font-style: italic; }
+    .search-footer {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 16px;
+      border-top: 1px solid var(--color-border);
+      background: var(--color-bg);
+      font-size: 12px;
+      color: var(--color-text-muted);
+      flex-wrap: wrap;
+    }
+    .search-kbd-row { display: inline-flex; align-items: center; gap: 6px; }
+    .search-kbd-row-spacer { flex: 1; }
+    .search-kbd {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 22px;
+      padding: 1px 6px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-soft);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border-strong);
+      border-bottom-width: 2px;
+      border-radius: 4px;
+      line-height: 1.4;
+    }
+    .search-credit { font-size: 11.5px; color: var(--color-text-muted); }
+
+    /* Topbar search trigger */
+    .search-trigger { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; }
+    .search-trigger-kbd {
+      display: inline-flex;
+      gap: 2px;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--color-text-muted);
+      padding: 1px 6px;
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+    }
+    .search-trigger:hover .search-trigger-kbd {
+      color: var(--color-text-soft);
+      border-color: var(--color-border-strong);
+    }
+    @media (max-width: 640px) {
+      .search-overlay { padding: 0; align-items: stretch; }
+      .search-modal {
+        width: 100%;
+        max-height: 100vh;
+        height: 100vh;
+        border-radius: 0;
+        border: none;
+      }
+      .search-input { font-size: 17px; }
+      .search-trigger-kbd { display: none; }
+      .search-trigger-label { display: none; }
+    }
+
+    /* Keyboard shortcuts overlay */
+    .kbd-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .kbd-overlay[aria-hidden="true"] { display: none; }
+    .kbd-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(20, 20, 22, 0.45);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      animation: kbdFade 0.18s ease-out;
+    }
+    [data-theme="dark"] .kbd-backdrop { background: rgba(0, 0, 0, 0.6); }
+    .kbd-card {
+      position: relative;
+      background: var(--color-surface);
+      color: var(--color-text);
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      max-width: 520px;
+      width: 100%;
+      max-height: calc(100vh - 48px);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      animation: kbdRise 0.18s ease-out;
+      outline: none;
+    }
+    .kbd-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .kbd-card-title { margin: 0; font-size: 15px; font-weight: 600; color: var(--color-text); }
+    .kbd-close {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--color-text-soft);
+      font-size: 22px;
+      line-height: 1;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .kbd-close:hover { color: var(--color-text); border-color: var(--color-border-strong); }
+    .kbd-card-body { padding: 14px 22px 20px; overflow-y: auto; }
+    .kbd-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .kbd-table th {
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-text-muted);
+      font-weight: 600;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .kbd-table td {
+      padding: 10px 8px 10px 0;
+      border-bottom: 1px solid var(--color-border);
+      vertical-align: middle;
+      color: var(--color-text-soft);
+    }
+    .kbd-table td:first-child { white-space: nowrap; width: 42%; }
+    .kbd-table tr:last-child td { border-bottom: none; }
+    .kbd-chip {
+      display: inline-block;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-text);
+      background: var(--color-bg);
+      border: 1px solid var(--color-border-strong);
+      border-bottom-width: 2px;
+      border-radius: 5px;
+      padding: 2px 7px;
+      min-width: 22px;
+      text-align: center;
+    }
+    .kbd-or { color: var(--color-text-muted); font-size: 12px; margin: 0 4px; }
+    .kbd-foot { margin: 14px 0 0; font-size: 12px; color: var(--color-text-muted); }
+    .kbd-hint { font-size: 12px; color: var(--color-text-muted); margin-right: 4px; display: none; }
+    .kbd-hint kbd {
+      font-family: inherit;
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: 11px;
+      color: var(--color-text-soft);
+    }
+    @media (min-width: 980px) { .kbd-hint { display: inline; } }
+    @keyframes kbdFade { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes kbdRise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @media (prefers-reduced-motion: reduce) {
+      .kbd-backdrop, .kbd-card { animation: none; }
+    }
+    @media (max-width: 600px) {
+      .kbd-overlay { padding: 0; align-items: stretch; }
+      .kbd-card { max-width: none; max-height: 100vh; border-radius: 0; border: none; }
+    }
+
     @media print {
       .topbar, .sidebar, .progress, .article-footer { display: none !important; }
       .layout { display: block; padding: 0; }
       .article { max-width: none; }
       .action-box, .try-box, .case-note, figure.diagram { break-inside: avoid; box-shadow: none; }
+      .search-overlay, .kbd-overlay { display: none !important; }
     }
   </style>
 </head>
@@ -1335,6 +1690,14 @@
     <button class="topbar-btn menu-toggle" id="menuToggle" aria-label="Toggle navigation">☰</button>
     <a href="#top" class="topbar-title">Ship It With AI</a>
     <div class="topbar-actions">
+      <span class="kbd-hint" aria-hidden="true">Press <kbd>?</kbd> for shortcuts</span>
+      <button class="topbar-btn search-trigger" id="searchTrigger" type="button" aria-label="Open search" aria-haspopup="dialog" aria-controls="searchOverlay" title="Search (Ctrl K)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <span class="search-trigger-label">Search</span>
+        <span class="search-trigger-kbd" aria-hidden="true">Ctrl K</span>
+      </button>
       <button class="topbar-btn width-btn" id="widthToggle" aria-label="Reading width: medium" title="Reading width">
         <svg id="widthIcon" width="16" height="14" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
           <line x1="6" y1="4" x2="18" y2="4"/>
@@ -1382,24 +1745,24 @@
 <div class="toc-section">
 <div class="toc-section-title"><a href="#part-i">Part I - Architecture</a></div>
 <ul class="toc-list">
-  <li><a href="#chapter-1"><span class="toc-num">1</span>Six primitives</a></li>
-  <li><a href="#chapter-2"><span class="toc-num">2</span>The anatomy invariant</a></li>
-  <li><a href="#chapter-3"><span class="toc-num">3</span>Governance in layers</a></li>
-  <li><a href="#chapter-4"><span class="toc-num">4</span>From generating code to shipping software</a></li>
+  <li><a href="#chapter-1"><span class="toc-num">1</span><span class="toc-text">Six primitives</span><span class="toc-time">15 min</span></a></li>
+  <li><a href="#chapter-2"><span class="toc-num">2</span><span class="toc-text">The anatomy invariant</span><span class="toc-time">10 min</span></a></li>
+  <li><a href="#chapter-3"><span class="toc-num">3</span><span class="toc-text">Governance in layers</span><span class="toc-time">17 min</span></a></li>
+  <li><a href="#chapter-4"><span class="toc-num">4</span><span class="toc-text">From generating code to shipping software</span><span class="toc-time">13 min</span></a></li>
 </ul></div>
 <div class="toc-section">
 <div class="toc-section-title"><a href="#part-ii">Part II - Method</a></div>
 <ul class="toc-list">
-  <li><a href="#chapter-5"><span class="toc-num">5</span>The six-phase loop</a></li>
-  <li><a href="#chapter-6"><span class="toc-num">6</span>AGENTS.md as team infrastructure</a></li>
-  <li><a href="#chapter-7"><span class="toc-num">7</span>Architecture Review: Documentation and Diagnosis</a></li>
-  <li><a href="#chapter-8"><span class="toc-num">8</span>Readiness: The Kill Signals and the Traffic Light</a></li>
+  <li><a href="#chapter-5"><span class="toc-num">5</span><span class="toc-text">The six-phase loop</span><span class="toc-time">16 min</span></a></li>
+  <li><a href="#chapter-6"><span class="toc-num">6</span><span class="toc-text">AGENTS.md as team infrastructure</span><span class="toc-time">13 min</span></a></li>
+  <li><a href="#chapter-7"><span class="toc-num">7</span><span class="toc-text">Architecture Review: Documentation and Diagnosis</span><span class="toc-time">13 min</span></a></li>
+  <li><a href="#chapter-8"><span class="toc-num">8</span><span class="toc-text">Readiness: The Kill Signals and the Traffic Light</span><span class="toc-time">23 min</span></a></li>
 </ul></div>
 <div class="toc-section">
 <div class="toc-section-title"><a href="#part-iii">Part III - Reality</a></div>
 <ul class="toc-list">
-  <li><a href="#chapter-9"><span class="toc-num">9</span>Patterns for brownfield codebases</a></li>
-  <li><a href="#chapter-10"><span class="toc-num">10</span>Adoption: 90 days, three roles</a></li>
+  <li><a href="#chapter-9"><span class="toc-num">9</span><span class="toc-text">Patterns for brownfield codebases</span><span class="toc-time">9 min</span></a></li>
+  <li><a href="#chapter-10"><span class="toc-num">10</span><span class="toc-text">Adoption: 90 days, three roles</span><span class="toc-time">19 min</span></a></li>
 </ul></div>
 <div class="toc-section">
 <div class="toc-section-title"><a href="#closing">Closing</a></div>
@@ -3061,6 +3424,66 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
     </main>
   </div>
 
+  <div class="search-overlay" id="searchOverlay" hidden aria-hidden="true">
+    <div class="search-backdrop" id="searchBackdrop" tabindex="-1"></div>
+    <div class="search-modal" role="dialog" aria-modal="true" aria-labelledby="searchLabel">
+      <div class="search-input-row">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <label id="searchLabel" class="visually-hidden" for="searchInput">Search the book</label>
+        <input id="searchInput" type="search" class="search-input" placeholder="Search chapters, sections, ideas..." autocomplete="off" spellcheck="false" enterkeyhint="go" aria-controls="searchResults" aria-expanded="false" aria-activedescendant="">
+        <button class="search-close" id="searchClose" type="button" aria-label="Close search">
+          <span aria-hidden="true">Esc</span>
+        </button>
+      </div>
+      <div class="search-results-wrap">
+        <ul id="searchResults" class="search-results" role="listbox" aria-label="Search results"></ul>
+        <p id="searchEmpty" class="search-empty" hidden>No results. Try a different phrase.</p>
+        <p id="searchHint" class="search-hint-body">Search across parts, chapters, sections, and appendices.</p>
+      </div>
+      <div class="search-footer" aria-hidden="true">
+        <span class="search-kbd-row"><kbd class="search-kbd">&#8593;</kbd><kbd class="search-kbd">&#8595;</kbd> navigate</span>
+        <span class="search-kbd-row"><kbd class="search-kbd">&#9166;</kbd> open</span>
+        <span class="search-kbd-row"><kbd class="search-kbd">Esc</kbd> close</span>
+        <span class="search-kbd-row search-kbd-row-spacer"></span>
+        <span class="search-credit" aria-live="polite" id="searchStatus"></span>
+      </div>
+    </div>
+    <span id="searchAnnounce" class="visually-hidden" aria-live="polite" aria-atomic="true"></span>
+  </div>
+
+  <div class="kbd-overlay" id="kbdOverlay" role="dialog" aria-modal="true" aria-labelledby="kbdOverlayTitle" aria-hidden="true" hidden>
+    <div class="kbd-backdrop" data-kbd-close="1"></div>
+    <div class="kbd-card" role="document" tabindex="-1">
+      <div class="kbd-card-head">
+        <h2 class="kbd-card-title" id="kbdOverlayTitle">Keyboard shortcuts</h2>
+        <button type="button" class="kbd-close" id="kbdClose" aria-label="Close shortcuts">×</button>
+      </div>
+      <div class="kbd-card-body">
+        <table class="kbd-table">
+          <thead>
+            <tr><th scope="col">Key</th><th scope="col">Action</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><kbd class="kbd-chip">?</kbd></td><td>Show this help</td></tr>
+            <tr><td><kbd class="kbd-chip">Esc</kbd></td><td>Close overlays and menus</td></tr>
+            <tr><td><kbd class="kbd-chip">&#8984; K</kbd> <span class="kbd-or">or</span> <kbd class="kbd-chip">Ctrl K</kbd></td><td>Open search</td></tr>
+            <tr><td><kbd class="kbd-chip">/</kbd></td><td>Open search (secondary)</td></tr>
+            <tr><td><kbd class="kbd-chip">&#8592;</kbd> <kbd class="kbd-chip">&#8594;</kbd></td><td>Previous / next chapter</td></tr>
+            <tr><td><kbd class="kbd-chip">g</kbd> <kbd class="kbd-chip">g</kbd></td><td>Jump to top</td></tr>
+            <tr><td><kbd class="kbd-chip">G</kbd></td><td>Jump to bottom</td></tr>
+            <tr><td><kbd class="kbd-chip">T</kbd></td><td>Toggle theme</td></tr>
+            <tr><td><kbd class="kbd-chip">-</kbd> <kbd class="kbd-chip">+</kbd></td><td>Decrease / increase font size</td></tr>
+          </tbody>
+        </table>
+        <p class="kbd-foot">Shortcuts are disabled while typing in a field.</p>
+      </div>
+    </div>
+  </div>
+
+  <script id="searchIndex" type="application/json">[{"id":"part-i","title":"Part I: Architecture","subtitle":"Part","snippet":"How agents are built and how you control them.","kind":"part"},{"id":"part-ii","title":"Part II: Method","subtitle":"Part","snippet":"How you ship software with agents.","kind":"part"},{"id":"part-iii","title":"Part III: Reality","subtitle":"Part","snippet":"Where the method works, where it does not, and how to tell.","kind":"part"},{"id":"foreword","title":"Foreword: Why this book","subtitle":"Front matter","snippet":"This book exists because I am tired of having the same conversation.","kind":"section"},{"id":"how-to-read-this-book","title":"How to read this book","subtitle":"Front matter","snippet":"This is a field manual. Read it linearly the first time; treat it as a reference after.","kind":"section"},{"id":"a-note-on-dated-claims","title":"A note on dated claims","subtitle":"Front matter","snippet":"Tool-specific references in this book are current as of May 2026. The frameworks are intended to outlast the specific tools. When a named...","kind":"section"},{"id":"scope-and-limits","title":"Scope and limits","subtitle":"Front matter","snippet":"A field manual that does not name its own failure modes will lose to the reader's experience the moment that experience diverges from the...","kind":"section"},{"id":"cases-used-in-this-book","title":"Cases used in this book","subtitle":"Front matter","snippet":"Each of these case studies recurs across multiple chapters. The list exists so you can navigate by example as well as by framework.","kind":"section"},{"id":"nine-seconds","title":"Nine seconds","subtitle":"Prologue","snippet":"On April 24, 2026, a small SaaS company called PocketOS, a car rental management product, lost its production database to an AI agent that...","kind":"section"},{"id":"chapter-1","title":"Chapter 1: Six primitives","subtitle":"Chapter","snippet":"Open the source code or documentation of most production-grade coding agents - Codex CLI in Rust, opencode in TypeScript, the public-source...","kind":"chapter"},{"id":"chapter-2","title":"Chapter 2: The anatomy invariant","subtitle":"Chapter","snippet":"While preparing this book, I ran an experiment to test the framework empirically. The result was the side-by-side demonstration this...","kind":"chapter"},{"id":"chapter-3","title":"Chapter 3: Governance in layers","subtitle":"Chapter","snippet":"I opened the book with PocketOS. Here is the part of the lesson that requires its own chapter: governance, layered.","kind":"chapter"},{"id":"chapter-4","title":"Chapter 4: From generating code to shipping software","subtitle":"Chapter","snippet":"The most common failure I see in teams adopting agentic coding is that they treat the agent as a code generator. They use the agent for the...","kind":"chapter"},{"id":"chapter-5","title":"Chapter 5: The six-phase loop","subtitle":"Chapter","snippet":"The six phases are research, plan, execute, review, verify, ship. Each phase is a skill, in the agent-anatomy sense - a packaged set of...","kind":"chapter"},{"id":"chapter-6","title":"Chapter 6: AGENTS.md as team infrastructure","subtitle":"Chapter","snippet":"Names and conventions. The vendor-neutral standard for the team instruction file is , with native support across Codex CLI, Cursor, GitHub...","kind":"chapter"},{"id":"chapter-7","title":"Chapter 7: Architecture Review: Documentation and Diagnosis","subtitle":"Chapter","snippet":"In Chapter 2 I showed you how I used one coding agent to inspect the source code of two other coding agents, side by side. I called the...","kind":"chapter"},{"id":"chapter-8","title":"Chapter 8: Readiness: The Kill Signals and the Traffic Light","subtitle":"Chapter","snippet":"An unfashionable claim to open this chapter. There are codebases where you should not use agentic delivery. Not because the agent is bad,...","kind":"chapter"},{"id":"chapter-9","title":"Chapter 9: Patterns for brownfield codebases","subtitle":"Chapter","snippet":"The traffic light tells you which codebases are ready for the agent. This chapter is about the operational patterns that make agentic work...","kind":"chapter"},{"id":"chapter-10","title":"Chapter 10: Adoption: 90 days, three roles","subtitle":"Chapter","snippet":"I close the book with the practical question: where do you start?","kind":"chapter"},{"id":"closing","title":"Closing: A way of thinking that survives the tools","subtitle":"Closing","snippet":"Ending the book where it started: a claim about durability.","kind":"section"},{"id":"appendix-a","title":"Appendix A: Cost Economics","subtitle":"Appendix","snippet":"The second most common question from engineering managers after \"does it work\" is \"what does it cost.\" Specific prices change every...","kind":"section"},{"id":"appendix-b","title":"Appendix B: Templates","subtitle":"Appendix","snippet":"Five copy-paste templates referenced throughout the book. All are starting points; customize for your team.","kind":"section"},{"id":"appendix-c","title":"Appendix C: Sources and Further Reading","subtitle":"Appendix","snippet":"This appendix exists because every claim in this book deserves a verifiable source if you choose to chase it down. I have organized the...","kind":"section"},{"id":"the-shift-in-context","title":"The shift, in context","subtitle":"Foreword - Why this book","snippet":"Seventy years ago, programming meant punching holes in cardboard cards and waiting overnight to find out whether your program ran. Sixty...","kind":"subsection"},{"id":"where-i-am-coming-from","title":"Where I am coming from","subtitle":"Foreword - Why this book","snippet":"The shape of a book depends on the shape of the writer, and you deserve to know whether the writer's experience is the kind of experience...","kind":"subsection"},{"id":"what-agentic-ai-means-in-this-book","title":"What \"agentic AI\" means in this book","subtitle":"Foreword - Why this book","snippet":"I have been calling this \"agentic AI\" without defining it. Here is the definition.","kind":"subsection"},{"id":"the-frame-of-this-book","title":"The frame of this book","subtitle":"Foreword - Why this book","snippet":"Three parts. Architecture: how agents are built and how to evaluate the next one when it arrives. Method: the iterative loop that turns \"AI...","kind":"subsection"},{"id":"most-adoptions-start-here-the-grassroots-arc","title":"Most adoptions start here: the grassroots arc","subtitle":"Chapter 10 - Adoption: 90 days, three roles","snippet":"The first time I taught the three-role rubric, an engineer in the back row raised his hand and said: \"My company does not look like that....","kind":"subsection"},{"id":"the-trade-off-named-honestly","title":"The trade-off, named honestly","subtitle":"Chapter 10 - Adoption: 90 days, three roles","snippet":"The grassroots arc is faster to start and fragile to the champion leaving. If the one engineer carrying the practice changes teams or burns...","kind":"subsection"},{"id":"the-ideal-version-three-roles-in-parallel","title":"The ideal version: three roles in parallel","subtitle":"Chapter 10 - Adoption: 90 days, three roles","snippet":"The framework I recommend when the team has budget and management buy-in has three roles and a ninety-day arc. The roles are champion,...","kind":"subsection"},{"id":"two-engineer-archetypes-that-kill-rollouts-if-you-do-not-name-them","title":"Two engineer archetypes that kill rollouts if you do not name them","subtitle":"Chapter 10 - Adoption: 90 days, three roles","snippet":"The three roles describe what happens when the arc works. There are two engineer archetypes you will see on every team during adoption that...","kind":"subsection"},{"id":"the-vendor-will-have-a-bad-week","title":"The vendor will have a bad week","subtitle":"Chapter 10 - Adoption: 90 days, three roles","snippet":"One operational reality the rollout has to plan for: the agent will not always be available. Vendor outages happen. Capacity throttles...","kind":"subsection"},{"id":"pricing-tiers","title":"Pricing tiers","subtitle":"Appendix A - Cost Economics","snippet":"Three pricing models dominate, in roughly this order of complexity:","kind":"subsection"},{"id":"the-bounding-heuristic","title":"The bounding heuristic","subtitle":"Appendix A - Cost Economics","snippet":"Cost-per-engineer-per-month for an agentic coding tool is bounded by what your team would otherwise have spent on similar tooling: IDE...","kind":"subsection"},{"id":"what-is-not-in-the-sticker-price","title":"What is not in the sticker price","subtitle":"Appendix A - Cost Economics","snippet":"The vendor's quote is the easy part. Four categories are not in it and dominate the real total cost of ownership.","kind":"subsection"},{"id":"pricing-changes-the-math-does-not","title":"Pricing changes; the math does not","subtitle":"Appendix A - Cost Economics","snippet":"Specific prices in any quarter will be wrong the next quarter. The shape of the math will not. Per-seat scales with team size; per-token...","kind":"subsection"},{"id":"b1-architecture-review-prompt","title":"B.1 Architecture review prompt","subtitle":"Appendix B - Templates","snippet":"This template works as either AGENTS.md (vendor-neutral standard) or CLAUDE.md (Claude Code variant). The filename varies by agent; the...","kind":"subsection"},{"id":"b2-agentsmd-skeleton","title":"B.2 AGENTS.md skeleton","subtitle":"Appendix B - Templates","snippet":"This template works as either AGENTS.md (vendor-neutral standard) or CLAUDE.md (Claude Code variant). The filename varies by agent; the...","kind":"subsection"},{"id":"b3-six-phase-loop-checklist-one-pager","title":"B.3 Six-phase loop checklist (one-pager)","subtitle":"Appendix B - Templates","snippet":"This appendix exists because every claim in this book deserves a verifiable source if you choose to chase it down. I have organized the...","kind":"subsection"},{"id":"b4-kill-signal-scoring-worksheet","title":"B.4 Kill signal scoring worksheet","subtitle":"Appendix B - Templates","snippet":"This appendix exists because every claim in this book deserves a verifiable source if you choose to chase it down. I have organized the...","kind":"subsection"},{"id":"b5-90-day-adoption-calendar-one-pager","title":"B.5 90-day adoption calendar (one-pager)","subtitle":"Appendix B - Templates","snippet":"This appendix exists because every claim in this book deserves a verifiable source if you choose to chase it down. I have organized the...","kind":"subsection"},{"id":"studies-and-research","title":"Studies and research","subtitle":"Appendix C - Sources and Further Reading","snippet":"Claim: Experienced open-source developers using AI assistance on familiar repositories were 19% slower than the same developers without it,...","kind":"subsection"},{"id":"named-incidents","title":"Named incidents","subtitle":"Appendix C - Sources and Further Reading","snippet":"Claim: On April 24, 2026, PocketOS lost its production database in nine seconds when a Cursor agent powered by Claude Opus 4.6 invoked...","kind":"subsection"},{"id":"vulnerabilities-with-patch-versions","title":"Vulnerabilities with patch versions","subtitle":"Appendix C - Sources and Further Reading","snippet":"Claim: Claude Code was vulnerable to remote code execution via untrusted project files: malicious or files in untrusted repos could execute...","kind":"subsection"},{"id":"tool-documentation","title":"Tool documentation","subtitle":"Appendix C - Sources and Further Reading","snippet":"Claim: Codex CLI shipped Agent Skills as a first-class primitive in December 2025, with SKILL.md files using YAML frontmatter and...","kind":"subsection"},{"id":"marketplaces-and-plugin-ecosystems","title":"Marketplaces and plugin ecosystems","subtitle":"Appendix C - Sources and Further Reading","snippet":"Claim: Anthropic's marketplace ships built-in with Claude Code as of May 2026 and bundles skills, hooks, tools, and commands behind a...","kind":"subsection"},{"id":"notes-on-currency","title":"Notes on currency","subtitle":"Appendix C - Sources and Further Reading","snippet":"Most of the sources in this appendix are dated. Tool documentation updates frequently; vulnerability records get amended as patches ship...","kind":"subsection"}]</script>
+
   <script>
     (function() {
       // Theme toggle with persistence
@@ -3228,6 +3651,213 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
         });
       }
 
+      // Search overlay (Cmd+K / Ctrl+K / "/")
+      (function initSearch() {
+        const overlay = document.getElementById('searchOverlay');
+        const backdrop = document.getElementById('searchBackdrop');
+        const input = document.getElementById('searchInput');
+        const closeBtn = document.getElementById('searchClose');
+        const results = document.getElementById('searchResults');
+        const empty = document.getElementById('searchEmpty');
+        const hint = document.getElementById('searchHint');
+        const status = document.getElementById('searchStatus');
+        const announce = document.getElementById('searchAnnounce');
+        const trigger = document.getElementById('searchTrigger');
+        const indexEl = document.getElementById('searchIndex');
+        if (!overlay || !input || !results || !indexEl) return;
+
+        let index = [];
+        try { index = JSON.parse(indexEl.textContent || '[]'); } catch (err) { index = []; }
+
+        const MAX_RESULTS = 8;
+        let active = -1;
+        let lastFocus = null;
+        let currentMatches = [];
+
+        function escapeRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+        function score(entry, q) {
+          const ql = q.toLowerCase();
+          const tl = entry.title.toLowerCase();
+          const sl = (entry.snippet || '').toLowerCase();
+          const subl = (entry.subtitle || '').toLowerCase();
+          if (tl === ql) return 1000;
+          if (tl.startsWith(ql)) return 800 - tl.length;
+          const ti = tl.indexOf(ql);
+          if (ti >= 0) return 600 - ti;
+          if (subl.indexOf(ql) >= 0) return 400;
+          const si = sl.indexOf(ql);
+          if (si >= 0) return 200 - Math.min(si, 200);
+          return -1;
+        }
+        function search(q) {
+          if (!q.trim()) return [];
+          const ql = q.trim();
+          const scored = [];
+          for (let i = 0; i < index.length; i++) {
+            const s = score(index[i], ql);
+            if (s >= 0) scored.push({ entry: index[i], s });
+          }
+          scored.sort((a, b) => b.s - a.s);
+          return scored.slice(0, MAX_RESULTS).map(x => x.entry);
+        }
+        function appendHighlighted(parent, text, q) {
+          if (!q) { parent.appendChild(document.createTextNode(text)); return; }
+          const re = new RegExp(escapeRegex(q), 'ig');
+          const matches = Array.from(text.matchAll(re));
+          if (!matches.length) { parent.appendChild(document.createTextNode(text)); return; }
+          let last = 0;
+          for (const m of matches) {
+            if (m.index > last) parent.appendChild(document.createTextNode(text.slice(last, m.index)));
+            const mark = document.createElement('mark');
+            mark.textContent = text.slice(m.index, m.index + m[0].length);
+            parent.appendChild(mark);
+            last = m.index + m[0].length;
+          }
+          if (last < text.length) parent.appendChild(document.createTextNode(text.slice(last)));
+        }
+        function render(q) {
+          while (results.firstChild) results.removeChild(results.firstChild);
+          currentMatches = search(q);
+          active = currentMatches.length ? 0 : -1;
+          const trimmed = q.trim();
+          if (!trimmed) {
+            empty.hidden = true; hint.hidden = false; status.textContent = ''; announce.textContent = '';
+            input.setAttribute('aria-expanded', 'false'); input.setAttribute('aria-activedescendant', '');
+            return;
+          }
+          hint.hidden = true;
+          if (!currentMatches.length) {
+            empty.hidden = false; status.textContent = '0 results';
+            announce.textContent = 'No results for ' + trimmed;
+            input.setAttribute('aria-expanded', 'false'); input.setAttribute('aria-activedescendant', '');
+            return;
+          }
+          empty.hidden = true;
+          input.setAttribute('aria-expanded', 'true');
+          currentMatches.forEach((entry, i) => {
+            const li = document.createElement('li');
+            li.className = 'search-result';
+            li.setAttribute('role', 'option');
+            li.id = 'search-result-' + i;
+            li.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+            li.dataset.idx = String(i);
+            const title = document.createElement('div');
+            title.className = 'search-result-title';
+            appendHighlighted(title, entry.title, trimmed);
+            li.appendChild(title);
+            if (entry.subtitle) {
+              const sub = document.createElement('span');
+              sub.className = 'search-result-subtitle';
+              sub.textContent = entry.subtitle;
+              li.appendChild(sub);
+            }
+            if (entry.snippet) {
+              const snip = document.createElement('p');
+              snip.className = 'search-result-snippet';
+              appendHighlighted(snip, entry.snippet, trimmed);
+              li.appendChild(snip);
+            }
+            li.addEventListener('mouseenter', () => setActive(i));
+            li.addEventListener('mousedown', (ev) => { ev.preventDefault(); jumpTo(i); });
+            results.appendChild(li);
+          });
+          if (currentMatches.length) input.setAttribute('aria-activedescendant', 'search-result-0');
+          const n = currentMatches.length;
+          status.textContent = n + ' result' + (n === 1 ? '' : 's');
+          announce.textContent = n + ' result' + (n === 1 ? '' : 's') + ' for ' + trimmed;
+        }
+        function setActive(i) {
+          if (!currentMatches.length) return;
+          active = (i + currentMatches.length) % currentMatches.length;
+          Array.from(results.children).forEach((el, idx) => {
+            const on = idx === active;
+            el.classList.toggle('is-active', on);
+            el.setAttribute('aria-selected', on ? 'true' : 'false');
+            if (on) {
+              input.setAttribute('aria-activedescendant', el.id);
+              const rect = el.getBoundingClientRect();
+              const wrapRect = el.parentElement.parentElement.getBoundingClientRect();
+              if (rect.top < wrapRect.top || rect.bottom > wrapRect.bottom) el.scrollIntoView({ block: 'nearest' });
+            }
+          });
+        }
+        function jumpTo(i) {
+          const entry = currentMatches[i];
+          if (!entry) return;
+          const target = document.getElementById(entry.id);
+          closeOverlay();
+          if (target) {
+            history.pushState(null, '', '#' + entry.id);
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            target.setAttribute('tabindex', '-1');
+            target.focus({ preventScroll: true });
+          } else {
+            window.location.hash = entry.id;
+          }
+        }
+        function openOverlay() {
+          if (!overlay.hidden) return;
+          lastFocus = document.activeElement;
+          overlay.hidden = false;
+          overlay.setAttribute('aria-hidden', 'false');
+          document.documentElement.style.overflow = 'hidden';
+          input.value = '';
+          render('');
+          requestAnimationFrame(() => input.focus());
+        }
+        function closeOverlay() {
+          if (overlay.hidden) return;
+          overlay.hidden = true;
+          overlay.setAttribute('aria-hidden', 'true');
+          document.documentElement.style.overflow = '';
+          input.setAttribute('aria-expanded', 'false');
+          input.setAttribute('aria-activedescendant', '');
+          if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus({ preventScroll: true });
+        }
+        window.openSearch = openOverlay;
+        window.closeSearch = closeOverlay;
+        document.addEventListener('keydown', (e) => {
+          const isMod = e.metaKey || e.ctrlKey;
+          const tag = (e.target && e.target.tagName) || '';
+          const typing = tag === 'INPUT' || tag === 'TEXTAREA' || (e.target && e.target.isContentEditable);
+          if (isMod && (e.key === 'k' || e.key === 'K')) {
+            e.preventDefault();
+            overlay.hidden ? openOverlay() : closeOverlay();
+            return;
+          }
+          if (!overlay.hidden) return;
+          if (e.key === '/' && !typing) { e.preventDefault(); openOverlay(); }
+        });
+        overlay.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') { e.preventDefault(); closeOverlay(); return; }
+          if (e.key === 'ArrowDown') { e.preventDefault(); setActive(active + 1); return; }
+          if (e.key === 'ArrowUp') { e.preventDefault(); setActive(active - 1); return; }
+          if (e.key === 'Enter') {
+            if (active >= 0 && currentMatches[active]) { e.preventDefault(); jumpTo(active); }
+            return;
+          }
+          if (e.key === 'Tab') {
+            const focusables = [input, closeBtn].filter(Boolean);
+            const first = focusables[0];
+            const last = focusables[focusables.length - 1];
+            if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+            else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+          }
+        });
+        input.addEventListener('input', () => render(input.value));
+        backdrop.addEventListener('click', closeOverlay);
+        if (closeBtn) closeBtn.addEventListener('click', closeOverlay);
+        if (trigger) trigger.addEventListener('click', openOverlay);
+        if (trigger) {
+          const isMac = /Mac|iPhone|iPad|iPod/i.test(navigator.platform || navigator.userAgent);
+          const kbd = trigger.querySelector('.search-trigger-kbd');
+          if (kbd) {
+            while (kbd.firstChild) kbd.removeChild(kbd.firstChild);
+            kbd.appendChild(document.createTextNode(isMac ? '⌘K' : 'Ctrl K'));
+          }
+        }
+      })();
+
       // Mobile menu toggle
       const sidebar = document.getElementById('sidebar');
       const menuToggle = document.getElementById('menuToggle');
@@ -3236,6 +3866,15 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
       sidebar.querySelectorAll('a').forEach(a => {
         a.addEventListener('click', () => {
           if (window.innerWidth < 960) sidebar.classList.remove('open');
+        });
+      });
+      // Push state on TOC anchor clicks so Back walks the trail
+      sidebar.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', (e) => {
+          const href = a.getAttribute('href');
+          if (!href || href === '#') return;
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+          if (history.pushState) history.pushState(null, '', href);
         });
       });
 
@@ -3292,6 +3931,105 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
 
       updateProgress();
       updateActive();
+
+      // Keyboard shortcuts
+      const kbdOverlay = document.getElementById('kbdOverlay');
+      const kbdClose = document.getElementById('kbdClose');
+      const kbdCard = kbdOverlay ? kbdOverlay.querySelector('.kbd-card') : null;
+      const searchOverlayEl = document.getElementById('searchOverlay');
+      let kbdLastFocus = null;
+      let gPressedAt = 0;
+      function isTypingTarget(el) {
+        if (!el) return false;
+        if (el.isContentEditable) return true;
+        const tag = el.tagName;
+        return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+      }
+      function hasModifier(e) { return e.ctrlKey || e.metaKey || e.altKey; }
+      function openKbdOverlay() {
+        if (!kbdOverlay) return;
+        kbdLastFocus = document.activeElement;
+        kbdOverlay.hidden = false;
+        kbdOverlay.setAttribute('aria-hidden', 'false');
+        if (kbdCard) kbdCard.focus();
+      }
+      function closeKbdOverlay() {
+        if (!kbdOverlay || kbdOverlay.hidden) return;
+        kbdOverlay.setAttribute('aria-hidden', 'true');
+        kbdOverlay.hidden = true;
+        if (kbdLastFocus && typeof kbdLastFocus.focus === 'function') kbdLastFocus.focus();
+      }
+      function trapKbdFocus(e) {
+        if (kbdOverlay.hidden || e.key !== 'Tab') return;
+        const focusables = kbdOverlay.querySelectorAll('button, [tabindex]:not([tabindex="-1"])');
+        if (!focusables.length) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+      if (kbdClose) kbdClose.addEventListener('click', closeKbdOverlay);
+      if (kbdOverlay) {
+        kbdOverlay.addEventListener('click', (e) => {
+          if (e.target && e.target.getAttribute && e.target.getAttribute('data-kbd-close') === '1') closeKbdOverlay();
+        });
+        kbdOverlay.addEventListener('keydown', trapKbdFocus);
+      }
+      function closeAllOverlays() {
+        closeKbdOverlay();
+        if (typeof window.closeSearch === 'function') window.closeSearch();
+        if (sidebar && sidebar.classList.contains('open')) sidebar.classList.remove('open');
+      }
+      const navAnchorIds = [
+        'foreword', 'how-to-read-this-book', 'a-note-on-dated-claims',
+        'scope-and-limits', 'cases-used-in-this-book', 'nine-seconds',
+        'part-i', 'chapter-1', 'chapter-2', 'chapter-3',
+        'part-ii', 'chapter-4', 'chapter-5', 'chapter-6', 'chapter-7',
+        'part-iii', 'chapter-8', 'chapter-9', 'chapter-10',
+        'closing', 'appendix-a', 'appendix-b', 'appendix-c'
+      ];
+      const navTargets = navAnchorIds.map(id => document.getElementById(id)).filter(Boolean);
+      function jumpToChapter(direction) {
+        if (!navTargets.length) return;
+        const fromTop = window.scrollY + 120;
+        let currentIdx = -1;
+        for (let i = 0; i < navTargets.length; i++) {
+          if (navTargets[i].offsetTop <= fromTop) currentIdx = i; else break;
+        }
+        let nextIdx;
+        if (direction > 0) nextIdx = currentIdx < 0 ? 0 : Math.min(navTargets.length - 1, currentIdx + 1);
+        else nextIdx = currentIdx <= 0 ? 0 : currentIdx - 1;
+        const target = navTargets[nextIdx];
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          target.setAttribute('tabindex', '-1');
+          target.focus({ preventScroll: true });
+        }
+      }
+      function jumpToPosition(y) { window.scrollTo({ top: y, behavior: 'smooth' }); }
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') { closeAllOverlays(); return; }
+        if (isTypingTarget(e.target)) return;
+        if (hasModifier(e)) return;
+        if (e.key === '?') {
+          e.preventDefault();
+          if (kbdOverlay && kbdOverlay.hidden) openKbdOverlay(); else closeKbdOverlay();
+          return;
+        }
+        if (kbdOverlay && !kbdOverlay.hidden) return;
+        if (e.key === 'ArrowLeft') { e.preventDefault(); jumpToChapter(-1); return; }
+        if (e.key === 'ArrowRight') { e.preventDefault(); jumpToChapter(1); return; }
+        if (e.key === 'G') { e.preventDefault(); jumpToPosition(document.documentElement.scrollHeight); return; }
+        if (e.key === 'g') {
+          const now = Date.now();
+          if (now - gPressedAt < 800) { e.preventDefault(); jumpToPosition(0); gPressedAt = 0; }
+          else gPressedAt = now;
+          return;
+        }
+        if (e.key === 't' || e.key === 'T') { e.preventDefault(); themeBtn.click(); return; }
+        if (e.key === '-' || e.key === '_') { e.preventDefault(); if (!fontDec.disabled) fontDec.click(); return; }
+        if (e.key === '+' || e.key === '=') { e.preventDefault(); if (!fontInc.disabled) fontInc.click(); return; }
+      });
     })();
   </script>
 </body>
