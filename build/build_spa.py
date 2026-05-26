@@ -1425,6 +1425,19 @@ def _landing_article_body(subtitle: str, author: str, byline_href: str,
     )
 
 
+def _json_escape(value: str) -> str:
+    """Escape a string for inclusion inside a JSON string literal.
+
+    `html_lib.escape` is wrong for JSON-LD bodies: JSON parsers see
+    `O&#x27;Brien` as the literal 7-char string, not `O'Brien`. We need
+    JSON-string escaping (backslash sequences, \\u00xx for control chars)
+    instead. `json.dumps(s)` wraps the value in quotes; stripping the outer
+    quotes yields the inner-string escape form we can splice into the
+    template between literal `"..."` delimiters.
+    """
+    return json.dumps(value)[1:-1]
+
+
 def _homepage_head_schema(author: str, number_of_pages: int, date_modified: str) -> str:
     """Build the JSON-LD for landing + /read/ (Book + Organization + FAQPage).
 
@@ -1433,7 +1446,7 @@ def _homepage_head_schema(author: str, number_of_pages: int, date_modified: str)
     works.
     """
     return HOMEPAGE_HEAD_SCHEMA.format(
-        AUTHOR=html_lib.escape(author),
+        AUTHOR=_json_escape(author),
         NUMBER_OF_PAGES=number_of_pages,
         DATE_MODIFIED=date_modified,
     )

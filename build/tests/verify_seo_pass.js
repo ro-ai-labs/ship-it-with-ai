@@ -257,8 +257,8 @@ async function main() {
       if (!robotsMetas.some(r => /noindex/.test(r))) fail(`404: missing noindex robots meta (got: ${robotsMetas})`);
       else ok('404: emits noindex robots override');
       const ogUrl = (html.match(/<meta property="og:url" content="([^"]+)"/) || [])[1];
-      if (!ogUrl || /\/$/.test(ogUrl.replace('https://ship-it-with.ai', '')) && ogUrl === 'https://ship-it-with.ai/') {
-        fail(`404: og:url is homepage-branded (got: ${ogUrl})`);
+      if (!ogUrl || ogUrl === 'https://ship-it-with.ai/') {
+        fail(`404: og:url is homepage URL (should be 404-specific) — got: ${ogUrl}`);
       } else ok(`404: og:url is 404-specific (${ogUrl})`);
     }
 
