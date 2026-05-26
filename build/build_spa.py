@@ -951,52 +951,226 @@ def split_template_css(template_html: str) -> tuple[str, str, str]:
     return new_template, critical, deferred
 
 
-def render_template(title, subtitle, author, toc_html, content_html,
-                    search_index="[]", total_word_count=0) -> tuple[str, str]:
-    """Render the SPA HTML and return (html, deferred_css).
+# Homepage hero + content + end-cover figure. The {{CONTENT}} and {{AUTHOR}}
+# slots inside this fragment are resolved by the homepage's substitution dict
+# in render_template (NOT by nesting another placeholder pass).
+HOMEPAGE_ARTICLE_BODY = '''<header class="article-header">
+        <h1 class="article-title">
+          Ship It With AI
+          <span class="article-title-keyword">Agentic Coding Field Manual</span>
+        </h1>
+        <p class="article-subtitle">{SUBTITLE}</p>
+        <p class="article-dek">Agentic coding — letting an AI agent read, write, run, and verify your code — is now a control problem, not a tooling problem. Control the context, the actions, the verification, and the adoption surface. This field manual is the methodology.</p>
+        <div class="article-author"><a href="#contact">{AUTHOR}</a></div>
+        <nav class="hero-cta" aria-label="Quick start">
+          <a class="cta-primary" href="#chapter-7">Start with the architecture review</a>
+          <a class="cta-secondary" href="#appendix-b">Download the templates</a>
+          <a class="cta-secondary" href="mailto:info@ship-it-with.ai?subject=Agentic%20delivery%20assessment">Book an assessment</a>
+        </nav>
+      </header>
 
-    Substitutes the standard placeholders plus the SEO-pass placeholders
-    {{NUMBER_OF_PAGES}} and {{DATE_MODIFIED}} used by the Book JSON-LD block.
+      {CONTENT}
+
+      <figure class="article-cover article-cover-end">
+        <img src="cover.jpg" alt="Ship It With AI - A Manual for Shipping Software with AI Agents, by {AUTHOR}" width="1200" height="630" loading="lazy" decoding="async" />
+      </figure>'''
+
+
+# Homepage JSON-LD (Book + Organization + FAQPage). Lives in the build script
+# rather than the template so the 404 path can simply substitute an empty
+# string for {{HEAD_SCHEMA}} — keeping crawlers from treating /404.html as a
+# duplicate of the Book entity.
+HOMEPAGE_HEAD_SCHEMA = '''<script type="application/ld+json">
+  {{
+    "@context": "https://schema.org",
+    "@type": "Book",
+    "@id": "https://ship-it-with.ai/#book",
+    "name": "Ship It With AI: A Field Manual for Agentic Coding",
+    "headline": "Ship It With AI",
+    "alternateName": "Agentic Coding Field Manual",
+    "author": {{
+      "@type": "Person",
+      "name": "{AUTHOR}",
+      "url": "https://www.linkedin.com/in/mihaicvasnievschi/"
+    }},
+    "publisher": {{ "@id": "https://ship-it-with.ai/#org" }},
+    "bookFormat": "https://schema.org/EBook",
+    "inLanguage": "en",
+    "numberOfPages": {NUMBER_OF_PAGES},
+    "genre": "Technology / Software Engineering",
+    "about": [
+      "Agentic coding",
+      "AI software delivery",
+      "AGENTS.md",
+      "AI coding agents"
+    ],
+    "description": "A vendor-neutral field manual for shipping software with AI coding agents. Covers six primitives, the six-phase loop, AGENTS.md, governance in layers, kill signals, brownfield patterns, and 90-day adoption.",
+    "url": "https://ship-it-with.ai/",
+    "image": "https://ship-it-with.ai/cover.jpg",
+    "dateModified": "{DATE_MODIFIED}"
+  }}
+  </script>
+  <script type="application/ld+json">
+  {{
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": "https://ship-it-with.ai/#org",
+    "name": "Ship It With AI",
+    "url": "https://ship-it-with.ai/",
+    "logo": "https://ship-it-with.ai/cover.jpg"
+  }}
+  </script>
+  <script type="application/ld+json">
+  {{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {{
+        "@type": "Question",
+        "name": "What is agentic coding?",
+        "acceptedAnswer": {{
+          "@type": "Answer",
+          "text": "Agentic coding is the practice of using AI agents that read, write, run, and verify code largely on their own, with humans in the loop for review and governance rather than for every keystroke. Unlike autocomplete or chat-based assistants, an agentic system holds a multi-step plan, executes through real tools (filesystem, shell, browser, version control), and surfaces work for verification rather than producing isolated suggestions."
+        }}
+      }},
+      {{
+        "@type": "Question",
+        "name": "How does agentic coding differ from AI autocomplete and from vibe coding?",
+        "acceptedAnswer": {{
+          "@type": "Answer",
+          "text": "Autocomplete completes the next token under your cursor. Vibe coding accepts whatever the model generates with minimal verification. Agentic coding sits between: the agent plans, edits across files, runs tests, and reports back, but the human controls the context the agent sees, the actions it can take, the verification gates it passes through, and the adoption surface it operates on. The difference is methodological discipline, not model quality."
+        }}
+      }},
+      {{
+        "@type": "Question",
+        "name": "What is AGENTS.md and why does it matter?",
+        "acceptedAnswer": {{
+          "@type": "Answer",
+          "text": "AGENTS.md is a plain-Markdown file at the root of a repository that tells coding agents how the project actually works — forbidden patterns, conventions, build commands, where things live, and the mistakes the team has already made. It is becoming the de-facto standard across Claude Code, Codex, Cursor, and Aider for instructing agents at the project level, and is now an open standard tracked at agents.md."
+        }}
+      }},
+      {{
+        "@type": "Question",
+        "name": "How do you safely roll out AI coding agents in an engineering team?",
+        "acceptedAnswer": {{
+          "@type": "Answer",
+          "text": "A safe rollout treats agentic delivery as a control problem with five layers of governance: permissions, sandboxing, secrets, security hooks, and telemetry. Pair that with a clear methodology — a six-phase loop covering research, plan, execute, review, verify, ship — and a 90-day adoption arc with three named roles (Champion, Lead, Manager). Skip any of these and adoption produces more harm than benefit."
+        }}
+      }}
+    ]
+  }}
+  </script>'''
+
+
+# Strict placeholder pattern: matches our {{UPPER_SNAKE}} tokens only.
+# Deliberately narrow so it doesn't false-positive on CSS rules, JSON object
+# braces, or other single-brace constructs in the template body.
+_PLACEHOLDER_RE = re.compile(r"\{\{[A-Z_]+\}\}")
+
+
+def render_template_with_placeholders(template: str, substitutions: dict) -> str:
+    """Apply substitutions to template and raise if any {{...}} remains.
+
+    All values must already be fully-rendered HTML strings (no nested
+    placeholders) — the helper does a single substitution pass per key, then
+    fails loudly if any `{{UPPER_SNAKE}}` token is left over. That's the
+    safety net that catches the bug class where a new placeholder is added
+    to the template but missed by one of the render call-sites.
     """
+    for key, value in substitutions.items():
+        template = template.replace("{{" + key + "}}", value)
+    leftover = _PLACEHOLDER_RE.findall(template)
+    if leftover:
+        unique = sorted(set(leftover))
+        raise RuntimeError(
+            f"unresolved template placeholders after substitution: {unique}"
+        )
+    return template
+
+
+def _homepage_article_body(content_html: str, subtitle: str, author: str) -> str:
+    """Build the homepage's full article body (hero + content + end-cover).
+
+    Author/subtitle are inlined here (not left as nested placeholders) so the
+    substitution helper sees zero leftover tokens after a single pass.
+    """
+    return HOMEPAGE_ARTICLE_BODY.format(
+        SUBTITLE=html_lib.escape(subtitle),
+        CONTENT=content_html,
+        AUTHOR=html_lib.escape(author),
+    )
+
+
+def _homepage_head_schema(author: str, number_of_pages: int, date_modified: str) -> str:
+    """Build the homepage's JSON-LD (Book + Organization + FAQPage)."""
+    return HOMEPAGE_HEAD_SCHEMA.format(
+        AUTHOR=html_lib.escape(author),
+        NUMBER_OF_PAGES=number_of_pages,
+        DATE_MODIFIED=date_modified,
+    )
+
+
+def render_template(title, subtitle, author, toc_html, content_html,
+                    search_index="[]", total_word_count=0,
+                    page_title: str | None = None) -> tuple[str, str]:
+    """Render the homepage SPA HTML and return (html, deferred_css)."""
     template_raw = TEMPLATE_PATH.read_text()
     template, _critical_css, deferred_css = split_template_css(template_raw)
-    html = (
-        template.replace("{{TITLE}}", html_lib.escape(title))
-        .replace("{{SUBTITLE}}", html_lib.escape(subtitle))
-        .replace("{{AUTHOR}}", html_lib.escape(author))
-        .replace("{{TOC}}", toc_html)
-        .replace("{{CONTENT}}", content_html)
-        .replace("{{SEARCH_INDEX}}", search_index)
-        .replace("{{DATE_MODIFIED}}",
-                 datetime.now(timezone.utc).strftime("%Y-%m-%d"))
-        .replace("{{NUMBER_OF_PAGES}}",
-                 str(max(1, round(total_word_count / 250))))
-    )
+
+    number_of_pages = max(1, round(total_word_count / 250))
+    date_modified = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    page_title = page_title or "Agentic Coding: A Field Manual for Shipping Software With AI Agents"
+
+    substitutions = {
+        "PAGE_TITLE": html_lib.escape(page_title),
+        "TITLE": html_lib.escape(title),
+        "AUTHOR": html_lib.escape(author),
+        "HEAD_SCHEMA": _homepage_head_schema(author, number_of_pages, date_modified),
+        "TOC": toc_html,
+        "ARTICLE_BODY": _homepage_article_body(content_html, subtitle, author),
+        "SEARCH_INDEX": search_index,
+    }
+    html = render_template_with_placeholders(template, substitutions)
     return html, deferred_css
 
 
-def render_404(template: str) -> str:
-    """Render a 404 page using the site template chrome.
+# 404 body: one H1, dedicated subtitle, and links back into the live site.
+# No homepage hero, no cover figure, no JSON-LD. Sits inside the template's
+# existing <main class="article" id="top"> so the site chrome is reused.
+_FOUR_OH_FOUR_ARTICLE_BODY = '''<header class="article-header">
+        <h1 class="article-title">Page not found</h1>
+        <p class="article-subtitle">The page you were looking for doesn't exist (yet).</p>
+      </header>
+      <section style="margin-top:32px;">
+        <p>
+          <a href="/">← Back to the homepage</a>
+          &nbsp;·&nbsp;
+          <a href="/#foreword">Start reading the manual</a>
+        </p>
+      </section>'''
 
-    The body is a short "Page not found" message linking back to the homepage
-    and to the all-in-one /read/ mode where every section is reachable.
+
+def render_404(title: str, author: str, toc_html: str, search_index: str = "[]") -> str:
+    """Render the 404 page reusing the homepage chrome (topbar / TOC / footer).
+
+    Crucially, the 404 substitutes its own minimal {{ARTICLE_BODY}} and an
+    empty {{HEAD_SCHEMA}} — no Book / FAQPage JSON-LD, no homepage hero, no
+    cover figure. Its <title> is also unique so crawlers don't deduplicate it
+    against the homepage.
     """
-    body = '''
-<main class="article" id="top">
-  <header class="article-header">
-    <h1 class="article-title">Page not found</h1>
-    <p class="article-subtitle">The page you were looking for doesn't exist (yet).</p>
-  </header>
-  <section style="text-align:center; margin-top:48px;">
-    <p>
-      <a href="/">← Back to the homepage</a>
-      &nbsp;·&nbsp;
-      <a href="/read/">Read the whole manual in one page</a>
-    </p>
-  </section>
-</main>
-'''
-    return template.replace("{{CONTENT}}", body)
+    template_raw = TEMPLATE_PATH.read_text()
+    template, _critical_css, _deferred_css = split_template_css(template_raw)
+
+    substitutions = {
+        "PAGE_TITLE": html_lib.escape("Page not found — Ship It With AI"),
+        "TITLE": html_lib.escape(title),
+        "AUTHOR": html_lib.escape(author),
+        "HEAD_SCHEMA": "",
+        "TOC": toc_html,
+        "ARTICLE_BODY": _FOUR_OH_FOUR_ARTICLE_BODY,
+        "SEARCH_INDEX": search_index,
+    }
+    return render_template_with_placeholders(template, substitutions)
 
 
 def render_llms_txt() -> str:
@@ -1174,22 +1348,8 @@ def main() -> int:
     (REPO_ROOT / "deferred.css").write_text(deferred_css + "\n")
     print(f"Wrote deferred.css ({len(deferred_css) / 1024:.1f} KB)")
 
-    # 404 page (uses the same chrome).
-    template_raw = TEMPLATE_PATH.read_text()
-    template_for_404, _, _ = split_template_css(template_raw)
-    # Make the 404 self-contained re: substitutions — use the same flow as main.
-    html_404 = render_404(template_for_404)
-    html_404 = (
-        html_404.replace("{{TITLE}}", html_lib.escape("Page not found"))
-                .replace("{{SUBTITLE}}", "")
-                .replace("{{AUTHOR}}", html_lib.escape(author))
-                .replace("{{TOC}}", "")
-                .replace("{{SEARCH_INDEX}}", "[]")
-                .replace("{{DATE_MODIFIED}}",
-                         datetime.now(timezone.utc).strftime("%Y-%m-%d"))
-                .replace("{{NUMBER_OF_PAGES}}",
-                         str(max(1, round(total_word_count / 250))))
-    )
+    # 404 page (reuses site chrome; no homepage hero or Book/FAQ JSON-LD).
+    html_404 = render_404(title, author, toc_html, search_json)
     (REPO_ROOT / "404.html").write_text(html_404)
     print(f"Wrote 404.html ({(REPO_ROOT / '404.html').stat().st_size / 1024:.1f} KB)")
 

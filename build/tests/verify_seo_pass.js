@@ -100,6 +100,50 @@ async function main() {
       }
     }
 
+    // ===== 404 page assertions =====
+    // The local python http.server returns 200 for direct file fetches of
+    // /404.html, so a normal goto works (no need to handle a 4xx response).
+    {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+
+      // Pull the homepage title once so we can compare 404 != homepage.
+      await page.goto(baseUrl + '/');
+      const homeTitle = await page.title();
+
+      await page.goto(baseUrl + '/404.html');
+      const fourTitle = await page.title();
+
+      if (fourTitle === homeTitle) {
+        fail(`404 <title> matches homepage (would be treated as duplicate): ${fourTitle}`);
+      } else ok(`404 <title> differs from homepage (${fourTitle})`);
+
+      const h1Count = await page.locator('h1').count();
+      if (h1Count !== 1) fail(`404: expected 1 <h1>, got ${h1Count}`);
+      else ok(`404: exactly one <h1>`);
+
+      const h1Text = await page.locator('h1').first().textContent();
+      if (!/page not found/i.test(h1Text || '')) {
+        fail(`404 <h1> missing "Page not found": ${h1Text}`);
+      } else ok(`404 <h1> contains "Page not found"`);
+
+      const bodyText = await page.locator('body').textContent();
+      if (!/page not found/i.test(bodyText || '')) {
+        fail(`404 body missing "Page not found" copy`);
+      } else ok(`404 body contains "Page not found" copy`);
+
+      const ldTypes = await page.locator('script[type="application/ld+json"]')
+        .allTextContents()
+        .then(arr => arr.map(b => { try { return JSON.parse(b)['@type']; } catch { return null; } }));
+      for (const forbidden of ['Book', 'FAQPage']) {
+        if (ldTypes.includes(forbidden)) {
+          fail(`404 must NOT contain @type=${forbidden} JSON-LD (found: ${ldTypes})`);
+        } else ok(`404 has no ${forbidden} JSON-LD`);
+      }
+
+      await ctx.close();
+    }
+
     // ===== File-system assertions (run once) =====
     const repoRoot = path.resolve(__dirname, '..', '..');
     function exists(rel) { return fs.existsSync(path.join(repoRoot, rel)); }

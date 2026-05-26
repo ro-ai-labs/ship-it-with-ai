@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Agentic Coding: A Field Manual for Shipping Software With AI Agents</title>
+  <title>{{PAGE_TITLE}}</title>
 
   <meta name="description" content="How to ship software with AI agents. Architecture (six primitives), method (six-phase loop), and reality (eight kill signals) for agentic software delivery in 2026. A vendor-neutral field manual by {{AUTHOR}}." />
   <meta name="keywords" content="agentic coding, AI coding agents, write code with AI, ship code with AI, agentic software delivery, AGENTS.md, claude code, codex cli, opencode, AI development methodology, coding with AI agents, AI software engineering" />
@@ -30,86 +30,7 @@
   <meta name="twitter:image" content="https://ship-it-with.ai/cover.jpg" />
   <meta name="twitter:image:alt" content="Ship It With AI - A Manual for Shipping Software with AI Agents" />
 
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Book",
-    "@id": "https://ship-it-with.ai/#book",
-    "name": "Ship It With AI: A Field Manual for Agentic Coding",
-    "headline": "Ship It With AI",
-    "alternateName": "Agentic Coding Field Manual",
-    "author": {
-      "@type": "Person",
-      "name": "{{AUTHOR}}",
-      "url": "https://www.linkedin.com/in/mihaicvasnievschi/"
-    },
-    "publisher": { "@id": "https://ship-it-with.ai/#org" },
-    "bookFormat": "https://schema.org/EBook",
-    "inLanguage": "en",
-    "numberOfPages": {{NUMBER_OF_PAGES}},
-    "genre": "Technology / Software Engineering",
-    "about": [
-      "Agentic coding",
-      "AI software delivery",
-      "AGENTS.md",
-      "AI coding agents"
-    ],
-    "description": "A vendor-neutral field manual for shipping software with AI coding agents. Covers six primitives, the six-phase loop, AGENTS.md, governance in layers, kill signals, brownfield patterns, and 90-day adoption.",
-    "url": "https://ship-it-with.ai/",
-    "image": "https://ship-it-with.ai/cover.jpg",
-    "dateModified": "{{DATE_MODIFIED}}"
-  }
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "@id": "https://ship-it-with.ai/#org",
-    "name": "Ship It With AI",
-    "url": "https://ship-it-with.ai/",
-    "logo": "https://ship-it-with.ai/cover.jpg"
-  }
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "What is agentic coding?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Agentic coding is the practice of using AI agents that read, write, run, and verify code largely on their own, with humans in the loop for review and governance rather than for every keystroke. Unlike autocomplete or chat-based assistants, an agentic system holds a multi-step plan, executes through real tools (filesystem, shell, browser, version control), and surfaces work for verification rather than producing isolated suggestions."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "How does agentic coding differ from AI autocomplete and from vibe coding?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Autocomplete completes the next token under your cursor. Vibe coding accepts whatever the model generates with minimal verification. Agentic coding sits between: the agent plans, edits across files, runs tests, and reports back, but the human controls the context the agent sees, the actions it can take, the verification gates it passes through, and the adoption surface it operates on. The difference is methodological discipline, not model quality."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "What is AGENTS.md and why does it matter?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "AGENTS.md is a plain-Markdown file at the root of a repository that tells coding agents how the project actually works — forbidden patterns, conventions, build commands, where things live, and the mistakes the team has already made. It is becoming the de-facto standard across Claude Code, Codex, Cursor, and Aider for instructing agents at the project level, and is now an open standard tracked at agents.md."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "How do you safely roll out AI coding agents in an engineering team?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "A safe rollout treats agentic delivery as a control problem with five layers of governance: permissions, sandboxing, secrets, security hooks, and telemetry. Pair that with a clear methodology — a six-phase loop covering research, plan, execute, review, verify, ship — and a 90-day adoption arc with three named roles (Champion, Lead, Manager). Skip any of these and adoption produces more harm than benefit."
-        }
-      }
-    ]
-  }
-  </script>
+  {{HEAD_SCHEMA}}
 
   <style>
     :root {
@@ -2028,26 +1949,7 @@
     </button>
 
     <main class="article" id="top">
-      <header class="article-header">
-        <h1 class="article-title">
-          Ship It With AI
-          <span class="article-title-keyword">Agentic Coding Field Manual</span>
-        </h1>
-        <p class="article-subtitle">{{SUBTITLE}}</p>
-        <p class="article-dek">Agentic coding — letting an AI agent read, write, run, and verify your code — is now a control problem, not a tooling problem. Control the context, the actions, the verification, and the adoption surface. This field manual is the methodology.</p>
-        <div class="article-author"><a href="#contact">{{AUTHOR}}</a></div>
-        <nav class="hero-cta" aria-label="Quick start">
-          <a class="cta-primary" href="#chapter-7">Start with the architecture review</a>
-          <a class="cta-secondary" href="#appendix-b">Download the templates</a>
-          <a class="cta-secondary" href="mailto:info@ship-it-with.ai?subject=Agentic%20delivery%20assessment">Book an assessment</a>
-        </nav>
-      </header>
-
-      {{CONTENT}}
-
-      <figure class="article-cover article-cover-end">
-        <img src="cover.jpg" alt="Ship It With AI - A Manual for Shipping Software with AI Agents, by {{AUTHOR}}" width="1200" height="630" loading="lazy" decoding="async" />
-      </figure>
+      {{ARTICLE_BODY}}
 
       <footer class="article-footer">
         <div class="footer-contact">
