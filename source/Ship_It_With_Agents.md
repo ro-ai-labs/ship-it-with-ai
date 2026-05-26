@@ -14,41 +14,41 @@
 
 ## Contents
 
-**Foreword** -- Why this book
+**Foreword** - Why this book
 **How to read this book**
 **A note on dated claims**
 **Scope and limits**
 **Cases used in this book**
 
-**Prologue** -- Nine seconds
+**Prologue** - Nine seconds
 
-**Part I -- Architecture**
+**Part I - Architecture**
 1. Six primitives
 2. The anatomy invariant
 3. Governance in layers
 
-**Part II -- Method**
+**Part II - Method**
 4. From generating code to shipping software
 5. The six-phase loop
 6. AGENTS.md as team infrastructure
 7. Architecture Review: Documentation and Diagnosis
 
-**Part III -- Reality**
+**Part III - Reality**
 8. Readiness: The Kill Signals and the Traffic Light
 9. Patterns for brownfield codebases
 10. Adoption: 90 days, three roles
 
-**Closing** -- A way of thinking that survives the tools
+**Closing** - A way of thinking that survives the tools
 
 **Acknowledgments**
 
-**Appendix A** -- Cost Economics
-**Appendix B** -- Templates
-**Appendix C** -- Sources and Further Reading
+**Appendix A** - Cost Economics
+**Appendix B** - Templates
+**Appendix C** - Sources and Further Reading
 
 ---
 
-## Foreword -- Why this book
+## Foreword - Why this book
 
 This book exists because I am tired of having the same conversation.
 
@@ -62,21 +62,21 @@ The problem in every case is that the team treated the agent as a tool to be eva
 
 This book is about the structure.
 
-I am not going to tell you which agent to pick. The agent you pick today will be deprecated, rebranded, or absorbed into a larger product within the time it takes a typical enterprise procurement cycle to complete. The agent landscape moves in months, not years. If I wrote a book about specific tools, it would be obsolete before the printer finished. So I am writing a book about how to think about agentic software delivery -- the architecture of these systems, the method by which you ship software with them, and the reality of where the method works and where it does not.
+I am not going to tell you which agent to pick. The agent you pick today will be deprecated, rebranded, or absorbed into a larger product within the time it takes a typical enterprise procurement cycle to complete. The agent landscape moves in months, not years. If I wrote a book about specific tools, it would be obsolete before the printer finished. So I am writing a book about how to think about agentic software delivery - the architecture of these systems, the method by which you ship software with them, and the reality of where the method works and where it does not.
 
 ---
 
 ### The shift, in context
 
-Seventy years ago, programming meant punching holes in cardboard cards and waiting overnight to find out whether your program ran. Sixty years ago, text editors appeared and you could see your code on a screen. Forty years ago, integrated development environments arrived -- syntax highlighting, debuggers, project navigation. Twenty years ago, IntelliSense started suggesting the next character you would type. Three years ago, AI-assisted coding crossed the threshold from "occasionally useful" to "you can ship code with it". And then, in the eighteen months between the spring of 2025 and the spring of 2026, agentic software delivery went from a research demo to a production capability.
+Seventy years ago, programming meant punching holes in cardboard cards and waiting overnight to find out whether your program ran. Sixty years ago, text editors appeared and you could see your code on a screen. Forty years ago, integrated development environments arrived - syntax highlighting, debuggers, project navigation. Twenty years ago, IntelliSense started suggesting the next character you would type. Three years ago, AI-assisted coding crossed the threshold from "occasionally useful" to "you can ship code with it". And then, in the eighteen months between the spring of 2025 and the spring of 2026, agentic software delivery went from a research demo to a production capability.
 
 Every one of those transitions felt enormous at the time. Each one was, in fact, enormous. And each one was also accompanied by people insisting that the previous generation of tools was now sufficient and the new generation was hype.
 
 In retrospect, each generation underestimated the next abstraction. This one will be no different.
 
-But -- and this is the part that took me a decade in this field to learn -- the *tool* is not the thing that survives the transitions. What survives is the way you think about the work.
+But - and this is the part that took me a decade in this field to learn - the *tool* is not the thing that survives the transitions. What survives is the way you think about the work.
 
-If you learned to debug by stepping through a program in a debugger in 1995, the specific debugger is gone. The way you think about isolating a bug -- narrow the inputs, narrow the state, narrow the time window -- is exactly the same. If you learned to build for the web in 2008, the specific framework you used is gone, replaced two times over. The way you think about separating concerns, structuring data flow, handling state -- those are the same, expressed in different syntax.
+If you learned to debug by stepping through a program in a debugger in 1995, the specific debugger is gone. The way you think about isolating a bug - narrow the inputs, narrow the state, narrow the time window - is exactly the same. If you learned to build for the web in 2008, the specific framework you used is gone, replaced two times over. The way you think about separating concerns, structuring data flow, handling state - those are the same, expressed in different syntax.
 
 Agentic software delivery is at the same kind of inflection point now. The specific agent you learn to use will be replaced. The way you think about *what an agent is, what it can do, and what you must do to control it* will survive the next ten replacements.
 
@@ -84,15 +84,15 @@ The landscape moves fast, but the methodology endures.
 
 In the eighteen months between when I built my first agentic coding workflow and when I sat down to write this book, four things happened that would have been front-page tech news in any prior decade. A model jumped seven percentage points on a coding benchmark. An official marketplace for coding-agent plugins became a real distribution channel. A major cloud provider announced end-of-support for one of its developer AI products. The largest agentic-AI vendor formalized "skills" as a primitive that any agent could implement. Four shifts. Four months. Any one of them, in 2015, would have been a quarter's worth of conference talks. In 2026, they were the news cycle of a single week.
 
-There is no permanently right tool. The teams that handle this well built a frame of reference for evaluating tools -- what an agent is anatomically, what it should be able to do, what they refuse to let it do, how they wire it into their existing review and shipping processes. When a new tool appears, they apply the frame. The frame survives even when every specific tool gets replaced.
+There is no permanently right tool. The teams that handle this well built a frame of reference for evaluating tools - what an agent is anatomically, what it should be able to do, what they refuse to let it do, how they wire it into their existing review and shipping processes. When a new tool appears, they apply the frame. The frame survives even when every specific tool gets replaced.
 
 The teams that handle this badly picked a tool, integrated it deeply without thinking about portability, and now repeat the entire selection-and-integration cycle every time the landscape shifts. The expense is not the new tool. The expense is the rework, the retraining, the half-finished migrations, the institutional fatigue.
 
 Worse, the institutional fatigue compounds across cycles. A team that has been through three failed tool adoptions in two years develops a justified skepticism about the next adoption proposal. The skepticism makes the next adoption harder, even when the next tool is genuinely better than the previous ones. The team's pattern of "we tried X, it did not work" becomes the template applied to every subsequent X. This is how good teams get stuck.
 
-The way out of the trap is to stop optimizing for the specific tool and start optimizing for the frame. The frame is the team's evaluation capability -- how quickly the team can take a new tool, evaluate it against known constraints, identify whether it fits, and either adopt it cleanly or pass on it cleanly. Teams with a good frame can churn through tools without churning through their own discipline. Teams without a good frame churn through their own practice every time the tool changes.
+The way out of the trap is to stop optimizing for the specific tool and start optimizing for the frame. The frame is the team's evaluation capability - how quickly the team can take a new tool, evaluate it against known constraints, identify whether it fits, and either adopt it cleanly or pass on it cleanly. Teams with a good frame can churn through tools without churning through their own discipline. Teams without a good frame churn through their own practice every time the tool changes.
 
-This book is about building the frame. The specific tools I name throughout -- Claude Code, Codex CLI, opencode, the various plugins and marketplaces -- will be different by the time the next edition would be due. The frame will be the same.
+This book is about building the frame. The specific tools I name throughout - Claude Code, Codex CLI, opencode, the various plugins and marketplaces - will be different by the time the next edition would be due. The frame will be the same.
 
 ---
 
@@ -100,7 +100,7 @@ This book is about building the frame. The specific tools I name throughout -- C
 
 The shape of a book depends on the shape of the writer, and you deserve to know whether the writer's experience is the kind of experience that maps to your situation.
 
-I first met a computer in my parents' office around 1984, when I was six -- a mainframe room with a raised floor, Space Invaders running on a terminal, and an introduction to BASIC. I wrote my first programs in BASIC in 1989. Borland Pascal in DOS followed in 1993, then Visual Basic, the first real IDE I used and the first language I sold software in as a teenager. My professional career started in 2000 as IT Manager for a manufacturing company. In 2001 I moved into software engineering proper, joining a startup that built multicasting software for satellite operators running DVB. When the startup lost its investors and pivoted to outsourcing, I switched from C++ to .NET, and spent the next two decades, through 2023, delivering for customers across industries on Visual Studio.NET and its descendants. I am, by training and inclination, an engineer first and a consultant second; the consulting work is the secondary outgrowth of doing engineering with teams who want help.
+I first met a computer in my parents' office around 1984, when I was six - a mainframe room with a raised floor, Space Invaders running on a terminal, and an introduction to BASIC. I wrote my first programs in BASIC in 1989. Borland Pascal in DOS followed in 1993, then Visual Basic, the first real IDE I used and the first language I sold software in as a teenager. My professional career started in 2000 as IT Manager for a manufacturing company. In 2001 I moved into software engineering proper, joining a startup that built multicasting software for satellite operators running DVB. When the startup lost its investors and pivoted to outsourcing, I switched from C++ to .NET, and spent the next two decades, through 2023, delivering for customers across industries on Visual Studio.NET and its descendants. I am, by training and inclination, an engineer first and a consultant second; the consulting work is the secondary outgrowth of doing engineering with teams who want help.
 
 My interest in machine learning started around 2013. The first serious deep dive came in late 2015, when I ported DarkNet and YOLO onto an XR headset; that is when I started building AI applications professionally. In 2023 I joined a company building the first neuromorphic SoC, working on the nano-ML end of the field. On the assisted-coding side, I have used every generation: Whole Tomato's Visual Assist (the first intelligent coding assistant I ever installed), the early JetBrains tooling in the .NET world, the first releases of Copilot, and LLMs for coding since the day ChatGPT first shipped. I have not built my own coding agent. I have used most of the ones that ship now, and I have watched a lot of teams use them.
 
@@ -108,7 +108,7 @@ The book draws on this trajectory. The methodology I describe has been refined a
 
 I am not neutral about the topic. I think agentic software delivery is the most consequential shift in our field since the introduction of high-level programming languages. I also think the way most teams are currently adopting it is doing them more harm than good. Both of those things can be true. The point of the book is to help you adopt in a way that captures the upside without the harm. The frameworks are how.
 
-That trajectory -- four decades of writing code, twenty-five of them professional, more than a decade building AI systems, every generation of coding assistant in between -- is the trajectory the book is written from. Calibrate your expectations accordingly.
+That trajectory - four decades of writing code, twenty-five of them professional, more than a decade building AI systems, every generation of coding assistant in between - is the trajectory the book is written from. Calibrate your expectations accordingly.
 
 ---
 
@@ -116,9 +116,9 @@ That trajectory -- four decades of writing code, twenty-five of them professiona
 
 I have been calling this "agentic AI" without defining it. Here is the definition.
 
-An agentic AI system is one that takes a goal, decides what actions to perform to achieve the goal, and executes those actions, with some amount of autonomy. The autonomy is the part that matters. An IDE plugin that suggests the next line of code is not an agent -- it suggests, you accept or reject, every step is yours. An agentic coding system is one where you give it a goal -- "add a Priority field to the Opportunity entity in the CRM" -- and it figures out which files to read, which files to edit, which tests to run, which commands to execute. You supervise. You correct. You approve. But you are no longer authoring every keystroke.
+An agentic AI system is one that takes a goal, decides what actions to perform to achieve the goal, and executes those actions, with some amount of autonomy. The autonomy is the part that matters. An IDE plugin that suggests the next line of code is not an agent - it suggests, you accept or reject, every step is yours. An agentic coding system is one where you give it a goal - "add a Priority field to the Opportunity entity in the CRM" - and it figures out which files to read, which files to edit, which tests to run, which commands to execute. You supervise. You correct. You approve. But you are no longer authoring every keystroke.
 
-That shift -- from authoring keystrokes to supervising work -- is the central change. Everything else in this book follows from it. Architecture, because the way an agent makes decisions about what to do affects how you should let it touch your code. Method, because supervising work requires different discipline than authoring keystrokes. Reality, because the shift works for some kinds of work and absolutely does not work for others.
+That shift - from authoring keystrokes to supervising work - is the central change. Everything else in this book follows from it. Architecture, because the way an agent makes decisions about what to do affects how you should let it touch your code. Method, because supervising work requires different discipline than authoring keystrokes. Reality, because the shift works for some kinds of work and absolutely does not work for others.
 
 Most teams that fail with agentic delivery fail because they tried to use the agent as an autocomplete-on-steroids. They wanted faster typing. What agents offer is not faster typing. What agents offer is the ability to delegate well-formed work to a teammate who does not get tired, does not need lunch, and can be cloned to work on three things in parallel. If you treat that teammate as a hammer, you will be disappointed. If you treat that teammate as a teammate, you can ship things you previously could not afford to ship.
 
@@ -128,11 +128,11 @@ Most teams that fail with agentic delivery fail because they tried to use the ag
 
 Three parts. Architecture: how agents are built and how to evaluate the next one when it arrives. Method: the iterative loop that turns "AI that generates code" into "AI that ships software". Reality: where this works, where it does not, and the kill signals that tell you which.
 
-This is a field manual, not a treatise. I write in first person because I am sharing what I have seen, not what I have theorized. The examples are anonymized but real. The methods are road-tested in production. The opinions are mine, defended by experience, and offered with full awareness that any specific opinion will need to be revised when the next major shift in the landscape arrives -- which will be soon, and which is the entire point of the methodology I am about to share.
+This is a field manual, not a treatise. I write in first person because I am sharing what I have seen, not what I have theorized. The examples are anonymized but real. The methods are road-tested in production. The opinions are mine, defended by experience, and offered with full awareness that any specific opinion will need to be revised when the next major shift in the landscape arrives - which will be soon, and which is the entire point of the methodology I am about to share.
 
 If you want a list of tools and ratings, this book will disappoint you. If you want a way of thinking that survives the next five years of churn, keep reading.
 
-One framing convention. The teammate framing I will use throughout the book is a stance, not a claim about the agent's nature. The agent is software. The stance is: invest in it the way you would invest in a junior teammate -- onboarding, shared infrastructure, feedback loops, patience with mistakes -- and the operational results compound. Skip the investment and the agent stays a tool, with tool-level returns.
+One framing convention. The teammate framing I will use throughout the book is a stance, not a claim about the agent's nature. The agent is software. The stance is: invest in it the way you would invest in a junior teammate - onboarding, shared infrastructure, feedback loops, patience with mistakes - and the operational results compound. Skip the investment and the agent stays a tool, with tool-level returns.
 
 The central claim of this book is simple: agentic software delivery is not primarily a tooling problem. It is a control problem. Control the context, the actions, the verification, and the adoption surface, and the agent becomes useful. Fail to control them, and the agent becomes expensive noise or operational risk. The three parts of this book map to three layers of control. Architecture is the control of capability: what the agent can know and do. Method is the control of workflow: how work is formulated, executed, and verified. Reality is the control of adoption: where the method is applied and where it should not be.
 
@@ -166,11 +166,11 @@ Tool-specific references in this book are current as of May 2026. The frameworks
 
 A field manual that does not name its own failure modes will lose to the reader's experience the moment that experience diverges from the manual. So here are the places I think this book can be wrong.
 
-The tools will change. The specific products I have named -- Claude Code, Codex CLI, Cursor, hookify, Superpowers, Understand Anything, the Anthropic plugin marketplace -- will be different in two years. Some will be better. Some will be deprecated. Some will be replaced by tools that work differently than the architecture in Chapter 1 describes. If the primitives still hold, the book is right. If a future agent ships without something that maps to one of the six primitives, I missed an invariant that I thought was structural.
+The tools will change. The specific products I have named - Claude Code, Codex CLI, Cursor, hookify, Superpowers, Understand Anything, the Anthropic plugin marketplace - will be different in two years. Some will be better. Some will be deprecated. Some will be replaced by tools that work differently than the architecture in Chapter 1 describes. If the primitives still hold, the book is right. If a future agent ships without something that maps to one of the six primitives, I missed an invariant that I thought was structural.
 
-The governance API will change. The specific hook formats, the specific permission rule syntax, the specific sandbox flags -- those are vendor-specific and version-specific. The five-layer model is what I expect to hold; the implementation details are what I expect to age.
+The governance API will change. The specific hook formats, the specific permission rule syntax, the specific sandbox flags - those are vendor-specific and version-specific. The five-layer model is what I expect to hold; the implementation details are what I expect to age.
 
-Model behavior will improve. Several of the kill signals are bounded by current model limitations -- the inability to evaluate output, the velocity-of-change fragility, the model-context fit problem. Future models will close some of those gaps. The traffic light is calibrated to 2026; the right calibration in 2028 may be looser.
+Model behavior will improve. Several of the kill signals are bounded by current model limitations - the inability to evaluate output, the velocity-of-change fragility, the model-context fit problem. Future models will close some of those gaps. The traffic light is calibrated to 2026; the right calibration in 2028 may be looser.
 
 Pricing will shift. The tier structure and TCO categories in Appendix A are durable; the specific quotes you put through them will not be.
 
@@ -184,17 +184,17 @@ Some workflows are too regulated for these defaults. The book assumes the team h
 
 Each of these case studies recurs across multiple chapters. The list exists so you can navigate by example as well as by framework.
 
-- **PocketOS** -- nine-second production loss to an unconstrained agent. Prologue + Chapter 3 (Governance in layers). Source notes in Appendix C.
-- **Terraform / DataTalks.Club** -- two and a half years of infrastructure lost to a missing state file. Chapter 3 (Governance in layers).
-- **Two-agent demo** -- side-by-side architecture inspection of Codex CLI and opencode, demonstrating the anatomy invariant. Chapter 2.
-- **The validation rule** -- a single AGENTS.md line that eliminated three hours of monthly correction time. Chapter 6 (AGENTS.md as team infrastructure).
-- **The 900-line AGENTS.md** -- instruction-bloat failure mode and the recovery. Chapter 6.
-- **METR randomized controlled trial** -- experienced developers 19% slower with AI assistance, expectation gap of 43 points. Chapter 4 (From generating code to shipping software).
-- **Adaptive thinking regression** -- the February-April 2026 Claude Code regression that distinguished disciplined teams from freestyle teams. Chapter 4.
-- **Banking architecture review** -- the diagnostic that converted an 18-month rewrite proposal into a three-month targeted replacement. Chapter 7.
-- **Wire priority feature** -- one feature traced through all six phases of the loop. Chapter 5.
-- **Grassroots adoption** -- one engineer building the practice before the team has staffed three roles. Chapter 10.
-- **20-engineer financial-services manager case** -- worked numbers for the manager's phase of the 90-day arc. Chapter 10.
+- **PocketOS** - nine-second production loss to an unconstrained agent. Prologue + Chapter 3 (Governance in layers). Source notes in Appendix C.
+- **Terraform / DataTalks.Club** - two and a half years of infrastructure lost to a missing state file. Chapter 3 (Governance in layers).
+- **Two-agent demo** - side-by-side architecture inspection of Codex CLI and opencode, demonstrating the anatomy invariant. Chapter 2.
+- **The validation rule** - a single AGENTS.md line that eliminated three hours of monthly correction time. Chapter 6 (AGENTS.md as team infrastructure).
+- **The 900-line AGENTS.md** - instruction-bloat failure mode and the recovery. Chapter 6.
+- **METR randomized controlled trial** - experienced developers 19% slower with AI assistance, expectation gap of 43 points. Chapter 4 (From generating code to shipping software).
+- **Adaptive thinking regression** - the February-April 2026 Claude Code regression that distinguished disciplined teams from freestyle teams. Chapter 4.
+- **Banking architecture review** - the diagnostic that converted an 18-month rewrite proposal into a three-month targeted replacement. Chapter 7.
+- **Wire priority feature** - one feature traced through all six phases of the loop. Chapter 5.
+- **Grassroots adoption** - one engineer building the practice before the team has staffed three roles. Chapter 10.
+- **20-engineer financial-services manager case** - worked numbers for the manager's phase of the 90-day arc. Chapter 10.
 
 ---
 
@@ -226,7 +226,7 @@ The tools change. The methodology endures. That is the bet of this book.
 
 ---
 
-# Part I -- Architecture
+# Part I - Architecture
 
 > *How agents are built and how you control them.*
 
@@ -235,13 +235,13 @@ The tools change. The methodology endures. That is the bet of this book.
 ## Chapter 1
 ## Six primitives
 
-Open the source code or documentation of most production-grade coding agents -- Codex CLI in Rust, opencode in TypeScript, the public-source parts of Claude Code, the agents shipped by half a dozen smaller vendors -- and you see the same architecture emerging: six primitives wrapped by a harness. The implementations differ. The anatomy converges. Different names sometimes, different file layouts always, but the same six conceptual building blocks. Five of them are the agent's local capabilities. The sixth is the composition mechanism that makes the agent recursive: it can spawn constrained instances of itself.
+Open the source code or documentation of most production-grade coding agents - Codex CLI in Rust, opencode in TypeScript, the public-source parts of Claude Code, the agents shipped by half a dozen smaller vendors - and you see the same architecture emerging: six primitives wrapped by a harness. The implementations differ. The anatomy converges. Different names sometimes, different file layouts always, but the same six conceptual building blocks. Five of them are the agent's local capabilities. The sixth is the composition mechanism that makes the agent recursive: it can spawn constrained instances of itself.
 
 Context window. Tools. Skills. Plugins. MCP. Subagents.
 
 The sixth one is newer in the public vocabulary, not because the idea is new but because it went universal across the major agents in a tight window. Claude Code shipped the Task tool, then layered Agent Teams on top of it for higher-level coordination. As of early 2026, Codex CLI exposed subagents as a first-class workflow and allowed multiple subagents to run in parallel. Cursor 2.0 introduced its own subagent system. Cline shipped subagents natively. Within roughly a year, dispatching a constrained child instance of the agent went from "advanced workflow" to "a primitive the harness exposes by default." That is the test I use for primitive status, and subagents pass it.
 
-That is the anatomy. Every interesting question about a coding agent -- what it can do, what it cannot do, how to control it, what to compare it to -- reduces to one or more of these six primitives. When a new agent arrives, your first question is: how does this one handle the six primitives? When you are deciding whether to let an agent touch a particular codebase, your second question is: which of the six primitives is the relevant control point for this risk? When you are buying tooling, your third question is: which of the six primitives does this tooling improve, and at what cost?
+That is the anatomy. Every interesting question about a coding agent - what it can do, what it cannot do, how to control it, what to compare it to - reduces to one or more of these six primitives. When a new agent arrives, your first question is: how does this one handle the six primitives? When you are deciding whether to let an agent touch a particular codebase, your second question is: which of the six primitives is the relevant control point for this risk? When you are buying tooling, your third question is: which of the six primitives does this tooling improve, and at what cost?
 
 Six primitives.
 
@@ -268,35 +268,35 @@ Six primitives.
 
 ---
 
-**The context window** is what the agent knows right now. It is bounded -- every model has a maximum number of tokens it can hold in active attention. Two hundred thousand on a mid-range model. One million on a top-tier model. Those numbers are growing every quarter; by the time you read this they will be larger. But the bound exists, and the bound matters, because the context window is the workspace inside which the agent makes decisions.
+**The context window** is what the agent knows right now. It is bounded - every model has a maximum number of tokens it can hold in active attention. Two hundred thousand on a mid-range model. One million on a top-tier model. Those numbers are growing every quarter; by the time you read this they will be larger. But the bound exists, and the bound matters, because the context window is the workspace inside which the agent makes decisions.
 
 What goes in the context window? The system prompt that defines the agent's role and constraints. The current conversation history with the user. The tool calls the agent has made and the results those calls returned. Any files the agent has read or chunks of files it has loaded. Any instructions injected by the harness (we will get to the harness in a moment). That is roughly what fills the window.
 
-What does not go in the context window by default? The rest of your codebase. The git history. The Jira tickets. The Confluence wiki. The Slack channel where the team discusses architecture. All of that is potentially relevant, all of that lives somewhere, none of that is automatically in the agent's awareness. The agent has to ask for it -- through tools, through plugins, through MCP. Which means the agent has to know it exists, or be told, or be configured to look.
+What does not go in the context window by default? The rest of your codebase. The git history. The Jira tickets. The Confluence wiki. The Slack channel where the team discusses architecture. All of that is potentially relevant, all of that lives somewhere, none of that is automatically in the agent's awareness. The agent has to ask for it - through tools, through plugins, through MCP. Which means the agent has to know it exists, or be told, or be configured to look.
 
 This is the first thing that surprises teams new to agentic coding. The agent is brilliant at the things it can see, and oblivious to everything else. Most "the agent made an obviously wrong decision" failures trace back to "the agent did not have the context required to make a correct decision." The agent did not know about the new authentication library because nobody told it. The agent did not know about the team's preferred test framework because nobody put it in the configuration. The agent made the best decision it could with the context it had, and that decision was wrong because the context was incomplete.
 
-Context window management is therefore one of the central engineering disciplines of agentic coding. You are constantly making decisions about what to load, what to summarize, what to drop, what to ask for at the right moment. Bigger context windows help -- a million tokens of context is genuinely more forgiving than two hundred thousand -- but bigger windows do not eliminate the constraint. They raise the ceiling.
+Context window management is therefore one of the central engineering disciplines of agentic coding. You are constantly making decisions about what to load, what to summarize, what to drop, what to ask for at the right moment. Bigger context windows help - a million tokens of context is genuinely more forgiving than two hundred thousand - but bigger windows do not eliminate the constraint. They raise the ceiling.
 
 ---
 
 **Tools** are the actions the agent can take. Reading a file. Writing a file. Editing a file in place. Running a shell command. Searching for text across the codebase. Listing the contents of a directory.
 
-Most production-grade coding agents converge on roughly the same core tool set. Read, Write, Edit, Bash, Glob, Grep. Sometimes a few more -- running a Python snippet, fetching a URL, parsing a structured document. These are the verbs. Without them, the agent could think but could not act.
+Most production-grade coding agents converge on roughly the same core tool set. Read, Write, Edit, Bash, Glob, Grep. Sometimes a few more - running a Python snippet, fetching a URL, parsing a structured document. These are the verbs. Without them, the agent could think but could not act.
 
-Tools are conceptually simple and operationally important. Each tool call is a decision point. Each tool call is also an audit point -- production-grade agents should record the tool calls they made, in order, with arguments, so you can replay and inspect the agent's behavior after the fact. If you have ever had to debug a multi-step agent action that went wrong, you will appreciate the audit trail. The tool call log is the equivalent of the SQL query log in a database problem -- without it, you are guessing.
+Tools are conceptually simple and operationally important. Each tool call is a decision point. Each tool call is also an audit point - production-grade agents should record the tool calls they made, in order, with arguments, so you can replay and inspect the agent's behavior after the fact. If you have ever had to debug a multi-step agent action that went wrong, you will appreciate the audit trail. The tool call log is the equivalent of the SQL query log in a database problem - without it, you are guessing.
 
 Tool calls are also where governance lives. We will spend an entire chapter on this, but the preview: when you tell an agent "do not delete files in this directory," what you are doing is intercepting the Bash tool call before it executes the rm command. The tool call is the bottleneck. Constrain the tool calls and you constrain the agent. Let the tool calls run unconstrained and you have an agent that can do anything.
 
 ---
 
-**Skills** are packaged instructions that the agent loads when relevant. The team's preferred way of writing a Spring Boot service. The conventions for React component testing. The pattern for adding a new column to a multi-tenant database table. Each of these is a chunk of markdown -- usually a few hundred words to a few thousand -- that the agent reads at the moment it needs the relevant expertise.
+**Skills** are packaged instructions that the agent loads when relevant. The team's preferred way of writing a Spring Boot service. The conventions for React component testing. The pattern for adding a new column to a multi-tenant database table. Each of these is a chunk of markdown - usually a few hundred words to a few thousand - that the agent reads at the moment it needs the relevant expertise.
 
 The implementation of skills varies between agents in file names and loading semantics, but the underlying primitive is now shared across the major agents. The always-loaded primitive has converged on two names: the vendor-neutral AGENTS.md, supported by Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, and the wider ecosystem; and CLAUDE.md, the Claude Code-specific variant. Both are markdown files at the project root, both load at session start, both serve the same role. The on-demand primitive has converged too: individual markdown files, dispatched on detection, kept out of context until a task matches the skill's trigger (Claude Code calls them Skills; Codex CLI ships SKILL.md files with YAML frontmatter and progressive disclosure). The Spring Boot code review skill loads when reviewing Spring code; it does not pollute the context when the agent picks up a schema migration task. The always-loaded pattern (AGENTS.md, CLAUDE.md) is older. The dispatch-on-detection pattern (Claude Code Skills, Codex Skills) is newer and scales better as the team's catalog of skills grows.
 
-Both patterns work. The dispatch-on-detection pattern is more efficient at scale -- you can have fifty skills for fifty different kinds of work without filling the context window with forty-nine irrelevant ones at any given moment. The always-loaded pattern is simpler and more predictable. Choose based on the kinds of tasks your team runs and the kinds of context-overflow problems you hit.
+Both patterns work. The dispatch-on-detection pattern is more efficient at scale - you can have fifty skills for fifty different kinds of work without filling the context window with forty-nine irrelevant ones at any given moment. The always-loaded pattern is simpler and more predictable. Choose based on the kinds of tasks your team runs and the kinds of context-overflow problems you hit.
 
-Skills are how you encode team-specific expertise into a form the agent can use. They are durable -- committed to git, reviewed in pull request, signed by the author. They are the closest thing in the agent's anatomy to "the senior engineer's tribal knowledge, but written down."
+Skills are how you encode team-specific expertise into a form the agent can use. They are durable - committed to git, reviewed in pull request, signed by the author. They are the closest thing in the agent's anatomy to "the senior engineer's tribal knowledge, but written down."
 
 ---
 
@@ -304,15 +304,15 @@ Skills are how you encode team-specific expertise into a form the agent can use.
 
 Why plugins matter operationally: they make it possible to share expertise across teams without each team rebuilding the same scaffolding. If one team builds a great PR review workflow as a plugin, another team can install it with a single command. The plugin handles its own version management, its own dependencies, its own activation. The receiving team does not have to integrate it manually.
 
-Why plugins matter strategically: they create a marketplace. As of May 2026, the plugin marketplace had become a real distribution channel, with official and community plugins beginning to form an ecosystem. The exact count matters less than the shift: plugins are now a supply-chain surface. The marketplace is the equivalent of npm for agentic coding -- and like npm, it brings both the upside of rapid reuse and the downside of supply chain risk. You need to vet plugins the way you vet dependencies. Here is the checklist I use.
+Why plugins matter strategically: they create a marketplace. As of May 2026, the plugin marketplace had become a real distribution channel, with official and community plugins beginning to form an ecosystem. The exact count matters less than the shift: plugins are now a supply-chain surface. The marketplace is the equivalent of npm for agentic coding - and like npm, it brings both the upside of rapid reuse and the downside of supply chain risk. You need to vet plugins the way you vet dependencies. Here is the checklist I use.
 
-Maintainer. Who owns the plugin. Is the repo active in the last ninety days. Is there more than one maintainer or is it a bus factor of one. Is the author identifiable -- a real GitHub history, a real employer, a track record -- or a freshly minted account with one repo. A plugin maintained by Anthropic, by a known vendor, or by an engineer whose other work you can verify is in a different risk class from a plugin uploaded last week by a name nobody recognizes.
+Maintainer. Who owns the plugin. Is the repo active in the last ninety days. Is there more than one maintainer or is it a bus factor of one. Is the author identifiable - a real GitHub history, a real employer, a track record - or a freshly minted account with one repo. A plugin maintained by Anthropic, by a known vendor, or by an engineer whose other work you can verify is in a different risk class from a plugin uploaded last week by a name nobody recognizes.
 
 Permissions surface. What tools does the plugin install. What hooks does it register. What file paths does it touch. What network calls does it make. Treat broad permission requests the same way you would treat an npm package that quietly asks for filesystem and network access in its install script: as a red flag that needs a reason. A PR-review plugin does not need write access outside `.git/`. A documentation plugin does not need network calls to a third-party host. If the permissions exceed the obvious scope of the plugin, ask why before installing.
 
 Code review. Read the source on first install. The plugins worth installing are small enough to read in twenty minutes; Superpowers and hookify both are. The plugins that are too large to read are usually doing too much. If you cannot understand what the plugin does from its source in a reasonable sitting, that is a signal to either find a smaller one or invest a deeper review before adopting it.
 
-Update discipline. Pin the version. Do not auto-update. Treat a plugin update the same way you treat a dependency update -- read the diff, run the test suite, ship the bump as a reviewed change, not a silent one.
+Update discipline. Pin the version. Do not auto-update. Treat a plugin update the same way you treat a dependency update - read the diff, run the test suite, ship the bump as a reviewed change, not a silent one.
 
 Blast radius. A plugin that operates inside the agent's sandbox is bounded by the sandbox. A plugin that registers a hook running on the developer's machine outside the sandbox is unbounded. Prefer the bounded kind. When you must install the unbounded kind, raise the bar on everything above.
 
@@ -322,7 +322,7 @@ The marketplace is a real distribution channel. The discipline is the discipline
 
 **MCP** stands for Model Context Protocol. It is a specification for how agents talk to external systems. Your Jira. Your Confluence. Your Postgres. Your GitHub. Your internal data warehouse. Anything that lives outside the agent's local environment but that the agent needs to query or update.
 
-Before MCP, every agent had a custom integration story. Claude integrated with Jira one way; some other agent integrated with Jira a different way; if you switched agents, you redid all the integrations. MCP changed that. The same MCP server that talks to your Jira works with any agent that supports MCP -- and most serious coding agents now support MCP.
+Before MCP, every agent had a custom integration story. Claude integrated with Jira one way; some other agent integrated with Jira a different way; if you switched agents, you redid all the integrations. MCP changed that. The same MCP server that talks to your Jira works with any agent that supports MCP - and most serious coding agents now support MCP.
 
 This matters for enterprise procurement. An MCP integration is portable. The investment you make in setting up an MCP server for your internal systems is not lost when the agent landscape shifts. The next agent your team adopts will be able to use the same MCP servers you already configured. MCP is the closest thing the agentic AI ecosystem has to "open standard that survives vendor changes."
 
@@ -332,11 +332,11 @@ This matters for enterprise procurement. An MCP integration is portable. The inv
 
 The orchestrator agent spawns a subagent, hands it a bounded task with a scoped prompt, and lets it run in its own isolated context with its own scoped tool access. The subagent does the work. The subagent returns a result. The orchestrator collects.
 
-What makes subagents structurally distinct from the other five primitives is that they are recursive. A subagent is another instance of the five primitives -- it has its own context window, its own tools, its own skills, plugins, MCP -- bounded to a smaller task and isolated from the orchestrator's context. The orchestrator does not see what the subagent saw. It sees only what the subagent returns. The subagent does not pollute the orchestrator's context with intermediate work. The orchestrator does not pollute the subagent's context with unrelated history.
+What makes subagents structurally distinct from the other five primitives is that they are recursive. A subagent is another instance of the five primitives - it has its own context window, its own tools, its own skills, plugins, MCP - bounded to a smaller task and isolated from the orchestrator's context. The orchestrator does not see what the subagent saw. It sees only what the subagent returns. The subagent does not pollute the orchestrator's context with intermediate work. The orchestrator does not pollute the subagent's context with unrelated history.
 
 In Claude Code, the Task tool dispatches a subagent; recent versions added Agent Teams as a higher-level coordination layer. In Codex CLI, subagents went GA in early 2026 and run up to eight in parallel. Cursor 2.0 introduced its own subagent system; Cline shipped them natively. The convergence is not an accident. Subagents solve two problems no other primitive solves: parallel work bounded by independence rather than by coordination, and context isolation bounded by task scope rather than by session history.
 
-The primary uses in serious work: parallel execution of a multi-task plan (the Execute phase of the loop in Chapter 5), structured review (dispatch one subagent to check spec compliance, another to check code quality), and architecture analysis at scale (one subagent per file or per module, returning structured summaries the orchestrator assembles -- the workflow in Chapter 7).
+The primary uses in serious work: parallel execution of a multi-task plan (the Execute phase of the loop in Chapter 5), structured review (dispatch one subagent to check spec compliance, another to check code quality), and architecture analysis at scale (one subagent per file or per module, returning structured summaries the orchestrator assembles - the workflow in Chapter 7).
 
 The primary cost: tokens. Each subagent runs its own model and tool work, so an eight-subagent dispatch consumes roughly eight times the tokens of a single agent run. Use them where parallelism or isolation matters. Do not use them as a default for work a single agent could handle linearly.
 
@@ -344,23 +344,23 @@ We will return to subagents in Chapter 5 (Execute) and Chapter 7 (architecture r
 
 ---
 
-One more piece organizes all six. The vendors call it the harness. The harness is the runtime around the model -- the part that turns the raw model into something useful for coding.
+One more piece organizes all six. The vendors call it the harness. The harness is the runtime around the model - the part that turns the raw model into something useful for coding.
 
 When you ask an agent to do work, the harness is the code that takes your request, formats it for the model, manages the context window, dispatches the tool calls the model wants to make, captures the results, feeds them back to the model, decides when the model is done, and returns the final output to you. The six primitives all live inside the harness. The harness is the architecture; the primitives are the components.
 
 Why this distinction matters: when you compare agents, the temptation is to compare models. "Is Claude Code better than Codex or Cursor for the workflow my team runs?" That is the right question. "Which model has the higher benchmark score this quarter?" is the wrong one. The model determines the ceiling. The harness determines whether you reach it. Compare harnesses, not models.
 
-Said plainly: the harness is the trim around the agent loop. The agent loop is trivial. It is roughly the shape of an HTTP request handler in a web framework -- receive prompt, run model, dispatch tools, return response, repeat. The middleware around that loop is where the real work lives. The middleware *is* the harness, *is* the six primitives, *is* what you are buying when you adopt an agent.
+Said plainly: the harness is the trim around the agent loop. The agent loop is trivial. It is roughly the shape of an HTTP request handler in a web framework - receive prompt, run model, dispatch tools, return response, repeat. The middleware around that loop is where the real work lives. The middleware *is* the harness, *is* the six primitives, *is* what you are buying when you adopt an agent.
 
 ---
 
-A note on vocabulary. The six primitives are capability primitives: what the agent uses to know, act, extend, integrate, and delegate. The governance mechanisms in Chapter 3 -- permissions, sandboxing, hooks, telemetry -- are not additional primitives. They are control layers around the primitives, especially around tools and subagents. When evaluating an agent, inspect both: the capability anatomy and the control surface. This chapter is the first; Chapter 3 is the second.
+A note on vocabulary. The six primitives are capability primitives: what the agent uses to know, act, extend, integrate, and delegate. The governance mechanisms in Chapter 3 - permissions, sandboxing, hooks, telemetry - are not additional primitives. They are control layers around the primitives, especially around tools and subagents. When evaluating an agent, inspect both: the capability anatomy and the control surface. This chapter is the first; Chapter 3 is the second.
 
 ---
 
 Six primitives. Context window. Tools. Skills. Plugins. MCP. Subagents. Plus the harness as the runtime that organizes them.
 
-When the next coding agent appears in the marketplace next quarter, the evaluation rubric is right there. How big is the context window and how does the agent manage it under pressure? What tools are available and how are they constrained? How are skills implemented -- always-loaded, or dispatched on detection? Is there a plugin marketplace and is it growing? Does it speak MCP, and how good is the MCP integration? How does it expose subagents -- and is parallel dispatch a first-class operation or an afterthought?
+When the next coding agent appears in the marketplace next quarter, the evaluation rubric is right there. How big is the context window and how does the agent manage it under pressure? What tools are available and how are they constrained? How are skills implemented - always-loaded, or dispatched on detection? Is there a plugin marketplace and is it growing? Does it speak MCP, and how good is the MCP integration? How does it expose subagents - and is parallel dispatch a first-class operation or an afterthought?
 
 Six questions. They tell you almost everything you need to know to compare the new agent to the one you are using today.
 
@@ -381,23 +381,23 @@ Open whichever coding agent you have access to. Ask it: how large is your contex
 ## Chapter 2
 ## The anatomy invariant
 
-While preparing this book, I ran an experiment to test the framework empirically. The result was the side-by-side demonstration this chapter is built around. Most demonstrations of coding agents show the agent doing what coding agents are usually advertised to do -- writing a new feature, fixing a bug, generating tests. My demonstration did something different. I used Claude Code, the coding agent, to inspect the source code of two other coding agents, side by side, in parallel.
+While preparing this book, I ran an experiment to test the framework empirically. The result was the side-by-side demonstration this chapter is built around. Most demonstrations of coding agents show the agent doing what coding agents are usually advertised to do - writing a new feature, fixing a bug, generating tests. My demonstration did something different. I used Claude Code, the coding agent, to inspect the source code of two other coding agents, side by side, in parallel.
 
 The two agents I inspected were Codex CLI and opencode. Both are fully open source. Codex CLI is written mostly in Rust, licensed under Apache 2.0, and maintained by OpenAI. Opencode is written mostly in TypeScript, licensed under MIT, and maintained by an independent team. They serve roughly the same purpose. They were built independently. They share no code.
 
 I opened two terminal panes. In the left pane, Claude Code in the Codex repository. In the right pane, Claude Code in the opencode repository. Same prompt typed in both: "Explain the architecture of this codebase. Map the agent loop, the tool system, the permission gates, the sandbox primitive, and the plugin model. Cite specific files and line numbers."
 
-Both panes worked in parallel, independently, each with its own context window, each on its own repository. Roughly four minutes wall clock -- I benchmarked the run again in May 2026 and it came back at four minutes thirteen seconds, of which about seven were the shallow `git clone`. The rest was the agent walking the directory trees, naming the primitives, and citing files. The number depends on both repositories publishing their architecture in their crate and directory names: Codex has `core-skills`, `core-plugins`, `mcp-server`, `tools`, `agent`; opencode has `skill/`, `plugin/`, `mcp/`, `tool/`, `agent/`. For a less self-documenting codebase, budget closer to ten to fifteen minutes per repo. The demo is fast because the convergence is legible at the filename level -- which is itself the underlying lesson.
+Both panes worked in parallel, independently, each with its own context window, each on its own repository. Roughly four minutes wall clock - I benchmarked the run again in May 2026 and it came back at four minutes thirteen seconds, of which about seven were the shallow `git clone`. The rest was the agent walking the directory trees, naming the primitives, and citing files. The number depends on both repositories publishing their architecture in their crate and directory names: Codex has `core-skills`, `core-plugins`, `mcp-server`, `tools`, `agent`; opencode has `skill/`, `plugin/`, `mcp/`, `tool/`, `agent/`. For a less self-documenting codebase, budget closer to ten to fifteen minutes per repo. The demo is fast because the convergence is legible at the filename level - which is itself the underlying lesson.
 
-The panes returned two architecture summaries, one for Codex in Rust, one for opencode in TypeScript. The summaries did not look identical -- different filenames, different folder structures, different idioms. But they had the same shape.
+The panes returned two architecture summaries, one for Codex in Rust, one for opencode in TypeScript. The summaries did not look identical - different filenames, different folder structures, different idioms. But they had the same shape.
 
 In both repositories, Claude Code found an agent loop. Codex implemented it in `core/session/turn.rs`. Opencode implemented it in `session/prompt.ts`. Different language, different filename, same loop: receive prompt, run model, dispatch tools, capture results, decide whether to continue, repeat.
 
-In both repositories, Claude Code found a tool registry. Codex used a Rust trait -- every tool implements the trait, the registry enumerates implementers. Opencode used a TypeScript interface -- every tool implements the interface, the registry enumerates implementations. Different language constructs, same pattern.
+In both repositories, Claude Code found a tool registry. Codex used a Rust trait - every tool implements the trait, the registry enumerates implementers. Opencode used a TypeScript interface - every tool implements the interface, the registry enumerates implementations. Different language constructs, same pattern.
 
 In both repositories, Claude Code found a permission gate. Codex routed every tool call through a permission check before execution. Opencode did the same. Different code paths, same architectural role.
 
-In both repositories, Claude Code found a sandbox primitive. And here, for the first time in the comparison, the implementations diverged substantively. Codex implemented real operating-system level isolation across three platforms -- Seatbelt on macOS, bubblewrap with Landlock and seccomp on Linux, restricted tokens with job objects on Windows. The kernel itself refused syscalls the agent was not authorized to make. Opencode implemented soft confinement -- path validation and permission prompts, but no kernel-enforced boundary.
+In both repositories, Claude Code found a sandbox primitive. And here, for the first time in the comparison, the implementations diverged substantively. Codex implemented real operating-system level isolation across three platforms - Seatbelt on macOS, bubblewrap with Landlock and seccomp on Linux, restricted tokens with job objects on Windows. The kernel itself refused syscalls the agent was not authorized to make. Opencode implemented soft confinement - path validation and permission prompts, but no kernel-enforced boundary.
 
 Same primitive. Same architectural role. Substantively different implementation. Substantively different governance implications.
 
@@ -405,7 +405,7 @@ In both repositories, Claude Code found a plugin model. Codex loaded plugins fro
 
 And in both repositories, Claude Code found MCP support. Same Jira server, same GitHub server, same Postgres server worked with both agents. The integration spec is portable.
 
-And in both repositories, Claude Code found a subagent dispatch path. In the Codex codebase the subagent primitive is the most prominent of the six -- it has been the headline feature there, and the dispatch code is easy to locate by name. In opencode the equivalent path is less prominently named but it exists, and Claude Code identified it by behavior: a function that spawns a fresh agent instance against a bounded prompt and an isolated context, returns a single structured result, and never bleeds the child's context back into the parent. Different surface area, same primitive.
+And in both repositories, Claude Code found a subagent dispatch path. In the Codex codebase the subagent primitive is the most prominent of the six - it has been the headline feature there, and the dispatch code is easy to locate by name. In opencode the equivalent path is less prominently named but it exists, and Claude Code identified it by behavior: a function that spawns a fresh agent instance against a bounded prompt and an isolated context, returns a single structured result, and never bleeds the child's context back into the parent. Different surface area, same primitive.
 
 Six primitives. Two implementations. Same anatomy. Different choices about how to realize the anatomy.
 
@@ -415,11 +415,11 @@ Six primitives. Two implementations. Same anatomy. Different choices about how t
 
 | | |
 |---|---|
-| **Context** | Side-by-side experiment built while preparing this book -- pointing Claude Code at the source code of Codex (Rust) and opencode (TypeScript) simultaneously |
+| **Context** | Side-by-side experiment built while preparing this book - pointing Claude Code at the source code of Codex (Rust) and opencode (TypeScript) simultaneously |
 | **Problem** | Readers needed to see that the six primitives were not Claude-Code-specific marketing; they were structural invariants verifiable in source |
 | **Intervention** | Same prompt, two repositories, agent identifies the six primitives in each codebase using grep + read-file tools |
 | **Agent time** | ~8 minutes |
-| **Human correction time** | None -- the experiment runs end-to-end without intervention once dispatched |
+| **Human correction time** | None - the experiment runs end-to-end without intervention once dispatched |
 | **Outcome** | Same six primitives present in both codebases, in different files, under different names, with substantively different implementations; the anatomy is invariant; the implementation is not |
 | **Limitations** | Experiment verifies the primitives exist; does not prove they are equally well-implemented (and they are not) |
 
@@ -431,7 +431,7 @@ Once you have seen the anatomy in one agent, you will start to see it in every a
 
 This is the framework. The anatomy is invariant. The implementations vary. Pick the implementation that fits your constraints, not the one with the best demo.
 
-What are your constraints? Language affinity -- does the agent's runtime fit your team's stack? License -- Apache, MIT, commercial, can you read the source if you need to? Ecosystem fit -- does the plugin marketplace contain the integrations you need? Sandbox enforcement -- do you need kernel-level isolation or is soft confinement enough? Audit posture -- do you need to demonstrate compliance to a regulator, and does the agent produce the artifacts you need to demonstrate it? These are concrete, comparable, decidable questions. They are not "which is better." They are "which fits your constraints."
+What are your constraints? Language affinity - does the agent's runtime fit your team's stack? License - Apache, MIT, commercial, can you read the source if you need to? Ecosystem fit - does the plugin marketplace contain the integrations you need? Sandbox enforcement - do you need kernel-level isolation or is soft confinement enough? Audit posture - do you need to demonstrate compliance to a regulator, and does the agent produce the artifacts you need to demonstrate it? These are concrete, comparable, decidable questions. They are not "which is better." They are "which fits your constraints."
 
 The teams that get this wrong fixate on the model. They debate Claude Code versus Codex versus Cursor, or they debate the underlying models as if model quality alone determined delivery quality. Those are different questions. In agentic delivery, the harness, governance model, and workflow integration matter as much as the model ceiling. The harness is the six primitives plus the way they are organized, and the differences between harnesses are where the actual stakes live.
 
@@ -443,7 +443,7 @@ The sandbox finding from the demo is real and it is consequential. Codex enforce
 
 But the deeper point is not "Codex has a better sandbox." The deeper point is that the sandbox is a primitive, and primitives are choices, and the choices a vendor makes about primitives are governance choices. When you compare agents, you are not just comparing capabilities. You are comparing governance philosophies.
 
-A vendor that ships a real sandbox is telling you they expect their agent to be used in environments where untrusted instructions might be injected -- through dependencies, through compromised files, through prompt injection in the codebase itself. They are building defense in depth. A vendor that ships soft confinement is telling you they expect their agent to be used in trusted environments where the user is in charge and prompt injection is a theoretical concern. Both are defensible postures. They are different postures.
+A vendor that ships a real sandbox is telling you they expect their agent to be used in environments where untrusted instructions might be injected - through dependencies, through compromised files, through prompt injection in the codebase itself. They are building defense in depth. A vendor that ships soft confinement is telling you they expect their agent to be used in trusted environments where the user is in charge and prompt injection is a theoretical concern. Both are defensible postures. They are different postures.
 
 You choose. Knowing what you are choosing is the point of the architecture chapter.
 
@@ -451,11 +451,11 @@ You choose. Knowing what you are choosing is the point of the architecture chapt
 
 You now have the move.
 
-When the next coding agent appears in your marketplace -- and one will appear in the next quarter, because the cycle is now measured in months -- you do not need to read the launch blog post. You do not need to wait for the comparative review article. You do not need to install it and run it for a week before forming an opinion.
+When the next coding agent appears in your marketplace - and one will appear in the next quarter, because the cycle is now measured in months - you do not need to read the launch blog post. You do not need to wait for the comparative review article. You do not need to install it and run it for a week before forming an opinion.
 
-You open its repository. You locate context assembly. You locate the tool registry. You locate skills loading. You locate plugin extension. You check for MCP support. You locate subagent dispatch. You locate the permission gate. You locate the sandbox -- all wrapped by the harness's agent loop.
+You open its repository. You locate context assembly. You locate the tool registry. You locate skills loading. You locate plugin extension. You check for MCP support. You locate subagent dispatch. You locate the permission gate. You locate the sandbox - all wrapped by the harness's agent loop.
 
-Eight inspection points: context assembly, tool registry, skills loading, plugin extension, MCP support, subagent dispatch, permission gate, sandbox -- all wrapped by the harness's agent loop. Twenty minutes of inspection. You will know more about whether to adopt this agent than any review article will tell you, because you will know whether its specific implementation choices fit your team's specific constraints. Language affinity. License compatibility. Sandbox enforcement. Audit posture. The questions are stable.
+Eight inspection points: context assembly, tool registry, skills loading, plugin extension, MCP support, subagent dispatch, permission gate, sandbox - all wrapped by the harness's agent loop. Twenty minutes of inspection. You will know more about whether to adopt this agent than any review article will tell you, because you will know whether its specific implementation choices fit your team's specific constraints. Language affinity. License compatibility. Sandbox enforcement. Audit posture. The questions are stable.
 
 The vendor's marketing will tell you what they want you to focus on. The source code will tell you what they actually built. The architecture invariant lets you read past the marketing.
 
@@ -463,7 +463,7 @@ That is the move. Take it with you.
 
 ---
 
-The next chapter is about governance specifically -- what the layers are, what each one does, what happens when one of them is missing. The sandbox tradeoff I just walked through is one example of why the governance question matters. There are more layers above and below the sandbox, and they all need attention.
+The next chapter is about governance specifically - what the layers are, what each one does, what happens when one of them is missing. The sandbox tradeoff I just walked through is one example of why the governance question matters. There are more layers above and below the sandbox, and they all need attention.
 
 ---
 
@@ -516,7 +516,7 @@ By the end you will know what each layer does, what each layer cannot do, and ho
 
 ---
 
-The governing principle underneath all five layers is least privilege: at every level -- the agent, the process the agent runs as, the credentials the agent holds, the network the agent reaches -- grant the minimum that lets the work happen, and no more. Each layer below is least privilege applied to a different dimension: what the agent can do, where it can do it, what it can read, what categories of action trigger a human gate, what gets recorded for audit. Least privilege is the spine. The layers are the implementation.
+The governing principle underneath all five layers is least privilege: at every level - the agent, the process the agent runs as, the credentials the agent holds, the network the agent reaches - grant the minimum that lets the work happen, and no more. Each layer below is least privilege applied to a different dimension: what the agent can do, where it can do it, what it can read, what categories of action trigger a human gate, what gets recorded for audit. Least privilege is the spine. The layers are the implementation.
 
 ```
 +----------------------------------------------------+
@@ -545,13 +545,13 @@ This is the layer most teams already know about, because it has been around sinc
 
 In the older permission model, you declared rules explicitly. Allow: read any file. Ask: write to any file outside the working directory. Deny: delete files in `~/.ssh`. Deny: write to `.env` files. Deny: run any command that contains `rm -rf`. The agent consulted the rules before each tool call. If a rule matched, the rule determined what happened.
 
-The newer model, which I recommend as the default, is auto mode. Auto mode hands the per-action decision to a classifier -- typically a smaller, faster model -- that decides on each tool call whether to allow, ask, or deny, based on risk and context. The classifier reads the proposed action and the surrounding context, applies its training, and makes a judgment. Most actions are allowed silently. Some are surfaced for the user to approve. Few are blocked outright.
+The newer model, which I recommend as the default, is auto mode. Auto mode hands the per-action decision to a classifier - typically a smaller, faster model - that decides on each tool call whether to allow, ask, or deny, based on risk and context. The classifier reads the proposed action and the surrounding context, applies its training, and makes a judgment. Most actions are allowed silently. Some are surfaced for the user to approve. Few are blocked outright.
 
-Auto mode is more permissive in the easy cases (no friction on routine actions) and more restrictive in the hard cases (it asks when a human reviewer would ask). It does not replace declarative rules -- it works with them. The recommended pattern is: auto mode as the default, plus a small set of explicit rules that override the classifier where the classifier is wrong or where compliance requires explicit declarative rules.
+Auto mode is more permissive in the easy cases (no friction on routine actions) and more restrictive in the hard cases (it asks when a human reviewer would ask). It does not replace declarative rules - it works with them. The recommended pattern is: auto mode as the default, plus a small set of explicit rules that override the classifier where the classifier is wrong or where compliance requires explicit declarative rules.
 
 The small set should stay small. My rule of thumb: ten to fifteen overrides per repository. If your override list is growing past that, your AGENTS.md (we will get to AGENTS.md) is too thin, not your rule list too short. The way to reduce the override list is to write better team-level guidance that the auto-mode classifier can use, not to write more brittle rules that try to anticipate every situation.
 
-Layer one is what every team will set up first. Layer one is also what fails when prompt injection succeeds. A clever attacker who can inject content into the agent's context can sometimes convince the agent to bypass the permission gate -- not by hacking the gate, but by tricking the agent into requesting actions the gate would not normally see. Permissions are necessary. Permissions are not sufficient.
+Layer one is what every team will set up first. Layer one is also what fails when prompt injection succeeds. A clever attacker who can inject content into the agent's context can sometimes convince the agent to bypass the permission gate - not by hacking the gate, but by tricking the agent into requesting actions the gate would not normally see. Permissions are necessary. Permissions are not sufficient.
 
 ---
 
@@ -567,7 +567,7 @@ Modern coding agents support sandboxes on Linux (bubblewrap with Landlock and se
 
 The sandbox does not slow the agent down meaningfully. It just refuses the operations that should have been refused anyway. If your agent is hitting the sandbox limits regularly during normal work, the limits are wrong; widen them. If your agent never hits the sandbox limits, you have probably set them correctly.
 
-Sandbox configuration varies by agent. Codex CLI enforces sandbox by default on Linux and macOS; you have to opt out, not opt in. In the Claude Code versions I have used in 2026, sandboxing is available but requires explicit configuration -- you have to opt in, configure path and network allowlists, and accept the small administrative overhead. Treat that as a versioned implementation detail, not a universal property of the tool. Most Claude Code teams I have worked with skip this step because the default installation works without it. The default installation also has no protection against prompt injection or against agent misbehavior. PocketOS is what an unsandboxed default installation looks like when it goes wrong. The sandbox costs an afternoon of configuration. It is worth it.
+Sandbox configuration varies by agent. Codex CLI enforces sandbox by default on Linux and macOS; you have to opt out, not opt in. In the Claude Code versions I have used in 2026, sandboxing is available but requires explicit configuration - you have to opt in, configure path and network allowlists, and accept the small administrative overhead. Treat that as a versioned implementation detail, not a universal property of the tool. Most Claude Code teams I have worked with skip this step because the default installation works without it. The default installation also has no protection against prompt injection or against agent misbehavior. PocketOS is what an unsandboxed default installation looks like when it goes wrong. The sandbox costs an afternoon of configuration. It is worth it.
 
 ---
 
@@ -592,15 +592,15 @@ A related architectural concern is team-instruction-file content injection throu
 
 ---
 
-These are real. They are also bounded. Each one has a documented patch or mitigation. The class of issue -- "secrets handling in agentic systems requires the same discipline as secrets handling anywhere else" -- is permanent.
+These are real. They are also bounded. Each one has a documented patch or mitigation. The class of issue - "secrets handling in agentic systems requires the same discipline as secrets handling anywhere else" - is permanent.
 
-My recommendations: do not commit `.env` files to git. Use a secrets vault (HashiCorp Vault, AWS Secrets Manager, Doppler, whatever your team uses) and pull secrets at runtime via an explicit fetch step that the agent can be configured to skip. Include sensitive paths in the sandbox deny-read list -- the agent literally cannot read them, regardless of what the system prompt says. Treat the team instruction file (AGENTS.md or equivalent) as committed code: reviewed in PR, signed by the author, part of your supply chain.
+My recommendations: do not commit `.env` files to git. Use a secrets vault (HashiCorp Vault, AWS Secrets Manager, Doppler, whatever your team uses) and pull secrets at runtime via an explicit fetch step that the agent can be configured to skip. Include sensitive paths in the sandbox deny-read list - the agent literally cannot read them, regardless of what the system prompt says. Treat the team instruction file (AGENTS.md or equivalent) as committed code: reviewed in PR, signed by the author, part of your supply chain.
 
 The framing I use with teams: deny rules and configuration are defense in depth. The sandbox is the hard boundary. The vault is the structural choice. Layered controls.
 
 The vectors above are the named ones. There is another vector that gets less attention and hits teams more often: injection through the work itself. The Jira ticket whose acceptance criteria contain a paragraph beginning "ignore all previous instructions and..." The PR comment from an outside contributor that smuggles an instruction inside what looks like a code review note. The error message from a flaky third-party test that the agent reads and interprets as a directive. The README of the vendor library the agent fetched during research. Anywhere the agent reads natural-language content as part of doing its work is a potential injection surface. I have watched an agent helpfully follow an instruction embedded in a copied-pasted log file because the operator did not think of a log file as untrusted input.
 
-The mitigation is the same posture as the rest of governance: do not rely on the agent's reasoning to spot the injection. Constrain what the agent can do regardless of what it has read. The sandbox catches the dangerous action even when the agent is convinced the action is legitimate. The hook catches the dangerous category even when the agent is convinced "just this once is fine." Treat every input the agent reads as untrusted text -- the same posture an experienced engineer takes with user input on a web form -- and your governance layers will catch the injection attempt your prompt design missed. The injection that succeeds is the one that finds an action the layers below it did not bound.
+The mitigation is the same posture as the rest of governance: do not rely on the agent's reasoning to spot the injection. Constrain what the agent can do regardless of what it has read. The sandbox catches the dangerous action even when the agent is convinced the action is legitimate. The hook catches the dangerous category even when the agent is convinced "just this once is fine." Treat every input the agent reads as untrusted text - the same posture an experienced engineer takes with user input on a web form - and your governance layers will catch the injection attempt your prompt design missed. The injection that succeeds is the one that finds an action the layers below it did not bound.
 
 ---
 
@@ -608,11 +608,11 @@ The mitigation is the same posture as the rest of governance: do not rely on the
 
 Layer four is custom enforcement at the action level.
 
-A security hook is code that runs before the agent executes a particular kind of action. The hook reads the proposed action, evaluates it against the team's rules, and either allows it, requires confirmation, or blocks it. Hooks fire before tool execution -- pre-tool-use, in the terminology -- so the agent cannot complete a hooked action without the hook's approval.
+A security hook is code that runs before the agent executes a particular kind of action. The hook reads the proposed action, evaluates it against the team's rules, and either allows it, requires confirmation, or blocks it. Hooks fire before tool execution - pre-tool-use, in the terminology - so the agent cannot complete a hooked action without the hook's approval.
 
 The most common pattern is to use a plugin (in the Claude Code ecosystem, the security-guidance plugin and similar) that ships with rules for common vulnerability categories. Secret leaks in diffs. SQL injection patterns in proposed code. Hardcoded credentials. Insecure cryptographic algorithms. Direct file writes to known-sensitive paths. Each category is a rule. The hook checks every proposed action against every rule. If a match, the hook intervenes.
 
-The point of hooks is that they are programmable. The eight or ten categories shipped by an off-the-shelf plugin are a good baseline. Your team will have its own categories on top -- perhaps a rule that any change to currency conversion logic requires explicit approval, or a rule that any commit touching the customer table requires a security reviewer, or a rule that any modification to a specific compliance-relevant module is blocked entirely outside business hours. You add these rules to the hook, the agent inherits them, every session enforces them.
+The point of hooks is that they are programmable. The eight or ten categories shipped by an off-the-shelf plugin are a good baseline. Your team will have its own categories on top - perhaps a rule that any change to currency conversion logic requires explicit approval, or a rule that any commit touching the customer table requires a security reviewer, or a rule that any modification to a specific compliance-relevant module is blocked entirely outside business hours. You add these rules to the hook, the agent inherits them, every session enforces them.
 
 Hooks are what you reach for when layer one (permissions) is too coarse, when layer two (sandbox) is too blunt, when layer three (secrets) is structurally fine but you still want a per-action gate on specific dangerous operations. Hooks are the precision instrument.
 
@@ -624,9 +624,9 @@ The first four layers are preventive. They stop the agent from doing the wrong t
 
 What you log: every tool call the agent made. Every Bash command. Every file write. Every external API request. The arguments, the results, the timing. The agent sees you read it; the agent does not see you log it. The log is for you.
 
-Where you send it: a central store the security team owns. Splunk, Elasticsearch, your existing SIEM, a custom store -- whichever fits your stack. The point is durability and queryability. You want to be able to answer "which sessions touched the payments service in the last thirty days" without grepping through eighty engineers' local agent histories.
+Where you send it: a central store the security team owns. Splunk, Elasticsearch, your existing SIEM, a custom store - whichever fits your stack. The point is durability and queryability. You want to be able to answer "which sessions touched the payments service in the last thirty days" without grepping through eighty engineers' local agent histories.
 
-What you watch for: scope violations (the agent edited a file outside its assigned task), unusual external calls (the agent contacted a host not on its allowlist), repeated permission denials (the agent tried something forbidden multiple times -- either a bug in the rule set or a prompt injection attempt), production credentials in context (the agent loaded a file containing what looks like secrets).
+What you watch for: scope violations (the agent edited a file outside its assigned task), unusual external calls (the agent contacted a host not on its allowlist), repeated permission denials (the agent tried something forbidden multiple times - either a bug in the rule set or a prompt injection attempt), production credentials in context (the agent loaded a file containing what looks like secrets).
 
 The PocketOS incident is also a Layer 5 failure. The destructive Volume Delete call generated a Railway API audit log on the server side. But PocketOS did not have detective monitoring of their own agent's behavior; no alert fired when an agent session contacted Railway with a production token. The first signal the team got was their database being unreachable.
 
@@ -646,7 +646,7 @@ Set the five layers up once. Maintain them like any other infrastructure. You wi
 
 The five layers above are the agent-facing controls. Two adjacent practices belong in the same governance posture, because they catch what the layers do not.
 
-Environment separation. The agent does not hold production credentials by default. Staging and development credentials are scoped to what is reachable from those environments. Production actions go through a separate workflow gate -- a human approval, a CI pipeline, a deploy script -- that the agent triggers but does not execute end-to-end. The PocketOS incident is, in part, a story about an agent session holding credentials that should have been segregated.
+Environment separation. The agent does not hold production credentials by default. Staging and development credentials are scoped to what is reachable from those environments. Production actions go through a separate workflow gate - a human approval, a CI pipeline, a deploy script - that the agent triggers but does not execute end-to-end. The PocketOS incident is, in part, a story about an agent session holding credentials that should have been segregated.
 
 Protected branches, CODEOWNERS, CI policy. The agent commits and opens pull requests, the same as any contributor. Protected-branch rules, CODEOWNERS reviews, and CI policy apply to the agent's PRs the same way they apply to a human's. Most teams already have these. Make sure the agent's PRs flow through them, not around them.
 
@@ -670,7 +670,7 @@ Let's go.
 
 ---
 
-# Part II -- Method
+# Part II - Method
 
 > *How you ship software with agents.*
 
@@ -683,9 +683,9 @@ The most common failure I see in teams adopting agentic coding is that they trea
 
 The mistake is that code generation is no longer the bottleneck.
 
-For the past forty years of software engineering, the constraint on output was, very approximately, how fast a developer could type valid code that did roughly the right thing. Autocomplete helped. Better IDEs helped. AI-assisted typing helped a lot. Each of these tools attacked the same constraint -- the time between "I know what I want to write" and "the code is on the screen." Each generation of tooling chipped away at that gap.
+For the past forty years of software engineering, the constraint on output was, very approximately, how fast a developer could type valid code that did roughly the right thing. Autocomplete helped. Better IDEs helped. AI-assisted typing helped a lot. Each of these tools attacked the same constraint - the time between "I know what I want to write" and "the code is on the screen." Each generation of tooling chipped away at that gap.
 
-Agentic AI breaks the constraint. The agent can produce a hundred lines of code that compiles in the time it takes you to formulate the prompt. Code production has collapsed by an order of magnitude in the kinds of work the agent handles well. It has not gone to zero -- the agent still costs latency, tokens, and your time spent formulating and reviewing -- but the marginal cost of the next hundred lines of code has dropped from "an hour of typing" to "thirty seconds of waiting." That is the constraint that breaks. So if your method is "agent produces code, you review code, you ship code," your bottleneck moved. The bottleneck is no longer producing code. The bottleneck is *can you formulate the work clearly enough that the agent does exactly what is needed.*
+Agentic AI breaks the constraint. The agent can produce a hundred lines of code that compiles in the time it takes you to formulate the prompt. Code production has collapsed by an order of magnitude in the kinds of work the agent handles well. It has not gone to zero - the agent still costs latency, tokens, and your time spent formulating and reviewing - but the marginal cost of the next hundred lines of code has dropped from "an hour of typing" to "thirty seconds of waiting." That is the constraint that breaks. So if your method is "agent produces code, you review code, you ship code," your bottleneck moved. The bottleneck is no longer producing code. The bottleneck is *can you formulate the work clearly enough that the agent does exactly what is needed.*
 
 That sentence is the central methodological claim of this book.
 
@@ -695,11 +695,11 @@ The bottleneck is formulation discipline. The capability is there. What separate
 
 What does "formulation discipline" mean in practice?
 
-First, clarity of domain before any code is written. The agent does not know your business. It does not know your conventions. It does not know the history of why your codebase looks the way it does. Before you ask the agent to make a change, you have to load context -- through AGENTS.md, through skills, through the research phase of the workflow, through whatever mechanism. The amount of upfront work required has *decreased* relative to the pre-agent era (because the agent can do a lot of the loading itself), but it has not gone to zero. It has shifted from "you load context into your own head" to "you load context into the agent's context window."
+First, clarity of domain before any code is written. The agent does not know your business. It does not know your conventions. It does not know the history of why your codebase looks the way it does. Before you ask the agent to make a change, you have to load context - through AGENTS.md, through skills, through the research phase of the workflow, through whatever mechanism. The amount of upfront work required has *decreased* relative to the pre-agent era (because the agent can do a lot of the loading itself), but it has not gone to zero. It has shifted from "you load context into your own head" to "you load context into the agent's context window."
 
-Second, decomposition by file and by task before any action is taken. The agent will happily attempt a multi-file refactor in a single shot. The output will look impressive. It will also be much harder to review than the same refactor decomposed into five small steps, each of which is a coherent change. The rule is to make the decomposition explicit -- write the plan first, then execute the plan, then verify each step independently. This is not new advice; senior engineers have always worked this way on complex changes. The agent makes the cost of failing to decompose much higher, because the agent will produce something that compiles whether it is good or not.
+Second, decomposition by file and by task before any action is taken. The agent will happily attempt a multi-file refactor in a single shot. The output will look impressive. It will also be much harder to review than the same refactor decomposed into five small steps, each of which is a coherent change. The rule is to make the decomposition explicit - write the plan first, then execute the plan, then verify each step independently. This is not new advice; senior engineers have always worked this way on complex changes. The agent makes the cost of failing to decompose much higher, because the agent will produce something that compiles whether it is good or not.
 
-Third, refusing to say "done" without verification. The agent will tell you the change is complete. The agent will be sincere. The agent will also be wrong sometimes, because the agent's internal sense of "this looks right" is not the same as "I ran the tests and they pass." The rule is: there is no "done" without test evidence. Not unit tests as a checkbox -- actual behavioral tests that exercise the change. If your change cannot be tested behaviorally, your change probably should not have been an agent task in the first place.
+Third, refusing to say "done" without verification. The agent will tell you the change is complete. The agent will be sincere. The agent will also be wrong sometimes, because the agent's internal sense of "this looks right" is not the same as "I ran the tests and they pass." The rule is: there is no "done" without test evidence. Not unit tests as a checkbox - actual behavioral tests that exercise the change. If your change cannot be tested behaviorally, your change probably should not have been an agent task in the first place.
 
 Three habits. Domain clarity before code. Decomposition by file and by task. Test evidence before "done." All three are formulation, not generation. All three are what separates a team that ships software with agents from a team that generates code with agents.
 
@@ -707,13 +707,13 @@ Three habits. Domain clarity before code. Decomposition by file and by task. Tes
 
 Now, here is where I should anticipate the objection. You are probably thinking: this sounds like a lot of work for what was supposed to save me time.
 
-First, it is less work than you think. The disciplines above are mostly already practiced by good senior engineers on important changes. They formulate carefully. They decompose. They verify. What they do not always do is package the practice in a form that scales -- that travels from one person's habits to a team's habits, from one repository to many, from one project to a year of projects. The agentic workflow lets you encode the practice once and have it apply everywhere. The total cost is lower, even if the per-task cost is comparable.
+First, it is less work than you think. The disciplines above are mostly already practiced by good senior engineers on important changes. They formulate carefully. They decompose. They verify. What they do not always do is package the practice in a form that scales - that travels from one person's habits to a team's habits, from one repository to many, from one project to a year of projects. The agentic workflow lets you encode the practice once and have it apply everywhere. The total cost is lower, even if the per-task cost is comparable.
 
 Second, the alternative is worse. The "let the agent freestyle" approach feels faster in the moment. It produces visible output. The output goes to code review. The reviewer spots the bugs (sometimes). The bugs go back to the agent. The cycle repeats. By the time the change ships, the team has spent more total time than they would have spent if they had imposed rigor at the start. The "discipline takes time" feeling is real. The "lack of discipline takes more time" reality is also real, and usually invisible until you look at cycle time across a quarter.
 
 Across multiple teams: those that imposed rigor early shipped faster on a quarterly basis. Those that let the agent freestyle felt faster in the moment and shipped slower on the quarter. Same teams, same agents, same codebases. Different formulation discipline. Substantially different outcomes.
 
-A heuristic for when formulation discipline pays back. Not every task needs the full loop. The cost of formulating well -- the research note, the file-level plan, the test definitions -- is real and is borne up front. For trivial work, the formulation cost exceeds the agent's contribution and you lose time.
+A heuristic for when formulation discipline pays back. Not every task needs the full loop. The cost of formulating well - the research note, the file-level plan, the test definitions - is real and is borne up front. For trivial work, the formulation cost exceeds the agent's contribution and you lose time.
 
 The practice pays back when at least one of these is true: the work touches more than three files (blast radius is large enough that an unguided agent will get something wrong); the change crosses concerns (database schema plus service layer plus UI, where a single misstep cascades); or you would not do the work yourself by typing it in (it is genuinely novel, or large, or in code you do not know well enough to write by hand). If none of those apply, type it. A two-line bug fix does not need a research note. A one-line config change does not need a plan.
 
@@ -757,15 +757,15 @@ Start with the minimum viable practice. AGENTS.md skeleton, fifteen lines, captu
 
 ---
 
-The next chapter is the operational form of the practice. Six phases. Research, plan, execute, review, verify, ship. Each phase is a specific kind of work that the agent does well when properly formulated. Each phase produces an artifact that can be reviewed, committed, and audited. The whole loop is the equivalent of the SDLC for a single change -- research is your requirements gathering, plan is your design, execute is your implementation, review is your code review, verify is your testing, ship is your deployment.
+The next chapter is the operational form of the practice. Six phases. Research, plan, execute, review, verify, ship. Each phase is a specific kind of work that the agent does well when properly formulated. Each phase produces an artifact that can be reviewed, committed, and audited. The whole loop is the equivalent of the SDLC for a single change - research is your requirements gathering, plan is your design, execute is your implementation, review is your code review, verify is your testing, ship is your deployment.
 
-If you have ever found yourself wishing you had a junior engineer who followed the team's process every single time -- never skipped the design step, never shipped without tests, never marked a story done without verification -- the six-phase loop is the answer. The agent will follow the process if you encode the process as code. The plugin we will look at in the next chapter does exactly that.
+If you have ever found yourself wishing you had a junior engineer who followed the team's process every single time - never skipped the design step, never shipped without tests, never marked a story done without verification - the six-phase loop is the answer. The agent will follow the process if you encode the process as code. The plugin we will look at in the next chapter does exactly that.
 
 But first, a moment on what the six phases are not.
 
-They are not the only way to do agentic delivery. There are competing frameworks -- GitHub's Spec Kit, BMAD-style methodologies, custom skill collections that teams build for themselves. I will name them again in this chapter and the next, because the lesson is not "use this specific plugin." The lesson is the iterative loop itself. The plugin is the carrier; the discipline is what travels.
+They are not the only way to do agentic delivery. There are competing frameworks - GitHub's Spec Kit, BMAD-style methodologies, custom skill collections that teams build for themselves. I will name them again in this chapter and the next, because the lesson is not "use this specific plugin." The lesson is the iterative loop itself. The plugin is the carrier; the discipline is what travels.
 
-They are not a one-size-fits-all process. A two-line bug fix does not need all six phases. A trivial documentation update does not need all six phases. The six-phase loop is for the kinds of changes where the upside of rigor justifies the friction -- typically anything that touches business logic, modifies data structures, changes API contracts, or affects more than a handful of files. The decision of which work to put through the full loop and which to skip is itself part of the practice.
+They are not a one-size-fits-all process. A two-line bug fix does not need all six phases. A trivial documentation update does not need all six phases. The six-phase loop is for the kinds of changes where the upside of rigor justifies the friction - typically anything that touches business logic, modifies data structures, changes API contracts, or affects more than a handful of files. The decision of which work to put through the full loop and which to skip is itself part of the practice.
 
 They are not the end of the work. The agent ships a pull request. The pull request goes through your normal team review. Humans look at the diff. Humans approve. Humans merge. The agent does not replace the team's existing shipping process; the agent feeds it.
 
@@ -786,7 +786,7 @@ Take one task you were about to dispatch to the agent. Write a 200-word research
 ## Chapter 5
 ## The six-phase loop
 
-The six phases are research, plan, execute, review, verify, ship. Each phase is a skill, in the agent-anatomy sense -- a packaged set of instructions the agent loads when the phase is active. Each phase has a clear input, a clear output, and a clear hand-off to the next phase. Each phase is designed to be gated at its boundary; today's concrete Superpowers implementation uses skill instructions to request the discipline, and you may need to wire in a project-specific PreToolUse hook to enforce the gating strictly. Kernel-level phase enforcement is still maturing as of mid-2026.
+The six phases are research, plan, execute, review, verify, ship. Each phase is a skill, in the agent-anatomy sense - a packaged set of instructions the agent loads when the phase is active. Each phase has a clear input, a clear output, and a clear hand-off to the next phase. Each phase is designed to be gated at its boundary; today's concrete Superpowers implementation uses skill instructions to request the discipline, and you may need to wire in a project-specific PreToolUse hook to enforce the gating strictly. Kernel-level phase enforcement is still maturing as of mid-2026.
 
 ```
    +--------+    +------+    +---------+    +--------+    +--------+    +------+
@@ -807,7 +807,7 @@ I will walk through the phases in order, and at the end I will tell you what the
 
 The agent reads the codebase and produces a research note that establishes the current state, names the relevant files, identifies the existing patterns, and calls out risks. Input: the task description. Output: a markdown document of two to four pages.
 
-What goes in the research note? The files that will be touched. The conventions those files follow. The existing tests that cover the area. Related concepts elsewhere in the codebase that might be relevant. Open questions the agent has -- places where the codebase is ambiguous and a human needs to decide.
+What goes in the research note? The files that will be touched. The conventions those files follow. The existing tests that cover the area. Related concepts elsewhere in the codebase that might be relevant. Open questions the agent has - places where the codebase is ambiguous and a human needs to decide.
 
 Research is the phase teams skip most often, because it produces no code and feels like overhead. Research is also the phase that, in my experience, has the highest leverage. A bad research note guarantees a bad plan, which guarantees a bad implementation. A good research note makes the rest of the loop dramatically easier, because the plan is grounded in the real state of the code, not in the agent's first-guess hypothesis about the state of the code.
 
@@ -817,7 +817,7 @@ The research artifact is durable. It gets committed alongside the change. Six mo
 
 **Phase two: plan.**
 
-The agent reads the research note and produces a file-level plan. Each task in the plan names the file to be changed, the change to be made, the verification that proves the change worked. Each task is sized to two to five minutes of work -- small enough that a failure is recoverable, big enough that the overhead of task switching does not dominate.
+The agent reads the research note and produces a file-level plan. Each task in the plan names the file to be changed, the change to be made, the verification that proves the change worked. Each task is sized to two to five minutes of work - small enough that a failure is recoverable, big enough that the overhead of task switching does not dominate.
 
 The plan also names what tests need to be added or updated. If the plan does not mention tests, the plan is incomplete and the agent goes back. This is intended to be enforced by a hook; the skill instructions request this rigor, and the hard enforcement is something you wire up per project as your team's maturity warrants.
 
@@ -829,13 +829,13 @@ The plan review takes a few minutes. It saves an afternoon when the plan was wro
 
 **Phase three: execute.**
 
-This is where the sixth primitive from Chapter 1 -- subagents -- earns its keep. Execute is the phase where the orchestrator dispatches multiple constrained children, each working on a bounded task in its own isolated context.
+This is where the sixth primitive from Chapter 1 - subagents - earns its keep. Execute is the phase where the orchestrator dispatches multiple constrained children, each working on a bounded task in its own isolated context.
 
-The agent dispatches subagents per task. Each subagent works in its own isolated context -- a key architectural feature, because context contamination is the single biggest reason long-running agent sessions go wrong. Task one's confused reasoning does not pollute task four's clean slate. Each subagent reads only what it needs, makes its assigned change, runs the verification step in the plan, and reports back. The orchestrator agent assembles the results.
+The agent dispatches subagents per task. Each subagent works in its own isolated context - a key architectural feature, because context contamination is the single biggest reason long-running agent sessions go wrong. Task one's confused reasoning does not pollute task four's clean slate. Each subagent reads only what it needs, makes its assigned change, runs the verification step in the plan, and reports back. The orchestrator agent assembles the results.
 
 Execute is the phase that produces visible code on the screen. It is also the phase that benefits most from the isolation. Without subagent isolation, an eight-task change in a single agent session ends with a context window stuffed with eight tasks' worth of code, partial results, debugging output, and the agent making decisions in task seven based on garbled memory of decisions in task two. With isolation, every task is fresh. Every task is small. Every task either succeeds or fails on its own merits.
 
-If a task fails, the orchestrator decides whether to retry, route around the failure, or stop and ask the human. Most failures are recoverable -- the agent's first attempt missed a detail the research note flagged, the second attempt incorporates the fix. Some failures are blocking -- the task as planned cannot be completed, the plan needs revision. The orchestrator distinguishes the two.
+If a task fails, the orchestrator decides whether to retry, route around the failure, or stop and ask the human. Most failures are recoverable - the agent's first attempt missed a detail the research note flagged, the second attempt incorporates the fix. Some failures are blocking - the task as planned cannot be completed, the plan needs revision. The orchestrator distinguishes the two.
 
 What subagent isolation does not solve: orchestrator-level contamination. The orchestrator still holds summaries of every subagent's work, and if the orchestrator's summary of task one's result is imprecise, task four's subagent may make an assumption that contradicts something task one actually established. I have watched a six-subagent execute phase produce mutually inconsistent edits for exactly this reason. The isolation is real and valuable; it is not a silver bullet. The orchestrator is still a single point of context, and its summaries are still a place where drift can enter. Read the orchestrator's task-handoff messages with the same skepticism you would read a junior engineer's standup updates.
 
@@ -863,17 +863,17 @@ The output of review is structured. Each finding has a severity. Critical findin
 
 **Phase five: verify.**
 
-The verify phase is where tests run. Specifically, *new* tests run -- tests that exercise the change. The existing test suite is run as part of execute (any task that modifies code runs the relevant existing tests to make sure nothing broke). Verify is about whether the change is actually correct, not just whether the existing tests still pass.
+The verify phase is where tests run. Specifically, *new* tests run - tests that exercise the change. The existing test suite is run as part of execute (any task that modifies code runs the relevant existing tests to make sure nothing broke). Verify is about whether the change is actually correct, not just whether the existing tests still pass.
 
 For backend logic, verify usually means unit tests and integration tests. The plan named which tests to add; the execute phase added them; verify runs them and reports the results.
 
-For frontend code, verify gets more interesting. Frontend testing has historically been hard -- UI tests are fragile, snapshot tests are brittle, manual QA does not scale. The agentic workflow has a real answer here, and it is one of the things I am most enthusiastic about. The answer is Playwright with the accessibility tree.
+For frontend code, verify gets more interesting. Frontend testing has historically been hard - UI tests are fragile, snapshot tests are brittle, manual QA does not scale. The agentic workflow has a real answer here, and it is one of the things I am most enthusiastic about. The answer is Playwright with the accessibility tree.
 
-Playwright with the accessibility tree means this. Playwright is a browser automation library. It drives a real browser (headless or visible) through a sequence of interactions. The accessibility tree is the structure browsers maintain for assistive technology -- screen readers, voice control, the like. The accessibility tree describes the page in semantic terms: there is a button with this label, there is a form field labeled "email", there is a list of items with these names. The accessibility tree is stable. It does not change when you restyle the page, because the labels and roles do not change. CSS refactor? Accessibility tree is the same. Component library swap? Accessibility tree is the same.
+Playwright with the accessibility tree means this. Playwright is a browser automation library. It drives a real browser (headless or visible) through a sequence of interactions. The accessibility tree is the structure browsers maintain for assistive technology - screen readers, voice control, the like. The accessibility tree describes the page in semantic terms: there is a button with this label, there is a form field labeled "email", there is a list of items with these names. The accessibility tree is stable. It does not change when you restyle the page, because the labels and roles do not change. CSS refactor? Accessibility tree is the same. Component library swap? Accessibility tree is the same.
 
 Verify in the agentic workflow writes tests against the accessibility tree, not against pixels and not against CSS selectors. The test says "navigate to the user profile page, find the field labeled Priority, change its value, click Save, verify the new value renders." That test passes whether the UI is styled with Tailwind or Bootstrap or Material or nothing. The test passes whether the field is implemented as a select dropdown or a radio group or a custom component. The test asserts the *behavior*, which is what you care about.
 
-I run this with banking teams constantly. They have long histories of failed UI test automation -- flaky tests, brittle suites, junior engineers wasting weeks chasing snapshot diffs. The accessibility tree pattern is the first thing that has worked, in my experience, for keeping UI test suites green over months and years. The agent writes the tests. The tests survive refactors. The team trusts the green-light signal.
+I run this with banking teams constantly. They have long histories of failed UI test automation - flaky tests, brittle suites, junior engineers wasting weeks chasing snapshot diffs. The accessibility tree pattern is the first thing that has worked, in my experience, for keeping UI test suites green over months and years. The agent writes the tests. The tests survive refactors. The team trusts the green-light signal.
 
 ---
 
@@ -881,13 +881,13 @@ I run this with banking teams constantly. They have long histories of failed UI 
 
 Ship is the phase that produces the artifact your team's normal review process handles. The agent commits the changes with a structured commit message. The agent pushes the branch. The agent opens a pull request with a structured description: what changed, why, how it was verified, what risks remain, what reviewers are tagged. If a Jira ticket was linked at the start, the agent updates the ticket. If Slack notifications are wired, the agent posts to the relevant channel.
 
-Ship takes thirty seconds. It is the easiest phase. It is also the phase that makes the rest of the loop palatable to the team, because the *artifact* the agent produces -- the pull request -- is exactly the artifact the team is already used to reviewing. There is no special "AI lane" in your repository. There is the same pull request review process that every change goes through. The reviewer reads the diff, reads the description, reads the research note linked in the description, reads the test results, approves or requests changes. Same as always.
+Ship takes thirty seconds. It is the easiest phase. It is also the phase that makes the rest of the loop palatable to the team, because the *artifact* the agent produces - the pull request - is exactly the artifact the team is already used to reviewing. There is no special "AI lane" in your repository. There is the same pull request review process that every change goes through. The reviewer reads the diff, reads the description, reads the research note linked in the description, reads the test results, approves or requests changes. Same as always.
 
 This is the property that makes agentic delivery work in practice. The agent does not break your existing process. The agent feeds your existing process with better-formulated work.
 
 ---
 
-The full loop, on a small feature, takes about twenty to thirty minutes of total wall-clock time. On a medium feature, an hour. On a large feature, a few hours -- and the large feature would have taken days without the agent, so the comparison is favorable.
+The full loop, on a small feature, takes about twenty to thirty minutes of total wall-clock time. On a medium feature, an hour. On a large feature, a few hours - and the large feature would have taken days without the agent, so the comparison is favorable.
 
 That total includes both the agent's processing time and the human gate review time. The agent itself runs in maybe a third of the wall clock; the rest is you reading the research note, you reviewing the plan, you approving the diff, you watching the verify step pass. The human gates are the rate-limiter on a healthy workflow, not the agent. If your loop is taking three hours on a small feature, the issue is almost certainly that the gates are over-engineered or that you are doing them in a slow back-and-forth instead of a focused pass. The agent will not save you from your own meeting culture.
 
@@ -901,7 +901,7 @@ The pattern was not a bug. It was the predictable difference between a warm-cach
 
 ---
 
-The Superpowers plugin I have referenced is one implementation of this loop. There are others -- GitHub Spec Kit, BMAD frameworks, custom team-built skill collections. They differ in the details. They share the iterative-loop pattern. Choose what integrates with your workflow, your tools, your compliance constraints. The carrier matters less than the discipline.
+The Superpowers plugin I have referenced is one implementation of this loop. There are others - GitHub Spec Kit, BMAD frameworks, custom team-built skill collections. They differ in the details. They share the iterative-loop pattern. Choose what integrates with your workflow, your tools, your compliance constraints. The carrier matters less than the discipline.
 
 Next chapter: the artifact that makes the discipline portable across team members, repositories, and time. AGENTS.md.
 
@@ -915,7 +915,7 @@ To make the loop concrete, here is one feature flowing through all six phases. T
 
 **Plan.** The agent produced a six-task plan, in order: add the database column with a default; update the `Wire` record class; update the wire-builder service; update the API contract; update the compliance-routing logic to read the new field; update the audit-log emitter. Each task was constrained to one file or one pair of files. I caught one issue in review: task five depended on task four's API contract change, but the order was right and the agent had flagged the dependency in the task description. Approved.
 
-**Execute.** Six subagents in parallel, one per task, each constrained to its file. They returned in under three minutes. Five tasks had passing tests on first run. The sixth (audit-log emitter) had a passing test but the test was wrong -- it asserted the old log format. Caught at Review.
+**Execute.** Six subagents in parallel, one per task, each constrained to its file. They returned in under three minutes. Five tasks had passing tests on first run. The sixth (audit-log emitter) had a passing test but the test was wrong - it asserted the old log format. Caught at Review.
 
 **Review.** The spec-compliance reviewer caught that the audit-log task's test was asserting the old format. It also flagged that the migration was missing the down direction. The code-quality reviewer caught nothing of note. The implementer subagent fixed both items and re-ran the relevant tests.
 
@@ -955,7 +955,7 @@ Run one feature through the full six-phase loop. Time each phase. Note which pha
 
 ---
 
-**Names and conventions.** The vendor-neutral standard for the team instruction file is `AGENTS.md`, with native support across Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, Zed, Windsurf, and others. The Claude Code-specific variant is `CLAUDE.md`. The format is markdown either way; the loading semantics are equivalent. If you came to this chapter from the Claude Code ecosystem, read `AGENTS.md` as "the file your agent reads at session start" -- the discipline this chapter teaches is identical regardless of the filename. Where this book discusses Claude Code-specific behavior, I use `CLAUDE.md`; otherwise I use the vendor-neutral name.
+**Names and conventions.** The vendor-neutral standard for the team instruction file is `AGENTS.md`, with native support across Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, Zed, Windsurf, and others. The Claude Code-specific variant is `CLAUDE.md`. The format is markdown either way; the loading semantics are equivalent. If you came to this chapter from the Claude Code ecosystem, read `AGENTS.md` as "the file your agent reads at session start" - the discipline this chapter teaches is identical regardless of the filename. Where this book discusses Claude Code-specific behavior, I use `CLAUDE.md`; otherwise I use the vendor-neutral name.
 
 ---
 
@@ -971,19 +971,19 @@ We wrote one line in AGENTS.md. "Bean Validation annotations on DTOs at the cont
 
 The next twelve endpoints: zero validation-layer corrections. Three hours per month of senior-engineer time, eliminated by one line of configuration. The rule did not make the agent perfect; it eliminated that specific repeated correction.
 
-AGENTS.md is what turns "the agent keeps making this mistake" into "the agent stopped making this mistake." It is team infrastructure in the same way build scripts are team infrastructure -- committed code that the team maintains because the team relies on it.
+AGENTS.md is what turns "the agent keeps making this mistake" into "the agent stopped making this mistake." It is team infrastructure in the same way build scripts are team infrastructure - committed code that the team maintains because the team relies on it.
 
 ---
 
-There is a failure mode in AGENTS.md that is the inverse of the success story above. A banking team I worked with in early 2026 had an AGENTS.md that had grown over six months to roughly nine hundred lines. Every PR that exposed a new edge case spawned a new rule. Every team retro added a new convention. The file was comprehensive, well-organized, and rigorously maintained. It also stopped working. The agent started ignoring specific rules the team cared about most -- the very rules that had been added in the most recent sprint -- because instruction-following quality on long context degrades uniformly as instruction count grows. The team's most important rules were drowning in their own thoroughness.
+There is a failure mode in AGENTS.md that is the inverse of the success story above. A banking team I worked with in early 2026 had an AGENTS.md that had grown over six months to roughly nine hundred lines. Every PR that exposed a new edge case spawned a new rule. Every team retro added a new convention. The file was comprehensive, well-organized, and rigorously maintained. It also stopped working. The agent started ignoring specific rules the team cared about most - the very rules that had been added in the most recent sprint - because instruction-following quality on long context degrades uniformly as instruction count grows. The team's most important rules were drowning in their own thoroughness.
 
 The fix was unglamorous. We cut AGENTS.md from nine hundred lines to ninety. We moved the project-specific conventions that did not need to be loaded on every session into skills that dispatched on detection. We moved the documentation-of-past-mistakes into the architecture document, where it lived as prose rather than as instructions. The compliance ratio on the rules that remained jumped within a week. The pattern I now teach: if your AGENTS.md has grown past two hundred lines, the file is not getting more useful, the file is getting more ignored. Cut it, move material into skills, and treat the surviving rules as the load-bearing ones.
 
 ---
 
-AGENTS.md is a markdown file that lives in the root of your repository. The coding agent reads it at session start, before any user prompt. It is the document that turns "what the agent thinks is reasonable" into "what your team has agreed is reasonable." Without it, every developer's agent session has a different opinion about how to write code for your codebase. With it, the opinion is the team's -- committed in git, signed by the author, reviewable in pull request.
+AGENTS.md is a markdown file that lives in the root of your repository. The coding agent reads it at session start, before any user prompt. It is the document that turns "what the agent thinks is reasonable" into "what your team has agreed is reasonable." Without it, every developer's agent session has a different opinion about how to write code for your codebase. With it, the opinion is the team's - committed in git, signed by the author, reviewable in pull request.
 
-AGENTS.md is the most important new piece of infrastructure for sustained agentic delivery. A team without an AGENTS.md is doing agentic coding the way an early-stage startup does deployments -- by hand, by tribal knowledge, by the institutional memory of one senior engineer who happens to be in the room. A team with a well-maintained AGENTS.md is doing agentic coding the way mature engineering organizations do deployments -- automated, repeatable, owned by the team, surviving turnover.
+AGENTS.md is the most important new piece of infrastructure for sustained agentic delivery. A team without an AGENTS.md is doing agentic coding the way an early-stage startup does deployments - by hand, by tribal knowledge, by the institutional memory of one senior engineer who happens to be in the room. A team with a well-maintained AGENTS.md is doing agentic coding the way mature engineering organizations do deployments - automated, repeatable, owned by the team, surviving turnover.
 
 ---
 
@@ -996,13 +996,13 @@ Six things go in AGENTS.md. I will walk through each one with concrete examples 
 > Never roll your own cryptography. Use the team's approved crypto wrapper at `com.bank.crypto.SecureCrypto`. (Reason: AES-CBC with hardcoded IV shipped to production in 2024; we are not doing that again.)
 > Never modify the database migration history. Migrations are append-only. (Reason: rollback of a modified migration corrupts the schema in unrecoverable ways.)
 
-Each forbidden pattern is a wall the agent will not cross. If the agent thinks the rule is wrong in a specific case, the agent will surface the disagreement in its response -- and the team will either explain the exception or update the rule.
+Each forbidden pattern is a wall the agent will not cross. If the agent thinks the rule is wrong in a specific case, the agent will surface the disagreement in its response - and the team will either explain the exception or update the rule.
 
 **Two: mistake journal.** A log of failures the team has actually seen, with the rule that prevents recurrence. Example:
 
 > 2026-03-03: shipped a bug where the agent generated a JPQL query that bypassed the multi-tenant filter. Root cause: prompt did not mention multi-tenancy; agent assumed single-tenant. Fix: queries now extend `MultiTenantQueryBuilder` base class which enforces tenant filtering. Rule added.
 
-The mistake journal grows over time. It also gets pruned -- entries that have been structurally resolved (the underlying issue is no longer possible) are removed. The journal is documentation that earns its keep through prevention, not through volume. Every entry should be a rule that has actually prevented a recurrence at least once.
+The mistake journal grows over time. It also gets pruned - entries that have been structurally resolved (the underlying issue is no longer possible) are removed. The journal is documentation that earns its keep through prevention, not through volume. Every entry should be a rule that has actually prevented a recurrence at least once.
 
 **Three: Spring Boot conventions specific to the team.** (Or React, or whatever your stack is. Spring Boot is my example.)
 
@@ -1151,13 +1151,13 @@ Here is the prompt I use, lightly edited. Yours will differ; this is illustrativ
 >
 > Cite specific files and line numbers throughout. Where the codebase is ambiguous, say so explicitly. Where you encounter patterns the team should formalize as conventions, suggest the convention.
 
-That prompt, dispatched on a moderately complex Spring Boot service, will produce a ten-to-fifteen-page architecture document in under fifteen minutes. The document will be roughly seventy percent correct. The remaining thirty percent is what makes the human review essential -- the agent will misinterpret some patterns, miss some context that lives outside the codebase, sometimes confidently describe a code path that has been deprecated. The human reviewer corrects these. After review, the document is solid.
+That prompt, dispatched on a moderately complex Spring Boot service, will produce a ten-to-fifteen-page architecture document in under fifteen minutes. The document will be roughly seventy percent correct. The remaining thirty percent is what makes the human review essential - the agent will misinterpret some patterns, miss some context that lives outside the codebase, sometimes confidently describe a code path that has been deprecated. The human reviewer corrects these. After review, the document is solid.
 
 The corrected document goes into the repository. By convention, I put it at `docs/architecture.md`. It becomes the entry point for any subsequent work. New team members read it first. Senior engineers consult it when modifying unfamiliar parts of the system. The agent itself reads it (you reference it from AGENTS.md) when working in the codebase, so the agent's subsequent work is grounded in the architecture review rather than re-deriving the architecture each time.
 
 ---
 
-The architecture review workflow has a polished alternative worth mentioning. There is a plugin called Understand Anything that does something similar to the prompt above, but with a visual dashboard as the primary output rather than a markdown document. The dashboard renders the codebase as a navigable graph -- structural view (modules, dependencies, file hierarchy) on one tab, domain view (business concepts, entities, cross-domain connections) on another tab.
+The architecture review workflow has a polished alternative worth mentioning. There is a plugin called Understand Anything that does something similar to the prompt above, but with a visual dashboard as the primary output rather than a markdown document. The dashboard renders the codebase as a navigable graph - structural view (modules, dependencies, file hierarchy) on one tab, domain view (business concepts, entities, cross-domain connections) on another tab.
 
 The structural view is useful for engineers. The domain view is useful for managers, because it presents the codebase in terms of business concepts rather than file paths. A manager who does not read Java can look at the domain view and see "ah, this service handles fraud detection on incoming transfers" without needing to read a line of source code.
 
@@ -1179,13 +1179,13 @@ The codebase was a customer onboarding system. About sixty thousand lines of Jav
 
 When I arrived, the team had been considering a complete rewrite. The estimate was eighteen months. The justification was "nobody understands it well enough to maintain it confidently." This was, to be fair, true. It was also the kind of justification that frequently leads to rewrite projects that take three times as long as estimated and produce systems that have all the same problems as the original plus a few new ones.
 
-I asked for fifteen minutes and a terminal. I cloned the repository. I opened the agent. I pasted the architecture review prompt from earlier in this chapter, with two small adjustments -- I added "this is a customer onboarding system in a regulated banking context" to give the agent the domain, and I asked it to specifically call out anything that looked like it might be a compliance-sensitive code path.
+I asked for fifteen minutes and a terminal. I cloned the repository. I opened the agent. I pasted the architecture review prompt from earlier in this chapter, with two small adjustments - I added "this is a customer onboarding system in a regulated banking context" to give the agent the domain, and I asked it to specifically call out anything that looked like it might be a compliance-sensitive code path.
 
-Eighteen minutes later, the agent had produced a thirteen-page architecture document. I read it. It was not perfect, and the imperfections matter. The agent had misidentified one module -- it called the deduplication service a "search service" because the implementation used the search infrastructure, but the actual business purpose was deduplication of customer records to avoid double-creation. I corrected that. The agent had also confidently described a "scheduled job" that, on closer inspection, turned out to be commented-out code that had not run in production for three years. I corrected that too. The agent had missed the fact that one of the third-party dependencies was deprecated and had a security advisory; I added that, because the agent did not have access to the security advisory database.
+Eighteen minutes later, the agent had produced a thirteen-page architecture document. I read it. It was not perfect, and the imperfections matter. The agent had misidentified one module - it called the deduplication service a "search service" because the implementation used the search infrastructure, but the actual business purpose was deduplication of customer records to avoid double-creation. I corrected that. The agent had also confidently described a "scheduled job" that, on closer inspection, turned out to be commented-out code that had not run in production for three years. I corrected that too. The agent had missed the fact that one of the third-party dependencies was deprecated and had a security advisory; I added that, because the agent did not have access to the security advisory database.
 
-A note on the correction time. I spent about forty-five minutes correcting that thirteen-page document. That number is grounded in one specific condition: I had context. Not deep context on this codebase -- I had never seen it before -- but general context on the domain. I had built customer onboarding systems before. I knew what a deduplication service usually looks like. I knew what a regulated-banking compliance path usually looks like. The agent's misidentifications looked wrong to me because I had a mental model to compare them against.
+A note on the correction time. I spent about forty-five minutes correcting that thirteen-page document. That number is grounded in one specific condition: I had context. Not deep context on this codebase - I had never seen it before - but general context on the domain. I had built customer onboarding systems before. I knew what a deduplication service usually looks like. I knew what a regulated-banking compliance path usually looks like. The agent's misidentifications looked wrong to me because I had a mental model to compare them against.
 
-If the reviewer is also encountering the codebase fresh -- a new hire who has never seen banking onboarding before, for instance -- the correction loop is multiple hours, not forty-five minutes. The reviewer has to read each agent claim, look at the underlying code, and decide whether the claim is correct, without a domain prior to fall back on. The agent's misidentifications still look plausible; the reviewer cannot tell which ones to flag. This is the most important practical caveat on the architecture review workflow's timing: the forty-five-minute correction estimate assumes a reviewer with domain knowledge. Without that, the workflow still works, but the human side of it costs more.
+If the reviewer is also encountering the codebase fresh - a new hire who has never seen banking onboarding before, for instance - the correction loop is multiple hours, not forty-five minutes. The reviewer has to read each agent claim, look at the underlying code, and decide whether the claim is correct, without a domain prior to fall back on. The agent's misidentifications still look plausible; the reviewer cannot tell which ones to flag. This is the most important practical caveat on the architecture review workflow's timing: the forty-five-minute correction estimate assumes a reviewer with domain knowledge. Without that, the workflow still works, but the human side of it costs more.
 
 In the banking case, I had the domain knowledge. After about forty-five minutes of corrections, I had a thirteen-page document that accurately described the codebase. The team read it. Two of the engineers told me, separately, that they had learned more about the codebase from reading the document than from six months of working in it. The third engineer pointed out one additional gap I had missed; I added it. The document was committed to the repository.
 
@@ -1204,20 +1204,20 @@ Fifteen minutes of agent work did not replace domain judgment; it made domain ju
 | **Intervention** | Architecture review workflow run on the codebase; produced docs/architecture.md as the auditable artifact |
 | **Agent time** | ~25 minutes |
 | **Human correction time** | ~45 minutes (reviewer had deep domain knowledge of the wire transfer subsystem) |
-| **Outcome** | Identified the actual problem -- 3 of 47 modules carried the technical debt; rewrite proposal converted to targeted 3-month replacement |
+| **Outcome** | Identified the actual problem - 3 of 47 modules carried the technical debt; rewrite proposal converted to targeted 3-month replacement |
 | **Limitations** | Reviewer had to know the domain to evaluate the agent's output; the workflow does not substitute for domain knowledge, it accelerates it |
 
 ---
 
 Now the diagnostic part.
 
-The architecture review workflow is the cheapest possible test of whether agentic coding will work on a given codebase. If the agent can produce a coherent architecture review with reasonable human correction, the codebase is in good enough shape that the agent will be useful for subsequent work. If the agent cannot produce a coherent review -- if the codebase is so tangled that even reading it produces garbage -- then you have learned, at very low cost, that this codebase is in the red zone of the discipline I am about to introduce, and you should fix the codebase before trying to use the agent on it for production changes.
+The architecture review workflow is the cheapest possible test of whether agentic coding will work on a given codebase. If the agent can produce a coherent architecture review with reasonable human correction, the codebase is in good enough shape that the agent will be useful for subsequent work. If the agent cannot produce a coherent review - if the codebase is so tangled that even reading it produces garbage - then you have learned, at very low cost, that this codebase is in the red zone of the discipline I am about to introduce, and you should fix the codebase before trying to use the agent on it for production changes.
 
 Either outcome is valuable. The investment is fifteen minutes plus an hour. The downside is bounded. The upside, in cases like the banking one I just described, is months of saved work.
 
 Run the workflow this week. Run it on your three or four most poorly-understood codebases. The agent's output will tell you a great deal about which of those codebases are ready for the rest of this book and which need investment first.
 
-That is the bridge into the rest of Part III. The next chapter -- the kill signals -- is the structured rubric for evaluating codebase readiness. The architecture review workflow gives you the cheap empirical test; the kill signals give you the systematic checklist. They work together.
+That is the bridge into the rest of Part III. The next chapter - the kill signals - is the structured rubric for evaluating codebase readiness. The architecture review workflow gives you the cheap empirical test; the kill signals give you the systematic checklist. They work together.
 
 ---
 
@@ -1227,17 +1227,17 @@ That is the bridge into the rest of Part III. The next chapter -- the kill signa
 
 **Ship this week.**
 
-Pick the codebase nobody on the team understands well. Paste the architecture review prompt into the agent. Set a sixty-minute budget -- agent processing plus your correction time. Commit the resulting document as `docs/architecture.md` and reference it from AGENTS.md. Then run the same workflow on two more poorly-understood codebases. Note which produce clean output and which produce garbage. That pattern is the diagnostic ahead of Chapter 8: clean output means agentic work has a chance; garbage output is one of the kill signals.
+Pick the codebase nobody on the team understands well. Paste the architecture review prompt into the agent. Set a sixty-minute budget - agent processing plus your correction time. Commit the resulting document as `docs/architecture.md` and reference it from AGENTS.md. Then run the same workflow on two more poorly-understood codebases. Note which produce clean output and which produce garbage. That pattern is the diagnostic ahead of Chapter 8: clean output means agentic work has a chance; garbage output is one of the kill signals.
 
 ---
 
-Part II ends here. You have the method. You know how to formulate work in a way the agent can execute, the six-phase loop that turns formulation into delivery, the AGENTS.md infrastructure that makes the method portable, and the architecture review workflow that gets you productive in a new codebase in an afternoon -- and that doubles as the cheapest diagnostic you have for whether agentic work will succeed on a given codebase.
+Part II ends here. You have the method. You know how to formulate work in a way the agent can execute, the six-phase loop that turns formulation into delivery, the AGENTS.md infrastructure that makes the method portable, and the architecture review workflow that gets you productive in a new codebase in an afternoon - and that doubles as the cheapest diagnostic you have for whether agentic work will succeed on a given codebase.
 
-Part III is the reality check. The method works on a lot of things. It does not work on everything. The next three chapters are about the difference -- the rubric that tells you which codebases are ready, the operational patterns for the brownfield ones that are, and the ninety-day arc for getting a team into sustained agentic delivery.
+Part III is the reality check. The method works on a lot of things. It does not work on everything. The next three chapters are about the difference - the rubric that tells you which codebases are ready, the operational patterns for the brownfield ones that are, and the ninety-day arc for getting a team into sustained agentic delivery.
 
 ---
 
-# Part III -- Reality
+# Part III - Reality
 
 > *Where the method works, where it does not, and how to tell.*
 
@@ -1275,9 +1275,9 @@ The codebase has no automated test suite, or has a test suite so out of date tha
 
 This blocks safe agent-led work, because the agent cannot verify its own changes. The agent will write code that looks correct. The code will compile. The code will pass syntax checks. The code will deploy to the staging environment. The code will then break something in production that nobody notices until a customer complains three weeks later, by which point the change is buried under twenty other changes and the regression is hard to attribute.
 
-Twice, in banking, with the same root cause: a transaction reconciliation module written in the early 2010s by a senior engineer who left the company in 2018. No tests, because "the senior engineer just knew it worked." The next person who modified it broke the reconciliation logic in a way that took two months to surface, by which point the discrepancy had crossed the threshold that triggers a regulatory disclosure. That is the cost of "we never had tests" in a regulated environment. The agent makes it faster -- both the productive path and the failure path.
+Twice, in banking, with the same root cause: a transaction reconciliation module written in the early 2010s by a senior engineer who left the company in 2018. No tests, because "the senior engineer just knew it worked." The next person who modified it broke the reconciliation logic in a way that took two months to surface, by which point the discrepancy had crossed the threshold that triggers a regulatory disclosure. That is the cost of "we never had tests" in a regulated environment. The agent makes it faster - both the productive path and the failure path.
 
-What to do: write the tests first. Not all the tests; just enough to lock the current behavior. Use the agent for that -- point it at the module, ask it to write characterization tests that capture what the module currently does. The agent is good at this kind of bulk test generation, because the spec is "whatever the code currently produces." Once the characterization tests exist, you can let the agent modify the module, because the tests will catch behavioral changes.
+What to do: write the tests first. Not all the tests; just enough to lock the current behavior. Use the agent for that - point it at the module, ask it to write characterization tests that capture what the module currently does. The agent is good at this kind of bulk test generation, because the spec is "whatever the code currently produces." Once the characterization tests exist, you can let the agent modify the module, because the tests will catch behavioral changes.
 
 This converts a kill signal into a manageable risk. It is also a real investment of time. If the team is unwilling to make the investment, the answer is no, you should not put an agent on this code.
 
@@ -1295,7 +1295,7 @@ The shift is real. When the team adopts agentic delivery without first investing
 
 What to do: run the architecture review workflow from Chapter 7 first. The agent produces documentation in fifteen minutes that would have taken a senior engineer a week. Commit it. Reference it from AGENTS.md. Add a brief domain glossary. Now the agent has context.
 
-This converts the kill signal into a manageable risk. It is also a real investment of time -- though much less than writing the documentation from scratch.
+This converts the kill signal into a manageable risk. It is also a real investment of time - though much less than writing the documentation from scratch.
 
 ---
 
@@ -1307,7 +1307,7 @@ This blocks safe agent-led work because the agent's blast radius becomes impossi
 
 One example: a customer service module that imported from a loan origination module that imported from a credit scoring module that imported from the customer service module. The cycle was introduced fourteen years ago to "save time" and nobody had refactored it because every attempt to break the cycle would have required an eight-week project. The agent did not know about the cycle. The agent made a change. The change rippled in a way that surfaced months later, in production.
 
-What to do: identify the worst coupling first, and break it. Just the worst piece. The eight-week project does not have to be done before any agentic work happens; the worst piece does, because the worst piece is where the agent's mistakes will compound. Once the worst piece is decoupled, the rest of the codebase is no longer immediately dangerous to the agent -- it is normal legacy code, manageable with the other practices in this book.
+What to do: identify the worst coupling first, and break it. Just the worst piece. The eight-week project does not have to be done before any agentic work happens; the worst piece does, because the worst piece is where the agent's mistakes will compound. Once the worst piece is decoupled, the rest of the codebase is no longer immediately dangerous to the agent - it is normal legacy code, manageable with the other practices in this book.
 
 If the team is unwilling to invest in decoupling, the answer is yellow at best, red at worst, depending on how bad the coupling is.
 
@@ -1315,7 +1315,7 @@ If the team is unwilling to invest in decoupling, the answer is yellow at best, 
 
 **Signal four: scattered business rules.**
 
-The same business rule is expressed in three places. Database constraint, service-layer check, UI validation. When the rule changes -- and business rules change constantly -- the agent updates one and not the others. The schema accepts a value the service rejects, or the UI lets the user enter a value the schema refuses. The system lies to itself.
+The same business rule is expressed in three places. Database constraint, service-layer check, UI validation. When the rule changes - and business rules change constantly - the agent updates one and not the others. The schema accepts a value the service rejects, or the UI lets the user enter a value the schema refuses. The system lies to itself.
 
 Banking example: the maximum transfer amount. Defined in a config file for the UI. Hardcoded in a constant in the service. Constrained by a database trigger. The compliance team updates the config because that is the file they know to read. Six weeks later, a customer cannot submit a valid transfer because the service-layer constant is stale. The compliance team's update was ignored by the system everyone forgot to update.
 
@@ -1337,7 +1337,7 @@ This is not fatal, but it requires that the team wrap the agent in workflow. The
 
 Banking example: any change to anti-money-laundering logic requires sign-off from the compliance officer, a representative from legal, and a senior engineer not involved in the implementation. The agent can produce the change. The agent cannot route the approval. The team must wrap the agent in workflow.
 
-If the regulatory constraints are mild -- say, all code changes require a code review by a senior engineer, but there is no formal sign-off matrix -- the agent fits cleanly into the existing process. If the constraints are heavy -- sign-off matrices, evidence requirements, time-stamped approvals, retention obligations -- the agent works only as part of a larger system that already handles those constraints.
+If the regulatory constraints are mild - say, all code changes require a code review by a senior engineer, but there is no formal sign-off matrix - the agent fits cleanly into the existing process. If the constraints are heavy - sign-off matrices, evidence requirements, time-stamped approvals, retention obligations - the agent works only as part of a larger system that already handles those constraints.
 
 The kill signal here is "the team has no system for handling the regulatory constraints, and is hoping the agent will somehow address them." It will not. The system has to exist independently. The agent operates inside it.
 
@@ -1418,7 +1418,7 @@ Signal count: zero. This is green. Agent-led work is appropriate. The team can c
 
 Example two. The legacy payments engine. Tests at twenty percent coverage, mostly happy-path. Architectural documentation exists but is partially stale. Moderate coupling between the payment domain and the customer domain, with documented seams but some leaky abstractions. Business rules mostly centralized but with a few stragglers in legacy code paths. Regulatory constraints are real (PCI, fraud reporting) and the team has the audit machinery to handle them. Mixed team seniority, with one or two seniors who can evaluate payments-specific output.
 
-Signal count: two and a half (no tests is half, partial documentation is half, moderate coupling is one, regulatory constraints managed is zero because the machinery exists, team can evaluate is zero because seniors are available, scattered rules is half). Round up. This is yellow. Human-led with agent support. The team can use the agent for specific tasks -- characterization tests, documentation generation, refactoring of well-bounded modules -- but not for autonomous feature delivery on the parts of the codebase where the kill signals are present.
+Signal count: two and a half (no tests is half, partial documentation is half, moderate coupling is one, regulatory constraints managed is zero because the machinery exists, team can evaluate is zero because seniors are available, scattered rules is half). Round up. This is yellow. Human-led with agent support. The team can use the agent for specific tasks - characterization tests, documentation generation, refactoring of well-bounded modules - but not for autonomous feature delivery on the parts of the codebase where the kill signals are present.
 
 Example three. A custom encryption library written by a contractor in 2017, undocumented, tested only by integration tests that exercise downstream features, tightly coupled to the key management infrastructure, encoding compliance rules in code, and currently maintained by a team where nobody specializes in cryptography.
 
@@ -1442,7 +1442,7 @@ First: signals are not binary, and the count of two-or-three versus four-or-more
 
 The refinement is important because teams sometimes look at a codebase, count strict yeses on the eight signals, get a count of one or two, and conclude green when the actual reality is closer to yellow. The codebase that "technically has tests" but where the tests cover ten percent of the code at low quality is not a green codebase. The codebase that "technically has documentation" but where the documentation is three years out of date is not a green codebase. Count by intensity, not by presence.
 
-Second: signal six (team cannot evaluate output) is weighted more heavily than the others. A codebase that scores zero on signals one through five but yes on signal six is still a red codebase for the relevant work. The team-capability gap dominates the other signals, because it is the one that produces the truly bad outcomes -- shipping code the team cannot verify into production where the failure has compounding consequences. The other signals produce friction and slowdown. Signal six produces incidents that show up in compliance disclosures and incident retrospectives.
+Second: signal six (team cannot evaluate output) is weighted more heavily than the others. A codebase that scores zero on signals one through five but yes on signal six is still a red codebase for the relevant work. The team-capability gap dominates the other signals, because it is the one that produces the truly bad outcomes - shipping code the team cannot verify into production where the failure has compounding consequences. The other signals produce friction and slowdown. Signal six produces incidents that show up in compliance disclosures and incident retrospectives.
 
 If you find signal six is present for a particular kind of work, the answer is not "make the codebase greener on the other signals." The answer is "do not do this kind of work with the agent in this team's current configuration." Either build the team's capability, or partner with someone who has it, or restrict the agent away from the relevant areas. The signals are diagnostic; signal six is the one that requires the most specific structural response.
 
@@ -1452,7 +1452,7 @@ Three more examples, briefer than the earlier ones but worth naming because they
 
 Example four. A greenfield API service the team is starting from scratch, no existing code. The team has senior backend engineers and a clear specification. The architecture decisions are in front of them, not behind them.
 
-Signal count: zero (there is no codebase yet, so most signals do not apply; you cannot score "no tests" against a codebase that has not been written). This is the green-plus case. The agent will be unusually productive here, because greenfield is the home turf of agentic coding -- the agent can establish patterns, write tests alongside code, structure the architecture to be agent-friendly from day one. Greenfield is where the productivity numbers people quote about agentic AI tend to come from. Use it.
+Signal count: zero (there is no codebase yet, so most signals do not apply; you cannot score "no tests" against a codebase that has not been written). This is the green-plus case. The agent will be unusually productive here, because greenfield is the home turf of agentic coding - the agent can establish patterns, write tests alongside code, structure the architecture to be agent-friendly from day one. Greenfield is where the productivity numbers people quote about agentic AI tend to come from. Use it.
 
 The lesson: when you are starting a new service, treat the agent's involvement as a first-class architectural decision. Set up AGENTS.md before the first commit. Establish conventions while they are easy to change. Bake in test rigor from the start. It compounds enormously over the project's lifetime.
 
@@ -1462,7 +1462,7 @@ Signal count: one (modest test coverage is half, no documentation gaps, no coupl
 
 The lesson: internal tools are great training grounds. They are where I recommend teams start when they want to build experience without putting customer-facing work at risk. The learnings transfer to the higher-stakes codebases without the higher stakes.
 
-Example six. A vendor-customized fork of an open-source product the team adopted three years ago. Original upstream code is decent. The team's customizations were made hastily by a contractor and are essentially a layer of duct tape on top. No tests for the custom layer. Documentation that describes the upstream product but says nothing about the customizations. Coupling between the custom layer and the upstream code is severe -- every upstream upgrade has been painful.
+Example six. A vendor-customized fork of an open-source product the team adopted three years ago. Original upstream code is decent. The team's customizations were made hastily by a contractor and are essentially a layer of duct tape on top. No tests for the custom layer. Documentation that describes the upstream product but says nothing about the customizations. Coupling between the custom layer and the upstream code is severe - every upstream upgrade has been painful.
 
 Signal count: four (no tests on the custom layer, no documentation of the custom layer, severe coupling, scattered rules in the customizations). Red. The right answer is not "use the agent on the custom layer." The right answer is "decide whether to maintain the custom layer, replace the customizations with upstream features, or contribute the customizations back upstream where they can be tested and documented properly." The agent makes the customization-maintenance work faster, which is the wrong work to be fast at. Strategic clarity first; agentic productivity second.
 
@@ -1483,7 +1483,7 @@ Have the green/yellow/red conversation with your tech lead. Get one project offi
 ## Chapter 9
 ## Patterns for brownfield codebases
 
-The traffic light tells you which codebases are ready for the agent. This chapter is about the operational patterns that make agentic work effective on legacy codebases -- yellow projects in particular, where the practice matters most.
+The traffic light tells you which codebases are ready for the agent. This chapter is about the operational patterns that make agentic work effective on legacy codebases - yellow projects in particular, where the practice matters most.
 
 I will walk through eight patterns. The first five are the default operating patterns I install on most brownfield teams: worktrees, champions, hooks, PR review, and governance storytelling. The final three are maturity patterns for teams past the first few months: mistake-journal review, demo-day backstop, and failure watchlist.
 
@@ -1507,7 +1507,7 @@ Worktrees are the single most under-appreciated git feature for agentic work. Ev
 
 One person on the team owns the AGENTS.md and the mistake journal for a given repository. The champion does the weekly maintenance: read what other developers added to the mistake journal, refactor rules that have accumulated, deprecate rules that no longer apply, update the conventions when the team's practice changes.
 
-The champion rotates quarterly. The first champion has the highest cost -- they set up the patterns. The subsequent champions have the lowest cost -- they maintain. Rotation prevents single-point-of-failure on the tribal knowledge of "how we use agents here." It also distributes the practice; every senior on the team eventually takes a turn, every senior internalizes the maintenance.
+The champion rotates quarterly. The first champion has the highest cost - they set up the patterns. The subsequent champions have the lowest cost - they maintain. Rotation prevents single-point-of-failure on the tribal knowledge of "how we use agents here." It also distributes the practice; every senior on the team eventually takes a turn, every senior internalizes the maintenance.
 
 The champion is not the only person who edits AGENTS.md. Everyone edits it, through pull requests, when they encounter a new pattern or a new mistake. The champion's job is curation, not authorship. The distinction matters: if the champion is the only author, the file becomes one person's opinion of how to do agentic work, and the team's actual practice diverges. If everyone authors and the champion curates, the file represents the team's collective experience, kept disciplined by a single owner at any one time.
 
@@ -1517,7 +1517,7 @@ The champion is not the only person who edits AGENTS.md. Everyone edits it, thro
 
 hookify (or your agent's equivalent plugin) lets you write hooks that fire before tool execution. The hook reads the proposed action, evaluates it against custom rules, and either allows it, prompts the user, or blocks it.
 
-The use case for hookify in brownfield work is specific. You have areas of the codebase that are dangerous to modify without senior review -- cryptography modules, payment processing, data migration scripts, anything regulatory. You write a hookify rule that blocks the agent from modifying files in those directories, or requires explicit user confirmation when it tries. The rule lives in the repository, committed to git, applied automatically every session.
+The use case for hookify in brownfield work is specific. You have areas of the codebase that are dangerous to modify without senior review - cryptography modules, payment processing, data migration scripts, anything regulatory. You write a hookify rule that blocks the agent from modifying files in those directories, or requires explicit user confirmation when it tries. The rule lives in the repository, committed to git, applied automatically every session.
 
 hookify rules complement AGENTS.md. AGENTS.md tells the agent the team's conventions and forbidden patterns; the agent reads them and applies them by default. hookify enforces the rules structurally; if the agent tries to violate them anyway (because LLMs sometimes do), the hook catches it. AGENTS.md is the polite request. hookify is the firm boundary.
 
@@ -1539,7 +1539,7 @@ Set up the review agents. Wire them into the pull request flow. The agents do th
 
 **Pattern five: governance for AI-selling companies.**
 
-If your company sells AI capabilities to its own clients -- not just consumes AI internally, but resells AI as part of your product -- then the governance pattern is different from a pure consumer of AI. Your demos, your sales calls, your client engagements are all situations where your team's discipline is on display. The client is evaluating whether you know how to do AI responsibly, not just whether the AI works.
+If your company sells AI capabilities to its own clients - not just consumes AI internally, but resells AI as part of your product - then the governance pattern is different from a pure consumer of AI. Your demos, your sales calls, your client engagements are all situations where your team's discipline is on display. The client is evaluating whether you know how to do AI responsibly, not just whether the AI works.
 
 This calls for a few additional patterns on top of the general ones.
 
@@ -1549,7 +1549,7 @@ Second, your AGENTS.md is a sales asset. Clients will want to see what your team
 
 Third, the kill signal framework is something you teach clients. The rubric is more valuable to a client than any specific recommendation you would make, because the lens lets the client evaluate their own codebases without depending on you. Giving away the frame strengthens the trust relationship. Teams that hoard frameworks lose to teams that share them.
 
-The patterns above apply to any team. They apply with extra force to teams whose customers are watching -- companies whose engineering quality is a visible product surface, not an internal cost center. Governance maturity is part of those companies' offering, and the discipline this book describes is what makes the maturity defensible.
+The patterns above apply to any team. They apply with extra force to teams whose customers are watching - companies whose engineering quality is a visible product surface, not an internal cost center. Governance maturity is part of those companies' offering, and the discipline this book describes is what makes the maturity defensible.
 
 ---
 
@@ -1561,7 +1561,7 @@ Three more patterns, briefly, because they appear in the well-functioning teams 
 
 **Pattern six: the mistake-journal review.**
 
-The mistake journal in AGENTS.md is alive. Every entry is a real failure the team experienced. But the journal grows over time, and not every entry stays load-bearing forever. Some failures are structurally resolved -- the underlying cause has been refactored out, the dependency has been replaced, the convention has been internalized to the point where nobody would make the mistake again. Those entries can be retired without losing safety, and retiring them keeps the journal lean.
+The mistake journal in AGENTS.md is alive. Every entry is a real failure the team experienced. But the journal grows over time, and not every entry stays load-bearing forever. Some failures are structurally resolved - the underlying cause has been refactored out, the dependency has been replaced, the convention has been internalized to the point where nobody would make the mistake again. Those entries can be retired without losing safety, and retiring them keeps the journal lean.
 
 The champion runs a quarterly review of the journal. For each entry, the question is: has anyone been saved by this rule in the last three months? If yes, keep it. If no, but the rule is still applicable to the codebase, keep it (rules that prevent rare failures are still valuable even if the failure has not recurred recently). If no, and the rule no longer applies because the underlying problem is gone, retire it with a note in the commit message explaining why.
 
@@ -1571,7 +1571,7 @@ The habit keeps the journal from becoming a graveyard. A graveyard of rules is a
 
 **Pattern seven: the demo-day backstop.**
 
-When the team is preparing a demo of agentic work -- for leadership, for clients, for an internal showcase -- there is a temptation to do the demo live, with the agent doing real work in front of the audience. Sometimes this works. Sometimes the agent has a bad day, the network hiccups, the model decides to be unusually verbose. Live demos of probabilistic systems carry real failure risk.
+When the team is preparing a demo of agentic work - for leadership, for clients, for an internal showcase - there is a temptation to do the demo live, with the agent doing real work in front of the audience. Sometimes this works. Sometimes the agent has a bad day, the network hiccups, the model decides to be unusually verbose. Live demos of probabilistic systems carry real failure risk.
 
 The pattern I recommend: prepare a backup recording of the same demo, done successfully ahead of time. If the live demo runs into trouble, pivot to the recording at thirty seconds in. The audience does not need to know the difference. The lesson lands either way.
 
@@ -1583,15 +1583,15 @@ The backstop is not cheating. The backstop is professional execution. Every seni
 
 When the team has been doing agentic work for a few months, you start to notice failure modes that recur. Specific kinds of mistakes the agent makes that you have to correct repeatedly. Specific situations where the workflow breaks down. Specific user behaviors that lead to predictable problems.
 
-The pattern is to maintain a failure watchlist -- a document that catalogs these recurring failure modes, the conditions under which they occur, and the team's standard response when they happen. The list grows. The team reviews it together every month or so. New entries get added; old entries that have been structurally fixed get retired.
+The pattern is to maintain a failure watchlist - a document that catalogs these recurring failure modes, the conditions under which they occur, and the team's standard response when they happen. The list grows. The team reviews it together every month or so. New entries get added; old entries that have been structurally fixed get retired.
 
 The watchlist is to operations what the mistake journal is to development. The mistake journal prevents code mistakes; the watchlist prevents process mistakes. Both are committed to the repository. Both are reviewed regularly. Both are how the team's accumulated experience becomes infrastructure.
 
 ---
 
-Eight patterns total. They will not all apply to every team. The first five -- worktrees, champions, hookify, PR review, AI-selling governance -- apply broadly. The remaining three -- mistake-journal review, demo backstop, failure watchlist -- are for teams that are past the first six months and ready to professionalize their practice.
+Eight patterns total. They will not all apply to every team. The first five - worktrees, champions, hookify, PR review, AI-selling governance - apply broadly. The remaining three - mistake-journal review, demo backstop, failure watchlist - are for teams that are past the first six months and ready to professionalize their practice.
 
-Next chapter: the adoption framework -- how a team that has read this book starts. Three roles, ninety days, specific commitments.
+Next chapter: the adoption framework - how a team that has read this book starts. Three roles, ninety days, specific commitments.
 
 ---
 
@@ -1622,11 +1622,11 @@ The honest answer is that the ideal three-role arc does not work for him. He doe
 
 But there is a second arc that does work for him, and for the many engineers like him. I have watched it succeed twice. I call it the grassroots arc. The grassroots arc is what most adoptions actually look like in the wild, not the orderly handoff between three distinct people.
 
-The grassroots arc has a different shape. The champion is the engineer with the curiosity. The lead and the manager get recruited later, after the champion has built the evidence to recruit them with. One person plays all three roles in sequence -- champion in month one, de facto lead in month three when a peer joins, de facto manager-advocate in month six when the procurement conversation finally lands -- instead of three people playing one each.
+The grassroots arc has a different shape. The champion is the engineer with the curiosity. The lead and the manager get recruited later, after the champion has built the evidence to recruit them with. One person plays all three roles in sequence - champion in month one, de facto lead in month three when a peer joins, de facto manager-advocate in month six when the procurement conversation finally lands - instead of three people playing one each.
 
 Month one: the champion uses the agent for their own personal productivity. Architecture reviews on codebases they own. AGENTS.md drafts for projects where they are the primary author. Six-phase loop on their own stories. The champion starts within existing policy, on work they already own, using non-sensitive code paths where possible. They do not announce an "AI transformation." They quietly build evidence.
 
-Month two: the champion writes up the results. Specific stories shipped with the agent. Specific time saved. Specific quality improvements (or honest acknowledgment where the agent did not help). The writeup is internal -- a one-page memo or a presentation in a team meeting. The champion does not pitch adoption; they share what they did.
+Month two: the champion writes up the results. Specific stories shipped with the agent. Specific time saved. Specific quality improvements (or honest acknowledgment where the agent did not help). The writeup is internal - a one-page memo or a presentation in a team meeting. The champion does not pitch adoption; they share what they did.
 
 Month three: a peer asks how to do the same thing. The champion teaches them. The two of them produce a more substantial writeup. They invite their tech lead to a walkthrough. The lead, who now has evidence and two engineers asking for the same workflow, finds it easier to advocate for the team-level commitments the ideal arc requires.
 
@@ -1634,7 +1634,7 @@ Months four through six: the lead recruits the manager using the same evidence-p
 
 By month six the grassroots arc looks like the ideal arc looked at month three. It took twice as long because the champion had to build the conditions for the lead and manager roles, instead of being handed those conditions on day one.
 
-The grassroots arc requires a champion who is willing to do the unglamorous work of personal productivity for two months without anyone noticing, and then the harder work of patiently converting peers and managers over the following four. It is not for everyone. But for engineers in companies that are not yet ready for the ideal arc, the grassroots arc is the path that works -- and in my experience, it is the path more teams take than any other.
+The grassroots arc requires a champion who is willing to do the unglamorous work of personal productivity for two months without anyone noticing, and then the harder work of patiently converting peers and managers over the following four. It is not for everyone. But for engineers in companies that are not yet ready for the ideal arc, the grassroots arc is the path that works - and in my experience, it is the path more teams take than any other.
 
 ---
 
@@ -1642,7 +1642,7 @@ The grassroots arc requires a champion who is willing to do the unglamorous work
 
 The grassroots arc is faster to start and fragile to the champion leaving. If the one engineer carrying the practice changes teams or burns out before peers and management have been recruited, the practice dies with them. The ideal three-role arc is slower to start and more resilient to role transitions. If the champion leaves in month two of the three-role arc, the lead and manager continue the work and recruit a new champion; the practice survives. If the champion leaves in month two of the grassroots arc, there is no practice to survive.
 
-Pick the arc that matches your situation. If your manager has heard of agentic AI, your tech lead is engaged, and there is budget on the table, do the three-role arc -- you will pay for the slower start with a more durable practice. If you are alone on this and the only resources you have are your own working hours and your own willingness to write a memo nobody asked for, do the grassroots arc. It is what works when you do not have what the ideal version assumes.
+Pick the arc that matches your situation. If your manager has heard of agentic AI, your tech lead is engaged, and there is budget on the table, do the three-role arc - you will pay for the slower start with a more durable practice. If you are alone on this and the only resources you have are your own working hours and your own willingness to write a memo nobody asked for, do the grassroots arc. It is what works when you do not have what the ideal version assumes.
 
 ---
 
@@ -1652,13 +1652,13 @@ The framework I recommend when the team has budget and management buy-in has thr
 
 The arc is asymmetric, which surprises people the first time I describe it. The first thirty days produce almost no measurable productivity. The champion is learning, the lead is classifying, the manager is procuring. The team is investing. The metrics will not show benefit yet, and people who expect immediate ROI will be disappointed.
 
-The second thirty days produce visible productivity on the green project. The team starts shipping work the way I described in Part II -- research, plan, execute, review, verify, ship. The cycle times improve. The quality holds. The reviewers start to notice that the agent-produced PRs are easier to review than the pre-agent PRs were, because the description is more structured.
+The second thirty days produce visible productivity on the green project. The team starts shipping work the way I described in Part II - research, plan, execute, review, verify, ship. The cycle times improve. The quality holds. The reviewers start to notice that the agent-produced PRs are easier to review than the pre-agent PRs were, because the description is more structured.
 
 The third thirty days produce compounding effects across the team. Other engineers join the workflow. The AGENTS.md grows. The mistake journal accumulates real entries. The yellow projects start to move toward green as the structural investments land. The conversation at the end of the quarter is not "did we save time" but "how do we scale this."
 
-The shape of the curve is roughly exponential -- small at first, larger in the middle, substantial by the end. Companies that measure productivity at thirty days will be disappointed. Companies that measure at ninety days will see the picture. Tell your stakeholders about the asymmetry up front; manage the expectation accordingly. The framework works; it does not work fast for the first thirty days, and that is by design.
+The shape of the curve is roughly exponential - small at first, larger in the middle, substantial by the end. Companies that measure productivity at thirty days will be disappointed. Companies that measure at ninety days will see the picture. Tell your stakeholders about the asymmetry up front; manage the expectation accordingly. The framework works; it does not work fast for the first thirty days, and that is by design.
 
-The three roles are timed differently because the asymmetric arc demands it. The champion goes first because the early investment is technical. The lead joins as the work becomes visible and needs portfolio-level decisions. The manager closes the loop in month three when the results need to be translated into strategic terms. Each role's commitments below reflect this timing. (In the grassroots arc above, the same arc applies, but one person plays each role in sequence -- read the commitments below as the work that has to get done, not as the work three separate people must do.)
+The three roles are timed differently because the asymmetric arc demands it. The champion goes first because the early investment is technical. The lead joins as the work becomes visible and needs portfolio-level decisions. The manager closes the loop in month three when the results need to be translated into strategic terms. Each role's commitments below reflect this timing. (In the grassroots arc above, the same arc applies, but one person plays each role in sequence - read the commitments below as the work that has to get done, not as the work three separate people must do.)
 
 ```
   Days 1-30: Foundation             Days 31-60: Expansion           Days 61-90: Productionization
@@ -1690,7 +1690,7 @@ Week two: write the team's first AGENTS.md, skeleton form. Under fifty lines. Fo
 
 Weeks three and four: run the six-phase loop on three small features. Stories that would normally take half a day. Use the agent for the full loop. Notice what works and what does not. Document the friction in the mistake journal as you encounter it. (Time: roughly the same as if you did the features by hand; the value is in the experience, not the time saved at first.)
 
-Month two: run the six-phase loop on three medium features. Stories that would normally take a day or two. Continue documenting friction. Pull other engineers into the workflow on individual phases -- let someone else handle the plan review, let someone else do the spec compliance check. Distribute the experience. (Time: again, comparable to manual work, with the team building shared knowledge.)
+Month two: run the six-phase loop on three medium features. Stories that would normally take a day or two. Continue documenting friction. Pull other engineers into the workflow on individual phases - let someone else handle the plan review, let someone else do the spec compliance check. Distribute the experience. (Time: again, comparable to manual work, with the team building shared knowledge.)
 
 Month three: hand off the champion role. By end of ninety days, at least one other engineer on the team should be capable of running the workflow at the same level of fluency. The champion rotates; the workflow does not depend on the original champion anymore.
 
@@ -1750,7 +1750,7 @@ Day ninety. The handoff back to ongoing operations. The dashboard stays. The Cha
 
 The three roles describe what happens when the arc works. There are two engineer archetypes you will see on every team during adoption that will quietly kill the rollout if you do not name them out loud.
 
-Archetype one: the principled skeptic. The senior engineer who has seen AI hype cycles before and is not convinced this one is different. They will not use the agent. They will not write an AGENTS.md for the modules they own. They will review agent-led PRs with extra hostility, looking for evidence that the approach is wrong. Two ways this plays out badly. The team starts working around them -- their reviews delay PRs, their modules become an island the agent does not touch, the codebase bifurcates into agent-friendly and agent-hostile territories. Or the principled skeptic wins the political argument inside the team and the rollout stalls. The fix is not to convert the principled skeptic. Senior engineers earn the right to disagree. The fix is to give them a defined boundary: "your modules, your rules, the agent will not touch them; everywhere else, the team standard applies." And make sure their review burden does not become the team's velocity bottleneck -- if every agent-led PR sits in their queue, the team has bought the principled skeptic veto power they did not intend to grant.
+Archetype one: the principled skeptic. The senior engineer who has seen AI hype cycles before and is not convinced this one is different. They will not use the agent. They will not write an AGENTS.md for the modules they own. They will review agent-led PRs with extra hostility, looking for evidence that the approach is wrong. Two ways this plays out badly. The team starts working around them - their reviews delay PRs, their modules become an island the agent does not touch, the codebase bifurcates into agent-friendly and agent-hostile territories. Or the principled skeptic wins the political argument inside the team and the rollout stalls. The fix is not to convert the principled skeptic. Senior engineers earn the right to disagree. The fix is to give them a defined boundary: "your modules, your rules, the agent will not touch them; everywhere else, the team standard applies." And make sure their review burden does not become the team's velocity bottleneck - if every agent-led PR sits in their queue, the team has bought the principled skeptic veto power they did not intend to grant.
 
 Archetype two: the uncalibrated delegator. The engineer (often more junior, sometimes more senior than you would expect) who skips the careful read of the agent's output because "the agent always does it right." The problem is not delegation itself; the problem is poor calibration of when to trust and when to inspect. They ship agent-led PRs without working through them. Defects compound, because the agent makes mistakes the human would have caught if the human had been paying attention. Two ways this plays out badly. Defect rate creeps up and the team blames the agent rather than the missing review step. Or the uncalibrated delegator's own domain knowledge atrophies, and six months in they cannot debug the system the agent helped them build. The fix is the review discipline already named: every agent-led PR gets the same human review as every human-led PR, no exceptions. For the first month, pair the uncalibrated delegator with a senior reviewer who reads the agent's output line by line. Calibrate.
 
@@ -1794,23 +1794,23 @@ You get to choose which kind of team you are.
 
 **Ship this week.**
 
-Pick your role -- champion, lead, manager. Make the first commitment from that role's checklist this week. Schedule the action. The arc starts when the calendar event is on someone's calendar.
+Pick your role - champion, lead, manager. Make the first commitment from that role's checklist this week. Schedule the action. The arc starts when the calendar event is on someone's calendar.
 
 ---
 
-# Closing -- A way of thinking that survives the tools
+# Closing - A way of thinking that survives the tools
 
 Ending the book where it started: a claim about durability.
 
-The specific tools I have named throughout -- Claude Code, Codex CLI, opencode, Superpowers, hookify, Understand Anything, the various plugins and marketplaces -- will all be different by the time the next edition of this book would be due. Some of them will have been deprecated. Some will have been rebranded. Some will have been absorbed into larger products. The marketplace itself will have churned through hundreds of competing offerings. New entrants will appear. Old leaders will fall.
+The specific tools I have named throughout - Claude Code, Codex CLI, opencode, Superpowers, hookify, Understand Anything, the various plugins and marketplaces - will all be different by the time the next edition of this book would be due. Some of them will have been deprecated. Some will have been rebranded. Some will have been absorbed into larger products. The marketplace itself will have churned through hundreds of competing offerings. New entrants will appear. Old leaders will fall.
 
 What you have learned in this book is not the tools. What you have learned is a way of thinking that survives the tools.
 
-The architecture you learned in Part I is invariant. The six primitives -- context window, tools, skills, plugins, MCP, subagents -- plus the harness that organizes them. Most production-grade coding agents converge on this anatomy. The coding agents that emerge in the next decade will, in most cases, take a similar shape, because the anatomy is determined by the work, not by the vendor. When you evaluate a new agent, you walk down the list, ask the six questions, and you have your answer.
+The architecture you learned in Part I is invariant. The six primitives - context window, tools, skills, plugins, MCP, subagents - plus the harness that organizes them. Most production-grade coding agents converge on this anatomy. The coding agents that emerge in the next decade will, in most cases, take a similar shape, because the anatomy is determined by the work, not by the vendor. When you evaluate a new agent, you walk down the list, ask the six questions, and you have your answer.
 
-The method you learned in Part II is invariant. The shift from generating code to formulating work clearly is the foundational insight. The six-phase loop is one implementation of formulation discipline; other implementations will appear. The AGENTS.md pattern -- committed code that encodes team conventions for the agent to read -- will exist under different names in different tools, but the principle is permanent: discipline as code, not as oral tradition.
+The method you learned in Part II is invariant. The shift from generating code to formulating work clearly is the foundational insight. The six-phase loop is one implementation of formulation discipline; other implementations will appear. The AGENTS.md pattern - committed code that encodes team conventions for the agent to read - will exist under different names in different tools, but the principle is permanent: discipline as code, not as oral tradition.
 
-The reality you learned in Part III is invariant. The kill signals are properties of codebases and teams, not of the tools that work on them. The traffic light is a decision rule that applies regardless of which agent you happen to be using this quarter. The adoption arc -- champion, lead, manager, ninety days -- is the same arc for any tooling transition that touches engineering practice meaningfully. The specific tooling changes; the change-management frame does not.
+The reality you learned in Part III is invariant. The kill signals are properties of codebases and teams, not of the tools that work on them. The traffic light is a decision rule that applies regardless of which agent you happen to be using this quarter. The adoption arc - champion, lead, manager, ninety days - is the same arc for any tooling transition that touches engineering practice meaningfully. The specific tooling changes; the change-management frame does not.
 
 If you put down this book, install the agent of the moment, and run the workflow exactly as I described it, you will get value. The instructions are concrete enough to follow literally.
 
@@ -1820,7 +1820,7 @@ If you put down this book, internalize the architecture-method-reality frame, an
 
 One reflection, slightly off-topic from the rest of the book.
 
-The teams I have watched succeed at agentic delivery share a property that is not in any of the models I have laid out. They take the work seriously. They invest in the agent the way they would invest in a junior teammate -- onboarding, shared infrastructure, feedback loops, patience with mistakes. The team that treats the agent as a tool spends six months evaluating tools and never commits. The team that takes the investment stance spends six months building shared infrastructure and ends up with a working relationship that survives the inevitable rough patches.
+The teams I have watched succeed at agentic delivery share a property that is not in any of the models I have laid out. They take the work seriously. They invest in the agent the way they would invest in a junior teammate - onboarding, shared infrastructure, feedback loops, patience with mistakes. The team that treats the agent as a tool spends six months evaluating tools and never commits. The team that takes the investment stance spends six months building shared infrastructure and ends up with a working relationship that survives the inevitable rough patches.
 
 The teammate framing is a stance, not a claim about the agent's nature. The agent is software. The stance is: invest in it the way you would invest in a junior teammate, and the operational results compound. Skip the investment and the agent stays a tool, with tool-level returns.
 
@@ -1850,7 +1850,7 @@ Understanding the problem becomes more important than writing the code.
 
 This was true when programming meant punching holes in cards. It was true when the IDE replaced the text editor. It was true when AI-assisted coding crossed the threshold from autocomplete to drafting. It is true now that agents are doing the writing.
 
-That is the durable thing. The models I have laid out in this book are scaffolding around that durable thing. They will help you get from where you are now to where you can ship software with agents in a way you can defend. Whether you use exactly the tools I named, or different ones, or tools that have not yet been built -- does not matter. You handle the part that endures.
+That is the durable thing. The models I have laid out in this book are scaffolding around that durable thing. They will help you get from where you are now to where you can ship software with agents in a way you can defend. Whether you use exactly the tools I named, or different ones, or tools that have not yet been built - does not matter. You handle the part that endures.
 
 The tools will change. The harnesses will improve. The model names will age out of this edition. But the durable work remains the same: understand the problem, formulate the work, constrain the execution, verify the result.
 
@@ -1862,7 +1862,7 @@ The agents write the code. You understand the problem. That is the skill no one 
 
 Thank you for reading.
 
-If you have questions, comments, or stories from your own adoption -- successes or failures -- I would like to hear them. The next edition of this book, in two or three years, will reflect what teams have learned in the interval. Your experience is the input I want most.
+If you have questions, comments, or stories from your own adoption - successes or failures - I would like to hear them. The next edition of this book, in two or three years, will reflect what teams have learned in the interval. Your experience is the input I want most.
 
 -- Mihai Cvasnievschi
 
@@ -2011,42 +2011,42 @@ SHIP
 ```
 For each codebase, score each signal: 0 (signal absent) / 0.5 (partial) / 1 (signal present).
 
-Signal 1 -- No tests
+Signal 1 - No tests
 - 0: > 70% line coverage AND tests are run on every commit
 - 0.5: 30-70% coverage OR tests exist but are not routinely run
 - 1: < 30% coverage OR no automated test suite
 
-Signal 2 -- No documentation
+Signal 2 - No documentation
 - 0: current architecture doc + in-code comments + decision records
 - 0.5: partial documentation, possibly stale
 - 1: no architectural overview; only the original author knows
 
-Signal 3 -- Tight coupling
+Signal 3 - Tight coupling
 - 0: clear module boundaries; modules can be changed in isolation
 - 0.5: some coupling; experienced devs can navigate but new hires struggle
 - 1: hairball; edit one file, three others break
 
-Signal 4 -- Scattered business rules
+Signal 4 - Scattered business rules
 - 0: single source of truth for each business rule
 - 0.5: some duplication, documented
 - 1: same rule expressed in 3+ places, often inconsistent
 
-Signal 5 -- Regulatory constraints
+Signal 5 - Regulatory constraints
 - 0: standard controls; existing audit machinery handles changes
 - 0.5: regulated but team has the workflow in place
 - 1: heavy controls + team has no integrated workflow; sign-off matrices missing
 
-Signal 6 -- Team cannot evaluate output
+Signal 6 - Team cannot evaluate output
 - 0: team has senior expertise for every domain in the codebase
 - 0.5: senior expertise exists but is fragile (one person, may be unavailable)
 - 1: team cannot reliably evaluate agent output in some domain
 
-Signal 7 -- Model-context fit
+Signal 7 - Model-context fit
 - 0: codebase is in a popular language/framework with substantial public footprint
 - 0.5: niche but documented enough that the agent has some context
 - 1: proprietary DSL, internal framework, or rare language with no public corpus
 
-Signal 8 -- Velocity-of-change
+Signal 8 - Velocity-of-change
 - 0: framework and dependencies are stable; no major migrations in flight
 - 0.5: minor version churn ongoing but the team is in control
 - 1: major migration mid-flight; codebase straddles old and new versions
@@ -2119,7 +2119,7 @@ This appendix exists because every claim in this book deserves a verifiable sour
 
 ### Studies and research
 
-**Claim:** Experienced open-source developers using AI assistance on familiar repositories were 19% slower than the same developers without it, while predicting beforehand they would be 24% faster -- a 43-point gap between expected speedup and measured slowdown that persisted in their self-reports even after the data contradicted it.
+**Claim:** Experienced open-source developers using AI assistance on familiar repositories were 19% slower than the same developers without it, while predicting beforehand they would be 24% faster - a 43-point gap between expected speedup and measured slowdown that persisted in their self-reports even after the data contradicted it.
 **Source:** Becker et al., METR, "Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity," July 10, 2025. arXiv: arxiv.org/abs/2507.09089. Writeup: metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/.
 **Where used:** Chapter 4 (From generating code to shipping software).
 **Caveat:** Tested raw AI assistance (Cursor + Claude) without a formulation-discipline variable. My interpretation that workflow discipline is the missing variable is mine, not the study's.
@@ -2131,7 +2131,7 @@ This appendix exists because every claim in this book deserves a verifiable sour
 **Claim:** On April 24, 2026, PocketOS lost its production database in nine seconds when a Cursor agent powered by Claude Opus 4.6 invoked Railway's Volume Delete via a found API token during a credentials-mismatch recovery attempt. Backups stored on the same volume were destroyed with the primary data.
 **Source:** Reported by DevOps.com ("When AI Goes Really, Really Wrong"), Business Insider (Jer Crane statement), and others. Anthropic's Claude Opus 4.6 system card (February 2026) describes the model that powered the agent.
 **Where used:** Prologue (Nine seconds) and Chapter 3 (Governance in layers).
-**Caveat:** Recovery timeline differs across public accounts -- Railway's restore was reportedly ~30 minutes after Crane contacted them, while other accounts describe ~30 hours or two days for full operational restoration. I use the incident for the governance pattern, not as a precise forensic reconstruction.
+**Caveat:** Recovery timeline differs across public accounts - Railway's restore was reportedly ~30 minutes after Crane contacted them, while other accounts describe ~30 hours or two days for full operational restoration. I use the incident for the governance pattern, not as a precise forensic reconstruction.
 
 ---
 
@@ -2175,7 +2175,7 @@ This appendix exists because every claim in this book deserves a verifiable sour
 **Claim:** Claude Code's deny rules were silently bypassed when a shell command chained more than 50 subcommands (MAX_SUBCOMMANDS_FOR_SECURITY_CHECK = 50 hard cap), with the security check falling through to a generic "ask" prompt.
 **Source:** Adversa AI Red Team, disclosed April 1, 2026. Writeup: adversa.ai/blog/claude-code-security-bypass-deny-rules-disabled/.
 **Where used:** Chapter 3 (Governance in layers), as the parser-cap bypass example for "any single layer can have a quiet-failure mode."
-**Caveat:** Patched in Claude Code v2.1.90 on April 6, 2026 (within a week of disclosure). The class -- governance layers with parser caps that silently fail -- is what to remember after the specific cap is gone.
+**Caveat:** Patched in Claude Code v2.1.90 on April 6, 2026 (within a week of disclosure). The class - governance layers with parser caps that silently fail - is what to remember after the specific cap is gone.
 
 ---
 
