@@ -932,6 +932,31 @@
   <li><a href="#how-to-read-this-book">How to read this book</a></li>
 </ul></div>
 <div class="toc-section">
+<div class="toc-section-title"><a href="#part-i">Part I - Architecture</a></div>
+<ul class="toc-list">
+  <li><a href="#chapter-1"><span class="toc-num">1</span>Six primitives</a></li>
+  <li><a href="#chapter-2"><span class="toc-num">2</span>The anatomy invariant</a></li>
+  <li><a href="#chapter-3"><span class="toc-num">3</span>Governance in layers</a></li>
+  <li><a href="#chapter-4"><span class="toc-num">4</span>From generating code to shipping software</a></li>
+</ul></div>
+<div class="toc-section">
+<div class="toc-section-title"><a href="#part-ii">Part II - Method</a></div>
+<ul class="toc-list">
+  <li><a href="#chapter-5"><span class="toc-num">5</span>The six-phase loop</a></li>
+  <li><a href="#chapter-6"><span class="toc-num">6</span>AGENTS.md as team infrastructure</a></li>
+  <li><a href="#chapter-7"><span class="toc-num">7</span>Architecture Review: Documentation and Diagnosis</a></li>
+  <li><a href="#chapter-8"><span class="toc-num">8</span>Readiness: The Kill Signals and the Traffic Light</a></li>
+</ul></div>
+<div class="toc-section">
+<div class="toc-section-title"><a href="#part-iii">Part III - Reality</a></div>
+<ul class="toc-list">
+  <li><a href="#chapter-9"><span class="toc-num">9</span>Patterns for brownfield codebases</a></li>
+  <li><a href="#chapter-10"><span class="toc-num">10</span>Adoption: 90 days, three roles</a></li>
+</ul></div>
+<div class="toc-section">
+<div class="toc-section-title"><a href="#closing">Closing</a></div>
+</div>
+<div class="toc-section">
 <div class="toc-section-title">Appendices</div>
 <ul class="toc-list">
   <li><a href="#appendix-a"><span class="toc-num">A</span>Cost Economics</a></li>
@@ -993,7 +1018,7 @@
 <p>The central claim of this book is simple: agentic software delivery is not primarily a tooling problem. It is a control problem. Control the context, the actions, the verification, and the adoption surface, and the agent becomes useful. Fail to control them, and the agent becomes expensive noise or operational risk. The three parts of this book map to three layers of control. Architecture is the control of capability: what the agent can know and do. Method is the control of workflow: how work is formulated, executed, and verified. Reality is the control of adoption: where the method is applied and where it should not be.</p>
 <p>The chapters that follow are how I have learned to make that bet pay off. The Prologue is what happens when none of the layers are in place.</p>
 <hr>
-<h2>How to read this book</h2>
+<h2 id="how-to-read-this-book">How to read this book</h2>
 <p>This is a field manual. Read it linearly the first time; treat it as a reference after.</p>
 <p><strong>If you are a senior engineer or staff engineer:</strong> read Chapters 1, 2, 4, 5, 6, and 8. These are the technical spine: anatomy, formulation, loop, team instructions, and readiness.</p>
 <p><strong>If you are a tech lead:</strong> add Chapters 3, 7, 9, and 10. These are the chapters for governance, diagnosis, brownfield rollout, and adoption.</p>
@@ -1043,7 +1068,8 @@
 <p>The hardest part for most teams is not the technical setup. The hardest part is the shift in stance. The agent is software, but the operational pattern is engineering: onboard it, constrain it, review its work, log its actions, and let trust accumulate through small bets. The frameworks in this book are how you do that for an agent. The shift is recognizing that this contributor runs in parallel, never gets tired, and can violate a system-prompt instruction when a clever input convinces it to. PocketOS is what happens when that pattern is absent.</p>
 <p>The tools change. The methodology endures. That is the bet of this book.</p>
 <hr>
-<h1>Part I - Architecture</h1>
+<h1 id="part-i" class="part-heading"><span class="part-label">Part I</span><span class="part-title">Architecture</span></h1>
+
 <blockquote>
 <p><em>How agents are built and how you control them.</em></p>
 </blockquote>
@@ -1315,7 +1341,8 @@
 <p>Part II is about how you deliver software with the agent now that it exists in your environment. Architecture answers "what is this thing." Method answers "how do we get work done with it." Both are required. Neither is sufficient on its own.</p>
 <p>Let's go.</p>
 <hr>
-<h1>Part II - Method</h1>
+<h1 id="part-ii" class="part-heading"><span class="part-label">Part II</span><span class="part-title">Method</span></h1>
+
 <blockquote>
 <p><em>How you ship software with agents.</em></p>
 </blockquote>
@@ -1724,7 +1751,8 @@ Configuration in <code>src/main/resources/application.yml</code></p>
 <p>Part II ends here. You have the method. You know how to formulate work in a way the agent can execute, the six-phase loop that turns formulation into delivery, the AGENTS.md infrastructure that makes the method portable, and the architecture review workflow that gets you productive in a new codebase in an afternoon - and that doubles as the cheapest diagnostic you have for whether agentic work will succeed on a given codebase.</p>
 <p>Part III is the reality check. The method works on a lot of things. It does not work on everything. The next three chapters are about the difference - the rubric that tells you which codebases are ready, the operational patterns for the brownfield ones that are, and the ninety-day arc for getting a team into sustained agentic delivery.</p>
 <hr>
-<h1>Part III - Reality</h1>
+<h1 id="part-iii" class="part-heading"><span class="part-label">Part III</span><span class="part-title">Reality</span></h1>
+
 <blockquote>
 <p><em>Where the method works, where it does not, and how to tell.</em></p>
 </blockquote>
@@ -2102,7 +2130,8 @@ Configuration in <code>src/main/resources/application.yml</code></p>
 <aside class="action-box"><div class="action-label">Ship this week</div>
 <p>Pick your role - champion, lead, manager. Make the first commitment from that role's checklist this week. Schedule the action. The arc starts when the calendar event is on someone's calendar.</p>
 </aside><hr/>
-<h1>Closing - A way of thinking that survives the tools</h1>
+<h1 id="closing" class="closing-heading"><span class="part-label">Closing</span><span class="part-title">A way of thinking that survives the tools</span></h1>
+
 <p>Ending the book where it started: a claim about durability.</p>
 <p>The specific tools I have named throughout - Claude Code, Codex CLI, opencode, Superpowers, hookify, Understand Anything, the various plugins and marketplaces - will all be different by the time the next edition of this book would be due. Some of them will have been deprecated. Some will have been rebranded. Some will have been absorbed into larger products. The marketplace itself will have churned through hundreds of competing offerings. New entrants will appear. Old leaders will fall.</p>
 <p>What you have learned in this book is not the tools. What you have learned is a way of thinking that survives the tools.</p>

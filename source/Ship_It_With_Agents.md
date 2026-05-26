@@ -140,7 +140,7 @@ The chapters that follow are how I have learned to make that bet pay off. The Pr
 
 ---
 
-## How to read this book
+## How to read this book {#how-to-read-this-book}
 
 This is a field manual. Read it linearly the first time; treat it as a reference after.
 
