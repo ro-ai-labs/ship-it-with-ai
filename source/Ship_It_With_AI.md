@@ -110,7 +110,7 @@ I am not neutral about the topic. I think agentic software delivery is the most 
 
 That trajectory - four decades of writing code, twenty-five of them professional, more than a decade building AI systems, every generation of coding assistant in between - is the trajectory the book is written from. Calibrate your expectations accordingly.
 
-*Contact: mc@ai-labs.ro. For executive and non-technical leadership audiences, the sister practice at ai-leaders.ro covers the adoption side without the engineering depth.*
+*Contact: mc@ai-labs.ro for technical conversations. info@ship-it-with.ai for tailored workshops, in-person or online, shaped to your team's codebase and constraints. For executive and non-technical leadership audiences, the sister practice at ai-leaders.ro covers the adoption side without the engineering depth.*
 
 ---
 
