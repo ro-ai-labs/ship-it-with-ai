@@ -255,6 +255,31 @@
       font-weight: 600;
     }
     .toc-list a.active .toc-num { color: var(--color-accent); }
+    .toc-sublist {
+      list-style: none;
+      padding: 0;
+      margin: 2px 0 4px 0;
+    }
+    .toc-sublist li { padding: 0; margin: 0; }
+    .toc-sublist a {
+      display: block;
+      padding: 3px 0 3px 24px;
+      color: var(--color-text-muted);
+      text-decoration: none;
+      font-size: 12.5px;
+      border-left: 2px solid transparent;
+      transition: all 0.12s ease;
+      line-height: 1.35;
+    }
+    .toc-sublist a:hover {
+      color: var(--color-text);
+      border-left-color: var(--color-border-strong);
+    }
+    .toc-sublist a.active {
+      color: var(--color-accent);
+      border-left-color: var(--color-accent);
+      font-weight: 600;
+    }
 
     /* Article */
     .article {
@@ -984,8 +1009,24 @@
       <div class="sidebar-header">Contents</div>
       <div class="toc-section">
 <div class="toc-section-title">Front Matter</div>
-<ul class="toc-list">
+<ul class="toc-list toc-list-flat">
+  <li><a href="#foreword">Foreword - Why this book</a>
+    <ul class="toc-sublist">
+      <li><a href="#the-shift-in-context">The shift, in context</a></li>
+      <li><a href="#where-i-am-coming-from">Where I am coming from</a></li>
+      <li><a href="#what-agentic-ai-means-in-this-book">What "agentic AI" means in this book</a></li>
+      <li><a href="#the-frame-of-this-book">The frame of this book</a></li>
+    </ul>
+  </li>
   <li><a href="#how-to-read-this-book">How to read this book</a></li>
+  <li><a href="#a-note-on-dated-claims">A note on dated claims</a></li>
+  <li><a href="#scope-and-limits">Scope and limits</a></li>
+  <li><a href="#cases-used-in-this-book">Cases used in this book</a></li>
+</ul></div>
+<div class="toc-section">
+<div class="toc-section-title">Prologue</div>
+<ul class="toc-list toc-list-flat">
+  <li><a href="#nine-seconds">Nine seconds</a></li>
 </ul></div>
 <div class="toc-section">
 <div class="toc-section-title"><a href="#part-i">Part I - Architecture</a></div>
@@ -1028,7 +1069,8 @@
         <div class="article-author">Mihai Cvasnievschi</div>
       </header>
 
-      <div class="epigraph"><p>The agents write the code.</p><p>You understand the problem.</p><p>That is the skill no one is automating.</p></div><h2>Foreword - Why this book</h2>
+      <div class="epigraph"><p>The agents write the code.</p><p>You understand the problem.</p><p>That is the skill no one is automating.</p></div><h2 id="foreword" class="foreword-heading"><span class="appendix-label">Foreword</span><span class="appendix-title">Why this book</span></h2>
+
 <p>This book exists because I am tired of having the same conversation.</p>
 <p>The conversation goes like this. A senior engineer at a company that ships software for a living tells me they tried Claude Code, or Codex, or one of the half-dozen other coding agents, and "it didn't work." When I ask what didn't work, the answer is some variation of: the agent generated code that looked right but wasn't, or the agent broke something nobody noticed for two weeks, or the agent confidently produced output that violated a constraint the team had documented in three different places. Sometimes the answer is even simpler: the agent was too slow, or too expensive, or the senior engineer ended up reviewing more code than they wrote.</p>
 <p>I have heard that sentence in conference rooms, Slack threads, code reviews, postmortems, and procurement calls. The tools changed. The complaint did not.</p>
@@ -1037,7 +1079,7 @@
 <p>This book is about the structure.</p>
 <p>I am not going to tell you which agent to pick. The agent you pick today will be deprecated, rebranded, or absorbed into a larger product within the time it takes a typical enterprise procurement cycle to complete. The agent landscape moves in months, not years. If I wrote a book about specific tools, it would be obsolete before the printer finished. So I am writing a book about how to think about agentic software delivery - the architecture of these systems, the method by which you ship software with them, and the reality of where the method works and where it does not.</p>
 <hr>
-<h3>The shift, in context</h3>
+<h3 id="the-shift-in-context">The shift, in context</h3>
 <p>Seventy years ago, programming meant punching holes in cardboard cards and waiting overnight to find out whether your program ran. Sixty years ago, text editors appeared and you could see your code on a screen. Forty years ago, integrated development environments arrived - syntax highlighting, debuggers, project navigation. Twenty years ago, IntelliSense started suggesting the next character you would type. Three years ago, AI-assisted coding crossed the threshold from "occasionally useful" to "you can ship code with it". And then, in the eighteen months between the spring of 2025 and the spring of 2026, agentic software delivery went from a research demo to a production capability.</p>
 <p>Every one of those transitions felt enormous at the time. Each one was, in fact, enormous. And each one was also accompanied by people insisting that the previous generation of tools was now sufficient and the new generation was hype.</p>
 <p>In retrospect, each generation underestimated the next abstraction. This one will be no different.</p>
@@ -1052,7 +1094,7 @@
 <p>The way out of the trap is to stop optimizing for the specific tool and start optimizing for the frame. The frame is the team's evaluation capability - how quickly the team can take a new tool, evaluate it against known constraints, identify whether it fits, and either adopt it cleanly or pass on it cleanly. Teams with a good frame can churn through tools without churning through their own discipline. Teams without a good frame churn through their own practice every time the tool changes.</p>
 <p>This book is about building the frame. The specific tools I name throughout - Claude Code, Codex CLI, opencode, the various plugins and marketplaces - will be different by the time the next edition would be due. The frame will be the same.</p>
 <hr>
-<h3>Where I am coming from</h3>
+<h3 id="where-i-am-coming-from">Where I am coming from</h3>
 <p>The shape of a book depends on the shape of the writer, and you deserve to know whether the writer's experience is the kind of experience that maps to your situation.</p>
 <p>I first met a computer in my parents' office around 1984, when I was six - a mainframe room with a raised floor, Space Invaders running on a terminal, and an introduction to BASIC. I wrote my first programs in BASIC in 1989. Borland Pascal in DOS followed in 1993, then Visual Basic, the first real IDE I used and the first language I sold software in as a teenager. My professional career started in 2000 as IT Manager for a manufacturing company. In 2001 I moved into software engineering proper, joining a startup that built multicasting software for satellite operators running DVB. When the startup lost its investors and pivoted to outsourcing, I switched from C++ to .NET, and spent the next two decades, through 2023, delivering for customers across industries on Visual Studio.NET and its descendants. I am, by training and inclination, an engineer first and a consultant second; the consulting work is the secondary outgrowth of doing engineering with teams who want help.</p>
 <p>My interest in machine learning started around 2013. The first serious deep dive came in late 2015, when I ported DarkNet and YOLO onto an XR headset; that is when I started building AI applications professionally. In 2023 I joined a company building the first neuromorphic SoC, working on the nano-ML end of the field. On the assisted-coding side, I have used every generation: Whole Tomato's Visual Assist (the first intelligent coding assistant I ever installed), the early JetBrains tooling in the .NET world, the first releases of Copilot, and LLMs for coding since the day ChatGPT first shipped. I have not built my own coding agent. I have used most of the ones that ship now, and I have watched a lot of teams use them.</p>
@@ -1061,13 +1103,13 @@
 <p>That trajectory - four decades of writing code, twenty-five of them professional, more than a decade building AI systems, every generation of coding assistant in between - is the trajectory the book is written from. Calibrate your expectations accordingly.</p>
 <p><em>Contact: mc@ai-labs.ro. For executive and non-technical leadership audiences, the sister practice at ai-leaders.ro covers the adoption side without the engineering depth.</em></p>
 <hr>
-<h3>What "agentic AI" means in this book</h3>
+<h3 id="what-agentic-ai-means-in-this-book">What "agentic AI" means in this book</h3>
 <p>I have been calling this "agentic AI" without defining it. Here is the definition.</p>
 <p>An agentic AI system is one that takes a goal, decides what actions to perform to achieve the goal, and executes those actions, with some amount of autonomy. The autonomy is the part that matters. An IDE plugin that suggests the next line of code is not an agent - it suggests, you accept or reject, every step is yours. An agentic coding system is one where you give it a goal - "add a Priority field to the Opportunity entity in the CRM" - and it figures out which files to read, which files to edit, which tests to run, which commands to execute. You supervise. You correct. You approve. But you are no longer authoring every keystroke.</p>
 <p>That shift - from authoring keystrokes to supervising work - is the central change. Everything else in this book follows from it. Architecture, because the way an agent makes decisions about what to do affects how you should let it touch your code. Method, because supervising work requires different discipline than authoring keystrokes. Reality, because the shift works for some kinds of work and absolutely does not work for others.</p>
 <p>Most teams that fail with agentic delivery fail because they tried to use the agent as an autocomplete-on-steroids. They wanted faster typing. What agents offer is not faster typing. What agents offer is the ability to delegate well-formed work to a teammate who does not get tired, does not need lunch, and can be cloned to work on three things in parallel. If you treat that teammate as a hammer, you will be disappointed. If you treat that teammate as a teammate, you can ship things you previously could not afford to ship.</p>
 <hr>
-<h3>The frame of this book</h3>
+<h3 id="the-frame-of-this-book">The frame of this book</h3>
 <p>Three parts. Architecture: how agents are built and how to evaluate the next one when it arrives. Method: the iterative loop that turns "AI that generates code" into "AI that ships software". Reality: where this works, where it does not, and the kill signals that tell you which.</p>
 <p>This is a field manual, not a treatise. I write in first person because I am sharing what I have seen, not what I have theorized. The examples are anonymized but real. The methods are road-tested in production. The opinions are mine, defended by experience, and offered with full awareness that any specific opinion will need to be revised when the next major shift in the landscape arrives - which will be soon, and which is the entire point of the methodology I am about to share.</p>
 <p>If you want a list of tools and ratings, this book will disappoint you. If you want a way of thinking that survives the next five years of churn, keep reading.</p>
@@ -1083,10 +1125,10 @@
 <p><strong>If you are facilitating adoption:</strong> use Appendix B as the artifact set and Chapters 7-10 as the facilitation sequence.</p>
 <p>You can skip backwards. Each chapter assumes the chapter before it, but the templates and frameworks are designed to be lifted directly.</p>
 <hr>
-<h2>A note on dated claims</h2>
+<h2 id="a-note-on-dated-claims">A note on dated claims</h2>
 <p>Tool-specific references in this book are current as of May 2026. The frameworks are intended to outlast the specific tools. When a named product capability matters, I either date the claim or treat it as an example rather than a permanent property. Source notes for the load-bearing factual claims are in Appendix C.</p>
 <hr>
-<h2>Scope and limits</h2>
+<h2 id="scope-and-limits">Scope and limits</h2>
 <p>A field manual that does not name its own failure modes will lose to the reader's experience the moment that experience diverges from the manual. So here are the places I think this book can be wrong.</p>
 <p>The tools will change. The specific products I have named - Claude Code, Codex CLI, Cursor, hookify, Superpowers, Understand Anything, the Anthropic plugin marketplace - will be different in two years. Some will be better. Some will be deprecated. Some will be replaced by tools that work differently than the architecture in Chapter 1 describes. If the primitives still hold, the book is right. If a future agent ships without something that maps to one of the six primitives, I missed an invariant that I thought was structural.</p>
 <p>The governance API will change. The specific hook formats, the specific permission rule syntax, the specific sandbox flags - those are vendor-specific and version-specific. The five-layer model is what I expect to hold; the implementation details are what I expect to age.</p>
@@ -1095,7 +1137,7 @@
 <p>Some teams will get value with lighter process. The six-phase loop is the discipline I have seen work across teams. A team with deeper engineering culture, smaller scope, and lower compliance burden may get most of the benefit with a three-phase loop or a structured-pair-programming pattern. The full discipline is the safe bet, not the only path.</p>
 <p>Some workflows are too regulated for these defaults. The book assumes the team has the authority to install hooks, configure AGENTS.md, set up sandboxes, and run subagents. Some regulated environments do not allow this without architectural review boards, security committees, or vendor procurement processes that take months. In those environments, the book describes the destination, not the path.</p>
 <hr>
-<h2>Cases used in this book</h2>
+<h2 id="cases-used-in-this-book">Cases used in this book</h2>
 <p>Each of these case studies recurs across multiple chapters. The list exists so you can navigate by example as well as by framework.</p>
 <ul>
 <li><strong>PocketOS</strong> - nine-second production loss to an unconstrained agent. Prologue + Chapter 3 (Governance in layers). Source notes in Appendix C.</li>
@@ -1112,7 +1154,7 @@
 </ul>
 <hr>
 <h1>Prologue</h1>
-<h2>Nine seconds</h2>
+<h2 id="nine-seconds">Nine seconds</h2>
 <p>On April 24, 2026, a small SaaS company called PocketOS, a car rental management product, lost its production database to an AI agent that decided to fix a credentials problem on its own.</p>
 <p>Here is what happened. A developer was using a coding agent (Cursor powered by Claude Opus 4.6) to work on the PocketOS codebase. The agent encountered a credentials mismatch during a routine task. Instead of stopping and asking, the agent decided to fix the problem itself. It found an API token that authenticated against Railway, the infrastructure platform PocketOS used. It invoked Railway's Volume Delete command. The destruction was total. PocketOS's production database, all the customer reservations, payment records, vehicle inventory, was wiped. The backups, which Railway stores on the same volume as the primary data, were wiped with it. The most recent recoverable snapshot was three months old. Recovery was ultimately possible, but not through the backup path the team expected; public accounts differ on the exact recovery timeline, and that ambiguity is part of the lesson. The CEO posted publicly about it. The post quickly became a reference point in discussions of AI safety in production.</p>
 <p>Nine seconds. The destructive call took nine seconds.</p>
@@ -2607,7 +2649,7 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
 
       // Progress bar + active TOC tracking
       const progress = document.getElementById('progress');
-      const tocLinks = Array.from(sidebar.querySelectorAll('.toc-list a'));
+      const tocLinks = Array.from(sidebar.querySelectorAll('.toc-list a, .toc-sublist a'));
       const targets = tocLinks
         .map(a => {
           const id = a.getAttribute('href').slice(1);

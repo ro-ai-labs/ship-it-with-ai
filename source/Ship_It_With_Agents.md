@@ -66,7 +66,7 @@ I am not going to tell you which agent to pick. The agent you pick today will be
 
 ---
 
-### The shift, in context
+### The shift, in context {#the-shift-in-context}
 
 Seventy years ago, programming meant punching holes in cardboard cards and waiting overnight to find out whether your program ran. Sixty years ago, text editors appeared and you could see your code on a screen. Forty years ago, integrated development environments arrived - syntax highlighting, debuggers, project navigation. Twenty years ago, IntelliSense started suggesting the next character you would type. Three years ago, AI-assisted coding crossed the threshold from "occasionally useful" to "you can ship code with it". And then, in the eighteen months between the spring of 2025 and the spring of 2026, agentic software delivery went from a research demo to a production capability.
 
@@ -96,7 +96,7 @@ This book is about building the frame. The specific tools I name throughout - Cl
 
 ---
 
-### Where I am coming from
+### Where I am coming from {#where-i-am-coming-from}
 
 The shape of a book depends on the shape of the writer, and you deserve to know whether the writer's experience is the kind of experience that maps to your situation.
 
@@ -114,7 +114,7 @@ That trajectory - four decades of writing code, twenty-five of them professional
 
 ---
 
-### What "agentic AI" means in this book
+### What "agentic AI" means in this book {#what-agentic-ai-means-in-this-book}
 
 I have been calling this "agentic AI" without defining it. Here is the definition.
 
@@ -126,7 +126,7 @@ Most teams that fail with agentic delivery fail because they tried to use the ag
 
 ---
 
-### The frame of this book
+### The frame of this book {#the-frame-of-this-book}
 
 Three parts. Architecture: how agents are built and how to evaluate the next one when it arrives. Method: the iterative loop that turns "AI that generates code" into "AI that ships software". Reality: where this works, where it does not, and the kill signals that tell you which.
 
@@ -158,13 +158,13 @@ You can skip backwards. Each chapter assumes the chapter before it, but the temp
 
 ---
 
-## A note on dated claims
+## A note on dated claims {#a-note-on-dated-claims}
 
 Tool-specific references in this book are current as of May 2026. The frameworks are intended to outlast the specific tools. When a named product capability matters, I either date the claim or treat it as an example rather than a permanent property. Source notes for the load-bearing factual claims are in Appendix C.
 
 ---
 
-## Scope and limits
+## Scope and limits {#scope-and-limits}
 
 A field manual that does not name its own failure modes will lose to the reader's experience the moment that experience diverges from the manual. So here are the places I think this book can be wrong.
 
@@ -182,7 +182,7 @@ Some workflows are too regulated for these defaults. The book assumes the team h
 
 ---
 
-## Cases used in this book
+## Cases used in this book {#cases-used-in-this-book}
 
 Each of these case studies recurs across multiple chapters. The list exists so you can navigate by example as well as by framework.
 
@@ -202,7 +202,7 @@ Each of these case studies recurs across multiple chapters. The list exists so y
 
 # Prologue
 
-## Nine seconds
+## Nine seconds {#nine-seconds}
 
 On April 24, 2026, a small SaaS company called PocketOS, a car rental management product, lost its production database to an AI agent that decided to fix a credentials problem on its own.
 
