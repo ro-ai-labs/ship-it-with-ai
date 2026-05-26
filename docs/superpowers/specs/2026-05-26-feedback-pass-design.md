@@ -148,7 +148,12 @@ Build script: regex-match `<p><strong>Artifact: ([^<]+)\.</strong>(.*?)</p>` and
 
 #### Chapter-end stack tightening
 
-Inside the cascade artifact-box → action-box → try-box, only the first gets 40px top margin from the preceding body. Subsequent siblings get 24px. Implemented via CSS sibling selectors:
+The existing build script preserves `<hr/>` separators after the action-box and try-box wrappers (`build/build_spa.py:822, 834`). That means siblings are NOT adjacent in the DOM — a CSS `+` selector wouldn't apply. Two options:
+
+1. **Drop the trailing `<hr/>` from the wrappers** when the next sibling is another callout (artifact / action / try). Simpler DOM; `+` selectors work cleanly.
+2. **Wrap the chapter-end trio in a `<div class="chapter-coda">`** that the build script emits when it sees the artifact pattern; CSS targets children of `.chapter-coda` for tighter spacing.
+
+Picking option 1 (smaller code change): extend the action-box and try-box wrap regexes to consume the trailing `<hr/>` only when the next non-whitespace HTML node isn't another `<aside>` callout. Then the general-sibling CSS works:
 
 ```css
 .artifact-box + .action-box,
@@ -173,23 +178,27 @@ Existing `.source-card` styling stays. Small additions:
 
 #### Hero control-thesis dek
 
-In `build/spa_template.html`, the hero block (currently title + subtitle + byline + cover) gains a new line between subtitle and byline:
+The actual hero structure in `build/spa_template.html:1772-1776` is `<header class="article-header">` containing title → subtitle → author link. The cover image lives at the END of the article (`.article-cover-end`), not the top.
+
+Insert the dek between `.article-subtitle` and `.article-author`:
 
 ```html
-<p class="hero-dek">Agentic software delivery is not a tooling problem. It is a control problem: control the context, control the actions, control the verification, control the adoption surface.</p>
+<p class="article-subtitle">{{SUBTITLE}}</p>
+<p class="article-dek">Agentic software delivery is not a tooling problem. It is a control problem: control the context, control the actions, control the verification, control the adoption surface.</p>
+<div class="article-author"><a href="#contact">{{AUTHOR}}</a></div>
 ```
 
-Styling: 18px regular weight, color `--color-text-soft`, max-width 640px, centered, margin 20px auto 28px.
+Styling: 18px regular weight, color `--color-text-soft`, max-width 640px, centered, margin 20px auto 28px. Mobile breakpoint drops to 16px.
 
 #### Top CTA row
 
-Three buttons below the dek, above the cover image. Internal anchors + mailto (per user decision):
+Three buttons placed inside `.article-header` after `.article-author`. Internal anchors + mailto (per user decision). The mailto uses `info@ship-it-with.ai` for consistency with the existing footer contact link, and URL-encodes the subject:
 
 ```html
 <nav class="hero-cta" aria-label="Quick start">
   <a class="cta-primary" href="#chapter-7">Start with the architecture review</a>
   <a class="cta-secondary" href="#appendix-b">Download the templates</a>
-  <a class="cta-secondary" href="mailto:mihai.cvasnievschi@gmail.com?subject=Agentic delivery assessment">Book an assessment</a>
+  <a class="cta-secondary" href="mailto:info@ship-it-with.ai?subject=Agentic%20delivery%20assessment">Book an assessment</a>
 </nav>
 ```
 
@@ -205,18 +214,20 @@ The first CTA anchors to `#chapter-7` (the architecture review chapter); the Try
 
 #### Foreword bio trim
 
-Current "Where I am coming from" subsection (~600 words covering BASIC in 1989, Borland, .NET, DarkNet/YOLO, XR, neuromorphic SoC) shortens to 3-4 sentences. Suggested replacement (user to polish on review):
+Current "Where I am coming from" subsection (~600 words covering BASIC in 1989, Borland, .NET, DarkNet/YOLO, XR, neuromorphic SoC) shortens to 3-4 sentences. The heading itself stays (`### Where I am coming from {#where-i-am-coming-from}`), so the existing hardcoded TOC entry at `build/build_spa.py:677` keeps working without changes. Suggested replacement (user to polish on review):
 
 > I have been writing software professionally since 2000 and building AI systems for more than a decade. I have used every generation of coding assistant, from early IDE intelligence to Copilot to current coding agents, and I have spent the last eighteen months watching production teams adopt agentic workflows well and badly. This manual is the result of the patterns that survived repeated use across real teams. [Full background: About the author.](#about-the-author)
 
-The contact/workshop sentence currently in this subsection moves to the About section (footer already carries the same links).
+The contact/workshop sentence currently in this subsection is **removed entirely** from the foreword (per the reviewer's point that the footer already carries the same info); the full version moves to the About section.
 
 #### New "About the author" section
 
-Inserted as a top-level `## About the author` heading after `## Acknowledgments` and before `## Appendix A.` Contains:
+Inserted as a top-level `## About the author {#about-the-author}` heading after `## Acknowledgments` and before `## Appendix A.` Contains:
 - The full bio (everything currently in "Where I am coming from").
 - The contact/workshop sentence.
 - Anchor: `#about-the-author`.
+
+The TOC builder (`build/build_spa.py:build_toc`) currently has hardcoded sections for Front Matter / Prologue / Parts / Closing / Appendices, with no "About" slot. Add an explicit entry in the Closing block (or a new "About" block between Closing and Appendices) so the section is reachable from the TOC. The book's `closing` and `appendices` detection in `build/build_spa.py:403` will need a `## About the author` allowance — verify whether the existing regex catches it or needs an extra branch.
 
 #### AGENTS.md de-linking
 
@@ -239,6 +250,59 @@ CSS:
 - Color `--color-text-muted`, transitions to `--color-accent` on hover
 
 JavaScript: on click, write the absolute URL with hash to clipboard and flash a brief "Copied" tooltip (existing toast infrastructure if any, otherwise a small inline span).
+
+### Cross-cutting implementation notes
+
+These apply across multiple commits — calling them out so they don't get dropped at implementation time.
+
+**CSS variables for new colors.** The existing system defines every color as a `--color-*` CSS var with light + dark pairs. The new callouts should follow suit instead of using inline hex:
+
+```css
+:root {
+  --color-source-bg: #f1f4f8;
+  --color-source-border: #cbd5e1;
+  --color-source-text: #475569;
+  --color-source-label-bg: #475569;
+  --color-artifact-bg: #faf8f3;
+  --color-artifact-accent: #475569;
+  --color-artifact-icon: #475569;
+}
+[data-theme="dark"] {
+  --color-source-bg: #1e293b;
+  --color-source-border: #334155;
+  --color-source-text: #cbd5e1;
+  --color-source-label-bg: #94a3b8;
+  --color-artifact-bg: #232629;  /* surface-elevated, slightly lighter than dark bg */
+  --color-artifact-accent: #94a3b8;
+  --color-artifact-icon: #94a3b8;
+}
+```
+
+The component CSS references these vars only.
+
+**Print stylesheet.** The existing `@media print` block at `build/spa_template.html:1721` handles `.action-box, .try-box, .case-note, figure.diagram { break-inside: avoid; box-shadow: none; }`. Extend it to `.artifact-box, .source-note` so the new components print correctly (no cut-off boxes, no shadow rendering issues).
+
+**Markdown `{#anchor}` preservation.** Foreword H3s use `### Heading {#explicit-anchor}` syntax. The anchor-link injector must read the existing `id` attribute (set by the markdown extension) rather than re-slugifying — otherwise it will overwrite or duplicate ids and break existing TOC links.
+
+**Search index.** The build script computes a search index over rendered text (`build/build_spa.py:478, build_search_index`). The wrapped Source-note and Artifact content is still plain text inside the new `<aside>` elements, so the index should pick it up automatically — but verify after the wrap step: open `index.html`, search for "METR" (source note) and "Five-layer governance audit" (artifact title); both must return hits. Also confirm the new About-the-author content is indexed.
+
+**Reading-time recomputation.** `build/build_spa.py` computes per-chapter reading times from word counts. Adding the About section + trimming the foreword changes counts; the build will recompute automatically. No code change needed — just verify the TOC time estimates look sane after the build.
+
+**Accessibility.**
+- CTA buttons get visible focus rings (2px outline `--color-accent` with 2px offset). Test with keyboard Tab navigation.
+- Anchor-link `¶` symbols get `aria-label="Copy link to section"` (already in the spec) plus `tabindex="0"` so they're keyboard-reachable.
+- `@media (prefers-reduced-motion: reduce)` disables the opacity transition on anchor-links and any hover transitions added in this pass.
+
+**Dark mode toggle in Playwright.** The site stores theme in localStorage and applies `data-theme="dark"` to the document. The verification script switches modes via:
+```js
+await page.evaluate(() => { localStorage.setItem('theme', 'dark'); document.documentElement.setAttribute('data-theme', 'dark'); });
+await page.reload();
+```
+Mirror for light mode. Set this before each screenshot.
+
+**Verify script commits.** The `build/tests/verify_feedback_pass.js` file is created as part of **commit 2** (alongside the new visual components it exercises) so any later commit can re-run it. Commit 3 adds steps for the structural changes (About section, copy-link anchors). The script is run *after* each commit during local development; CI is not modified to run Playwright in this round (deferred).
+
+**Existing Ship-this-week / Try-it-yourself styling.** The reviewer flagged these as visually weak, but they ARE styled in `build/spa_template.html:636-683`. We're not redesigning them in this round — only tightening their stack margins next to the new artifact-box. If they still feel weak after the build, that's a follow-up pass, not part of this spec.
 
 ### Playwright verification
 
@@ -311,3 +375,5 @@ Automated: `node build/tests/verify_feedback_pass.js` per the spec above. Should
 1. Exact wording of the trimmed foreword bio (suggested copy above is the reviewer's; you may want to rewrite in your voice).
 2. Whether the CTA row's first button should anchor to `#chapter-7` or a deeper anchor like `#chapter-7-try-it-yourself`.
 3. Whether to include the optional chapter-end-stack hairline divider in this round or defer.
+4. Confirm `info@ship-it-with.ai` (footer-consistent) is the right address for the "Book an assessment" mailto.
+5. The existing `#contact` anchor referenced by the author byline (`build/spa_template.html:1775`) doesn't exist anywhere in the source — a pre-existing bug. Fix in this pass (point it to the footer or the new About section) or leave for a follow-up?
