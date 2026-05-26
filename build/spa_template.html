@@ -5,15 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{{PAGE_TITLE}}</title>
 
-  <meta name="description" content="How to ship software with AI agents. Architecture (six primitives), method (six-phase loop), and reality (eight kill signals) for agentic software delivery in 2026. A vendor-neutral field manual by {{AUTHOR}}." />
+  <meta name="description" content="{{PAGE_DESCRIPTION}}" />
   <meta name="keywords" content="agentic coding, AI coding agents, write code with AI, ship code with AI, agentic software delivery, AGENTS.md, claude code, codex cli, opencode, AI development methodology, coding with AI agents, AI software engineering" />
   <meta name="author" content="{{AUTHOR}}" />
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
   <link rel="canonical" href="{{PAGE_URL}}" />
 
   <meta property="og:type" content="article" />
-  <meta property="og:title" content="{{TITLE}} - A Field Manual for Agentic Software Delivery" />
-  <meta property="og:description" content="How to ship software with AI agents. Architecture, method, and reality for agentic software delivery in 2026. A vendor-neutral field manual." />
+  <meta property="og:title" content="{{PAGE_TITLE}}" />
+  <meta property="og:description" content="{{PAGE_DESCRIPTION}}" />
   <meta property="og:url" content="{{PAGE_URL}}" />
   <meta property="og:site_name" content="Ship It With AI" />
   <meta property="og:locale" content="en_US" />
@@ -25,8 +25,8 @@
   <meta property="article:published_time" content="2026-05-26" />
 
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="{{TITLE}} - A Field Manual for Agentic Software Delivery" />
-  <meta name="twitter:description" content="How to ship software with AI agents. Architecture, method, and reality for agentic delivery in 2026." />
+  <meta name="twitter:title" content="{{PAGE_TITLE}}" />
+  <meta name="twitter:description" content="{{PAGE_DESCRIPTION}}" />
   <meta name="twitter:image" content="https://ship-it-with.ai/cover.jpg" />
   <meta name="twitter:image:alt" content="Ship It With AI - A Manual for Shipping Software with AI Agents" />
   <meta name="twitter:url" content="{{PAGE_URL}}" />
@@ -176,10 +176,25 @@
       font-size: 15px;
       color: var(--color-text);
       text-decoration: none;
-      flex: 1;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+    .topbar-byline {
+      font-size: 13px;
+      color: var(--color-text-soft);
+      text-decoration: none;
+      margin-left: 12px;
+      padding-left: 12px;
+      border-left: 1px solid var(--color-border);
+      white-space: nowrap;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .topbar-byline:hover { color: var(--color-text); }
+    @media (max-width: 720px) {
+      .topbar-byline { display: none; }
     }
     .topbar-actions {
       display: flex;
@@ -1574,6 +1589,38 @@
       .search-overlay, .kbd-overlay { display: none !important; }
     }
 
+    /* === Per-chapter page chrome === */
+    .reading-time {
+      font-size: 13px;
+      color: var(--color-text-soft);
+      margin: 8px 0 0;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .chapter-nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 64px 0 32px;
+      padding: 24px 0;
+      border-top: 1px solid var(--color-border);
+      font-size: 14px;
+      flex-wrap: wrap;
+    }
+    .chapter-nav a {
+      color: var(--color-text);
+      text-decoration: none;
+      max-width: 48%;
+    }
+    .chapter-nav a:hover { color: var(--color-accent); }
+    .chapter-prev { margin-right: auto; }
+    .chapter-next { margin-left: auto; text-align: right; }
+    .toc-current > a,
+    .toc-current-link {
+      font-weight: 700;
+      color: var(--color-accent);
+    }
+
     /* @region-end critical */
 
     /* === Deferred CSS — loaded async via <link rel="preload"> === */
@@ -1912,6 +1959,7 @@
   <header class="topbar">
     <button class="topbar-btn menu-toggle" id="menuToggle" aria-label="Toggle navigation">☰</button>
     <a href="#top" class="topbar-title">{{TITLE}}</a>
+    <a class="topbar-byline" href="{{BYLINE_HREF}}">{{AUTHOR}}</a>
     <div class="topbar-actions">
       <span class="kbd-hint" aria-hidden="true">Press <kbd>?</kbd> for shortcuts</span>
       <button class="topbar-btn search-trigger" id="searchTrigger" type="button" aria-label="Open search" aria-haspopup="dialog" aria-controls="searchOverlay" title="Search (Ctrl K)">
@@ -2355,6 +2403,14 @@
         function jumpTo(i) {
           const entry = currentMatches[i];
           if (!entry) return;
+          // On /read/ (single-page mode) every anchor is in-page — stay
+          // inside the SPA and scroll. On landing or per-chapter pages,
+          // hop to the entry's owning URL (search index carries entry.url).
+          if (window.SITE_MODE !== 'read' && entry.url) {
+            closeOverlay();
+            window.location.href = entry.url + '#' + entry.id;
+            return;
+          }
           const target = document.getElementById(entry.id);
           closeOverlay();
           if (target) {

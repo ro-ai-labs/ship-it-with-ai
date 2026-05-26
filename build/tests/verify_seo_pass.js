@@ -270,6 +270,209 @@ async function main() {
       else ok(`sitemap has ${urlCount} URLs (>= 2)`);
     }
 
+    // ===== Commit 3 assertions =====
+
+    // Sitemap is now the full 20 URLs.
+    {
+      const sitemap = fs.readFileSync(path.join(repoRoot, '_site', 'sitemap.xml'), 'utf8');
+      const urlCount = (sitemap.match(/<url>/g) || []).length;
+      if (urlCount !== 20) fail(`sitemap has ${urlCount} URLs, expected 20`);
+      else ok(`sitemap has 20 URLs (landing + /read/ + 18 sections)`);
+    }
+
+    // Every section page returns 200, has one <h1>, unique title, canonical,
+    // and a BreadcrumbList + TechArticle JSON-LD pair.
+    const SLUGS = [
+      'foreword', 'prologue-nine-seconds',
+      'chapter-1-six-primitives', 'chapter-2-anatomy-invariant',
+      'chapter-3-governance-in-layers',
+      'chapter-4-from-generating-code-to-shipping-software',
+      'chapter-5-six-phase-loop', 'chapter-6-agents-md',
+      'chapter-7-architecture-review', 'chapter-8-readiness-kill-signals',
+      'chapter-9-brownfield-patterns', 'chapter-10-adoption-90-days',
+      'closing', 'acknowledgments', 'about-the-author',
+      'appendix-a-cost-economics', 'appendix-b-templates', 'appendix-c-sources',
+    ];
+    {
+      const seenTitles = new Set();
+      let sectionsAllGreen = true;
+      for (const slug of SLUGS) {
+        const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+        const page = await ctx.newPage();
+        const resp = await page.goto(`${baseUrl}/${slug}/`);
+        if (!resp || resp.status() !== 200) {
+          fail(`/${slug}/ status ${resp && resp.status()}`); sectionsAllGreen = false;
+          await ctx.close(); continue;
+        }
+
+        const h1Count = await page.locator('h1').count();
+        if (h1Count !== 1) { fail(`/${slug}/ has ${h1Count} <h1>`); sectionsAllGreen = false; }
+
+        const title = await page.title();
+        if (seenTitles.has(title)) { fail(`duplicate <title>: ${title}`); sectionsAllGreen = false; }
+        seenTitles.add(title);
+
+        const canonical = await page.locator('link[rel="canonical"]').getAttribute('href');
+        if (canonical !== `https://ship-it-with.ai/${slug}/`) {
+          fail(`/${slug}/ canonical = ${canonical}`); sectionsAllGreen = false;
+        }
+
+        const ldBlocks = await page.locator('script[type="application/ld+json"]').allTextContents();
+        const types = ldBlocks.map(b => { try { return JSON.parse(b)['@type']; } catch { return null; } });
+        if (!types.includes('TechArticle')) { fail(`/${slug}/ missing TechArticle`); sectionsAllGreen = false; }
+        if (!types.includes('BreadcrumbList')) { fail(`/${slug}/ missing BreadcrumbList`); sectionsAllGreen = false; }
+
+        await ctx.close();
+      }
+      if (sectionsAllGreen) ok(`all ${SLUGS.length} section pages: 200, one <h1>, unique title, canonical, TechArticle+BreadcrumbList`);
+    }
+
+    // TechArticle.isPartOf points at Book by @id (single source of truth).
+    {
+      const html = fs.readFileSync(path.join(repoRoot, '_site',
+        'chapter-3-governance-in-layers', 'index.html'), 'utf8');
+      const ld = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)]
+        .map(m => { try { return JSON.parse(m[1]); } catch { return null; } })
+        .filter(Boolean);
+      const tech = ld.find(o => o['@type'] === 'TechArticle');
+      if (!tech || tech.isPartOf?.['@id'] !== 'https://ship-it-with.ai/#book') {
+        fail(`chapter-3 TechArticle.isPartOf wrong: ${JSON.stringify(tech?.isPartOf)}`);
+      } else ok('chapter-3 TechArticle.isPartOf → #book');
+
+      const crumbs = ld.find(o => o['@type'] === 'BreadcrumbList');
+      if (!crumbs || crumbs.itemListElement.length !== 3) {
+        fail(`chapter-3 BreadcrumbList expected 3 crumbs, got ${crumbs?.itemListElement?.length}`);
+      } else ok('chapter-3 BreadcrumbList: Home → Part I → Chapter');
+    }
+
+    // Prev/next on chapter-3 wire to the right slugs.
+    {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      await page.goto(`${baseUrl}/chapter-3-governance-in-layers/`);
+      const prev = await page.locator('.chapter-prev').getAttribute('href');
+      const next = await page.locator('.chapter-next').getAttribute('href');
+      if (prev !== '/chapter-2-anatomy-invariant/') fail(`chapter-3 prev = ${prev}`);
+      else if (next !== '/chapter-4-from-generating-code-to-shipping-software/') fail(`chapter-3 next = ${next}`);
+      else ok('chapter-3 prev/next correct');
+      await ctx.close();
+    }
+
+    // Hash-redirect shim: /#chapter-7 navigates to /chapter-7-architecture-review/.
+    {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      await page.goto(`${baseUrl}/#chapter-7`);
+      await page.waitForURL(/chapter-7-architecture-review/, { timeout: 3000 }).catch(() => {});
+      const url = page.url();
+      if (!url.includes('/chapter-7-architecture-review/')) fail(`hash-redirect: landed at ${url}`);
+      else ok('hash-redirect /#chapter-7 → /chapter-7-architecture-review/');
+      await ctx.close();
+    }
+
+    // Cross-section anchor rewriting: /foreword/ has /about-the-author/#about-the-author link.
+    {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      await page.goto(`${baseUrl}/foreword/`);
+      const count = await page.locator('a[href="/about-the-author/#about-the-author"]').count();
+      if (!count) fail('foreword: cross-section anchor not rewritten');
+      else ok('cross-section anchor rewriting works (foreword → /about-the-author/#about-the-author)');
+      const bare = await page.locator('main a[href="#about-the-author"]').count();
+      if (bare) fail(`foreword: stale bare #about-the-author anchor present (${bare})`);
+      else ok('foreword: no stale bare #about-the-author anchors in body');
+      await ctx.close();
+    }
+
+    // Byline link on chapter pages → /about-the-author/#contact.
+    {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      await page.goto(`${baseUrl}/chapter-3-governance-in-layers/`);
+      const href = await page.locator('.topbar-byline').getAttribute('href');
+      if (href !== '/about-the-author/#contact') fail(`byline href = ${href}`);
+      else ok('byline → /about-the-author/#contact on chapter page');
+      await ctx.close();
+    }
+
+    // SITE_MODE per page (landing/read/chapter).
+    for (const [p, expected] of [
+      ['/', 'landing'],
+      ['/read/', 'read'],
+      ['/chapter-3-governance-in-layers/', 'chapter'],
+    ]) {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      await page.goto(baseUrl + p);
+      const mode = await page.evaluate(() => window.SITE_MODE);
+      if (mode !== expected) fail(`${p}: SITE_MODE=${mode}, expected ${expected}`);
+      else ok(`${p}: SITE_MODE=${expected}`);
+      await ctx.close();
+    }
+
+    // Landing TOC now links to per-chapter URLs (not /read/#anchor).
+    {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      await page.goto(baseUrl + '/');
+      const chapterUrlLinks = await page.locator('.landing-toc a[href^="/chapter-"]').count();
+      if (chapterUrlLinks < 10) fail(`landing TOC: only ${chapterUrlLinks} /chapter-*/ links (expected >= 10)`);
+      else ok(`landing TOC: ${chapterUrlLinks} per-chapter URL links`);
+      await ctx.close();
+    }
+
+    // Search index entries carry a `url` field.
+    {
+      const html = fs.readFileSync(path.join(repoRoot, '_site', 'index.html'), 'utf8');
+      const m = html.match(/<script id="searchIndex" type="application\/json">(.*?)<\/script>/s);
+      if (!m) fail('searchIndex JSON not found in landing');
+      else {
+        const entries = JSON.parse(m[1]);
+        const withUrl = entries.filter(e => e.url).length;
+        if (withUrl < entries.length / 2) fail(`search index: only ${withUrl}/${entries.length} entries have url`);
+        else ok(`search index: ${withUrl}/${entries.length} entries have url field`);
+      }
+    }
+
+    // toc-current marker on the active chapter sidebar entry.
+    {
+      const html = fs.readFileSync(path.join(repoRoot, '_site',
+        'chapter-3-governance-in-layers', 'index.html'), 'utf8');
+      if (!/class="toc-current"[^>]*>[^<]*<a href="\/chapter-3-governance-in-layers\//.test(html)) {
+        fail('chapter-3 sidebar: missing toc-current marker on own entry');
+      } else ok('chapter-3 sidebar: toc-current marker on own entry');
+    }
+
+    // AGENTS.md de-link mode-awareness: every chapter page has 0 or 1
+    // outbound AGENTS.md links (the rest are unwrapped as plain text).
+    {
+      let bad = [];
+      for (const slug of SLUGS.filter(s => s.startsWith('chapter-'))) {
+        const html = fs.readFileSync(path.join(repoRoot, '_site', slug, 'index.html'), 'utf8');
+        const n = (html.match(/<a href="https:\/\/agents\.md\/?"/g) || []).length;
+        if (n > 1) bad.push(`${slug}=${n}`);
+      }
+      if (bad.length) fail(`AGENTS.md de-link: chapters with >1 link: ${bad.join(', ')}`);
+      else ok('AGENTS.md de-link: every chapter page has <= 1 outbound agents.md link');
+    }
+
+    // Per-page meta descriptions are unique (no duplicate-content signal
+    // across the 20 URLs from a one-size-fits-all template description).
+    {
+      const seen = new Map();
+      const allPaths = ['index.html', 'read/index.html', '404.html']
+        .concat(SLUGS.map(s => `${s}/index.html`));
+      for (const p of allPaths) {
+        const html = fs.readFileSync(path.join(repoRoot, '_site', p), 'utf8');
+        const m = html.match(/<meta name="description" content="([^"]+)"/);
+        const desc = m ? m[1] : null;
+        if (!desc) { fail(`${p}: meta description missing`); continue; }
+        if (seen.has(desc)) fail(`${p}: duplicate meta description (also on ${seen.get(desc)})`);
+        else seen.set(desc, p);
+      }
+      if (!process.exitCode) ok(`meta descriptions unique across all ${allPaths.length} pages`);
+    }
+
   } finally {
     await browser.close();
     stop();
