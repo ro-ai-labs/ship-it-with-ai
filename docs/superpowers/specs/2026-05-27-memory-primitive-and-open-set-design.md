@@ -85,15 +85,19 @@ Proposed rewrite (user revises during diff review):
 >
 > Open the source code or documentation of most production-grade coding agents - Codex CLI in Rust, opencode in TypeScript, the public-source parts of Claude Code, the agents shipped by half a dozen smaller vendors - and you see the same architecture emerging: a small set of primitives wrapped by a harness. The implementations differ. The anatomy converges. Different names sometimes, different file layouts always, but the same conceptual building blocks. Most are local capabilities of the agent. One - subagents - is the composition mechanism that makes the agent recursive: it can spawn constrained instances of itself.
 >
-> The set is not closed at a magic number. Memory is the most recent primitive to converge across the major agents - eighteen months ago it was implicit in context window; today AGENTS.md (and CLAUDE.md, the Claude Code-specific filename) is a standard the major agents read at session start, and Claude Code has shipped an auto-memory system around it. The set will continue to evolve. The test for what counts as a primitive is not a count; it is convergence across the major agents.
->
 > ...
 >
 > That is the anatomy. Every interesting question about a coding agent - what it can do, what it cannot do, how to control it, what to compare it to - reduces to one or more of these primitives. When a new agent arrives, your first question is: how does this one handle each primitive? When you are deciding whether to let an agent touch a particular codebase, your second question is: which primitive is the relevant control point for this risk? When you are buying tooling, your third question is: which primitive does this tooling improve, and at what cost?
 >
 > ...
 >
-> Named primitives. Context window. Tools. Skills. Plugins. MCP. Memory. Subagents. Plus the harness as the runtime that organizes them. An open set, not a closed list.
+> Context window. Tools. Skills. Plugins. MCP. Memory. Subagents. Plus the harness as the runtime that organizes them. That is the list today. The set is open; expect it to grow. Memory was missing eighteen months ago and converged across the major agents within a six-month window. The next one will appear when the convergence appears, not before.
+
+Notes on the rewrite:
+
+- The open-set acknowledgment is positioned AFTER the named list (per reader-experience review: a learner can't evaluate "the set is open" before they know what the set IS).
+- The closing list is opened by the list itself, not by a category label. "Named primitives." was rejected by three reviewers as a rhetorical regression vs. "Six primitives.".
+- The expand-clause ("Memory was missing... the next one will appear when the convergence appears, not before") substitutes for the dropped count as the chapter's parting wisdom — replaces a number with a test.
 
 #### Chapter 1 Memory section (new)
 
@@ -101,15 +105,25 @@ Insert between the MCP section (~line 322) and the Subagents section (~line 325)
 
 **Memory (sketch — user revises voice)**
 
-> Memory is the primitive that crossed the agent-agnostic threshold most recently. Eighteen months ago it was implicit: the agent loaded a prompt, did some work, and the next session started clean. Today the major agents converge on two structurally distinct mechanisms: manually defined memory and an auto-memory system.
+> Memory is the most recent primitive to go universal. Eighteen months ago it was implicit: the agent loaded a prompt, did some work, and the next session started clean. Today Memory has two halves - one fully converged across the major agents, one led by Claude Code with the others on the path.
 >
-> **Manually defined memory** is the layer the team writes. The convergence is real: Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, and the wider ecosystem all read AGENTS.md from the repository root at session start; Claude Code reads CLAUDE.md (same file, Claude Code-specific filename) at the same moment. The file is committed to source control, reviewed in pull requests, owned by the team. It is the place forbidden patterns, mistake-journal entries, build commands, and domain glossaries live. Chapter 6 covers what goes in this file in detail and why it matters.
+> **Manually defined memory** is the layer the team writes. The convergence is real: Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, and the wider ecosystem all read AGENTS.md from the repository root at session start. Claude Code reads CLAUDE.md, which can import AGENTS.md to share the same content with other agents. The file is committed to source control, reviewed in pull requests, owned by the team. It is the place forbidden patterns, mistake-journal entries, build commands, and domain glossaries live. Chapter 6 covers what goes in this file in detail and why it matters.
 >
-> **The auto-memory system** is what the agent writes for itself. Currently Claude-Code-specific (other agents are converging on similar mechanisms), it has two visible surfaces: Auto Memory is the layer where Claude saves learned patterns across sessions — build commands it figured out, debugging insights it confirmed, code-style preferences it inferred — without the user explicitly writing them down. Auto Dream is the background-consolidation layer Anthropic announced in May 2026: a scheduled process that reviews recent sessions and the memory store, identifies recurring mistakes and convergent workflows, and writes consolidated notes back into long-term memory. Self-improvement between runs without manual retraining.
+> **The auto-memory system** is what the agent writes for itself. Claude Code is the early-mover; other agents are converging on similar mechanisms but had not shipped equivalents at publication. It has two visible surfaces: Auto Memory is the layer where Claude saves learned patterns across sessions - build commands it figured out, debugging insights it confirmed, code-style preferences it inferred - without the user explicitly writing them down. Auto Dream is the background-consolidation layer Anthropic unveiled at Code with Claude SF on 2026-05-06: a scheduled process that reviews recent sessions and the memory store, identifies recurring mistakes and convergent workflows, and writes consolidated notes back into long-term memory. The agent gets better at your codebase between runs.
 >
-> A note on what is NOT memory in this taxonomy: session memory (the conversation history plus tool results inside a single session) is just the context window. It is memory in the everyday sense but not a separate primitive — it is the primitive named first.
+> A note on what is *not* memory in this taxonomy: session memory (the conversation history plus tool results inside a single session) is just the context window. It is memory in the everyday sense but not a separate primitive - it is the primitive named first.
 >
-> The primitive-status test for Memory: AGENTS.md / CLAUDE.md pass cleanly (cross-vendor convergence). The auto-memory system passes the test on Claude Code today and is on the path to passing it across the wider ecosystem; this manual treats it as part of the same primitive because the structural role is identical even when implementation varies.
+> Manually defined memory passes the convergence test today. The auto-memory system is on the path - Claude Code is first; others are following. This manual treats them as one primitive because the structural role is identical, with the caveat that the second half is an early-mover signal, not yet a convergence.
+
+Notes on this rewrite:
+
+- Drops spec-author phrases ("crossed the agent-agnostic threshold", "two categorical halves", "structurally distinct mechanisms") in favor of plain prose.
+- Names the asymmetry explicitly (per argument-coherence review): manually defined passes the test; auto-memory is "early-mover signal, not yet a convergence". Honest scoping, not smoothing.
+- Fixes the Claim 5 imprecision (per technical review): Claude Code reads CLAUDE.md, not AGENTS.md - the interop is via `@AGENTS.md` import. Body copy and Appendix C now agree.
+- Auto Dream attribution corrected (per technical review): unveiled at Code with Claude SF, 2026-05-06 (the Managed Agents announcement); the Claude Code surface was an earlier quieter rollout. Appendix C carries the longer caveat.
+- Marketing-deck phrase ("self-improvement between runs without manual retraining") replaced with a concrete, in-voice line ("the agent gets better at your codebase between runs").
+- All-caps NOT → italics (manual uses italics for emphasis, not caps).
+- Self-justifying final paragraph (the "primitive-status test for Memory" block) folded into the second-half opener, since the asymmetry naming now does that work in-line.
 
 #### Chapter 1 subagents section — rewrite line 327
 
@@ -143,9 +157,14 @@ Closing line 353: `Six primitives. Context window. Tools. Skills. Plugins. MCP. 
 
 Current `diagram_primitives()` (`build/build_spa.py:27-42`) emits a 2×3 grid of 6 cells with abstract icons (◉ ⚙ ✦ ▣ ↔ ⟲). Caption ends "...Subagents are the recursive primitive: each subagent is itself an instance of the other five."
 
-New approach: drop the 2×3 grid; vertical list with subagents visually separated as the structurally distinct recursive primitive. Memory shown with two sub-bullets (manually defined / auto-memory system) without expanding the cell count proper. Caption updated:
+New approach (synthesizes both reviewer recommendations):
+- **Keep the grid** for the 6 named local primitives (per reader review: grids feel like architecture; lists feel like enumeration; readers expect a primitives diagram to look like a diagram).
+- **Subagents lives below the grid in its own bottom row spanning full width**, with a small divider above it (per argument review: the original 2×3 grid muddied recursion by putting subagents in a cell alongside the others — separating subagents visually makes recursion visible).
+- Memory occupies the 6th cell of the grid (the slot subagents used to fill). Memory carries two small sub-bullets inside the cell: "manually defined" and "auto-memory system" — communicates the two halves without expanding cell count.
 
-> Figure: The primitives and the harness that runs them. Memory is the most recent primitive to converge across the major agents. Subagents are the recursive primitive: each subagent is itself an instance of the others.
+Caption updated:
+
+> Figure: The primitives and the harness that runs them. Memory is the most recent primitive to converge across the major agents. Subagents sit below the line because they are the recursive primitive: each subagent is itself an instance of the others.
 
 Implementation in `build/build_spa.py`:
 
@@ -154,7 +173,7 @@ def diagram_primitives() -> str:
     return """<figure class="diagram diagram-primitives">
   <div class="harness">
     <div class="harness-label">THE HARNESS</div>
-    <div class="primitives-list">
+    <div class="primitives-grid">
       <div class="primitive"><div class="primitive-icon">◉</div><div class="primitive-name">context window</div></div>
       <div class="primitive"><div class="primitive-icon">⚙</div><div class="primitive-name">tools</div></div>
       <div class="primitive"><div class="primitive-icon">✦</div><div class="primitive-name">skills</div></div>
@@ -164,24 +183,26 @@ def diagram_primitives() -> str:
         <div class="primitive-icon">▤</div>
         <div class="primitive-name">memory</div>
         <div class="primitive-sublist">
-          <span class="primitive-sub">manually defined (AGENTS.md, CLAUDE.md)</span>
-          <span class="primitive-sub">auto-memory system (Auto Memory, Auto Dream)</span>
+          <span class="primitive-sub">manually defined</span>
+          <span class="primitive-sub">auto-memory system</span>
         </div>
       </div>
     </div>
+    <div class="primitives-divider" aria-hidden="true"></div>
     <div class="primitives-recursive">
       <div class="primitive primitive-recursive"><div class="primitive-icon">⟲</div><div class="primitive-name">subagents</div><div class="primitive-note">the agent, recursively</div></div>
     </div>
     <div class="harness-foot">the agent loop binds them together;<br/>subagents spawn constrained child instances of the agent itself</div>
   </div>
-  <figcaption>Figure: The primitives and the harness that runs them. Memory is the most recent primitive to converge across the major agents. Subagents are the recursive primitive: each subagent is itself an instance of the others.</figcaption>
+  <figcaption>Figure: The primitives and the harness that runs them. Memory is the most recent primitive to converge across the major agents. Subagents sit below the line because they are the recursive primitive: each subagent is itself an instance of the others.</figcaption>
 </figure>"""
 ```
 
 CSS changes in `build/spa_template.html`:
-- Replace `.primitives-grid` rule with `.primitives-list` (vertical flex with gap)
-- Add `.primitives-recursive` rule (visually separated below the main list — small divider, subagents in its own emphasized row)
-- Add `.primitive-sublist` + `.primitive-sub` (small subordinate labels under Memory)
+- `.primitives-grid` rule stays (existing 2×3 layout); Memory cell uses the same shape as the others.
+- New `.primitives-divider` rule — a thin horizontal rule across the harness's width, just below the grid, to make the local-vs-recursive split visible.
+- New `.primitives-recursive` rule (full-width row below the divider; subagents cell visually emphasized — slightly larger, perhaps a different border treatment to telegraph "structurally distinct").
+- New `.primitive-sublist` + `.primitive-sub` (small subordinate labels inside the Memory cell — 11px uppercase, light color, two short lines).
 
 #### Cross-reference sweep — exact line edits
 
@@ -190,7 +211,8 @@ Every sweep target identified by the audit. Bulk find-replace where safe; manual
 | Line | Current | Proposed |
 |---|---|---|
 | 26 (TOC) | `1. Six primitives` | `1. The primitives` |
-| 161 (Foreword) | `If a future agent ships without something that maps to one of the six primitives, I missed an invariant that I thought was structural.` | `The primitives are an open set, not a closed list. I expect new ones to emerge as the major agents converge on new mechanisms - Memory is the most recent example, missing from the original list eighteen months ago and shipped across the major agents within a six-month window. The test for primitive status is convergence, not count.` |
+| 161 (Foreword) | `If a future agent ships without something that maps to one of the six primitives, I missed an invariant that I thought was structural.` | `The primitives are an open set. Memory was missing from the original list eighteen months ago; the major agents converged on it within a six-month window. If a future agent ships without a mechanism that maps to one of the primitives, I missed an invariant I thought was structural. If a new primitive emerges, the list grows.` |
+| 287 (Chapter 1, existing tech debt picked up per technical review) | `the always-loaded primitive has converged on two names: the vendor-neutral [AGENTS.md](https://agents.md/), supported by Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, and the wider ecosystem; and CLAUDE.md, the Claude Code-specific variant. Both are markdown files at the project root, both load at session start, both serve the same role.` | Fix the "same file, vendor-specific variant" imprecision (per technical review): `the always-loaded primitive has converged on two filenames: the vendor-neutral [AGENTS.md](https://agents.md/), supported by Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, and the wider ecosystem; and CLAUDE.md, which Claude Code reads natively. The two are interoperable - Claude Code can import AGENTS.md into CLAUDE.md so the team's content lives in one place across vendors. Both load at session start, both serve the same role.` |
 | 187 | `wire priority feature... all six phases of the loop` | unchanged (different "six" — methodology) |
 | 228 | `## Six primitives` | `## The primitives` |
 | 230 | `the same six conceptual building blocks. Five of them are the agent's local capabilities. The sixth...` | `the same conceptual building blocks. Most are local capabilities of the agent. One - subagents - is the composition mechanism that makes the agent recursive...` (see full rewrite above) |
@@ -202,20 +224,20 @@ Every sweep target identified by the audit. Bulk find-replace where safe; manual
 | 341 | `The six primitives all live inside the harness.` | `The primitives all live inside the harness.` |
 | 345 | `is the six primitives, is what you are buying` | `is the primitives, is what you are buying` |
 | 349 | `The six primitives are capability primitives: what the agent uses to know, act, extend, integrate, and delegate.` | `The primitives named here are capability primitives: what the agent uses to know, act, extend, integrate, remember, and delegate.` |
-| 353 | `Six primitives. Context window. Tools. Skills. Plugins. MCP. Subagents. Plus the harness as the runtime that organizes them.` | `Named primitives. Context window. Tools. Skills. Plugins. MCP. Memory. Subagents. Plus the harness as the runtime that organizes them. An open set, not a closed list.` |
-| 354 (Ch 1 evaluation questions) | `How big is the context window and how does the agent manage it under pressure? What tools are available and how are they constrained? How are skills implemented - always-loaded, or dispatched on detection? Is there a plugin marketplace and is it growing? Does it speak MCP, and how good is the MCP integration? How does it expose subagents - and is parallel dispatch a first-class operation or an afterthought?` | Add a Memory question in primitive order (between MCP and subagents): `How big is the context window and how does the agent manage it under pressure? What tools are available and how are they constrained? How are skills implemented - always-loaded, or dispatched on detection? Is there a plugin marketplace and is it growing? Does it speak MCP, and how good is the MCP integration? How does it handle memory - both the user-written AGENTS.md surface and the auto-memory system if there is one? How does it expose subagents - and is parallel dispatch a first-class operation or an afterthought?` |
-| 357 | `Six questions. They tell you almost everything you need to know to compare the new agent to the one you are using today.` | `These questions tell you almost everything you need to know to compare the new agent to the one you are using today. The list will grow as the primitives do.` |
+| 353 | `Six primitives. Context window. Tools. Skills. Plugins. MCP. Subagents. Plus the harness as the runtime that organizes them.` | `Context window. Tools. Skills. Plugins. MCP. Memory. Subagents. Plus the harness as the runtime that organizes them. That is the list today. The set is open; expect it to grow.` (list-led opener per argument review; the period after each primitive does the percussive work the count used to do) |
+| 354 (Ch 1 evaluation questions) | `How big is the context window and how does the agent manage it under pressure? What tools are available and how are they constrained? How are skills implemented - always-loaded, or dispatched on detection? Is there a plugin marketplace and is it growing? Does it speak MCP, and how good is the MCP integration? How does it expose subagents - and is parallel dispatch a first-class operation or an afterthought?` | Split the Memory question into two (per argument review: a single Memory question is "two questions in a trench coat with an 'if there is one' escape hatch"). Memory inserted in primitive order: `How big is the context window and how does the agent manage it under pressure? What tools are available and how are they constrained? How are skills implemented - always-loaded, or dispatched on detection? Is there a plugin marketplace and is it growing? Does it speak MCP, and how good is the MCP integration? Does it read a team-shared memory file at session start? Does it maintain any agent-written learned memory across sessions? How does it expose subagents - and is parallel dispatch a first-class operation or an afterthought?` |
+| 357 | `Six questions. They tell you almost everything you need to know to compare the new agent to the one you are using today.` | `Eight questions today; more tomorrow. They tell you almost everything you need to know to compare the new agent to the one you are using today.` (keep a dated count per editorial + reader-experience: the count is the memorization scaffold a teacher uses; "today" signals it will grow) |
 | 406 (Ch 2 case note title) | `**Case note: the two-agent demo, six primitives observable in both.**` | `**Case note: the two-agent demo, the primitives observable in both.**` |
 | 411 | `the six primitives were not Claude-Code-specific marketing` | `the primitives were not Claude-Code-specific marketing` |
 | 412 | `agent identifies the six primitives in each codebase` | `agent identifies the primitives in each codebase` |
 | 415 | `Same six primitives present in both codebases` | `Same primitives present in both codebases` |
 | 428 | `The harness is the six primitives plus the way they are organized` | `The harness is the primitives plus the way they are organized` |
 | 446-447 (Ch 2 inspection sequence) | `You open its repository. You locate context assembly. You locate the tool registry. You locate skills loading. You locate plugin extension. You check for MCP support. You locate subagent dispatch. You locate the permission gate. You locate the sandbox - all wrapped by the harness's agent loop.` | Add the memory inspection point in primitive order: `You open its repository. You locate context assembly. You locate the tool registry. You locate skills loading. You locate plugin extension. You check for MCP support. You locate the memory layer (AGENTS.md or equivalent; any auto-memory surface the vendor exposes). You locate subagent dispatch. You locate the permission gate. You locate the sandbox - all wrapped by the harness's agent loop.` |
-| 449 (Ch 2 inspection summary) | `Eight inspection points: context assembly, tool registry, skills loading, plugin extension, MCP support, subagent dispatch, permission gate, sandbox - all wrapped by the harness's agent loop.` | Drop the count, add memory: `The inspection points: context assembly, tool registry, skills loading, plugin extension, MCP support, memory layer, subagent dispatch, permission gate, sandbox - all wrapped by the harness's agent loop.` |
+| 449 (Ch 2 inspection summary) | `Eight inspection points: context assembly, tool registry, skills loading, plugin extension, MCP support, subagent dispatch, permission gate, sandbox - all wrapped by the harness's agent loop.` | Keep a count (per reader review: counts are the operational scaffold). Bump to 9 with the memory layer added: `Nine inspection points: context assembly, tool registry, skills loading, plugin extension, MCP support, memory layer, subagent dispatch, permission gate, sandbox - all wrapped by the harness's agent loop.` Note: Chapter 2's "Source-inspection checklist" artifact mentions "eight inspection points" too — also bumps to nine in the artifact callout (around line 473). |
 | 480 (Ship-this-week) | `Walk this codebase and name the six primitives - context window, tools, skills, plugins, MCP, subagents.` | `Walk this codebase and name the primitives - context window, tools, skills, plugins, MCP, memory, subagents.` |
 | 484 | `The six primitives, the diagnostic, and what the diagnostic tells you about governance will be.` | `The primitives, the diagnostic, and what the diagnostic tells you about governance will be.` |
 | 794, 858, 938 | "all six phases" / "sixth primitive from Chapter 1" | line 858: `sixth primitive from Chapter 1 - subagents - earns its keep` → `recursive primitive from Chapter 1 - subagents - earns its keep`. Lines 794, 938 unchanged (six-phase loop). |
-| 1882 (Closing) | `The six primitives - context window, tools, skills, plugins, MCP, subagents - plus the harness... When you evaluate a new agent, you walk down the list, ask the six questions, and you have your answer.` | `The primitives - context window, tools, skills, plugins, MCP, memory, subagents - plus the harness... When you evaluate a new agent, you walk down the list, ask the questions one primitive at a time, and you have your answer. The set is open; expect new primitives to emerge as the major agents converge on new mechanisms.` |
+| 1882 (Closing) | `The six primitives - context window, tools, skills, plugins, MCP, subagents - plus the harness... When you evaluate a new agent, you walk down the list, ask the six questions, and you have your answer.` | `The primitives - context window, tools, skills, plugins, MCP, memory, subagents - plus the harness... When you evaluate a new agent, you walk down the list, ask the question for each primitive, and you have your answer. The list is open; new primitives will appear as the major agents converge on new mechanisms.` (drops "ask the questions one primitive at a time" — prepositional pile-up flagged by editorial) |
 | 2311 (Appendix C) | `Source-organized around the same six primitives this manual identifies in Codex CLI and Claude Code.` | `Source-organized around the same primitives this manual identifies in Codex CLI and Claude Code.` |
 | Appendix C entry labels (lines 2285, 2292, 2299, 2306, 2313, 2334, 2343-2344 — verify exact list during implementation) | `Chapter 1 (Six primitives)` | `Chapter 1 (The primitives)` |
 
@@ -253,7 +275,7 @@ Implementation in `build/build_spa.py`: new `render_redirect_stub(old_slug, new_
 
 Insert as the very first paragraph of Chapter 6, before the existing opening anecdote:
 
-> AGENTS.md is the manually defined layer of the Memory primitive named in Chapter 1. It is the team-shareable surface - the layer the team authors, reviews, owns in source control, and treats as load-bearing infrastructure. The auto-memory system (Auto Memory, Auto Dream) is per-developer and largely automatic; this chapter focuses on the layer the team explicitly owns, because that is where team-level discipline lives. What follows is six things that go in AGENTS.md, the 200-line budget rule, and the failure modes you see in practice.
+> AGENTS.md is the manually defined layer of the Memory primitive named in Chapter 1. It is the team-shareable surface - the layer the team authors, reviews, and owns in source control, as infrastructure the team owns. The auto-memory system (Auto Memory, Auto Dream) is per-developer and largely automatic; this chapter focuses on the layer the team explicitly owns, because that is where team-level discipline lives. What follows is six things that go in AGENTS.md, the 200-line budget rule, and the failure modes you see in practice.
 
 The "six things go in AGENTS.md" structure stays. The bridging clause ("six things that go in AGENTS.md") makes the relationship explicit: the chapter's six things are about content of the file, not primitives.
 
@@ -264,33 +286,33 @@ Three new entries using the existing Appendix C structure. Insert in the existin
 ```markdown
 ### AGENTS.md as cross-vendor standard
 
-**Claim:** AGENTS.md is read at session start by Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, and the wider open-source coding-agent ecosystem. Claude Code reads CLAUDE.md (same file, vendor-specific filename) at the same moment. The convergence puts AGENTS.md in the manually defined memory layer of the Memory primitive named in Chapter 1.
+**Claim:** AGENTS.md is read at session start by Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, and the wider open-source coding-agent ecosystem (20+ vendors listed at agents.md as of 2026-05). Claude Code reads CLAUDE.md, which can import AGENTS.md to share the same content with other agents. The convergence puts AGENTS.md in the manually defined memory layer of the Memory primitive named in Chapter 1.
 
 **Source:** [agents.md](https://agents.md/) (the open standard's site), plus vendor documentation for each agent listed.
 
 **Where used:** Chapter 1 (The primitives, Memory section) and Chapter 6 (AGENTS.md as team infrastructure).
 
-**Caveat:** The exact filename and load semantics vary by vendor (e.g., Claude Code reads CLAUDE.md plus files in `.claude/rules/`; Cursor reads AGENTS.md plus `.cursorrules`); the convergent property is "user-written, always-loaded, team-shareable", not byte-identical file format.
+**Caveat:** The exact filename and load semantics vary by vendor - Claude Code reads CLAUDE.md (importable from AGENTS.md via `@AGENTS.md` or symlink); Cursor reads AGENTS.md plus `.cursorrules`. Convergence is on the structural role - user-written, always-loaded, team-shareable - not on byte-identical file format.
 
 ### Claude Code Auto Memory
 
-**Claim:** Claude Code maintains an auto-memory layer in which Claude writes notes for itself across sessions - build commands it figured out, debugging insights it confirmed, code-style preferences it inferred - distinct from the user-written CLAUDE.md.
+**Claim:** Claude Code maintains an auto-memory layer in which Claude writes notes for itself across sessions - build commands it figured out, debugging insights it confirmed, code-style preferences it inferred - distinct from the user-written CLAUDE.md. Requires Claude Code v2.1.59+; on by default; per-repo storage.
 
 **Source:** [code.claude.com/docs/en/memory](https://code.claude.com/docs/en/memory).
 
 **Where used:** Chapter 1 (The primitives, Memory section).
 
-**Caveat:** Auto Memory is Claude-Code-specific at the time of writing. Other coding agents are converging on similar mechanisms but had not shipped an equivalent at publication date.
+**Caveat:** Auto memory is Claude-Code-specific at the time of writing. Other coding agents are converging on similar mechanisms but had not shipped an equivalent at publication date.
 
 ### Auto Dream (Anthropic background memory consolidation)
 
-**Claim:** Anthropic announced Auto Dream on 2026-05-06 - a scheduled background process that reviews recent sessions and the memory store, identifies recurring mistakes and convergent workflows, and writes consolidated notes back into long-term memory. Self-improvement between runs without manual retraining.
+**Claim:** Anthropic publicly unveiled Dreaming as part of Claude Managed Agents at Code with Claude SF on 2026-05-06 - a scheduled background process that reviews recent sessions and the memory store, identifies recurring mistakes and convergent workflows, and writes consolidated notes back into long-term memory. The Claude Code surface (`Auto Dream`, accessible via `/dream`) shipped earlier as a research preview gated behind developer access and was documented in March 2026.
 
-**Source:** Anthropic announcement, 2026-05-06; [code.claude.com/docs/en/memory](https://code.claude.com/docs/en/memory).
+**Source:** Code with Claude SF announcement, 2026-05-06; [code.claude.com/docs/en/memory](https://code.claude.com/docs/en/memory).
 
 **Where used:** Chapter 1 (The primitives, Memory section).
 
-**Caveat:** Auto Dream is Claude-Code-specific at publication date. The framing in this manual is that it is a structural feature of the auto-memory system, regardless of which vendor ships it first.
+**Caveat:** Auto Dream is Claude-Code-specific at publication date. The structural role is what this manual indexes, not the vendor.
 ```
 
 ## Verification
@@ -307,6 +329,14 @@ Extend `build/tests/verify_seo_pass.js` with new assertions, all gated on a fres
   - `grep -c "six primitives\|sixth primitive\|the other five\|five primitives\|five capabilities\|six conceptual"` → 0
   - `grep -c "Six questions\|Eight inspection points"` → 0
   - Exception: "six-phase loop" / "all six phases" matches are explicitly allowed (Chapter 5 methodology, intentionally counted; verify by separately counting `six-phase\|six phases` and confirming those account for all remaining `six` mentions).
+- Positive markers (must each appear at least once in `_site/read/index.html`):
+  - `Eight questions today` (the new operational rubric count on line 357)
+  - `Nine inspection points` (the new operational count on line 449)
+  - `manually defined layer of the Memory primitive` (the Chapter 6 intro bridging clause)
+  - `auto-memory system` (the Memory section second-half label)
+  - `early-mover signal, not yet a convergence` (the asymmetry-naming clause)
+  - `Auto Dream` AND `Code with Claude SF` (Appendix C attribution)
+  - `which can import AGENTS.md to share the same content with other agents` (the Claim 5 fix in both line 287 and the Memory section)
 - Landing hash-redirect map: `/#chapter-1` redirects to `/chapter-1-primitives/`.
 - Chapter 1 `<title>` is `The primitives — Agentic Coding Field Manual`.
 - TOC entry on landing has `Chapter 1 — The primitives` (not `Six primitives`).
@@ -323,13 +353,13 @@ All assertions run from the existing `build/tests/verify_seo_pass.js` harness; n
 ## Build pipeline changes (`build/build_spa.py`)
 
 - `SECTION_SLUGS`: key + value update for Chapter 1.
-- `diagram_primitives()`: full rewrite per the diagram spec above.
+- `diagram_primitives()`: rewrite per the diagram spec above (grid stays for 6 named primitives; subagents row separated below a divider; Memory cell carries two sub-bullets).
 - `build_anchor_index`: legacy alias update for `chapter-1`.
 - `render_hash_redirect_js`: target URL update for `#chapter-1`.
 - New `render_redirect_stub(old_slug, new_slug)` function — called from `main()` after per-chapter rendering. Emits a small HTML file with `meta refresh` + `link rel=canonical` + JS `location.replace`.
 - `render_sitemap`: exclude any old-slug URLs (Chapter 1's old slug doesn't get added to sitemap).
 
-CSS changes in `build/spa_template.html` for the new diagram layout: replace `.primitives-grid` with `.primitives-list` (vertical flex); add `.primitives-recursive` for visual separation of the subagents row; add `.primitive-sublist` / `.primitive-sub` for the Memory two-sub-bullet display. Goes in the "critical" CSS region (above-the-fold for Chapter 1).
+CSS changes in `build/spa_template.html` for the diagram update: `.primitives-grid` keeps its existing layout; new `.primitives-divider` (thin horizontal rule across the harness, just below the grid); new `.primitives-recursive` (full-width row below the divider, subagents cell visually emphasized); new `.primitive-sublist` + `.primitive-sub` (small subordinate labels inside the Memory cell). Goes in the "critical" CSS region (above-the-fold for Chapter 1).
 
 ## Error handling
 
@@ -347,26 +377,54 @@ CSS changes in `build/spa_template.html` for the new diagram layout: replace `.p
 - The "six-phase loop" naming in Chapter 5 (lines 187, 794, 938 — different concept).
 - Any reference to specific search-engine behavior or Google Search Console.
 
+## Reviewer feedback applied (post-revision)
+
+This spec went through a four-reviewer round (editorial voice, technical accuracy, structural argument, reader experience). All findings have been folded into the spec above. Summary of changes:
+
+**From editorial voice review:**
+- Foreword 161 redrafted to keep the original's confident "I missed an invariant" cadence (was: spec-author prose with "the test for primitive status is convergence, not count").
+- Chapter 1 opening: trimmed "magic number" slangy phrasing; removed the doubled beat ("the set will continue to evolve. The test ... is convergence").
+- Memory section: dropped "crossed the agent-agnostic threshold" (jargon); "two categorical halves" → "two halves" (spec-author phrase out of book copy); cut the self-justifying primitive-status paragraph (folded into the second-half opener); replaced "self-improvement between runs without manual retraining" (marketing-deck line) with "the agent gets better at your codebase between runs"; all-caps NOT → italics.
+- Closing 1882: dropped "ask the questions one primitive at a time" (prepositional pile-up).
+- Chapter 6 intro: "load-bearing infrastructure" → "as infrastructure the team owns".
+- Appendix C: dropped quoted adjective-lists ("convergent property is 'user-written, always-loaded, team-shareable'") for plain prose; removed marketing-deck duplicate.
+
+**From technical accuracy review:**
+- Claim 5 (CLAUDE.md vs AGENTS.md "same file") corrected throughout. Body copy now: "Claude Code reads CLAUDE.md, which can import AGENTS.md to share the same content with other agents." Pre-existing imprecision in published line 287 added to the sweep table.
+- Auto Dream attribution corrected: unveiled at Code with Claude SF, 2026-05-06 for Managed Agents; the Claude Code surface (`Auto Dream` / `/dream`) was an earlier quieter rollout documented in March 2026.
+- Auto Memory caveat tightened: added v2.1.59+, on-by-default, per-repo storage details from `code.claude.com/docs/en/memory`.
+
+**From structural argument review:**
+- Memory's two-half framing now explicitly names the asymmetry: "Manually defined memory passes the convergence test today. The auto-memory system is on the path - Claude Code is first; others are following. ... an early-mover signal, not yet a convergence." Honest scoping rather than smoothing.
+- Closing drumbeat (line 353): "Named primitives." rejected as rhetorical regression; replaced with list-led opener ("Context window. Tools. Skills. Plugins. MCP. Memory. Subagents. ... That is the list today. The set is open; expect it to grow."). The period after each primitive carries the percussive work the count used to do.
+- Evaluation Memory question (line 354) split into two: "Does it read a team-shared memory file at session start? Does it maintain any agent-written learned memory across sessions?" Breaks one-question-per-primitive symmetry but preserves operational clarity.
+
+**From reader-experience review:**
+- Open-set acknowledgment moved AFTER the named list in Chapter 1 opening (was: paragraph 2, before the reader knew what a primitive IS). Now lives in the closing paragraph and in the Foreword.
+- Operational counts kept and updated rather than dropped: "Eight questions today; more tomorrow" (line 357); "Nine inspection points" (line 449). Counts are the memorization scaffold a teacher uses; the "today" temporal hedge signals openness without dropping the count entirely.
+- Chapter 2 artifact "Source-inspection checklist. The eight inspection points from this chapter" also bumps to nine.
+- Diagram: keep the 2×3 grid for the 6 named local primitives (Reader: grids feel like architecture, lists like enumeration), but separate subagents as a full-width bottom row below a divider (Argument: original grid muddied recursion by putting subagents alongside the others). Synthesizes both reviewer recommendations.
+
 ## Open items for user review
 
-1. **Memory section copy (Chapter 1).** Sketched in this spec. User revises voice/length during diff review.
-2. **Foreword line 161 rewrite.** Sketched (epistemological shift from "I claim the count is structural" to "convergence is the test"). User confirms tone fits the Foreword's voice.
-3. **Closing line 1882 rewrite.** Sketched. User confirms.
-4. **Chapter 6 opening paragraph.** Sketched. User confirms voice.
-5. **Diagram visual.** Going with option (c) — drop the grid, vertical list with subagents called out. Memory shown with two sub-bullets. User confirms visual direction (especially the Memory icon `▤` — could also use `☰` or another glyph).
-6. **Appendix C three new entries.** Drafted from the workshop spec + the Anthropic announcement. User confirms the convergence claim wording (especially for Auto Memory / Auto Dream, which are Claude-Code-specific today).
+1. **The Foreword 161, Chapter 1 opening, Memory section, Closing 1882, and Chapter 6 intro sketches** — all reflect reviewer feedback. The author reviews voice/cadence during diff review.
+2. **Diagram visual** — synthesizes both reviewer views (grid + separated subagents row). The Memory icon `▤` is open (alternatives: `☰`, `▥`, or any other glyph that reads as "layered storage"). User confirms.
+3. **Appendix C wording** — particularly the Auto Memory / Auto Dream caveats (both Claude-Code-specific today). User confirms the convergence-vs-early-mover framing.
 
 ## Resolved decisions (defaults applied — flag in review if you want to change)
 
 1. **Chapter 1 H1**: `The primitives` (short, matches workshop deck framing).
 2. **Chapter 1 slug**: `/chapter-1-primitives/` with JS+meta-refresh redirect stub at the old `/chapter-1-six-primitives/` URL.
 3. **Chapter 6 stays AGENTS.md-focused.** Slug unchanged. One new opening paragraph anchors AGENTS.md as the manually defined memory layer of the Memory primitive.
-4. **Memory structured around two categorical halves**: manually defined memory (agent-agnostic) and auto-memory system (Claude-Code-specific today).
+4. **Memory structured around two halves**: manually defined memory (agent-agnostic, passes the convergence test) and auto-memory system (Claude-Code-specific today, named as early-mover signal). Asymmetry named explicitly per argument-coherence review.
 5. **Session Memory collapses** to "session memory = context window" — one-sentence mention, not a separate layer.
-6. **No Boundary primitives section.** Line 349's existing claim stands. Open-set framing communicated via Foreword + chapter open + diagram caption.
-7. **Structural argument rewrite**: "named primitives + the recursive primitive (subagents)" replaces "five local + one recursive". The local/recursive distinction stays; the count goes.
+6. **No Boundary primitives section.** Line 349's existing claim stands. Open-set framing communicated via Foreword + chapter-close paragraph + diagram caption.
+7. **Structural argument rewrite**: "most primitives are local; one - subagents - is the recursive primitive" replaces "five local + one recursive". The local/recursive distinction stays; the count goes.
 8. **Two atomic commits**, not three. Each commit leaves the book internally consistent.
-9. **Diagram**: vertical list (drop the 2×3 grid). Subagents visually separated as the recursive primitive. Memory carries two sub-bullets.
-10. **Appendix C new entries**: three (AGENTS.md cross-vendor standard, Auto Memory, Auto Dream). Use the existing claim/source/where-used/caveat structure.
+9. **Diagram**: keep the 2×3 grid for the 6 named local primitives; subagents lives below the grid in a full-width row separated by a thin divider. Memory cell carries two sub-bullets ("manually defined" / "auto-memory system"). Synthesizes reader (grid) + argument (subagents-separated) feedback.
+10. **Appendix C new entries**: three (AGENTS.md cross-vendor standard, Auto Memory, Auto Dream). Use the existing claim/source/where-used/caveat structure. Auto Dream attribution: Code with Claude SF (Managed Agents) + earlier quiet Claude Code rollout (March 2026).
 11. **The "six-phase loop"** in Chapter 5 stays. Different "six" (methodology, intentionally counted).
 12. **The "Six things go in AGENTS.md"** structure in Chapter 6 stays. Orthogonal to primitive count.
+13. **Operational counts**: chapter TITLE drops the count ("The primitives", not "Six primitives"). Operational rubrics keep counts with a "today" temporal hedge ("Eight questions today; more tomorrow", "Nine inspection points") — counts are the memorization scaffold; the temporal hedge honors the open-set framing.
+14. **Closing drumbeat**: list-led opener, not a category label. The period after each primitive carries the percussive work the count used to do.
+15. **Claim 5 fix scope**: pre-existing imprecision on line 287 of the published manual ("CLAUDE.md, the Claude Code-specific variant") is picked up in the same sweep, since the spec's new wording would otherwise contradict it.
