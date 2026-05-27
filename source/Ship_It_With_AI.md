@@ -548,7 +548,7 @@ Wrong lesson three: "we should not use AI for database operations." That is thro
 
 Here is the right lesson.
 
-PocketOS had a natural-language instruction. That is weaker than layer one. It did not have enforceable permissions that would classify and gate the destructive action. It did not have a sandbox that would refuse the operation at the operating-system level. It did not have secrets segregation that would prevent the session from holding the production credential. It did not have a hook that would force human approval before a destructive infrastructure action. It did not have agent-side telemetry that would alert on production-token use during a coding session.
+PocketOS had a natural-language instruction. That is weaker than layer one. It did not have enforceable permissions that would classify and gate the destructive action. It did not have a sandbox that would refuse the operation at the operating-system level. It did not have secrets segregation that would prevent the session from holding the production credential. It did not have a hook that would force human approval before a destructive infrastructure action. It did not have agent-side telemetry that would alert on production-token use during a coding session. Said in the vocabulary of Chapter 1: Permissions / Sandbox would have caught it twice - once at the decision layer if the rule had been there, once at the OS layer regardless.
 
 No single perfect layer would have saved them with certainty. But any one of the enforceable layers could have broken the chain, and several together would have made a nine-second production-loss event much less likely.
 
@@ -578,6 +578,10 @@ The governing principle underneath all five layers is least privilege: at every 
 ```
 
 *Figure: The five governance layers, layered as defense in depth.*
+
+---
+
+Three of these five layers - permissions, security hooks, sandbox - are the configuration surfaces of the Permissions / Sandbox primitive named in Chapter 1. The primitive is what every major coding agent ships; the surfaces are how your team configures it for your codebase, your threat model, your compliance posture. Same shape as Memory in Chapter 1: one primitive, multiple configuration surfaces. Memory has one (AGENTS.md / CLAUDE.md); Permissions / Sandbox has more. Secrets handling and telemetry are adjacent governance controls - they belong in this chapter because they catch what the primitive's surfaces miss, but they are not themselves configuration surfaces of the primitive. The five-layer treatment that follows is independent of whether you read the primitive as one bundle or five separate controls; both framings land the same configuration work.
 
 ---
 
