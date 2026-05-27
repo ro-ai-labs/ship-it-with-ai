@@ -23,7 +23,7 @@
 **Prologue** - Nine seconds
 
 **Part I - Architecture**
-1. Six primitives
+1. The primitives
 2. The anatomy invariant
 3. Governance in layers
 
@@ -158,7 +158,7 @@ Tool-specific references in this manual are current as of May 2026. The framewor
 
 A field manual that does not name its own failure modes will lose to the reader's experience the moment that experience diverges from the manual. So here are the places I think this manual can be wrong.
 
-The tools will change. The specific products I have named - Claude Code, Codex CLI, Cursor, hookify, Superpowers, Understand Anything, the Anthropic plugin marketplace - will be different in two years. Some will be better. Some will be deprecated. Some will be replaced by tools that work differently than the architecture in Chapter 1 describes. If the primitives still hold, the manual is right. If a future agent ships without something that maps to one of the six primitives, I missed an invariant that I thought was structural.
+The tools will change. The specific products I have named - Claude Code, Codex CLI, Cursor, hookify, Superpowers, Understand Anything, the Anthropic plugin marketplace - will be different in two years. Some will be better. Some will be deprecated. Some will be replaced by tools that work differently than the architecture in Chapter 1 describes. If the primitives still hold, the manual is right. The primitives are an open set. Memory was missing from the original list eighteen months ago; the major agents converged on it within a six-month window. If a future agent ships without a mechanism that maps to one of the primitives, I missed an invariant I thought was structural. If a new primitive emerges, the list grows.
 
 The governance API will change. The specific hook formats, the specific permission rule syntax, the specific sandbox flags - those are vendor-specific and version-specific. The five-layer model is what I expect to hold; the implementation details are what I expect to age.
 
@@ -225,17 +225,15 @@ The tools change. The methodology endures. That is the bet of this manual.
 ---
 
 ## Chapter 1
-## Six primitives
+## The primitives
 
-Open the source code or documentation of most production-grade coding agents - Codex CLI in Rust, opencode in TypeScript, the public-source parts of Claude Code, the agents shipped by half a dozen smaller vendors - and you see the same architecture emerging: six primitives wrapped by a harness. The implementations differ. The anatomy converges. Different names sometimes, different file layouts always, but the same six conceptual building blocks. Five of them are the agent's local capabilities. The sixth is the composition mechanism that makes the agent recursive: it can spawn constrained instances of itself.
+Open the source code or documentation of most production-grade coding agents - Codex CLI in Rust, opencode in TypeScript, the public-source parts of Claude Code, the agents shipped by half a dozen smaller vendors - and you see the same architecture emerging: a small set of primitives wrapped by a harness. The implementations differ. The anatomy converges. Different names sometimes, different file layouts always, but the same conceptual building blocks. Most are local capabilities of the agent. One - subagents - is the composition mechanism that makes the agent recursive: it can spawn constrained instances of itself.
 
 Context window. Tools. Skills. Plugins. MCP. Subagents.
 
 The sixth one is newer in the public vocabulary, not because the idea is new but because it went universal across the major agents in a tight window. Claude Code shipped the Task tool, then layered Agent Teams on top of it for higher-level coordination. As of early 2026, Codex CLI exposed subagents as a first-class workflow and allowed multiple subagents to run in parallel. Cursor 2.0 introduced its own subagent system. Cline shipped subagents natively. Within roughly a year, dispatching a constrained child instance of the agent went from "advanced workflow" to "a primitive the harness exposes by default." That is the test I use for primitive status, and subagents pass it.
 
-That is the anatomy. Every interesting question about a coding agent - what it can do, what it cannot do, how to control it, what to compare it to - reduces to one or more of these six primitives. When a new agent arrives, your first question is: how does this one handle the six primitives? When you are deciding whether to let an agent touch a particular codebase, your second question is: which of the six primitives is the relevant control point for this risk? When you are buying tooling, your third question is: which of the six primitives does this tooling improve, and at what cost?
-
-Six primitives.
+That is the anatomy. Every interesting question about a coding agent - what it can do, what it cannot do, how to control it, what to compare it to - reduces to one or more of these primitives. When a new agent arrives, your first question is: how does this one handle each primitive? When you are deciding whether to let an agent touch a particular codebase, your second question is: which primitive is the relevant control point for this risk? When you are buying tooling, your third question is: which primitive does this tooling improve, and at what cost?
 
 ```
                                THE HARNESS
@@ -256,7 +254,7 @@ Six primitives.
         instances of itself
 ```
 
-*Figure: The six primitives and the harness that runs them. Subagents are the recursive primitive: each subagent is itself an instance of the other five.*
+*Figure: The primitives and the harness that runs them. Memory is the most recent primitive to converge across the major agents. Subagents sit below the line because they are the recursive primitive: each subagent is itself an instance of the others.*
 
 ---
 
@@ -284,7 +282,7 @@ Tool calls are also where governance lives. We will spend an entire chapter on t
 
 **Skills** are packaged instructions that the agent loads when relevant. The team's preferred way of writing a Spring Boot service. The conventions for React component testing. The pattern for adding a new column to a multi-tenant database table. Each of these is a chunk of markdown - usually a few hundred words to a few thousand - that the agent reads at the moment it needs the relevant expertise.
 
-The implementation of skills varies between agents in file names and loading semantics, but the underlying primitive is now shared across the major agents. The always-loaded primitive has converged on two names: the vendor-neutral [AGENTS.md](https://agents.md/), supported by Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, and the wider ecosystem; and CLAUDE.md, the Claude Code-specific variant. Both are markdown files at the project root, both load at session start, both serve the same role. The on-demand primitive has converged too: individual markdown files, dispatched on detection, kept out of context until a task matches the skill's trigger (Claude Code calls them Skills; Codex CLI ships SKILL.md files with YAML frontmatter and progressive disclosure). The Spring Boot code review skill loads when reviewing Spring code; it does not pollute the context when the agent picks up a schema migration task. The always-loaded pattern (AGENTS.md, CLAUDE.md) is older. The dispatch-on-detection pattern (Claude Code Skills, Codex Skills) is newer and scales better as the team's catalog of skills grows.
+The implementation of skills varies between agents in file names and loading semantics, but the underlying primitive is now shared across the major agents. The always-loaded primitive has converged on two filenames: the vendor-neutral [AGENTS.md](https://agents.md/), supported by Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, and the wider ecosystem; and CLAUDE.md, which Claude Code reads natively. The two are interoperable - Claude Code can import AGENTS.md into CLAUDE.md so the team's content lives in one place across vendors. Both load at session start, both serve the same role. The on-demand primitive has converged too: individual markdown files, dispatched on detection, kept out of context until a task matches the skill's trigger (Claude Code calls them Skills; Codex CLI ships SKILL.md files with YAML frontmatter and progressive disclosure). The Spring Boot code review skill loads when reviewing Spring code; it does not pollute the context when the agent picks up a schema migration task. The always-loaded pattern (AGENTS.md, CLAUDE.md) is older. The dispatch-on-detection pattern (Claude Code Skills, Codex Skills) is newer and scales better as the team's catalog of skills grows.
 
 Both patterns work. The dispatch-on-detection pattern is more efficient at scale - you can have fifty skills for fifty different kinds of work without filling the context window with forty-nine irrelevant ones at any given moment. The always-loaded pattern is simpler and more predictable. Choose based on the kinds of tasks your team runs and the kinds of context-overflow problems you hit.
 
@@ -320,11 +318,25 @@ This matters for enterprise procurement. An MCP integration is portable. The inv
 
 ---
 
+### Memory {#memory}
+
+Memory is the most recent primitive to go universal. Eighteen months ago it was implicit: the agent loaded a prompt, did some work, and the next session started clean. Today Memory has two halves - one fully converged across the major agents, one led by Claude Code with the others on the path.
+
+**Manually defined memory** is the layer the team writes. The convergence is real: Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, and the wider ecosystem all read [AGENTS.md](https://agents.md/) from the repository root at session start. Claude Code reads CLAUDE.md, which can import AGENTS.md to share the same content with other agents. The file is committed to source control, reviewed in pull requests, owned by the team. It is the place forbidden patterns, mistake-journal entries, build commands, and domain glossaries live. Chapter 6 covers what goes in this file in detail and why it matters.
+
+**The auto-memory system** is what the agent writes for itself. Claude Code is the early-mover; other agents are converging on similar mechanisms but had not shipped equivalents at publication. It has two visible surfaces: Auto Memory is the layer where Claude saves learned patterns across sessions - build commands it figured out, debugging insights it confirmed, code-style preferences it inferred - without the user explicitly writing them down. Auto Dream is the background-consolidation layer Anthropic unveiled at Code with Claude SF on 2026-05-06: a scheduled process that reviews recent sessions and the memory store, identifies recurring mistakes and convergent workflows, and writes consolidated notes back into long-term memory. The agent gets better at your codebase between runs.
+
+A note on what is *not* memory in this taxonomy: session memory (the conversation history plus tool results inside a single session) is just the context window. It is memory in the everyday sense but not a separate primitive - it is the primitive named first.
+
+Manually defined memory passes the convergence test today. The auto-memory system is on the path - Claude Code is first; others are following. This manual treats them as one primitive because the structural role is identical, with the caveat that the second half is an early-mover signal, not yet a convergence.
+
+---
+
 **Subagents** are constrained child instances of the agent itself.
 
 The orchestrator agent spawns a subagent, hands it a bounded task with a scoped prompt, and lets it run in its own isolated context with its own scoped tool access. The subagent does the work. The subagent returns a result. The orchestrator collects.
 
-What makes subagents structurally distinct from the other five primitives is that they are recursive. A subagent is another instance of the five primitives - it has its own context window, its own tools, its own skills, plugins, MCP - bounded to a smaller task and isolated from the orchestrator's context. The orchestrator does not see what the subagent saw. It sees only what the subagent returns. The subagent does not pollute the orchestrator's context with intermediate work. The orchestrator does not pollute the subagent's context with unrelated history.
+What makes subagents structurally distinct from the other primitives is that they are recursive. A subagent is another instance of the primitives - it has its own context window, its own tools, its own skills, plugins, MCP, memory - bounded to a smaller task and isolated from the orchestrator's context. The orchestrator does not see what the subagent saw. It sees only what the subagent returns. The subagent does not pollute the orchestrator's context with intermediate work. The orchestrator does not pollute the subagent's context with unrelated history.
 
 In Claude Code, the Task tool dispatches a subagent; recent versions added Agent Teams as a higher-level coordination layer. In Codex CLI, subagents went GA in early 2026 and run up to eight in parallel. Cursor 2.0 introduced its own subagent system; Cline shipped them natively. The convergence is not an accident. Subagents solve two problems no other primitive solves: parallel work bounded by independence rather than by coordination, and context isolation bounded by task scope rather than by session history.
 
@@ -336,25 +348,25 @@ We will return to subagents in Chapter 5 (Execute) and Chapter 7 (architecture r
 
 ---
 
-One more piece organizes all six. The vendors call it the harness. The harness is the runtime around the model - the part that turns the raw model into something useful for coding.
+One more piece organizes them all. The vendors call it the harness. The harness is the runtime around the model - the part that turns the raw model into something useful for coding.
 
-When you ask an agent to do work, the harness is the code that takes your request, formats it for the model, manages the context window, dispatches the tool calls the model wants to make, captures the results, feeds them back to the model, decides when the model is done, and returns the final output to you. The six primitives all live inside the harness. The harness is the architecture; the primitives are the components.
+When you ask an agent to do work, the harness is the code that takes your request, formats it for the model, manages the context window, dispatches the tool calls the model wants to make, captures the results, feeds them back to the model, decides when the model is done, and returns the final output to you. The primitives all live inside the harness. The harness is the architecture; the primitives are the components.
 
 Why this distinction matters: when you compare agents, the temptation is to compare models. "Is Claude Code better than Codex or Cursor for the workflow my team runs?" That is the right question. "Which model has the higher benchmark score this quarter?" is the wrong one. The model determines the ceiling. The harness determines whether you reach it. Compare harnesses, not models.
 
-Said plainly: the harness is the trim around the agent loop. The agent loop is trivial. It is roughly the shape of an HTTP request handler in a web framework - receive prompt, run model, dispatch tools, return response, repeat. The middleware around that loop is where the real work lives. The middleware *is* the harness, *is* the six primitives, *is* what you are buying when you adopt an agent.
+Said plainly: the harness is the trim around the agent loop. The agent loop is trivial. It is roughly the shape of an HTTP request handler in a web framework - receive prompt, run model, dispatch tools, return response, repeat. The middleware around that loop is where the real work lives. The middleware *is* the harness, *is* the primitives, *is* what you are buying when you adopt an agent.
 
 ---
 
-A note on vocabulary. The six primitives are capability primitives: what the agent uses to know, act, extend, integrate, and delegate. The governance mechanisms in Chapter 3 - permissions, sandboxing, hooks, telemetry - are not additional primitives. They are control layers around the primitives, especially around tools and subagents. When evaluating an agent, inspect both: the capability anatomy and the control surface. This chapter is the first; Chapter 3 is the second.
+A note on vocabulary. The primitives named here are capability primitives: what the agent uses to know, act, extend, integrate, remember, and delegate. The governance mechanisms in Chapter 3 - permissions, sandboxing, hooks, telemetry - are not additional primitives. They are control layers around the primitives, especially around tools and subagents. When evaluating an agent, inspect both: the capability anatomy and the control surface. This chapter is the first; Chapter 3 is the second.
 
 ---
 
-Six primitives. Context window. Tools. Skills. Plugins. MCP. Subagents. Plus the harness as the runtime that organizes them.
+Context window. Tools. Skills. Plugins. MCP. Memory. Subagents. Plus the harness as the runtime that organizes them. That is the list today. The set is open; expect it to grow. Memory was missing eighteen months ago and converged across the major agents within a six-month window. The next one will appear when the convergence appears, not before.
 
-When the next coding agent appears in the marketplace next quarter, the evaluation rubric is right there. How big is the context window and how does the agent manage it under pressure? What tools are available and how are they constrained? How are skills implemented - always-loaded, or dispatched on detection? Is there a plugin marketplace and is it growing? Does it speak MCP, and how good is the MCP integration? How does it expose subagents - and is parallel dispatch a first-class operation or an afterthought?
+When the next coding agent appears in the marketplace next quarter, the evaluation rubric is right there. How big is the context window and how does the agent manage it under pressure? What tools are available and how are they constrained? How are skills implemented - always-loaded, or dispatched on detection? Is there a plugin marketplace and is it growing? Does it speak MCP, and how good is the MCP integration? Does it read a team-shared memory file at session start? Does it maintain any agent-written learned memory across sessions? How does it expose subagents - and is parallel dispatch a first-class operation or an afterthought?
 
-Six questions. They tell you almost everything you need to know to compare the new agent to the one you are using today.
+Eight questions today; more tomorrow. They tell you almost everything you need to know to compare the new agent to the one you are using today.
 
 Next chapter: what happens when you point one agent at the source of another. The anatomy I just described becomes very real, very fast.
 
@@ -403,16 +415,16 @@ Six primitives. Two implementations. Same anatomy. Different choices about how t
 
 ---
 
-**Case note: the two-agent demo, six primitives observable in both.**
+**Case note: the two-agent demo, the primitives observable in both.**
 
 | | |
 |---|---|
 | **Context** | Side-by-side experiment built while preparing this manual - pointing Claude Code at the source code of Codex (Rust) and opencode (TypeScript) simultaneously |
-| **Problem** | Readers needed to see that the six primitives were not Claude-Code-specific marketing; they were structural invariants verifiable in source |
-| **Intervention** | Same prompt, two repositories, agent identifies the six primitives in each codebase using grep + read-file tools |
+| **Problem** | Readers needed to see that the primitives were not Claude-Code-specific marketing; they were structural invariants verifiable in source |
+| **Intervention** | Same prompt, two repositories, agent identifies the primitives in each codebase using grep + read-file tools |
 | **Agent time** | ~8 minutes |
 | **Human correction time** | None - the experiment runs end-to-end without intervention once dispatched |
-| **Outcome** | Same six primitives present in both codebases, in different files, under different names, with substantively different implementations; the anatomy is invariant; the implementation is not |
+| **Outcome** | Same primitives present in both codebases, in different files, under different names, with substantively different implementations; the anatomy is invariant; the implementation is not |
 | **Limitations** | Experiment verifies the primitives exist; does not prove they are equally well-implemented (and they are not) |
 
 ---
@@ -425,7 +437,7 @@ This is the framework. The anatomy is invariant. The implementations vary. Pick 
 
 What are your constraints? Language affinity - does the agent's runtime fit your team's stack? License - Apache, MIT, commercial, can you read the source if you need to? Ecosystem fit - does the plugin marketplace contain the integrations you need? Sandbox enforcement - do you need kernel-level isolation or is soft confinement enough? Audit posture - do you need to demonstrate compliance to a regulator, and does the agent produce the artifacts you need to demonstrate it? These are concrete, comparable, decidable questions. They are not "which is better." They are "which fits your constraints."
 
-The teams that get this wrong fixate on the model. They debate Claude Code versus Codex versus Cursor, or they debate the underlying models as if model quality alone determined delivery quality. Those are different questions. In agentic delivery, the harness, governance model, and workflow integration matter as much as the model ceiling. The harness is the six primitives plus the way they are organized, and the differences between harnesses are where the actual stakes live.
+The teams that get this wrong fixate on the model. They debate Claude Code versus Codex versus Cursor, or they debate the underlying models as if model quality alone determined delivery quality. Those are different questions. In agentic delivery, the harness, governance model, and workflow integration matter as much as the model ceiling. The harness is the primitives plus the way they are organized, and the differences between harnesses are where the actual stakes live.
 
 ---
 
@@ -445,9 +457,9 @@ You now have the move.
 
 When the next coding agent appears in your marketplace - and one will appear in the next quarter, because the cycle is now measured in months - you do not need to read the launch blog post. You do not need to wait for the comparative review article. You do not need to install it and run it for a week before forming an opinion.
 
-You open its repository. You locate context assembly. You locate the tool registry. You locate skills loading. You locate plugin extension. You check for MCP support. You locate subagent dispatch. You locate the permission gate. You locate the sandbox - all wrapped by the harness's agent loop.
+You open its repository. You locate context assembly. You locate the tool registry. You locate skills loading. You locate plugin extension. You check for MCP support. You locate the memory layer (AGENTS.md or equivalent; any auto-memory surface the vendor exposes). You locate subagent dispatch. You locate the permission gate. You locate the sandbox - all wrapped by the harness's agent loop.
 
-Eight inspection points: context assembly, tool registry, skills loading, plugin extension, MCP support, subagent dispatch, permission gate, sandbox - all wrapped by the harness's agent loop. Twenty minutes of inspection. You will know more about whether to adopt this agent than any review article will tell you, because you will know whether its specific implementation choices fit your team's specific constraints. Language affinity. License compatibility. Sandbox enforcement. Audit posture. The questions are stable.
+Nine inspection points: context assembly, tool registry, skills loading, plugin extension, MCP support, memory layer, subagent dispatch, permission gate, sandbox - all wrapped by the harness's agent loop. Twenty minutes of inspection. You will know more about whether to adopt this agent than any review article will tell you, because you will know whether its specific implementation choices fit your team's specific constraints. Language affinity. License compatibility. Sandbox enforcement. Audit posture. The questions are stable.
 
 The vendor's marketing will tell you what they want you to focus on. The source code will tell you what they actually built. The architecture invariant lets you read past the marketing.
 
@@ -459,7 +471,7 @@ The next chapter is about governance specifically - what the layers are, what ea
 
 ---
 
-**Artifact: Source-inspection checklist.** The eight inspection points from this chapter. Use the checklist on the next agent that lands in your team's evaluation queue.
+**Artifact: Source-inspection checklist.** The nine inspection points from this chapter. Use the checklist on the next agent that lands in your team's evaluation queue.
 
 ---
 
@@ -477,11 +489,11 @@ Pick two open-source coding agents whose source code is published. As of May 202
 
 1. Clone both repositories.
 2. Open your primary coding agent (whichever one you use day-to-day) in one repo. Open a second instance in the other.
-3. Ask each instance the same question: "Walk this codebase and name the six primitives - context window, tools, skills, plugins, MCP, subagents. For each, tell me which file or module implements it, and rate the implementation basic, intermediate, or advanced."
+3. Ask each instance the same question: "Walk this codebase and name the primitives - context window, tools, skills, plugins, MCP, memory, subagents. For each, tell me which file or module implements it, and rate the implementation basic, intermediate, or advanced."
 4. Save the two answers in a two-column markdown table.
 5. Read the table. The primitives are the same in both. The implementation choices are different. Those choices are governance choices, and they are how you tell two agents apart at the source-code level.
 
-On the May 2026 generation of agents, the walk takes four to ten minutes per repo. For a less self-documenting codebase, budget closer to fifteen. The two agents you compare a year from now will not be these two. The six primitives, the diagnostic, and what the diagnostic tells you about governance will be.
+On the May 2026 generation of agents, the walk takes four to ten minutes per repo. For a less self-documenting codebase, budget closer to fifteen. The two agents you compare a year from now will not be these two. The primitives, the diagnostic, and what the diagnostic tells you about governance will be.
 
 ---
 
@@ -855,7 +867,7 @@ The plan review takes a few minutes. It saves an afternoon when the plan was wro
 
 **Phase three: execute.**
 
-This is where the sixth primitive from Chapter 1 - subagents - earns its keep. Execute is the phase where the orchestrator dispatches multiple constrained children, each working on a bounded task in its own isolated context.
+This is where the recursive primitive from Chapter 1 - subagents - earns its keep. Execute is the phase where the orchestrator dispatches multiple constrained children, each working on a bounded task in its own isolated context.
 
 The agent dispatches subagents per task. Each subagent works in its own isolated context - a key architectural feature, because context contamination is the single biggest reason long-running agent sessions go wrong. Task one's confused reasoning does not pollute task four's clean slate. Each subagent reads only what it needs, makes its assigned change, runs the verification step in the plan, and reports back. The orchestrator agent assembles the results.
 
@@ -1879,7 +1891,7 @@ The specific tools I have named throughout - Claude Code, Codex CLI, opencode, S
 
 What you have learned in this manual is not the tools. What you have learned is a way of thinking that survives the tools.
 
-The architecture you learned in Part I is invariant. The six primitives - context window, tools, skills, plugins, MCP, subagents - plus the harness that organizes them. Most production-grade coding agents converge on this anatomy. The coding agents that emerge in the next decade will, in most cases, take a similar shape, because the anatomy is determined by the work, not by the vendor. When you evaluate a new agent, you walk down the list, ask the six questions, and you have your answer.
+The architecture you learned in Part I is invariant. The primitives - context window, tools, skills, plugins, MCP, memory, subagents - plus the harness that organizes them. Most production-grade coding agents converge on this anatomy. The coding agents that emerge in the next decade will, in most cases, take a similar shape, because the anatomy is determined by the work, not by the vendor. When you evaluate a new agent, you walk down the list, ask the question for each primitive, and you have your answer. The list is open; new primitives will appear as the major agents converge on new mechanisms.
 
 The method you learned in Part II is invariant. The shift from generating code to formulating work clearly is the foundational insight. The six-phase loop is one implementation of formulation discipline; other implementations will appear. The [AGENTS.md](https://agents.md/) pattern - committed code that encodes team conventions for the agent to read - will exist under different names in different tools, but the principle is permanent: discipline as code, not as oral tradition.
 
@@ -2282,35 +2294,35 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 **Claim:** Codex CLI shipped Agent Skills as a first-class primitive in December 2025, with SKILL.md files using YAML frontmatter and progressive disclosure semantics comparable to Claude Code Skills.
 **Source:** OpenAI Codex CLI docs, [developers.openai.com/codex/skills](https://developers.openai.com/codex/skills).
-**Where used:** Chapter 1 (Six primitives), as the Codex side of the skill-primitive convergence.
+**Where used:** Chapter 1 (The primitives), as the Codex side of the skill-primitive convergence.
 **Caveat:** Vendor documentation; the GA dates are accurate as of mid-2026 but may be revised retroactively.
 
 ---
 
 **Claim:** Codex CLI subagents went GA in early 2026 and can run up to eight in parallel.
 **Source:** OpenAI Codex CLI docs, [developers.openai.com/codex/](https://developers.openai.com/codex/).
-**Where used:** Chapter 1 (Six primitives) and Chapter 5 (the six-phase loop, Execute phase).
+**Where used:** Chapter 1 (The primitives) and Chapter 5 (the six-phase loop, Execute phase).
 **Caveat:** Vendor documentation; parallel count may change with subsequent versions.
 
 ---
 
 **Claim:** Codex CLI documents [AGENTS.md](https://agents.md/) as the convention for project-level agent instructions, loaded at session start and equivalent in role to other vendors' team-instruction files.
 **Source:** OpenAI Codex CLI documentation, [developers.openai.com/codex/agents-md](https://developers.openai.com/codex/agents-md).
-**Where used:** Chapter 1 (Six primitives, skills section) and Chapter 6 (AGENTS.md as team infrastructure).
+**Where used:** Chapter 1 (The primitives, skills section) and Chapter 6 (AGENTS.md as team infrastructure).
 **Caveat:** Filename and loading semantics are stable; specific frontmatter and discovery rules may evolve with versions.
 
 ---
 
 **Claim:** AGENTS.md as the vendor-neutral team-instruction-file convention has native support across Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, Zed, and Windsurf. The format is markdown; the loading semantics are equivalent across tools.
 **Source:** Cross-vendor documentation: Codex CLI ([developers.openai.com/codex/agents-md](https://developers.openai.com/codex/agents-md)), Cursor ([cursor.sh/docs](https://cursor.sh/docs)), GitHub Copilot ([docs.github.com/copilot](https://docs.github.com/copilot)), Gemini CLI ([cloud.google.com/gemini/docs/codeassist](https://cloud.google.com/gemini/docs/codeassist)), Aider ([aider.chat/docs](https://aider.chat/docs)), Zed ([zed.dev/docs/ai](https://zed.dev/docs/ai)), Windsurf ([codeium.com/windsurf/docs](https://codeium.com/windsurf/docs)).
-**Where used:** Chapter 1 (Six primitives, skills section) and Chapter 6 (Names and conventions).
+**Where used:** Chapter 1 (The primitives, skills section) and Chapter 6 (Names and conventions).
 **Caveat:** The list of supporting tools grows over time; the claim is that AGENTS.md is the de facto vendor-neutral convention, not that the list is exhaustive.
 
 ---
 
-**Claim:** opencode is an open-source coding agent maintained by an independent team, written in TypeScript and licensed under MIT. Source-organized around the same six primitives this manual identifies in Codex CLI and Claude Code.
+**Claim:** opencode is an open-source coding agent maintained by an independent team, written in TypeScript and licensed under MIT. Source-organized around the same primitives this manual identifies in Codex CLI and Claude Code.
 **Source:** opencode repository ([github.com/opencode-ai/opencode](https://github.com/opencode-ai/opencode)); LICENSE and README.
-**Where used:** Chapter 1 (Six primitives, source survey) and Chapter 2 (Anatomy invariant, two-agent demo).
+**Where used:** Chapter 1 (The primitives, source survey) and Chapter 2 (Anatomy invariant, two-agent demo).
 **Caveat:** Project naming and maintainer composition may evolve; the architectural convergence claim survives renames.
 
 ---
@@ -2331,7 +2343,7 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 **Claim:** Cursor 2.0 introduced a subagent system; Cline shipped subagents natively; Claude Code added Agent Teams as a higher-level coordination layer on top of the Task tool.
 **Source:** Vendor announcements and docs for Cursor, Cline, and Claude Code; collated across early-to-mid 2026.
-**Where used:** Chapter 1 (Six primitives), as evidence for subagent-primitive convergence within roughly a year.
+**Where used:** Chapter 1 (The primitives), as evidence for subagent-primitive convergence within roughly a year.
 **Caveat:** Vendor surface areas evolve; the convergence claim survives even when specific product names rebrand.
 
 ---
@@ -2340,7 +2352,7 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 **Claim:** Anthropic's `claude-plugins-official` marketplace ships built-in with Claude Code as of May 2026 and bundles skills, hooks, tools, and commands behind a single install command. The marketplace warns users to trust plugins before installing.
 **Source:** Claude Code docs ([code.claude.com/docs/en/discover-plugins](https://code.claude.com/docs/en/discover-plugins)); the marketplace itself.
-**Where used:** Chapter 1 (Six primitives, plugins section).
+**Where used:** Chapter 1 (The primitives, plugins section).
 **Caveat:** Plugin counts and marketplace policies will drift; the supply-chain discipline described in Chapter 1 is what to take away rather than any specific count.
 
 ---

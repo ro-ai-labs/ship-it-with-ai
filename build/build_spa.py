@@ -35,7 +35,7 @@ TEMPLATE_PATH = HERE / "spa_template.html"
 SECTION_SLUGS: dict[tuple[str, str], str] = {
     ("foreword", "Foreword"):                                       "foreword",
     ("prologue", "Nine seconds"):                                   "prologue-nine-seconds",
-    ("chapter", "Six primitives"):                                  "chapter-1-six-primitives",
+    ("chapter", "The primitives"):                                  "chapter-1-primitives",
     ("chapter", "The anatomy invariant"):                           "chapter-2-anatomy-invariant",
     ("chapter", "Governance in layers"):                            "chapter-3-governance-in-layers",
     ("chapter", "From generating code to shipping software"):       "chapter-4-from-generating-code-to-shipping-software",
@@ -307,17 +307,28 @@ def diagram_primitives() -> str:
   <div class="harness">
     <div class="harness-label">THE HARNESS</div>
     <div class="primitives-grid">
-      <div class="primitive"><div class="primitive-icon">{}</div><div class="primitive-name">context window</div></div>
-      <div class="primitive"><div class="primitive-icon">{}</div><div class="primitive-name">tools</div></div>
-      <div class="primitive"><div class="primitive-icon">{}</div><div class="primitive-name">skills</div></div>
-      <div class="primitive"><div class="primitive-icon">{}</div><div class="primitive-name">plugins</div></div>
-      <div class="primitive"><div class="primitive-icon">{}</div><div class="primitive-name">MCP</div></div>
-      <div class="primitive primitive-recursive"><div class="primitive-icon">{}</div><div class="primitive-name">subagents</div><div class="primitive-note">the agent, recursively</div></div>
+      <div class="primitive"><div class="primitive-icon">◉</div><div class="primitive-name">context window</div></div>
+      <div class="primitive"><div class="primitive-icon">⚙</div><div class="primitive-name">tools</div></div>
+      <div class="primitive"><div class="primitive-icon">✦</div><div class="primitive-name">skills</div></div>
+      <div class="primitive"><div class="primitive-icon">▣</div><div class="primitive-name">plugins</div></div>
+      <div class="primitive"><div class="primitive-icon">↔</div><div class="primitive-name">MCP</div></div>
+      <div class="primitive primitive-memory">
+        <div class="primitive-icon">▤</div>
+        <div class="primitive-name">memory</div>
+        <div class="primitive-sublist">
+          <span class="primitive-sub">manually defined</span>
+          <span class="primitive-sub">auto-memory system</span>
+        </div>
+      </div>
+    </div>
+    <div class="primitives-divider" aria-hidden="true"></div>
+    <div class="primitives-recursive">
+      <div class="primitive primitive-recursive"><div class="primitive-icon">⟲</div><div class="primitive-name">subagents</div><div class="primitive-note">the agent, recursively</div></div>
     </div>
     <div class="harness-foot">the agent loop binds them together;<br/>subagents spawn constrained child instances of the agent itself</div>
   </div>
-  <figcaption>Figure: The six primitives and the harness that runs them. Subagents are the recursive primitive: each subagent is itself an instance of the other five.</figcaption>
-</figure>""".format("◉", "⚙", "✦", "▣", "↔", "⟲")
+  <figcaption>Figure: The primitives and the harness that runs them. Memory is the most recent primitive to converge across the major agents. Subagents sit below the line because they are the recursive primitive: each subagent is itself an instance of the others.</figcaption>
+</figure>"""
 
 
 def diagram_layers() -> str:
@@ -443,7 +454,7 @@ FIGURE_BLOCK_RE = re.compile(
 # document-order dispatch, which broke when per-chapter pages each contain a
 # subset of the document's figures).
 FIGURE_RENDERERS_BY_CAPTION_KEY: list[tuple[str, callable]] = [
-    ("six primitives and the harness",  diagram_primitives),
+    ("primitives and the harness",      diagram_primitives),
     ("five governance layers",          diagram_layers),
     ("six-phase loop",                  diagram_loop),
     ("kill signals and the traffic",    diagram_traffic_light),
@@ -1384,7 +1395,7 @@ HOMEPAGE_HEAD_SCHEMA = '''<script type="application/ld+json">
       "AGENTS.md",
       "AI coding agents"
     ],
-    "description": "A vendor-neutral field manual for shipping software with AI coding agents. Covers six primitives, the six-phase loop, AGENTS.md, governance in layers, kill signals, brownfield patterns, and 90-day adoption.",
+    "description": "A vendor-neutral field manual for shipping software with AI coding agents. Covers the primitives, the six-phase loop, AGENTS.md, governance in layers, kill signals, brownfield patterns, and 90-day adoption.",
     "url": "https://ship-it-with.ai/",
     "image": "https://ship-it-with.ai/cover.jpg",
     "dateModified": "{DATE_MODIFIED}"
@@ -1567,8 +1578,16 @@ def render_hash_redirect_js(sections: list[Section]) -> str:
 def render_sitemap(sections: list[Section]) -> str:
     """Full sitemap: landing + /read/ + every per-section URL (20 total)."""
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    # Slugs renamed in earlier passes — old URLs serve as redirect stubs,
+    # not as canonical URLs. Exclude from sitemap so Google doesn't index them.
+    REDIRECTED_OLD_SLUGS = {"chapter-1-six-primitives"}
+
     urls = ["https://ship-it-with.ai/", "https://ship-it-with.ai/read/"]
-    urls += [f"https://ship-it-with.ai/{s.slug}/" for s in sections]
+    urls += [
+        f"https://ship-it-with.ai/{s.slug}/"
+        for s in sections
+        if s.slug not in REDIRECTED_OLD_SLUGS
+    ]
     body = "\n".join(
         f'  <url><loc>{u}</loc><lastmod>{today}</lastmod></url>' for u in urls
     )
@@ -1922,7 +1941,7 @@ def render_chapter(template: str, section: Section, *,
 LANDING_DESCRIPTION = (
     "Agentic coding — letting an AI agent read, write, run, and verify your "
     "code — is a control problem, not a tooling problem. A vendor-neutral "
-    "field manual: six primitives, the six-phase loop, AGENTS.md, governance, "
+    "field manual: the primitives, the six-phase loop, AGENTS.md, governance, "
     "kill signals, brownfield patterns, 90-day adoption."
 )
 
@@ -1994,6 +2013,33 @@ _FOUR_OH_FOUR_ARTICLE_BODY = '''<header class="article-header">
       </section>'''
 
 
+def render_redirect_stub(old_slug: str, new_slug: str, new_title: str) -> str:
+    """Emit a tiny redirect-stub HTML page at the old slug.
+
+    Used when a chapter slug is renamed so inbound bookmarks don't dead-end.
+    Combines meta-refresh (works without JS), location.replace (immediate
+    in modern browsers), and a canonical pointing to the new URL so
+    crawlers consolidate ranking.
+    """
+    new_url = f"/{new_slug}/"
+    new_url_absolute = f"https://ship-it-with.ai{new_url}"
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Moved - {new_title}</title>
+  <link rel="canonical" href="{new_url_absolute}">
+  <meta http-equiv="refresh" content="0; url={new_url}">
+  <meta name="robots" content="noindex, follow">
+  <script>location.replace('{new_url}');</script>
+</head>
+<body>
+  <p>This page has moved to <a href="{new_url}">{new_url}</a>.</p>
+</body>
+</html>
+"""
+
+
 def render_404(template: str, *, title: str, author: str, toc_html: str,
                search_index: str = "[]") -> str:
     """Render the 404 page reusing the homepage chrome (topbar / TOC / footer).
@@ -2038,7 +2084,7 @@ def _llms_label(section: Section) -> str:
     Examples:
       foreword            → "Foreword"
       prologue            → "Prologue - Nine seconds"
-      chapter (slug=ch-1) → "Chapter 1 - Six primitives"
+      chapter (slug=ch-1) → "Chapter 1 - The primitives"
       closing             → "Closing"
       appendix (letter A) → "Appendix A - Cost economics"
       about               → "About the author"
@@ -2097,7 +2143,7 @@ def render_llms_txt(sections: list[Section]) -> str:
     return f"""# Ship It With AI - A Field Manual for Agentic Coding
 
 > A vendor-neutral field manual for shipping software with AI coding agents.
-> Covers six primitives, the six-phase loop, AGENTS.md as team infrastructure,
+> Covers the primitives, the six-phase loop, AGENTS.md as team infrastructure,
 > governance in layers, kill signals, brownfield patterns, and 90-day adoption.
 
 ## Docs
@@ -2306,6 +2352,18 @@ def main() -> int:
         dest.mkdir(exist_ok=True)
         (dest / "index.html").write_text(page_html)
     print(f"Wrote {len(sections)} per-section pages")
+
+    # Renamed-slug redirect stubs: old slug -> new slug.
+    # Memory primitive pass (2026-05-27): chapter-1-six-primitives -> chapter-1-primitives.
+    redirect_stubs = [
+        ("chapter-1-six-primitives", "chapter-1-primitives", "The primitives"),
+    ]
+    for old_slug, new_slug, new_title in redirect_stubs:
+        dest = SITE_DIR / old_slug
+        dest.mkdir(exist_ok=True)
+        (dest / "index.html").write_text(render_redirect_stub(old_slug, new_slug, new_title))
+    if redirect_stubs:
+        print(f"Wrote {len(redirect_stubs)} redirect stub(s)")
 
     # 404, llms.txt, deferred.css, sitemap.
     # 404 sidebar uses chapter-url mode so clicks resolve to real per-section
