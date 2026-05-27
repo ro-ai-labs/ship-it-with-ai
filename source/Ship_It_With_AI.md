@@ -284,6 +284,22 @@ Tool calls are also where governance lives. We will spend an entire chapter on t
 
 ---
 
+### Permissions / Sandbox {#permissions-sandbox}
+
+**Permissions / Sandbox** is the primitive that PocketOS lacked. It has two halves, and they are not the same control written two ways - they are two different controls that the convergent agents ship together because each one catches what the other misses.
+
+**The agent-level decision layer** is what the agent itself consults before every tool call. Allow / Ask / Deny rules, plus the newer auto-mode classifier that handles routine decisions silently and surfaces the rest for the operator. Every major coding agent ships this: Claude Code, Codex CLI, opencode, Cursor, Gemini CLI. Rule syntax differs by vendor; the architectural role does not. This is the layer most teams reach for first. This is also the layer prompt injection can defeat, because prompt injection works by manipulating the agent's reasoning, and the agent's reasoning is what consults the rules.
+
+**The OS-level enforcement** runs underneath. The kernel itself refuses syscalls the agent was not authorized to make: Seatbelt on macOS, bubblewrap with Landlock and seccomp on Linux, restricted tokens or WSL2-backed isolation on Windows. The agent cannot reason its way past this layer because the kernel is not listening to the agent's reasoning - it is listening to system calls. Either the syscall is permitted or it is not.
+
+Convergence on this half is real but uneven. Codex CLI enforces OS-level sandbox by default on Linux and macOS. Cursor added kernel-backed sandbox controls in its 2.x line. Gemini CLI ships sandbox profiles per platform. Claude Code is opt-in - the sandbox is available, but most installations skip it. opencode is the partial exception: it ships only the decision half, leaving OS isolation to whatever Docker or microVM the operator configures around it. The convergence is on *presence of both halves as a configurable bundle*, not on *posture* - exactly the asymmetry the Memory primitive has on its second half. Treat that as the honest reading.
+
+Said plainly: the agent-level layer is bypassable by prompt injection. The OS-level layer is not. The two ship together because neither is sufficient alone. The convergent-pairing is the primitive.
+
+Chapter 3 walks the configuration surfaces of this primitive - how each major agent exposes its allow/ask/deny rules, where the OS sandbox is opted-into or opted-out-of, and how the chapter's five governance layers map onto the primitive's two halves.
+
+---
+
 **Skills** are packaged instructions that the agent loads when relevant. The team's preferred way of writing a Spring Boot service. The conventions for React component testing. The pattern for adding a new column to a multi-tenant database table. Each of these is a chunk of markdown - usually a few hundred words to a few thousand - that the agent reads at the moment it needs the relevant expertise.
 
 The implementation of skills varies between agents in file names and loading semantics, but the underlying primitive is now shared across the major agents. The always-loaded primitive has converged on two filenames: the vendor-neutral [AGENTS.md](https://agents.md/), supported by Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, and the wider ecosystem; and CLAUDE.md, which Claude Code reads natively. The two are interoperable - Claude Code can import AGENTS.md into CLAUDE.md so the team's content lives in one place across vendors. Both load at session start, both serve the same role. The on-demand primitive has converged too: individual markdown files, dispatched on detection, kept out of context until a task matches the skill's trigger (Claude Code calls them Skills; Codex CLI ships SKILL.md files with YAML frontmatter and progressive disclosure). The Spring Boot code review skill loads when reviewing Spring code; it does not pollute the context when the agent picks up a schema migration task. The always-loaded pattern (AGENTS.md, CLAUDE.md) is older. The dispatch-on-detection pattern (Claude Code Skills, Codex Skills) is newer and scales better as the team's catalog of skills grows.
