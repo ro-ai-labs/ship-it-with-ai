@@ -536,6 +536,9 @@ async function main() {
       const readHtmlRaw = fs.readFileSync(path.join(repoRoot, '_site', 'read', 'index.html'), 'utf8');
       const cl = readHtmlRaw.indexOf('<h2 id="changelog"');
       const nextH2 = cl >= 0 ? readHtmlRaw.indexOf('<h2 id="', cl + 1) : -1;
+      if (cl >= 0 && nextH2 <= cl) {
+        fail('changelog slice could not locate the next H2 in /read/ — section ordering may have changed; verify script needs updating');
+      }
       const readHtml = cl >= 0 && nextH2 > cl
         ? readHtmlRaw.slice(0, cl) + readHtmlRaw.slice(nextH2)
         : readHtmlRaw;
