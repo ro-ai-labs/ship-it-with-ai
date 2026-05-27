@@ -1921,7 +1921,7 @@ The specific tools I have named throughout - Claude Code, Codex CLI, opencode, S
 
 What you have learned in this manual is not the tools. What you have learned is a way of thinking that survives the tools.
 
-The architecture you learned in Part I is invariant. The primitives - context window, tools, skills, plugins, MCP, memory, subagents - plus the harness that organizes them. Most production-grade coding agents converge on this anatomy. The coding agents that emerge in the next decade will, in most cases, take a similar shape, because the anatomy is determined by the work, not by the vendor. When you evaluate a new agent, you walk down the list, ask the question for each primitive, and you have your answer. The list is open; new primitives will appear as the major agents converge on new mechanisms.
+The architecture you learned in Part I is invariant. The primitives - context window, tools, permissions / sandbox, skills, plugins, MCP, memory, subagents - plus the harness that organizes them. Most production-grade coding agents converge on this anatomy. The coding agents that emerge in the next decade will, in most cases, take a similar shape, because the anatomy is determined by the work, not by the vendor. When you evaluate a new agent, you walk down the list, ask the question for each primitive, and you have your answer. The list is open; new primitives will appear as the major agents converge on new mechanisms.
 
 The method you learned in Part II is invariant. The shift from generating code to formulating work clearly is the foundational insight. The six-phase loop is one implementation of formulation discipline; other implementations will appear. The [AGENTS.md](https://agents.md/) pattern - committed code that encodes team conventions for the agent to read - will exist under different names in different tools, but the principle is permanent: discipline as code, not as oral tradition.
 
@@ -2007,6 +2007,10 @@ That trajectory - four decades of writing code, twenty-five of them professional
 ## Changelog {#changelog}
 
 This page tracks meaningful updates to the manual. Smaller copy-edits and SEO tweaks are not listed; the footer shows the last updated date.
+
+### 2026-05-27 — Permissions / Sandbox primitive
+
+Permissions / Sandbox promoted to a named primitive - the third slot in the inventory, after Context window and Tools. Two halves like Memory: the agent-level decision layer (Allow / Ask / Deny + auto mode) and OS-level enforcement (Seatbelt / bubblewrap / restricted tokens / WSL2). The vocabulary note in Chapter 1 was rewritten to name the convergence test that promoted this primitive while leaving telemetry as a control layer. Chapter 3 gains a framing paragraph binding three of its five layers (permissions, hooks, sandbox) to the new primitive's configuration surfaces; the five-layer defense-in-depth narrative is preserved unchanged. Inspection-points count in Chapter 2 dropped from Nine to Eight (the two halves of P/S collapsed to one). Diagram updated to 8 cells. Three new Appendix C entries source the Claude Code / Codex / opencode implementations.
 
 ### 2026-05-27 — Changelog + last-updated footer
 
@@ -2433,6 +2437,29 @@ This appendix exists because every claim in this manual deserves a verifiable so
 **Source:** Code with Claude SF announcement, 2026-05-06; [code.claude.com/docs/en/memory](https://code.claude.com/docs/en/memory).
 **Where used:** Chapter 1 (The primitives, Memory section).
 **Caveat:** Auto Dream is Claude-Code-specific at publication date. The structural role is what this manual indexes, not the vendor.
+
+---
+
+### Permissions / Sandbox primitive sources
+
+**Claim:** Claude Code ships an Allow/Ask/Deny permission model with deny-then-ask-then-allow precedence and an opt-in OS sandbox - Seatbelt on macOS, bubblewrap on Linux - configurable via `/sandbox` and project-level `.claude/settings.json`. The decision layer is on by default; the OS sandbox is not.
+**Source:** [code.claude.com/docs/en/permissions](https://code.claude.com/docs/en/permissions); [code.claude.com/docs/en/sandboxing](https://code.claude.com/docs/en/sandboxing).
+**Where used:** Chapter 1 (Permissions / Sandbox section), Chapter 3 (Layer one and Layer two).
+**Caveat:** Opt-in posture on the OS-enforcement half. A default Claude Code installation has the decision layer but no kernel-level sandbox; most installations skip the sandbox configuration step.
+
+---
+
+**Claim:** Codex CLI enforces OS-level sandbox by default on Linux (Landlock + seccomp via bwrap) and macOS (Seatbelt); on Windows it uses restricted tokens plus ACL-based isolation. The decision layer ships alongside as a per-tool approval gate.
+**Source:** [developers.openai.com/codex/concepts/sandboxing](https://developers.openai.com/codex/concepts/sandboxing); [developers.openai.com/codex/agent-approvals-security](https://developers.openai.com/codex/agent-approvals-security).
+**Where used:** Chapter 1 (Permissions / Sandbox section), Chapter 2 (side-by-side architecture finding), Chapter 3 (Layer two).
+**Caveat:** Opt-out posture - you can configure Codex to run without sandbox, but the default flips the convention from "off unless configured" to "on unless disabled." Windows implementation is the least uniform across major agents.
+
+---
+
+**Claim:** opencode ships an in-agent permission-prompt model and path/permission validation, but does not provide OS-level sandbox isolation; isolation requires the operator to wrap opencode in Docker, a microVM, or another sandbox harness (Vercel's KB documents this explicitly as a deployment pattern). On the convergence test from Chapter 1, opencode passes the decision-layer half and not the OS-enforcement half.
+**Source:** [vercel.com/kb/guide/running-opencode-securely-with-the-vercel-sandbox](https://vercel.com/kb/guide/running-opencode-securely-with-the-vercel-sandbox).
+**Where used:** Chapter 1 (Permissions / Sandbox section), Chapter 2 (side-by-side architecture finding).
+**Caveat:** The "soft confinement" framing is the manual's, not opencode's documentation. opencode does not claim to ship a sandbox - the absence is honest, not hidden.
 
 ---
 
