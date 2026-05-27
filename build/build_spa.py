@@ -647,12 +647,13 @@ def slugify(text: str) -> str:
 # Appendix C - Sources and Further Reading: rewrite the four-bold-paragraph
 # entries as semantic <article> cards with category accent.
 SOURCE_GROUPS = {
-    "Studies and research":                ("study",    "Study"),
-    "Named incidents":                     ("incident", "Incident"),
-    "Vulnerabilities with patch versions": ("vuln",     "Vulnerability"),
-    "Tool documentation":                  ("docs",     "Tool documentation"),
-    "Marketplaces and plugin ecosystems":  ("market",   "Marketplace"),
-    "Memory primitive sources":            ("memory",   "Memory primitive"),
+    "Studies and research":                  ("study",    "Study"),
+    "Named incidents":                       ("incident", "Incident"),
+    "Vulnerabilities with patch versions":   ("vuln",     "Vulnerability"),
+    "Tool documentation":                    ("docs",     "Tool documentation"),
+    "Marketplaces and plugin ecosystems":    ("market",   "Marketplace"),
+    "Memory primitive sources":              ("memory",   "Memory primitive"),
+    "Permissions / Sandbox primitive sources": ("perms",  "Permissions / Sandbox primitive"),
 }
 
 SOURCE_ENTRY_RE = re.compile(

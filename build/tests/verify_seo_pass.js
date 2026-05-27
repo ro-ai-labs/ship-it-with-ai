@@ -591,7 +591,7 @@ async function main() {
         'The primitives. Two implementations',
         'Context window. Tools. Permissions / Sandbox. Skills. Plugins. MCP. Memory. Subagents.',
         'Permissions / Sandbox',
-        'convergent-pairing is the primitive',
+        'convergent pairing is the primitive',
       ];
       let posGreen = true;
       for (const phrase of required) {
@@ -679,7 +679,7 @@ async function main() {
         'Permissions / Sandbox',
         'agent-level decision layer',
         'OS-level enforcement',
-        'convergent-pairing is the primitive',
+        'convergent pairing is the primitive',
       ];
       let allOk = true;
       for (const phrase of required) {
