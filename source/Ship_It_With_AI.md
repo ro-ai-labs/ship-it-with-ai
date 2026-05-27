@@ -997,7 +997,7 @@ Run one feature through the full six-phase loop. Time each phase. Note which pha
 
 ---
 
-AGENTS.md is the manually defined layer of the Memory primitive named in Chapter 1. It is the team-shareable surface - the layer the team authors, reviews, and owns in source control, as infrastructure the team owns. The auto-memory system (Auto Memory, Auto Dream) is per-developer and largely automatic; this chapter focuses on the layer the team explicitly owns, because that is where team-level discipline lives. What follows is six things that go in AGENTS.md, the 200-line budget rule, and the failure modes you see in practice.
+AGENTS.md is the manually defined layer of the Memory primitive named in Chapter 1. It is the team-shareable surface - the layer the team authors, reviews, and owns in source control. The auto-memory system (Auto Memory, Auto Dream) is per-developer and largely automatic; this chapter focuses on the manually owned layer, because that is where team-level discipline lives. What follows is six things that go in AGENTS.md, the 200-line budget rule, and the failure modes you see in practice.
 
 ---
 
