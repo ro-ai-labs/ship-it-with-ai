@@ -563,9 +563,11 @@ async function main() {
         : readHtmlRaw;
       const forbidden = [
         'six primitives', 'sixth primitive', 'the other five', 'five primitives',
-        'five capabilities', 'six conceptual', 'Six questions', 'Eight inspection points',
+        'five capabilities', 'six conceptual', 'Six questions',
+        'Nine inspection points', 'nine inspection points',
         'Six primitives. Two implementations', 'The sixth one is newer',
-        'of the six'
+        'of the six',
+        'are not additional primitives',
       ];
       const readHtmlLower = readHtml.toLowerCase();
       let sweepGreen = true;
@@ -579,15 +581,17 @@ async function main() {
     {
       const readHtml = fs.readFileSync(path.join(repoRoot, '_site', 'read', 'index.html'), 'utf8');
       const required = [
-        'Eight questions today',
-        'Nine inspection points',
+        'Nine questions today',
+        'Eight inspection points',
         'auto-memory system',
         'early-mover signal',
         'which Claude Code reads natively',
         'Manually defined memory',
         'The primitives are an open set',
         'The primitives. Two implementations',
-        'Context window. Tools. Skills. Plugins. MCP. Memory. Subagents.',
+        'Context window. Tools. Permissions / Sandbox. Skills. Plugins. MCP. Memory. Subagents.',
+        'Permissions / Sandbox',
+        'convergent-pairing is the primitive',
       ];
       let posGreen = true;
       for (const phrase of required) {
@@ -606,8 +610,8 @@ async function main() {
       const sublistCount = await page.locator('.primitive-sublist').count();
       if (dividerCount < 1) fail('chapter-1 diagram missing .primitives-divider');
       if (recursiveCount < 1) fail('chapter-1 diagram missing .primitives-recursive .primitive');
-      if (sublistCount < 1) fail('chapter-1 diagram missing .primitive-sublist (Memory cell)');
-      if (dividerCount && recursiveCount && sublistCount) ok('chapter-1 diagram has divider + recursive row + Memory sublist');
+      if (sublistCount < 2) fail(`chapter-1 diagram needs >= 2 .primitive-sublist (Memory + P/S); got ${sublistCount}`);
+      if (dividerCount && recursiveCount && sublistCount >= 2) ok('chapter-1 diagram has divider + recursive row + Memory + P/S sublists');
       await ctx.close();
     }
 
@@ -660,6 +664,79 @@ async function main() {
       await ctx.close();
     }
 
+    // ===== Permissions / Sandbox primitive assertions =====
+
+    // 9a. Ch.1 has the new Permissions / Sandbox section (heading + anchor + key phrases).
+    {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      await page.goto(`${baseUrl}/chapter-1-primitives/`);
+      const html = await page.content();
+      if (!html.includes('id="permissions-sandbox"')) fail('chapter-1 missing #permissions-sandbox anchor');
+      else ok('chapter-1 has #permissions-sandbox anchor');
+      const body = (await page.locator('main').textContent()) || '';
+      const required = [
+        'Permissions / Sandbox',
+        'agent-level decision layer',
+        'OS-level enforcement',
+        'convergent-pairing is the primitive',
+      ];
+      let allOk = true;
+      for (const phrase of required) {
+        if (!body.includes(phrase)) { fail(`chapter-1 missing "${phrase}"`); allOk = false; }
+      }
+      if (allOk) ok('chapter-1 P/S section has all required phrases');
+      await ctx.close();
+    }
+
+    // 9b. Ch.2 mentions Permissions / Sandbox in the inspection-points list + sandbox-as-primitive passage.
+    {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      await page.goto(`${baseUrl}/chapter-2-anatomy-invariant/`);
+      const body = (await page.locator('main').textContent()) || '';
+      if (!body.includes('Permissions / Sandbox')) fail('chapter-2 missing Permissions / Sandbox');
+      else ok('chapter-2 mentions Permissions / Sandbox');
+      if (!body.includes('Eight inspection points')) fail('chapter-2 missing "Eight inspection points"');
+      else ok('chapter-2 has "Eight inspection points"');
+      await ctx.close();
+    }
+
+    // 9c. Ch.3 framing paragraph binds 3 of 5 layers to the P/S primitive.
+    {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      await page.goto(`${baseUrl}/chapter-3-governance-in-layers/`);
+      const body = (await page.locator('main').textContent()) || '';
+      if (!body.includes('configuration surfaces of the Permissions / Sandbox primitive')) {
+        fail('chapter-3 missing P/S framing-paragraph phrase');
+      } else ok('chapter-3 has P/S framing-paragraph phrase');
+      if (!body.includes('Permissions / Sandbox would have caught it twice')) {
+        fail('chapter-3 missing PocketOS P/S follow-up sentence');
+      } else ok('chapter-3 PocketOS callout names P/S primitive');
+      await ctx.close();
+    }
+
+    // 9d. Appendix C has the 3 new P/S sources.
+    {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      await page.goto(`${baseUrl}/appendix-c-sources/`);
+      const body = (await page.locator('main').textContent()) || '';
+      const required = [
+        'Permissions / Sandbox primitive sources',
+        'Claude Code ships an Allow/Ask/Deny',
+        'Codex CLI enforces OS-level sandbox by default',
+        'opencode ships an in-agent permission-prompt model',
+      ];
+      let allOk = true;
+      for (const phrase of required) {
+        if (!body.includes(phrase)) { fail(`appendix-c missing "${phrase}"`); allOk = false; }
+      }
+      if (allOk) ok('appendix-c has all 3 P/S primitive entries');
+      await ctx.close();
+    }
+
     // ===== Changelog + Last-updated footer assertions =====
 
     // 10. /changelog/ page exists, returns 200, has correct H1
@@ -685,6 +762,7 @@ async function main() {
       await page.goto(`${baseUrl}/changelog/`);
       const body = (await page.locator('main').textContent() || '');
       const required = [
+        '2026-05-27 — Permissions / Sandbox primitive',
         '2026-05-27 — Changelog + last-updated footer',
         '2026-05-27 — Memory primitive + open-set framing',
         '2026-05-27 — SEO pass: per-chapter URLs',
