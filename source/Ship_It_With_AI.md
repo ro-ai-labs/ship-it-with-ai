@@ -243,6 +243,8 @@ That is the anatomy. Every interesting question about a coding agent - what it c
    |                                                       |
    |     context window                                    |
    |     tools                                             |
+   |     permissions / sandbox                             |
+   |        (decision layer | OS enforcement)              |
    |     skills                                            |
    |     plugins                                           |
    |     MCP                                               |
@@ -258,7 +260,7 @@ That is the anatomy. Every interesting question about a coding agent - what it c
         of the agent itself
 ```
 
-*Figure: The primitives and the harness that runs them. Memory is the most recent primitive to converge across the major agents. Subagents sit below the line because they are the recursive primitive: each subagent is itself an instance of the others.*
+*Figure: The primitives and the harness that runs them. Permissions / Sandbox sits in slot 3 as a primitive whose two halves - the agent-level decision layer and OS-level enforcement - converge on presence but diverge on posture across vendors. Memory is the other primitive whose second half is still mid-convergence. Subagents sit below the line because they are the recursive primitive: each subagent is itself an instance of the others.*
 
 ---
 
@@ -356,7 +358,7 @@ Manually defined memory passes the convergence test today. The auto-memory syste
 
 The orchestrator agent spawns a subagent, hands it a bounded task with a scoped prompt, and lets it run in its own isolated context with its own scoped tool access. The subagent does the work. The subagent returns a result. The orchestrator collects.
 
-What makes subagents structurally distinct from the other primitives is that they are recursive. A subagent is another instance of the primitives - it has its own context window, its own tools, its own skills, plugins, MCP, memory - bounded to a smaller task and isolated from the orchestrator's context. The orchestrator does not see what the subagent saw. It sees only what the subagent returns. The subagent does not pollute the orchestrator's context with intermediate work. The orchestrator does not pollute the subagent's context with unrelated history.
+What makes subagents structurally distinct from the other primitives is that they are recursive. A subagent is another instance of the primitives - it has its own context window, its own tools, its own permissions / sandbox, its own skills, plugins, MCP, memory - bounded to a smaller task and isolated from the orchestrator's context. The orchestrator does not see what the subagent saw. It sees only what the subagent returns. The subagent does not pollute the orchestrator's context with intermediate work. The orchestrator does not pollute the subagent's context with unrelated history.
 
 In Claude Code, the Task tool dispatches a subagent; recent versions added Agent Teams as a higher-level coordination layer. In Codex CLI, subagents went GA in early 2026 and run up to eight in parallel. Cursor 2.0 introduced its own subagent system; Cline shipped them natively. The convergence is not an accident. Subagents solve two problems no other primitive solves: parallel work bounded by independence rather than by coordination, and context isolation bounded by task scope rather than by session history.
 
@@ -378,15 +380,15 @@ Said plainly: the harness is the trim around the agent loop. The agent loop is t
 
 ---
 
-A note on vocabulary. The primitives named here are capability primitives: what the agent uses to know, act, extend, integrate, remember, and delegate. The governance mechanisms in Chapter 3 - permissions, sandboxing, hooks, telemetry - are not additional primitives. They are control layers around the primitives, especially around tools and subagents. When evaluating an agent, inspect both: the capability anatomy and the control surface. This chapter is the first; Chapter 3 is the second.
+A note on vocabulary. The primitives named here are what the agent uses to know, act, gate, extend, integrate, remember, and delegate. The test for primitiveness is convergence: a mechanism is a primitive when every major coding agent ships it as a distinct, configurable bundle, even when the implementations differ substantively. Permissions / Sandbox passes that test on the decision-layer half across all the major agents; the OS-enforcement half is presence-converged but posture-divergent - Codex CLI defaults it on, Cursor and Gemini CLI ship it as a first-class option, Claude Code is opt-in, opencode leaves OS isolation to the operator. Same architectural role; different vendor postures. The Memory primitive has the same shape on its second half (auto-memory consolidation is an early-mover signal across Claude Code, with the others converging). Telemetry has not yet crossed the convergence line and remains a control layer around the primitives. When the next mechanism converges - observability event-push is the candidate to watch - the list will grow again. This chapter is the first; Chapter 3 is the second.
 
 ---
 
-Context window. Tools. Skills. Plugins. MCP. Memory. Subagents. Plus the harness as the runtime that organizes them. That is the list today. The set is open; expect it to grow. Memory was missing eighteen months ago and converged across the major agents within a six-month window. The next one will appear when the convergence appears, not before.
+Context window. Tools. Permissions / Sandbox. Skills. Plugins. MCP. Memory. Subagents. Plus the harness as the runtime that organizes them. That is the list today. The set is open; expect it to grow. Memory was missing eighteen months ago and converged across the major agents within a six-month window. The next one will appear when the convergence appears, not before.
 
-When the next coding agent appears in the marketplace next quarter, the evaluation rubric is right there. How big is the context window and how does the agent manage it under pressure? What tools are available and how are they constrained? How are skills implemented - always-loaded, or dispatched on detection? Is there a plugin marketplace and is it growing? Does it speak MCP, and how good is the MCP integration? Does it read a team-shared memory file at session start? Does it maintain any agent-written learned memory across sessions? How does it expose subagents - and is parallel dispatch a first-class operation or an afterthought?
+When the next coding agent appears in the marketplace next quarter, the evaluation rubric is right there. How big is the context window and how does the agent manage it under pressure? What tools are available and how are they constrained? What permission model does it ship - allow/ask/deny rules, auto-mode classifier - and what OS sandbox does it default to? How are skills implemented - always-loaded, or dispatched on detection? Is there a plugin marketplace and is it growing? Does it speak MCP, and how good is the MCP integration? Does it read a team-shared memory file at session start? Does it maintain any agent-written learned memory across sessions? How does it expose subagents - and is parallel dispatch a first-class operation or an afterthought?
 
-Eight questions today; more tomorrow. They tell you almost everything you need to know to compare the new agent to the one you are using today.
+Nine questions today; more tomorrow. They tell you almost everything you need to know to compare the new agent to the one you are using today.
 
 Next chapter: what happens when you point one agent at the source of another. The anatomy I just described becomes very real, very fast.
 
@@ -398,7 +400,7 @@ Next chapter: what happens when you point one agent at the source of another. Th
 
 **Ship this week.**
 
-Open whichever coding agent you have access to. Ask it: how large is your context window, what tools do you have access to, where do skills live, what marketplace are plugins installed from, does this agent speak MCP, where does the agent read team-shared memory from, and how do I dispatch a subagent? Note the answers. You now have the start of an agent evaluation worksheet.
+Open whichever coding agent you have access to. Ask it: how large is your context window, what tools do you have access to, what allow/ask/deny model and what sandbox does this agent ship with, where do skills live, what marketplace are plugins installed from, does this agent speak MCP, where does the agent read team-shared memory from, and how do I dispatch a subagent? Note the answers. You now have the start of an agent evaluation worksheet.
 
 ---
 
