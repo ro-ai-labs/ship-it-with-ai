@@ -284,7 +284,7 @@ async function main() {
     // and a BreadcrumbList + TechArticle JSON-LD pair.
     const SLUGS = [
       'foreword', 'prologue-nine-seconds',
-      'chapter-1-six-primitives', 'chapter-2-anatomy-invariant',
+      'chapter-1-primitives', 'chapter-2-anatomy-invariant',
       'chapter-3-governance-in-layers',
       'chapter-4-from-generating-code-to-shipping-software',
       'chapter-5-six-phase-loop', 'chapter-6-agents-md',
@@ -471,6 +471,162 @@ async function main() {
         else seen.set(desc, p);
       }
       if (!process.exitCode) ok(`meta descriptions unique across all ${allPaths.length} pages`);
+    }
+
+    // ===== Memory primitive + open-set pass assertions =====
+
+    // 1. Slug rename: old URL serves a redirect stub, new URL serves the chapter.
+    {
+      // Read the stub HTML directly from disk — Playwright follows the meta-refresh
+      // / location.replace before page.content() resolves, so we'd get the
+      // destination chapter instead of the stub itself.
+      const stubHtml = fs.readFileSync(
+        path.join(repoRoot, '_site', 'chapter-1-six-primitives', 'index.html'), 'utf8');
+      if (!/meta http-equiv="refresh"/i.test(stubHtml)) fail('old slug missing meta refresh');
+      else if (!/canonical[^>]*href="https:\/\/ship-it-with\.ai\/chapter-1-primitives\/"/.test(stubHtml)) {
+        fail('old slug missing canonical to new');
+      } else ok('old slug serves redirect stub with canonical + meta refresh');
+
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      // Hit the old URL — should redirect (via meta-refresh or location.replace)
+      // to the new chapter page; final URL should contain the new slug.
+      await page.goto(`${baseUrl}/chapter-1-six-primitives/`);
+      await page.waitForURL(/chapter-1-primitives/, { timeout: 3000 }).catch(() => {});
+      if (!page.url().includes('/chapter-1-primitives/')) {
+        fail(`old slug redirect did not land on new slug; final URL: ${page.url()}`);
+      } else ok('old slug redirects to new slug in the browser');
+
+      const newResp = await page.goto(`${baseUrl}/chapter-1-primitives/`);
+      if (!newResp || newResp.status() !== 200) fail(`new slug status ${newResp && newResp.status()}`);
+      const h1 = await page.locator('h1').first().textContent();
+      if (h1.trim() !== 'The primitives') fail(`new slug H1: got "${h1}", expected "The primitives"`);
+      else ok('new slug H1 is "The primitives"');
+
+      await ctx.close();
+    }
+
+    // 2. Sitemap excludes old slug, includes new slug.
+    {
+      const sitemap = fs.readFileSync(path.join(repoRoot, '_site', 'sitemap.xml'), 'utf8');
+      if (sitemap.includes('chapter-1-six-primitives')) fail('sitemap still lists old slug');
+      else ok('sitemap excludes old slug');
+      if (!sitemap.includes('chapter-1-primitives')) fail('sitemap missing new slug');
+      else ok('sitemap includes new slug');
+    }
+
+    // 3. Hash redirect map: /#chapter-1 lands on new URL.
+    {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      await page.goto(`${baseUrl}/#chapter-1`);
+      await page.waitForURL(/chapter-1-primitives/, { timeout: 2000 }).catch(() => {});
+      const url = page.url();
+      if (!url.includes('/chapter-1-primitives/')) fail(`hash-redirect: landed at ${url}`);
+      else ok('hash-redirect /#chapter-1 → /chapter-1-primitives/');
+      await ctx.close();
+    }
+
+    // 4. Global content sweep — count-anchored phrasings must be 0 in /read/.
+    {
+      const readHtml = fs.readFileSync(path.join(repoRoot, '_site', 'read', 'index.html'), 'utf8');
+      const forbidden = [
+        'six primitives', 'sixth primitive', 'the other five', 'five primitives',
+        'five capabilities', 'six conceptual', 'Six questions', 'Eight inspection points',
+        'Six primitives. Two implementations', 'The sixth one is newer',
+        'of the six'
+      ];
+      const readHtmlLower = readHtml.toLowerCase();
+      let sweepGreen = true;
+      for (const phrase of forbidden) {
+        if (readHtmlLower.includes(phrase.toLowerCase())) { fail(`/read/ still contains "${phrase}"`); sweepGreen = false; }
+      }
+      if (sweepGreen) ok('/read/ contains zero forbidden count-anchored phrasings');
+    }
+
+    // 5. Positive markers in /read/.
+    {
+      const readHtml = fs.readFileSync(path.join(repoRoot, '_site', 'read', 'index.html'), 'utf8');
+      const required = [
+        'Eight questions today',
+        'Nine inspection points',
+        'auto-memory system',
+        'early-mover signal',
+        'which Claude Code reads natively',
+        'Manually defined memory',
+        'The primitives are an open set',
+        'The primitives. Two implementations',
+        'Context window. Tools. Skills. Plugins. MCP. Memory. Subagents.',
+      ];
+      let posGreen = true;
+      for (const phrase of required) {
+        if (!readHtml.includes(phrase)) { fail(`/read/ missing positive marker "${phrase}"`); posGreen = false; }
+      }
+      if (posGreen) ok('/read/ contains all positive markers');
+    }
+
+    // 6. Chapter 1 has the new diagram structure.
+    {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      await page.goto(`${baseUrl}/chapter-1-primitives/`);
+      const dividerCount = await page.locator('.primitives-divider').count();
+      const recursiveCount = await page.locator('.primitives-recursive .primitive').count();
+      const sublistCount = await page.locator('.primitive-sublist').count();
+      if (dividerCount < 1) fail('chapter-1 diagram missing .primitives-divider');
+      if (recursiveCount < 1) fail('chapter-1 diagram missing .primitives-recursive .primitive');
+      if (sublistCount < 1) fail('chapter-1 diagram missing .primitive-sublist (Memory cell)');
+      if (dividerCount && recursiveCount && sublistCount) ok('chapter-1 diagram has divider + recursive row + Memory sublist');
+      await ctx.close();
+    }
+
+    // 7. TOC entry on landing.
+    {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      await page.goto(`${baseUrl}/`);
+      const tocText = await page.locator('a[href="/chapter-1-primitives/"]').first().textContent();
+      if (!/The primitives/i.test(tocText || '')) fail(`landing TOC entry: ${tocText}`);
+      else ok('landing TOC entry reads "The primitives"');
+      await ctx.close();
+    }
+
+    // ===== Memory primitive — Commit 2 assertions (Chapter 6 + Appendix C) =====
+
+    // 8. Chapter 6 framing intro paragraph.
+    {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      await page.goto(`${baseUrl}/chapter-6-agents-md/`);
+      const body = await page.locator('main').textContent();
+      if (!/manually defined layer of the Memory primitive named in Chapter 1/.test(body || '')) {
+        fail('chapter-6 missing Memory framing intro paragraph');
+      } else ok('chapter-6 framing intro present');
+      await ctx.close();
+    }
+
+    // 9. Appendix C three new entries.
+    {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      await page.goto(`${baseUrl}/appendix-c-sources/`);
+      const body = (await page.locator('main').textContent()) || '';
+      // Entries no longer carry H4 headings (consistency with rest of Appendix C);
+      // assert on uniquely identifying phrases inside each entry's Claim/Caveat body.
+      const requiredEntries = [
+        'AGENTS.md is read at session start',           // AGENTS.md entry
+        'auto-memory layer in which Claude writes',     // Claude Code Auto Memory entry
+        'Anthropic publicly unveiled Dreaming',         // Auto Dream entry
+      ];
+      let entriesOk = true;
+      for (const phrase of requiredEntries) {
+        if (!body.includes(phrase)) { fail(`appendix-c missing entry containing "${phrase}"`); entriesOk = false; }
+      }
+      if (!body.includes('Code with Claude SF')) { fail('appendix-c missing Auto Dream attribution'); entriesOk = false; }
+      if (!body.includes('code.claude.com/docs/en/memory')) { fail('appendix-c missing code.claude.com/docs/en/memory source'); entriesOk = false; }
+      if (!body.includes('agents.md')) { fail('appendix-c missing agents.md source'); entriesOk = false; }
+      if (entriesOk) ok('appendix-c has all 3 new entries with correct sources');
+      await ctx.close();
     }
 
   } finally {

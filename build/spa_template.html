@@ -944,11 +944,13 @@
     .source-card[data-cat="vuln"]     { border-left-color: var(--color-yellow); }
     .source-card[data-cat="docs"]     { border-left-color: var(--color-accent); }
     .source-card[data-cat="market"]   { border-left-color: var(--color-green); }
+    .source-card[data-cat="memory"]   { border-left-color: var(--color-try-accent); }
     .source-card[data-cat="study"]    .source-card-cat { color: var(--color-try-accent); }
     .source-card[data-cat="incident"] .source-card-cat { color: var(--color-red); }
     .source-card[data-cat="vuln"]     .source-card-cat { color: var(--color-yellow); }
     .source-card[data-cat="docs"]     .source-card-cat { color: var(--color-accent); }
     .source-card[data-cat="market"]   .source-card-cat { color: var(--color-green); }
+    .source-card[data-cat="memory"]   .source-card-cat { color: var(--color-try-accent); }
     .source-grid {
       display: grid;
       grid-template-columns: 110px 1fr;
@@ -1236,6 +1238,38 @@
     }
     .diagram-primitives .primitive-recursive .primitive-icon {
       color: var(--color-accent);
+    }
+    .diagram-primitives .primitives-divider {
+      height: 1px;
+      background: var(--color-border-strong);
+      margin: 20px 0;
+      width: 100%;
+    }
+    .diagram-primitives .primitives-recursive {
+      display: flex;
+      justify-content: center;
+      margin-top: 4px;
+    }
+    .diagram-primitives .primitive-sublist {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-top: 6px;
+    }
+    .diagram-primitives .primitive-sub {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      line-height: 1.2;
+      word-break: keep-all;
+      hyphens: manual;
+    }
+    @media (max-width: 480px) {
+      .diagram-primitives .primitive-sub {
+        font-size: 9px;
+      }
     }
     .diagram-primitives .harness-foot {
       text-align: center;
