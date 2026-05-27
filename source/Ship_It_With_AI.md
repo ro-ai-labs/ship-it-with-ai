@@ -236,22 +236,24 @@ Subagents are recent in the public vocabulary, not because the idea is new but b
 That is the anatomy. Every interesting question about a coding agent - what it can do, what it cannot do, how to control it, what to compare it to - reduces to one or more of these primitives. When a new agent arrives, your first question is: how does this one handle each primitive? When you are deciding whether to let an agent touch a particular codebase, your second question is: which primitive is the relevant control point for this risk? When you are buying tooling, your third question is: which primitive does this tooling improve, and at what cost?
 
 ```
-                               THE HARNESS
-   +-------------------------------------------------------------+
-   |                                                             |
-   |   +-------+   +-------+   +-------+                         |
-   |   |context|   | tools |   |skills |                         |
-   |   | window|   |       |   |       |                         |
-   |   +-------+   +-------+   +-------+                         |
-   |                                                             |
-   |   +-------+   +-------+   +----------+                      |
-   |   |plugins|   |  MCP  |   |subagents |                      |
-   |   +-------+   +-------+   +----------+                      |
-   |                                                             |
-   +-------------------------------------------------------------+
+                          THE HARNESS
+   +-------------------------------------------------------+
+   |                                                       |
+   |     context window                                    |
+   |     tools                                             |
+   |     skills                                            |
+   |     plugins                                           |
+   |     MCP                                               |
+   |     memory  (manually defined | auto-memory system)   |
+   |                                                       |
+   |     -----------------------------------------         |
+   |                                                       |
+   |     subagents  (the agent, recursively)               |
+   |                                                       |
+   +-------------------------------------------------------+
         the agent loop binds them together;
-        subagents are the agent dispatching constrained
-        instances of itself
+        subagents spawn constrained child instances
+        of the agent itself
 ```
 
 *Figure: The primitives and the harness that runs them. Memory is the most recent primitive to converge across the major agents. Subagents sit below the line because they are the recursive primitive: each subagent is itself an instance of the others.*
@@ -378,7 +380,7 @@ Next chapter: what happens when you point one agent at the source of another. Th
 
 **Ship this week.**
 
-Open whichever coding agent you have access to. Ask it: how large is your context window, what tools do you have access to, where do skills live, what marketplace are plugins installed from, does this agent speak MCP, and how do I dispatch a subagent? Note the answers. You now have the start of an agent evaluation worksheet.
+Open whichever coding agent you have access to. Ask it: how large is your context window, what tools do you have access to, where do skills live, what marketplace are plugins installed from, does this agent speak MCP, where does the agent read team-shared memory from, and how do I dispatch a subagent? Note the answers. You now have the start of an agent evaluation worksheet.
 
 ---
 
@@ -409,7 +411,7 @@ In both repositories, Claude Code found a plugin model. Codex loaded plugins fro
 
 And in both repositories, Claude Code found MCP support. Same Jira server, same GitHub server, same Postgres server worked with both agents. The integration spec is portable.
 
-And in both repositories, Claude Code found a subagent dispatch path. In the Codex codebase the subagent primitive is the most prominent of the six - it has been the headline feature there, and the dispatch code is easy to locate by name. In opencode the equivalent path is less prominently named but it exists, and Claude Code identified it by behavior: a function that spawns a fresh agent instance against a bounded prompt and an isolated context, returns a single structured result, and never bleeds the child's context back into the parent. Different surface area, same primitive.
+And in both repositories, Claude Code found a subagent dispatch path. In the Codex codebase the subagent primitive is the most prominent of the primitives - it has been the headline feature there, and the dispatch code is easy to locate by name. In opencode the equivalent path is less prominently named but it exists, and Claude Code identified it by behavior: a function that spawns a fresh agent instance against a bounded prompt and an isolated context, returns a single structured result, and never bleeds the child's context back into the parent. Different surface area, same primitive.
 
 The primitives. Two implementations. Same anatomy. Different choices about how to realize the anatomy.
 
@@ -2223,7 +2225,7 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
 
 ## Appendix C. Sources and Further Reading
 
-This appendix exists because every claim in this manual deserves a verifiable source if you choose to chase it down. I have organized the entries by claim, not by source, so you can map back from a passage in the body to the evidence behind it. Entries are grouped by category (studies, named incidents, vulnerabilities with patch versions, tool documentation, marketplaces) and each entry follows the same shape: the claim, the source, where in the manual it is used, and any caveat worth knowing.
+This appendix exists because every claim in this manual deserves a verifiable source if you choose to chase it down. I have organized the entries by claim, not by source, so you can map back from a passage in the body to the evidence behind it. Entries are grouped by category (studies, named incidents, vulnerabilities with patch versions, tool documentation, marketplaces, memory primitive sources) and each entry follows the same shape: the claim, the source, where in the manual it is used, and any caveat worth knowing.
 
 ### Studies and research
 
@@ -2363,8 +2365,6 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ### Memory primitive sources
 
-#### AGENTS.md as cross-vendor standard
-
 **Claim:** AGENTS.md is read at session start by Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, and the wider open-source coding-agent ecosystem (20+ vendors listed at agents.md as of 2026-05). Claude Code reads CLAUDE.md, which can import AGENTS.md to share the same content with other agents. The convergence puts AGENTS.md in the manually defined memory layer of the Memory primitive named in Chapter 1.
 **Source:** [agents.md](https://agents.md/) (the open standard's site), plus vendor documentation for each agent listed.
 **Where used:** Chapter 1 (The primitives, Memory section) and Chapter 6 (AGENTS.md as team infrastructure).
@@ -2372,16 +2372,12 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ---
 
-#### Claude Code Auto Memory
-
 **Claim:** Claude Code maintains an auto-memory layer in which Claude writes notes for itself across sessions - build commands it figured out, debugging insights it confirmed, code-style preferences it inferred - distinct from the user-written CLAUDE.md. Requires Claude Code v2.1.59+; on by default; per-repo storage.
 **Source:** [code.claude.com/docs/en/memory](https://code.claude.com/docs/en/memory).
 **Where used:** Chapter 1 (The primitives, Memory section).
 **Caveat:** Auto memory is Claude-Code-specific at the time of writing. Other coding agents are converging on similar mechanisms but had not shipped an equivalent at publication date.
 
 ---
-
-#### Auto Dream (Anthropic background memory consolidation)
 
 **Claim:** Anthropic publicly unveiled Dreaming as part of Claude Managed Agents at Code with Claude SF on 2026-05-06 - a scheduled background process that reviews recent sessions and the memory store, identifies recurring mistakes and convergent workflows, and writes consolidated notes back into long-term memory. The Claude Code surface (`Auto Dream`, accessible via `/dream`) shipped earlier as a research preview gated behind developer access and was documented in March 2026.
 **Source:** Code with Claude SF announcement, 2026-05-06; [code.claude.com/docs/en/memory](https://code.claude.com/docs/en/memory).

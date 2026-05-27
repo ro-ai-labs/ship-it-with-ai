@@ -533,7 +533,8 @@ async function main() {
       const forbidden = [
         'six primitives', 'sixth primitive', 'the other five', 'five primitives',
         'five capabilities', 'six conceptual', 'Six questions', 'Eight inspection points',
-        'Six primitives. Two implementations', 'The sixth one is newer'
+        'Six primitives. Two implementations', 'The sixth one is newer',
+        'of the six'
       ];
       const readHtmlLower = readHtml.toLowerCase();
       let sweepGreen = true;
@@ -610,14 +611,16 @@ async function main() {
       const page = await ctx.newPage();
       await page.goto(`${baseUrl}/appendix-c-sources/`);
       const body = (await page.locator('main').textContent()) || '';
+      // Entries no longer carry H4 headings (consistency with rest of Appendix C);
+      // assert on uniquely identifying phrases inside each entry's Claim/Caveat body.
       const requiredEntries = [
-        'AGENTS.md as cross-vendor standard',
-        'Claude Code Auto Memory',
-        'Auto Dream',
+        'AGENTS.md is read at session start',           // AGENTS.md entry
+        'auto-memory layer in which Claude writes',     // Claude Code Auto Memory entry
+        'Anthropic publicly unveiled Dreaming',         // Auto Dream entry
       ];
       let entriesOk = true;
-      for (const heading of requiredEntries) {
-        if (!body.includes(heading)) { fail(`appendix-c missing entry "${heading}"`); entriesOk = false; }
+      for (const phrase of requiredEntries) {
+        if (!body.includes(phrase)) { fail(`appendix-c missing entry containing "${phrase}"`); entriesOk = false; }
       }
       if (!body.includes('Code with Claude SF')) { fail('appendix-c missing Auto Dream attribution'); entriesOk = false; }
       if (!body.includes('code.claude.com/docs/en/memory')) { fail('appendix-c missing code.claude.com/docs/en/memory source'); entriesOk = false; }

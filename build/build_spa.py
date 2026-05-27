@@ -635,7 +635,7 @@ SOURCE_GROUPS = {
     "Vulnerabilities with patch versions": ("vuln",     "Vulnerability"),
     "Tool documentation":                  ("docs",     "Tool documentation"),
     "Marketplaces and plugin ecosystems":  ("market",   "Marketplace"),
-    "Memory primitive sources":            ("docs",     "Memory primitive"),
+    "Memory primitive sources":            ("memory",   "Memory primitive"),
 }
 
 SOURCE_ENTRY_RE = re.compile(
@@ -1911,7 +1911,7 @@ def render_chapter(template: str, section: Section, *,
 
     article_body = (
         f'<header class="article-header">\n'
-        f'        <h1 class="article-title">{html_lib.escape(section.title)}</h1>\n'
+        f'        <h1 id="{section.slug}" class="article-title">{html_lib.escape(section.title)}</h1>\n'
         f'        {reading_time}\n'
         f'      </header>\n'
         f'      {body_html}\n'
