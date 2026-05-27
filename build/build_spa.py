@@ -312,7 +312,7 @@ def diagram_primitives() -> str:
       <div class="primitive"><div class="primitive-icon">✦</div><div class="primitive-name">skills</div></div>
       <div class="primitive"><div class="primitive-icon">▣</div><div class="primitive-name">plugins</div></div>
       <div class="primitive"><div class="primitive-icon">↔</div><div class="primitive-name">MCP</div></div>
-      <div class="primitive primitive-memory">
+      <div class="primitive">
         <div class="primitive-icon">▤</div>
         <div class="primitive-name">memory</div>
         <div class="primitive-sublist">
