@@ -467,7 +467,7 @@ One specific governance tradeoff before we move on, because it will reappear thr
 
 The sandbox finding from the demo is real and it is consequential. Codex enforces OS-level isolation. Opencode does not. If you are evaluating which agent to put in front of a developer who will run it on customer code, the sandbox difference matters. It is not a marketing claim. It is verifiable in the source. You can read the kernel calls. You can see whether the sandbox is real or theater.
 
-But the deeper point is not "Codex has a better sandbox." The deeper point is that the sandbox is a primitive, and primitives are choices, and the choices a vendor makes about primitives are governance choices. When you compare agents, you are not just comparing capabilities. You are comparing governance philosophies.
+But the deeper point is not "Codex has a better sandbox." The deeper point is that the OS-level half of the Permissions / Sandbox primitive named in Chapter 1 is where vendors diverge most, and the choices a vendor makes about primitives are governance choices. When you compare agents, you are not just comparing capabilities. You are comparing governance philosophies.
 
 A vendor that ships a real sandbox is telling you they expect their agent to be used in environments where untrusted instructions might be injected - through dependencies, through compromised files, through prompt injection in the codebase itself. They are building defense in depth. A vendor that ships soft confinement is telling you they expect their agent to be used in trusted environments where the user is in charge and prompt injection is a theoretical concern. Both are defensible postures. They are different postures.
 
@@ -479,9 +479,9 @@ You now have the move.
 
 When the next coding agent appears in your marketplace - and one will appear in the next quarter, because the cycle is now measured in months - you do not need to read the launch blog post. You do not need to wait for the comparative review article. You do not need to install it and run it for a week before forming an opinion.
 
-You open its repository. You locate context assembly. You locate the tool registry. You locate skills loading. You locate plugin extension. You check for MCP support. You locate the memory layer (AGENTS.md or equivalent; any auto-memory surface the vendor exposes). You locate subagent dispatch. You locate the permission gate. You locate the sandbox - all wrapped by the harness's agent loop.
+You open its repository. You locate context assembly. You locate the tool registry. You locate the Permissions / Sandbox primitive (decision layer + OS sandbox, the two halves named in Chapter 1). You locate skills loading. You locate plugin extension. You check for MCP support. You locate the memory layer (AGENTS.md or equivalent; any auto-memory surface the vendor exposes). You locate subagent dispatch - all wrapped by the harness's agent loop.
 
-Nine inspection points: context assembly, tool registry, skills loading, plugin extension, MCP support, memory layer, subagent dispatch, permission gate, sandbox - all wrapped by the harness's agent loop. Twenty minutes of inspection. You will know more about whether to adopt this agent than any review article will tell you, because you will know whether its specific implementation choices fit your team's specific constraints. Language affinity. License compatibility. Sandbox enforcement. Audit posture. The questions are stable.
+Eight inspection points: context assembly, tool registry, the Permissions / Sandbox primitive (decision layer + OS sandbox as two halves), skills loading, plugin extension, MCP support, memory layer, subagent dispatch - all wrapped by the harness's agent loop. Twenty minutes of inspection. You will know more about whether to adopt this agent than any review article will tell you, because you will know whether its specific implementation choices fit your team's specific constraints. Language affinity. License compatibility. Sandbox enforcement. Audit posture. The questions are stable.
 
 The vendor's marketing will tell you what they want you to focus on. The source code will tell you what they actually built. The architecture invariant lets you read past the marketing.
 
@@ -493,7 +493,7 @@ The next chapter is about governance specifically - what the layers are, what ea
 
 ---
 
-**Artifact: Source-inspection checklist.** The nine inspection points from this chapter. Use the checklist on the next agent that lands in your team's evaluation queue.
+**Artifact: Source-inspection checklist.** The eight inspection points from this chapter. Use the checklist on the next agent that lands in your team's evaluation queue.
 
 ---
 
@@ -511,7 +511,7 @@ Pick two open-source coding agents whose source code is published. As of May 202
 
 1. Clone both repositories.
 2. Open your primary coding agent (whichever one you use day-to-day) in one repo. Open a second instance in the other.
-3. Ask each instance the same question: "Walk this codebase and name the primitives - context window, tools, skills, plugins, MCP, memory, subagents. For each, tell me which file or module implements it, and rate the implementation basic, intermediate, or advanced."
+3. Ask each instance the same question: "Walk this codebase and name the primitives - context window, tools, permissions / sandbox, skills, plugins, MCP, memory, subagents. For each, tell me which file or module implements it, and rate the implementation basic, intermediate, or advanced."
 4. Save the two answers in a two-column markdown table.
 5. Read the table. The primitives are the same in both. The implementation choices are different. Those choices are governance choices, and they are how you tell two agents apart at the source-code level.
 
