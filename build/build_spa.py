@@ -318,6 +318,14 @@ def diagram_primitives() -> str:
     <div class="primitives-grid">
       <div class="primitive"><div class="primitive-icon">◉</div><div class="primitive-name">context window</div></div>
       <div class="primitive"><div class="primitive-icon">⚙</div><div class="primitive-name">tools</div></div>
+      <div class="primitive">
+        <div class="primitive-icon">⛨</div>
+        <div class="primitive-name">permissions / sandbox</div>
+        <div class="primitive-sublist">
+          <span class="primitive-sub">decision layer</span>
+          <span class="primitive-sub">OS enforcement</span>
+        </div>
+      </div>
       <div class="primitive"><div class="primitive-icon">✦</div><div class="primitive-name">skills</div></div>
       <div class="primitive"><div class="primitive-icon">▣</div><div class="primitive-name">plugins</div></div>
       <div class="primitive"><div class="primitive-icon">↔</div><div class="primitive-name">MCP</div></div>
@@ -336,7 +344,7 @@ def diagram_primitives() -> str:
     </div>
     <div class="harness-foot">the agent loop binds them together;<br/>subagents spawn constrained child instances of the agent itself</div>
   </div>
-  <figcaption>Figure: The primitives and the harness that runs them. Memory is the most recent primitive to converge across the major agents. Subagents sit below the line because they are the recursive primitive: each subagent is itself an instance of the others.</figcaption>
+  <figcaption>Figure: The primitives and the harness that runs them. Permissions / Sandbox sits in slot 3 as a primitive whose two halves — the agent-level decision layer and OS-level enforcement — converge on presence but diverge on posture across vendors. Memory is the other primitive whose second half is still mid-convergence. Subagents sit below the line because they are the recursive primitive: each subagent is itself an instance of the others.</figcaption>
 </figure>"""
 
 
