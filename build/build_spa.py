@@ -1090,6 +1090,14 @@ def build_search_index(md_text, parts, chapters, appendices, foreword, closing,
             parent_label = "Prologue"
             parent_title = "Prologue"
             continue
+        if stripped.startswith("## Changelog"):
+            parent_label = "Changelog"
+            parent_title = ""
+            continue
+        if stripped.startswith("## About the author"):
+            parent_label = "About the author"
+            parent_title = ""
+            continue
         if stripped.startswith("### "):
             if i < 10:
                 continue
@@ -1102,7 +1110,12 @@ def build_search_index(md_text, parts, chapters, appendices, foreword, closing,
                 if title.endswith("}"):
                     title = re.sub(r"\s*\{#[a-z0-9-]+\}\s*$", "", title)
                 slug = slugify(title)
-            subtitle = f"{parent_label} - {parent_title}" if parent_label else ""
+            if not parent_label:
+                subtitle = ""
+            elif not parent_title or parent_title == parent_label:
+                subtitle = parent_label
+            else:
+                subtitle = f"{parent_label} - {parent_title}"
             add({"id": slug, "title": title, "subtitle": subtitle,
                  "snippet": _snippet_for(md_text, line_start), "kind": "subsection"})
 
@@ -1592,7 +1605,7 @@ def render_hash_redirect_js(sections: list[Section]) -> str:
 
 
 def render_sitemap(sections: list[Section]) -> str:
-    """Full sitemap: landing + /read/ + every per-section URL (20 total)."""
+    """Full sitemap: landing + /read/ + every per-section URL."""
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     # Slugs renamed in earlier passes — old URLs serve as redirect stubs,
     # not as canonical URLs. Exclude from sitemap so Google doesn't index them.
@@ -1860,6 +1873,17 @@ def render_chapter_schema(section: Section) -> str:
     )
 
 
+_STABLE_SECTION_DESCRIPTIONS: dict[str, str] = {
+    # Hard-coded for sections whose body contains dated/churning content that
+    # would otherwise produce a different SERP snippet on every release.
+    "changelog": (
+        "Meaningful changes to Ship It With AI — the agentic coding field "
+        "manual. Dated entries for content updates, structural revisions, "
+        "and SEO passes."
+    ),
+}
+
+
 def _section_description(section: Section, limit: int = 200) -> str:
     """Build a meta description from the section's first real paragraph.
 
@@ -1867,6 +1891,8 @@ def _section_description(section: Section, limit: int = 200) -> str:
     shorter than ~120 chars, concatenates the next paragraph too — meta
     descriptions in the 120-200 char range carry the most SERP weight.
     """
+    if section.kind in _STABLE_SECTION_DESCRIPTIONS:
+        return _STABLE_SECTION_DESCRIPTIONS[section.kind]
     paragraphs: list[str] = []
     buf: list[str] = []
     in_fence = False

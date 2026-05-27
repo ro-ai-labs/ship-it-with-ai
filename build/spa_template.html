@@ -1557,6 +1557,13 @@
       color: var(--color-border-strong);
       user-select: none;
     }
+    /* On narrow viewports the contact row wraps. Hiding the dot separators
+       avoids orphaned/dangling `·` characters at row boundaries; the flex
+       gap still gives visual separation. */
+    @media (max-width: 480px) {
+      .footer-contact .footer-sep { display: none; }
+      .footer-contact { gap: 16px; }
+    }
     .footer-copy {
       margin: 0;
       font-size: 13px;

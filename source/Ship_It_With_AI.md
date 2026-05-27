@@ -1984,15 +1984,19 @@ That trajectory - four decades of writing code, twenty-five of them professional
 
 ## Changelog {#changelog}
 
-This page tracks meaningful updates to the manual. Smaller copy-edits and SEO tweaks are not enumerated; the build's last-modified date is in the footer.
+This page tracks meaningful updates to the manual. Smaller copy-edits and SEO tweaks are not listed; the footer shows the last updated date.
+
+### 2026-05-27 — Changelog + last-updated footer
+
+Added this page and a "Last updated &lt;date&gt;" line in the footer, plus a Changelog link in the contact row. The intent: returning readers can see what moved since their last visit without diffing chapters.
 
 ### 2026-05-27 — Memory primitive + open-set framing
 
-Memory promoted to a named primitive across the book; Chapter 1 retitled "The primitives" and the structural argument rewritten as "named primitives + the recursive primitive (subagents)". The closed "six primitives" count dropped throughout in favor of open-set framing. New Memory section covers two halves - manually defined memory (AGENTS.md/CLAUDE.md, agent-agnostic) and the auto-memory system (Auto Memory, Auto Dream - currently Claude-Code-led). Diagram updated. Chapter 6 gains a one-paragraph framing intro anchoring AGENTS.md as the team-shareable memory layer. Three new Appendix C entries source the Memory claims.
+Memory promoted to a named primitive across the book; Chapter 1 retitled "The primitives" and the structural argument rewritten as "named primitives + the recursive primitive (subagents)". Dropped the closed "six primitives" count throughout; the list is now framed as open-set. New Memory section covers two halves — manually defined memory (AGENTS.md/CLAUDE.md, agent-agnostic) and the auto-memory system (Auto Memory, Auto Dream — currently Claude-Code-led). Diagram updated. Chapter 6 gains a one-paragraph framing intro anchoring AGENTS.md as the team-shareable memory layer. Three new Appendix C entries source the Memory claims.
 
 ### 2026-05-27 — SEO pass: per-chapter URLs
 
-Split the all-in-one SPA into 20 indexable URLs: landing (`/`) + each section as its own page (`/foreword/`, `/chapter-1-primitives/`, ... `/appendix-c-sources/`) + `/read/` for the single-page reading mode. Each chapter page now has unique title, meta description, canonical URL, `TechArticle` + `BreadcrumbList` JSON-LD, and prev/next nav. Hero gained a control-thesis dek and a three-button CTA row. Schema upgraded from `Article` to `Book` + `Organization` + `FAQPage`. Cross-section anchor rewriting, AGENTS.md de-linking, hash-redirect shim for old `/#chapter-N` bookmarks. Built-in 404 page, `llms.txt` for AI answer engines, `cover.webp`.
+Every chapter and appendix now has its own URL (20 pages total). Old `/#chapter-N` bookmarks redirect. Each page got a unique title, meta description, canonical URL, prev/next nav, and `TechArticle` + `BreadcrumbList` structured data. Hero gained a three-button CTA row. Schema upgraded from `Article` to `Book` + `Organization` + `FAQPage`. Cross-section anchor rewriting, AGENTS.md de-linking, `/read/` mode for the single-page reading experience. Built-in 404 page, `llms.txt` for AI answer engines, `cover.webp`.
 
 ### 2026-05-26 — Feedback-pass polish
 

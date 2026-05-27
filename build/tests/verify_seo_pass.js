@@ -659,13 +659,14 @@ async function main() {
       await ctx.close();
     }
 
-    // 11. Changelog page has all four initial entries
+    // 11. Changelog page has every required entry (self-referential entry included)
     {
       const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
       const page = await ctx.newPage();
       await page.goto(`${baseUrl}/changelog/`);
       const body = (await page.locator('main').textContent() || '');
       const required = [
+        '2026-05-27 — Changelog + last-updated footer',
         '2026-05-27 — Memory primitive + open-set framing',
         '2026-05-27 — SEO pass: per-chapter URLs',
         '2026-05-26 — Feedback-pass polish',
@@ -678,7 +679,7 @@ async function main() {
           allPresent = false;
         }
       }
-      if (allPresent) ok('/changelog/ contains all 4 initial entries');
+      if (allPresent) ok(`/changelog/ contains all ${required.length} required entries`);
       await ctx.close();
     }
 
