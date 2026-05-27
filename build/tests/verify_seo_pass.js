@@ -272,12 +272,13 @@ async function main() {
 
     // ===== Commit 3 assertions =====
 
-    // Sitemap is now the full 20 URLs.
+    // Sitemap is now the full 21 URLs (landing + /read/ + 19 sections,
+    // updated from 20 when the Changelog section was added).
     {
       const sitemap = fs.readFileSync(path.join(repoRoot, '_site', 'sitemap.xml'), 'utf8');
       const urlCount = (sitemap.match(/<url>/g) || []).length;
-      if (urlCount !== 20) fail(`sitemap has ${urlCount} URLs, expected 20`);
-      else ok(`sitemap has 20 URLs (landing + /read/ + 18 sections)`);
+      if (urlCount !== 21) fail(`sitemap has ${urlCount} URLs, expected 21`);
+      else ok(`sitemap has 21 URLs (landing + /read/ + 19 sections)`);
     }
 
     // Every section page returns 200, has one <h1>, unique title, canonical,
@@ -528,8 +529,16 @@ async function main() {
     }
 
     // 4. Global content sweep — count-anchored phrasings must be 0 in /read/.
+    // The Changelog section is meta-commentary and intentionally quotes the
+    // old "six primitives" phrasing when describing what was dropped, so
+    // exclude its <h2> block from the sweep.
     {
-      const readHtml = fs.readFileSync(path.join(repoRoot, '_site', 'read', 'index.html'), 'utf8');
+      const readHtmlRaw = fs.readFileSync(path.join(repoRoot, '_site', 'read', 'index.html'), 'utf8');
+      const cl = readHtmlRaw.indexOf('<h2 id="changelog"');
+      const nextH2 = cl >= 0 ? readHtmlRaw.indexOf('<h2 id="', cl + 1) : -1;
+      const readHtml = cl >= 0 && nextH2 > cl
+        ? readHtmlRaw.slice(0, cl) + readHtmlRaw.slice(nextH2)
+        : readHtmlRaw;
       const forbidden = [
         'six primitives', 'sixth primitive', 'the other five', 'five primitives',
         'five capabilities', 'six conceptual', 'Six questions', 'Eight inspection points',
@@ -541,7 +550,7 @@ async function main() {
       for (const phrase of forbidden) {
         if (readHtmlLower.includes(phrase.toLowerCase())) { fail(`/read/ still contains "${phrase}"`); sweepGreen = false; }
       }
-      if (sweepGreen) ok('/read/ contains zero forbidden count-anchored phrasings');
+      if (sweepGreen) ok('/read/ contains zero forbidden count-anchored phrasings (changelog excluded)');
     }
 
     // 5. Positive markers in /read/.
@@ -626,6 +635,141 @@ async function main() {
       if (!body.includes('code.claude.com/docs/en/memory')) { fail('appendix-c missing code.claude.com/docs/en/memory source'); entriesOk = false; }
       if (!body.includes('agents.md')) { fail('appendix-c missing agents.md source'); entriesOk = false; }
       if (entriesOk) ok('appendix-c has all 3 new entries with correct sources');
+      await ctx.close();
+    }
+
+    // ===== Changelog + Last-updated footer assertions =====
+
+    // 10. /changelog/ page exists, returns 200, has correct H1
+    {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      const resp = await page.goto(`${baseUrl}/changelog/`);
+      if (!resp || resp.status() !== 200) fail(`/changelog/ status ${resp && resp.status()}`);
+      const h1Count = await page.locator('h1').count();
+      if (h1Count !== 1) fail(`/changelog/ has ${h1Count} <h1>, expected 1`);
+      const h1Text = (await page.locator('h1').first().textContent() || '').trim();
+      if (h1Text !== 'Changelog') fail(`/changelog/ H1 = "${h1Text}", expected "Changelog"`);
+      if (resp && resp.status() === 200 && h1Count === 1 && h1Text === 'Changelog') {
+        ok('/changelog/ exists, returns 200, H1 = "Changelog"');
+      }
+      await ctx.close();
+    }
+
+    // 11. Changelog page has all four initial entries
+    {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      await page.goto(`${baseUrl}/changelog/`);
+      const body = (await page.locator('main').textContent() || '');
+      const required = [
+        '2026-05-27 — Memory primitive + open-set framing',
+        '2026-05-27 — SEO pass: per-chapter URLs',
+        '2026-05-26 — Feedback-pass polish',
+        '2026-05-26 — First public version',
+      ];
+      let allPresent = true;
+      for (const entry of required) {
+        if (!body.includes(entry)) {
+          fail(`/changelog/ missing entry "${entry}"`);
+          allPresent = false;
+        }
+      }
+      if (allPresent) ok('/changelog/ contains all 4 initial entries');
+      await ctx.close();
+    }
+
+    // 12. Changelog page has NO reading-time badge (suppressed per spec)
+    {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      await page.goto(`${baseUrl}/changelog/`);
+      const readingTimeCount = await page.locator('.reading-time').count();
+      if (readingTimeCount !== 0) fail(`/changelog/ has ${readingTimeCount} .reading-time elements, expected 0 (suppressed)`);
+      else ok('/changelog/ reading-time badge suppressed');
+      await ctx.close();
+    }
+
+    // 13. Changelog prev/next nav targets
+    {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      await page.goto(`${baseUrl}/changelog/`);
+      const prev = await page.locator('.chapter-prev').first().getAttribute('href');
+      const next = await page.locator('.chapter-next').first().getAttribute('href');
+      if (prev !== '/about-the-author/') fail(`/changelog/ prev = "${prev}", expected "/about-the-author/"`);
+      if (next !== '/appendix-a-cost-economics/') fail(`/changelog/ next = "${next}", expected "/appendix-a-cost-economics/"`);
+      if (prev === '/about-the-author/' && next === '/appendix-a-cost-economics/') {
+        ok('/changelog/ prev → /about-the-author/, next → /appendix-a-cost-economics/');
+      }
+      await ctx.close();
+    }
+
+    // 14. Sitemap includes /changelog/
+    {
+      const sitemap = fs.readFileSync(path.join(repoRoot, '_site', 'sitemap.xml'), 'utf8');
+      if (!sitemap.includes('<loc>https://ship-it-with.ai/changelog/</loc>')) {
+        fail('sitemap missing /changelog/');
+      } else ok('sitemap includes /changelog/');
+      // Sitemap should now have 21 URLs total (was 20)
+      const urlCount = (sitemap.match(/<url>/g) || []).length;
+      if (urlCount !== 21) fail(`sitemap has ${urlCount} URLs, expected 21`);
+      else ok('sitemap has 21 URLs (was 20)');
+    }
+
+    // 15. Footer "Last updated" stamp on landing + chapter page
+    {
+      const dateRegex = /Last updated [A-Z][a-z]+ \d{1,2}, \d{4}/;
+      for (const path_ of ['/', '/chapter-1-primitives/']) {
+        const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+        const page = await ctx.newPage();
+        await page.goto(`${baseUrl}${path_}`);
+        const footerText = (await page.locator('.footer-copy').first().textContent() || '');
+        if (!dateRegex.test(footerText)) fail(`footer at ${path_} missing "Last updated <date>" — got: "${footerText}"`);
+        else ok(`footer at ${path_} has "Last updated <date>"`);
+        await ctx.close();
+      }
+    }
+
+    // 16. Footer Changelog link present
+    {
+      for (const path_ of ['/', '/chapter-1-primitives/']) {
+        const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+        const page = await ctx.newPage();
+        await page.goto(`${baseUrl}${path_}`);
+        const linkCount = await page.locator('.footer-contact a[href="/changelog/"]').count();
+        if (linkCount < 1) fail(`footer at ${path_} missing Changelog link in .footer-contact`);
+        else ok(`footer at ${path_} has Changelog link`);
+        await ctx.close();
+      }
+    }
+
+    // 17. "A note on dated claims" carries the maintenance promise + link
+    {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      await page.goto(`${baseUrl}/foreword/`);
+      const body = (await page.locator('main').textContent() || '');
+      if (!body.includes('I do my best to keep the manual current and maintain a')) {
+        fail('/foreword/ missing maintenance promise sentence');
+      } else {
+        const linkCount = await page.locator('a[href="/changelog/"]').count();
+        if (linkCount < 1) fail('/foreword/ maintenance sentence missing /changelog/ link');
+        else ok('/foreword/ has maintenance promise + /changelog/ link');
+      }
+      await ctx.close();
+    }
+
+    // 18. Hash-redirect: /#changelog → /changelog/
+    {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      await page.goto(`${baseUrl}/#changelog`);
+      await page.waitForURL(/\/changelog\//, { timeout: 2000 }).catch(() => {});
+      const url = page.url();
+      if (!url.includes('/changelog/') || url.includes('/#changelog')) {
+        fail(`hash-redirect /#changelog landed at ${url}`);
+      } else ok('hash-redirect /#changelog → /changelog/');
       await ctx.close();
     }
 

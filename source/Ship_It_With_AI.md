@@ -152,6 +152,8 @@ You can skip backwards. Each chapter assumes the chapter before it, but the temp
 
 Tool-specific references in this manual are current as of May 2026. The frameworks are intended to outlast the specific tools. When a named product capability matters, I either date the claim or treat it as an example rather than a permanent property. Source notes for the load-bearing factual claims are in Appendix C.
 
+I do my best to keep the manual current and maintain a [changelog](/changelog/) of meaningful updates.
+
 ---
 
 ## Scope and limits {#scope-and-limits}
@@ -1977,6 +1979,28 @@ That trajectory - four decades of writing code, twenty-five of them professional
 
 <a id="contact"></a>
 *Contact: [info@ship-it-with.ai](mailto:info@ship-it-with.ai) for technical conversations or tailored workshops, in-person or online, shaped to your team's codebase and constraints. Find me on [LinkedIn](https://www.linkedin.com/in/mihaicvasnievschi/). For executive and non-technical leadership audiences, the sister practice at [ai-leaders.ro](https://ai-leaders.ro) covers the adoption side without the engineering depth.*
+
+---
+
+## Changelog {#changelog}
+
+This page tracks meaningful updates to the manual. Smaller copy-edits and SEO tweaks are not enumerated; the build's last-modified date is in the footer.
+
+### 2026-05-27 — Memory primitive + open-set framing
+
+Memory promoted to a named primitive across the book; Chapter 1 retitled "The primitives" and the structural argument rewritten as "named primitives + the recursive primitive (subagents)". The closed "six primitives" count dropped throughout in favor of open-set framing. New Memory section covers two halves - manually defined memory (AGENTS.md/CLAUDE.md, agent-agnostic) and the auto-memory system (Auto Memory, Auto Dream - currently Claude-Code-led). Diagram updated. Chapter 6 gains a one-paragraph framing intro anchoring AGENTS.md as the team-shareable memory layer. Three new Appendix C entries source the Memory claims.
+
+### 2026-05-27 — SEO pass: per-chapter URLs
+
+Split the all-in-one SPA into 20 indexable URLs: landing (`/`) + each section as its own page (`/foreword/`, `/chapter-1-primitives/`, ... `/appendix-c-sources/`) + `/read/` for the single-page reading mode. Each chapter page now has unique title, meta description, canonical URL, `TechArticle` + `BreadcrumbList` JSON-LD, and prev/next nav. Hero gained a control-thesis dek and a three-button CTA row. Schema upgraded from `Article` to `Book` + `Organization` + `FAQPage`. Cross-section anchor rewriting, AGENTS.md de-linking, hash-redirect shim for old `/#chapter-N` bookmarks. Built-in 404 page, `llms.txt` for AI answer engines, `cover.webp`.
+
+### 2026-05-26 — Feedback-pass polish
+
+External-reviewer pass: TOC chapter-to-part mismatch fixed, figure numbering dropped (web-manual style), new Source-note and Artifact callout components with light + dark variants, foreword bio trimmed to four sentences and full version moved to a new About-the-author section, hero gained a control-thesis dek, AGENTS.md links collapsed to at most one per chapter, per-section `¶` copy-link anchors, callout stack tightening.
+
+### 2026-05-26 — First public version
+
+Manual published at ship-it-with.ai. Ten chapters across three parts (Architecture, Method, Reality), three appendices, plus foreword, prologue, closing.
 
 ---
 

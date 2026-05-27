@@ -48,6 +48,7 @@ SECTION_SLUGS: dict[tuple[str, str], str] = {
     ("closing", "Closing"):                                         "closing",
     ("acknowledgments", "Acknowledgments"):                         "acknowledgments",
     ("about", "About the author"):                                  "about-the-author",
+    ("changelog", "Changelog"):                                     "changelog",
     ("appendix", "A"):                                              "appendix-a-cost-economics",
     ("appendix", "B"):                                              "appendix-b-templates",
     ("appendix", "C"):                                              "appendix-c-sources",
@@ -62,7 +63,7 @@ for _k, _v in SECTION_SLUGS.items():
 
 
 SectionKind = Literal["foreword", "prologue", "chapter", "closing",
-                      "acknowledgments", "about", "appendix"]
+                      "acknowledgments", "about", "changelog", "appendix"]
 
 
 @dataclass
@@ -85,6 +86,7 @@ _FOREWORD_RE = re.compile(r"^## Foreword\b.*$")
 _PROLOGUE_H2_RE = re.compile(r"^## (.+?)(?:\s*\{#([^}]+)\})?\s*$")
 _ACK_RE = re.compile(r"^## Acknowledgments\b.*$")
 _ABOUT_RE = re.compile(r"^## About the author\b.*$")
+_CHANGELOG_RE = re.compile(r"^## Changelog\b.*$")
 _APPENDIX_RE = re.compile(r"^## Appendix ([A-Z])\.\s*(.+)$")
 
 
@@ -192,6 +194,13 @@ def parse_sections(md_text: str) -> list[Section]:
             flush()
             cur_meta = ("about", "About the author")
             cur_title = "About the author"
+            i += 1
+            continue
+
+        if _CHANGELOG_RE.match(line):
+            flush()
+            cur_meta = ("changelog", "Changelog")
+            cur_title = "Changelog"
             i += 1
             continue
 
@@ -876,7 +885,7 @@ _MD_MULTI_WS_RE = re.compile(r"\s+")
 _MD_ATTR_RE = re.compile(r"\{#[a-z0-9-]+\}")
 
 _NEXT_BOUNDARY_RE = re.compile(
-    r"(?m)^(?:## Chapter \d+\b|# Part [IVX]+\b|# Closing\b|## Appendix [A-Z]\.|## About the author\b)"
+    r"(?m)^(?:## Chapter \d+\b|# Part [IVX]+\b|# Closing\b|## Appendix [A-Z]\.|## About the author\b|## Changelog\b)"
 )
 
 
@@ -1242,6 +1251,12 @@ def build_toc(parts, chapters, appendices, foreword, closing,
     about_a_cls = ' class="toc-current-link"' if current_slug == "about-the-author" else ''
     sections.append('<div class="toc-section">')
     sections.append(f'<div class="toc-section-title"><a href="{_href("about-the-author")}"{about_a_cls}>About the author</a></div>')
+    sections.append("</div>")
+
+    # Changelog (sits between About and Appendices).
+    changelog_a_cls = ' class="toc-current-link"' if current_slug == "changelog" else ''
+    sections.append('<div class="toc-section">')
+    sections.append(f'<div class="toc-section-title"><a href="{_href("changelog")}"{changelog_a_cls}>Changelog</a></div>')
     sections.append("</div>")
 
     # Appendices
@@ -1622,6 +1637,8 @@ def build_legacy_to_full_slug(sections: list[Section]) -> dict[str, str]:
             out["closing"] = s.slug
         elif s.kind == "about":
             out["about-the-author"] = s.slug
+        elif s.kind == "changelog":
+            out["changelog"] = s.slug
         elif s.kind == "prologue":
             out["nine-seconds"] = s.slug
     return out
@@ -1646,6 +1663,8 @@ def legacy_slug_for_section(section: Section) -> str:
         return "closing"
     if section.kind == "about":
         return "about-the-author"
+    if section.kind == "changelog":
+        return "changelog"
     return section.slug
 
 
@@ -1888,13 +1907,14 @@ def render_chapter(template: str, section: Section, *,
                    prev_: Section | None, next_: Section | None,
                    author: str, title_meta: str,
                    toc_html_sidebar: str, search_index: str,
-                   anchor_index: dict[str, str]) -> str:
+                   anchor_index: dict[str, str],
+                   date_modified_human: str) -> str:
     """Render a single per-section page (chapter / appendix / foreword / etc.)."""
     body_html = render_section_body(section, anchor_index)
 
     reading_time = (
         f'<p class="reading-time">{section.reading_time_min} min read</p>'
-        if section.reading_time_min else ''
+        if section.reading_time_min and section.kind != "changelog" else ''
     )
     prev_html = (
         f'<a class="chapter-prev" href="/{prev_.slug}/">← {html_lib.escape(prev_.title)}</a>'
@@ -1935,6 +1955,7 @@ def render_chapter(template: str, section: Section, *,
         "TOC": toc_html_sidebar,
         "ARTICLE_BODY": article_body,
         "SEARCH_INDEX": search_index,
+        "DATE_MODIFIED_HUMAN": html_lib.escape(date_modified_human),
     }
     return render_template_with_placeholders(template, substitutions)
 
@@ -1956,7 +1977,8 @@ READ_DESCRIPTION = (
 def render_landing(template: str, *, title: str, subtitle: str, author: str,
                    toc_html_sidebar: str, toc_html_landing: str,
                    search_index: str, head_schema: str,
-                   hash_redirect_js: str) -> str:
+                   hash_redirect_js: str,
+                   date_modified_human: str) -> str:
     """Render the landing page (/)."""
     substitutions = {
         "PAGE_TITLE": html_lib.escape("Agentic Coding: A Field Manual for Shipping Software With AI Agents"),
@@ -1973,13 +1995,15 @@ def render_landing(template: str, *, title: str, subtitle: str, author: str,
                                               "/about-the-author/#contact",
                                               toc_html_landing),
         "SEARCH_INDEX": search_index,
+        "DATE_MODIFIED_HUMAN": html_lib.escape(date_modified_human),
     }
     return render_template_with_placeholders(template, substitutions)
 
 
 def render_read(template: str, *, title: str, subtitle: str, author: str,
                 toc_html_sidebar: str, content_html: str,
-                search_index: str, head_schema: str) -> str:
+                search_index: str, head_schema: str,
+                date_modified_human: str) -> str:
     """Render the all-in-one /read/ page."""
     substitutions = {
         "PAGE_TITLE": html_lib.escape("Ship It With AI: A Field Manual for Agentic Coding (full text)"),
@@ -1994,6 +2018,7 @@ def render_read(template: str, *, title: str, subtitle: str, author: str,
         "TOC": toc_html_sidebar,
         "ARTICLE_BODY": _read_article_body(content_html, subtitle, author, "#contact"),
         "SEARCH_INDEX": search_index,
+        "DATE_MODIFIED_HUMAN": html_lib.escape(date_modified_human),
     }
     return render_template_with_placeholders(template, substitutions)
 
@@ -2042,7 +2067,8 @@ def render_redirect_stub(old_slug: str, new_slug: str, new_title: str) -> str:
 
 
 def render_404(template: str, *, title: str, author: str, toc_html: str,
-               search_index: str = "[]") -> str:
+               search_index: str = "[]",
+               date_modified_human: str) -> str:
     """Render the 404 page reusing the homepage chrome (topbar / TOC / footer).
 
     Crucially, the 404 substitutes its own minimal {{ARTICLE_BODY}}, an empty
@@ -2068,6 +2094,7 @@ def render_404(template: str, *, title: str, author: str, toc_html: str,
         "TOC": toc_html,
         "ARTICLE_BODY": _FOUR_OH_FOUR_ARTICLE_BODY,
         "SEARCH_INDEX": search_index,
+        "DATE_MODIFIED_HUMAN": html_lib.escape(date_modified_human),
     }
     return render_template_with_placeholders(template, substitutions)
 
@@ -2122,7 +2149,7 @@ def render_llms_txt(sections: list[Section]) -> str:
     one view.
     """
     docs_order = ["foreword", "prologue", "chapter", "closing", "appendix"]
-    optional_kinds = {"about", "acknowledgments"}
+    optional_kinds = {"about", "acknowledgments", "changelog"}
     base = "https://ship-it-with.ai"
 
     docs_lines: list[str] = []
@@ -2296,7 +2323,9 @@ def main() -> int:
 
     # JSON-LD shared by landing + /read/ (alternate format of same Book).
     number_of_pages = max(1, round(len(md_text.split()) / 250))
-    date_modified = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    _now_utc = datetime.now(timezone.utc)
+    date_modified = _now_utc.strftime("%Y-%m-%d")
+    date_modified_human = _now_utc.strftime("%B %d, %Y")
     head_schema = _homepage_head_schema(author, number_of_pages, date_modified)
 
     # Hash-redirect shim (landing only; migrates /#chapter-N → /<slug>/).
@@ -2311,6 +2340,7 @@ def main() -> int:
         search_index=search_json,
         head_schema=head_schema,
         hash_redirect_js=hash_redirect_js,
+        date_modified_human=date_modified_human,
     )
     (SITE_DIR / "index.html").write_text(landing_html)
     print(f"Wrote _site/index.html ({len(landing_html) / 1024:.1f} KB)")
@@ -2324,6 +2354,7 @@ def main() -> int:
         content_html=content_html,
         search_index=search_json,
         head_schema=head_schema,
+        date_modified_human=date_modified_human,
     )
     (SITE_DIR / "read" / "index.html").write_text(read_html)
     print(f"Wrote _site/read/index.html ({len(read_html) / 1024:.1f} KB)")
@@ -2348,6 +2379,7 @@ def main() -> int:
             toc_html_sidebar=toc_sidebar_chapter,
             search_index=search_json,
             anchor_index=anchor_index,
+            date_modified_human=date_modified_human,
         )
         dest = SITE_DIR / section.slug
         dest.mkdir(exist_ok=True)
@@ -2370,7 +2402,8 @@ def main() -> int:
     # 404 sidebar uses chapter-url mode so clicks resolve to real per-section
     # URLs (now that they exist).
     html_404 = render_404(template, title=title, author=author,
-                          toc_html=toc_chapter_url, search_index=search_json)
+                          toc_html=toc_chapter_url, search_index=search_json,
+                          date_modified_human=date_modified_human)
     (SITE_DIR / "404.html").write_text(html_404)
     print(f"Wrote _site/404.html ({(SITE_DIR / '404.html').stat().st_size / 1024:.1f} KB)")
 
