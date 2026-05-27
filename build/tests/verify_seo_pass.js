@@ -532,11 +532,13 @@ async function main() {
       const readHtml = fs.readFileSync(path.join(repoRoot, '_site', 'read', 'index.html'), 'utf8');
       const forbidden = [
         'six primitives', 'sixth primitive', 'the other five', 'five primitives',
-        'five capabilities', 'six conceptual', 'Six questions', 'Eight inspection points'
+        'five capabilities', 'six conceptual', 'Six questions', 'Eight inspection points',
+        'Six primitives. Two implementations', 'The sixth one is newer'
       ];
+      const readHtmlLower = readHtml.toLowerCase();
       let sweepGreen = true;
       for (const phrase of forbidden) {
-        if (readHtml.includes(phrase)) { fail(`/read/ still contains "${phrase}"`); sweepGreen = false; }
+        if (readHtmlLower.includes(phrase.toLowerCase())) { fail(`/read/ still contains "${phrase}"`); sweepGreen = false; }
       }
       if (sweepGreen) ok('/read/ contains zero forbidden count-anchored phrasings');
     }
@@ -552,6 +554,8 @@ async function main() {
         'which Claude Code reads natively',
         'Manually defined memory',
         'The primitives are an open set',
+        'The primitives. Two implementations',
+        'Context window. Tools. Skills. Plugins. MCP. Memory. Subagents.',
       ];
       let posGreen = true;
       for (const phrase of required) {

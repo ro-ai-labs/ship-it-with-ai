@@ -229,9 +229,9 @@ The tools change. The methodology endures. That is the bet of this manual.
 
 Open the source code or documentation of most production-grade coding agents - Codex CLI in Rust, opencode in TypeScript, the public-source parts of Claude Code, the agents shipped by half a dozen smaller vendors - and you see the same architecture emerging: a small set of primitives wrapped by a harness. The implementations differ. The anatomy converges. Different names sometimes, different file layouts always, but the same conceptual building blocks. Most are local capabilities of the agent. One - subagents - is the composition mechanism that makes the agent recursive: it can spawn constrained instances of itself.
 
-Context window. Tools. Skills. Plugins. MCP. Subagents.
+Context window. Tools. Skills. Plugins. MCP. Memory. Subagents.
 
-The sixth one is newer in the public vocabulary, not because the idea is new but because it went universal across the major agents in a tight window. Claude Code shipped the Task tool, then layered Agent Teams on top of it for higher-level coordination. As of early 2026, Codex CLI exposed subagents as a first-class workflow and allowed multiple subagents to run in parallel. Cursor 2.0 introduced its own subagent system. Cline shipped subagents natively. Within roughly a year, dispatching a constrained child instance of the agent went from "advanced workflow" to "a primitive the harness exposes by default." That is the test I use for primitive status, and subagents pass it.
+Subagents are recent in the public vocabulary, not because the idea is new but because they went universal across the major agents in a tight window. Claude Code shipped the Task tool, then layered Agent Teams on top of it for higher-level coordination. As of early 2026, Codex CLI exposed subagents as a first-class workflow and allowed multiple subagents to run in parallel. Cursor 2.0 introduced its own subagent system. Cline shipped subagents natively. Within roughly a year, dispatching a constrained child instance of the agent went from "advanced workflow" to "a primitive the harness exposes by default." That is the test I use for primitive status, and subagents pass it.
 
 That is the anatomy. Every interesting question about a coding agent - what it can do, what it cannot do, how to control it, what to compare it to - reduces to one or more of these primitives. When a new agent arrives, your first question is: how does this one handle each primitive? When you are deciding whether to let an agent touch a particular codebase, your second question is: which primitive is the relevant control point for this risk? When you are buying tooling, your third question is: which primitive does this tooling improve, and at what cost?
 
@@ -411,7 +411,7 @@ And in both repositories, Claude Code found MCP support. Same Jira server, same 
 
 And in both repositories, Claude Code found a subagent dispatch path. In the Codex codebase the subagent primitive is the most prominent of the six - it has been the headline feature there, and the dispatch code is easy to locate by name. In opencode the equivalent path is less prominently named but it exists, and Claude Code identified it by behavior: a function that spawns a fresh agent instance against a bounded prompt and an isolated context, returns a single structured result, and never bleeds the child's context back into the parent. Different surface area, same primitive.
 
-Six primitives. Two implementations. Same anatomy. Different choices about how to realize the anatomy.
+The primitives. Two implementations. Same anatomy. Different choices about how to realize the anatomy.
 
 ---
 
