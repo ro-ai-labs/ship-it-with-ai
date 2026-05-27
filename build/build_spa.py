@@ -2200,6 +2200,8 @@ def render_llms_txt(sections: list[Section]) -> str:
 > Covers the primitives, the six-phase loop, AGENTS.md as team infrastructure,
 > governance in layers, kill signals, brownfield patterns, and 90-day adoption.
 
+Full text in a single markdown file: {base}/llms-full.txt
+
 ## Docs
 {docs_block}
 
@@ -2438,6 +2440,13 @@ def main() -> int:
 
     (SITE_DIR / "llms.txt").write_text(render_llms_txt(sections))
     print("Wrote _site/llms.txt")
+
+    # llms-full.txt: the full source markdown at a single URL. The convention
+    # is to ship llms.txt (a curated URL index) plus llms-full.txt (the entire
+    # corpus in one file) so an LLM with web-browsing can fetch one file and
+    # have the whole book in-context without crawling every chapter URL.
+    (SITE_DIR / "llms-full.txt").write_text(md_text)
+    print(f"Wrote _site/llms-full.txt ({(SITE_DIR / 'llms-full.txt').stat().st_size / 1024:.1f} KB)")
 
     (SITE_DIR / "sitemap.xml").write_text(render_sitemap(sections))
     print("Wrote _site/sitemap.xml (full)")

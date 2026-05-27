@@ -157,6 +157,25 @@ async function main() {
     }
     if (!exists('404.html')) fail('404.html missing'); else ok('404.html present');
     if (!exists('llms.txt')) fail('llms.txt missing'); else ok('llms.txt present');
+    if (!exists('llms-full.txt')) {
+      fail('llms-full.txt missing');
+    } else {
+      const fullKb = sizeKB('llms-full.txt');
+      // Sanity: full text should be substantially larger than the URL index.
+      if (fullKb < 100) fail(`llms-full.txt is suspiciously small (${fullKb.toFixed(1)} KB)`);
+      else ok(`llms-full.txt present (${fullKb.toFixed(0)} KB)`);
+      const head = fs.readFileSync(path.join(repoRoot, '_site/llms-full.txt'), 'utf8').slice(0, 200);
+      head.startsWith('# Ship It With AI')
+        ? ok('llms-full.txt starts with the book title')
+        : fail(`llms-full.txt unexpected head: ${head.slice(0, 60)}`);
+    }
+    // llms.txt should point at llms-full.txt so an LLM finds the full corpus.
+    {
+      const llmsTxt = fs.readFileSync(path.join(repoRoot, '_site/llms.txt'), 'utf8');
+      llmsTxt.includes('/llms-full.txt')
+        ? ok('llms.txt references llms-full.txt')
+        : fail('llms.txt is missing a pointer to llms-full.txt');
+    }
     if (!exists('deferred.css')) fail('deferred.css missing'); else ok('deferred.css present');
     if (!exists('sitemap.xml')) fail('sitemap.xml missing'); else ok('sitemap.xml present');
     if (!exists('read/index.html')) fail('read/index.html missing'); else ok('read/index.html present');
