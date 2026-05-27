@@ -37,21 +37,39 @@ The footer date uses the same `datetime.now(timezone.utc)` call that already sta
 
 ### 1. Footer change
 
-`build/spa_template.html:2047` — current line:
+Two coordinated changes:
+
+**`.footer-copy` (line 2047)** — current:
 
 ```html
 <p class="footer-copy">© 2026 {{AUTHOR}} · Bucharest · All rights reserved</p>
 ```
 
-Becomes:
+Becomes (adds the "Last updated" stamp; does NOT add the Changelog link here):
 
 ```html
-<p class="footer-copy">© 2026 {{AUTHOR}} · Last updated {{DATE_MODIFIED_HUMAN}} · Bucharest · All rights reserved · <a href="/changelog/">Changelog</a></p>
+<p class="footer-copy">© 2026 {{AUTHOR}} · Last updated {{DATE_MODIFIED_HUMAN}} · Bucharest · All rights reserved</p>
 ```
 
-The footer is shared by every page (landing, chapters, /read/, 404, redirect stub… though the redirect stub uses its own minimal HTML so it's exempt). On every build, all per-chapter pages get the same stamp.
+**`.footer-contact` (line 2040-2046)** — current row with email + LinkedIn + ai-leaders.ro. Add `Changelog` as a parallel nav link at the end:
 
-CSS: no new rules needed. The `Changelog` link inherits the existing `.footer-contact a` styling — verify the inheritance actually applies; if not, add `.footer-copy a { color: inherit; text-decoration: underline; }` or similar.
+```html
+<div class="footer-contact">
+  <a href="mailto:info@ship-it-with.ai">info@ship-it-with.ai</a>
+  <span class="footer-sep">·</span>
+  <a href="https://www.linkedin.com/in/mihaicvasnievschi/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+  <span class="footer-sep">·</span>
+  <a href="https://ai-leaders.ro" target="_blank" rel="noopener noreferrer">ai-leaders.ro</a>
+  <span class="footer-sep">·</span>
+  <a href="/changelog/">Changelog</a>
+</div>
+```
+
+Rationale: Changelog is semantically a navigation link (parallel to LinkedIn, contact email, sister-site link), not part of the copyright statement. Putting it inside `.footer-contact` reuses the existing `.footer-contact a` styling without a new CSS rule, and avoids the visual oddity of a nav link separated from "All rights reserved" by the same `·` separator the copyright row uses internally.
+
+The footer is shared by every page (landing, chapters, /read/, 404). The redirect stub uses its own minimal HTML and is exempt. On every build, all per-chapter pages get the same stamp.
+
+No new CSS rules needed.
 
 ### 2. `{{DATE_MODIFIED_HUMAN}}` substitution
 
@@ -88,7 +106,7 @@ Split the all-in-one SPA into 20 indexable URLs: landing (`/`) + each section as
 
 External-reviewer pass: TOC chapter-to-part mismatch fixed, figure numbering dropped (web-manual style), new Source-note and Artifact callout components with light + dark variants, foreword bio trimmed to four sentences and full version moved to a new About-the-author section, hero gained a control-thesis dek, AGENTS.md links collapsed to at most one per chapter, per-section `¶` copy-link anchors, callout stack tightening.
 
-### 2026-05-25 — First public version
+### 2026-05-26 — First public version
 
 Manual published at ship-it-with.ai. Ten chapters across three parts (Architecture, Method, Reality), three appendices, plus foreword, prologue, closing.
 
@@ -111,13 +129,21 @@ The trailing `---` matches the source's existing section-separator pattern.
 
 #### Chapter-page rendering
 
-The existing `render_chapter()` (or whatever per-section render function) handles the changelog page with no changes — it's just another `Section` with `kind="changelog"`. The BreadcrumbList for `kind="changelog"` produces the two-level trail `Home → Changelog` (mirrors how About and Foreword work — non-chapter, non-appendix sections get the two-level trail).
+The existing `render_chapter()` (or whatever per-section render function) handles the changelog page with one targeted exception: **suppress the reading-time badge for `kind="changelog"`**. A ~150-word changelog renders as "1 min read" which feels confused (it announces brevity instead of being read).
 
-If the existing breadcrumb logic switches only on `kind in {"chapter", "appendix"}`, the changelog falls through to the two-level default branch — confirm during implementation.
+Concretely in the renderer: where the reading-time `<p class="reading-time">N min read</p>` is emitted, gate on `section.kind != "changelog"`.
+
+The BreadcrumbList for `kind="changelog"` produces the two-level trail `Home → Changelog` (mirrors how About and Foreword work — non-chapter, non-appendix sections get the two-level trail). If the existing breadcrumb logic switches only on `kind in {"chapter", "appendix"}`, the changelog falls through to the two-level default branch — confirm during implementation.
+
+**Prev/next nav on the changelog page**: by the section order (Foreword → Prologue → Ch 1-10 → Closing → Acknowledgments → About → **Changelog** → Appendix A → Appendix B → Appendix C), the changelog's prev is `/about-the-author/`, next is `/appendix-a-cost-economics/`. That's reasonable flow — a reader walking the back-matter encounters About → Changelog → first Appendix in order. No customization needed.
+
+**Note on `/read/` mode**: the changelog content is embedded in `/read/` as a section (the all-in-one mode concatenates everything). Plus the `/read/` footer carries a link to `/changelog/`. Mild redundancy — the footer link points to a per-chapter page that contains the same content the user is already reading. Acceptable; the link still serves users who want to deep-link the changelog or share it.
 
 ### 4. "A note on dated claims" addition
 
-`source/Ship_It_With_AI.md` line ~151. Current section content discusses why some claims age fast. Append one sentence at the end of the section (immediately before the next `---` separator):
+`source/Ship_It_With_AI.md` line ~151. Current section content discusses why some claims age fast — the final paragraph ends with the open-set conclusion ("If a new primitive emerges, the list grows."). The maintenance promise is a topic pivot (from "what ages" to "how it's kept fresh"), so it lands as a NEW paragraph, not appended to the existing one.
+
+Insert as its own paragraph at the very end of the section, immediately before the trailing `---` separator:
 
 ```
 I do my best to keep the manual current and maintain a [changelog](/changelog/) of meaningful updates.
@@ -131,14 +157,16 @@ Extend `build/tests/verify_seo_pass.js` with new assertions:
 
 - `_site/changelog/index.html` exists and returns 200 from the local HTTP server.
 - The page has exactly one `<h1>` and its text is `Changelog`.
-- The page contains all four entry-header dates: `2026-05-27 — Memory primitive + open-set framing`, `2026-05-27 — SEO pass: per-chapter URLs`, `2026-05-26 — Feedback-pass polish`, `2026-05-25 — First public version`.
+- The page contains all four entry-header dates: `2026-05-27 — Memory primitive + open-set framing`, `2026-05-27 — SEO pass: per-chapter URLs`, `2026-05-26 — Feedback-pass polish`, `2026-05-26 — First public version`.
 - The page emits BreadcrumbList JSON-LD with `Home → Changelog` (two crumbs).
-- `_site/changelog/index.html` is linked from the sitemap.
+- The page does NOT contain a `.reading-time` element (per the suppression in the renderer).
+- The page's prev nav links to `/about-the-author/`; the next nav links to `/appendix-a-cost-economics/`.
+- `_site/changelog/index.html` is listed in the sitemap.
 - Sitemap has 21 URLs total (was 20).
-- Landing footer contains the substring `Last updated ` followed by a date in `<Month> <DD>, <YYYY>` format. The chapter-1 footer contains the same.
-- Landing footer contains a `<a href="/changelog/">Changelog</a>` link. Same on chapter pages.
-- The "A note on dated claims" section on `/foreword/` (where this front-matter sits) contains the text `I do my best to keep the manual current and maintain a` and an `<a href="/changelog/">changelog</a>` link.
-- Hash-redirect map: `/#changelog` lands on `/changelog/`.
+- Landing footer (`.footer-copy`) contains text matching the regex `/Last updated [A-Z][a-z]+ \d{1,2}, \d{4}/` (e.g. `Last updated May 27, 2026`). Chapter-1 footer contains the same.
+- Landing footer (`.footer-contact`) contains an `<a href="/changelog/">Changelog</a>` link. Same on chapter pages.
+- The "A note on dated claims" section on `/foreword/` contains the text `I do my best to keep the manual current and maintain a` AND an `<a href="/changelog/">changelog</a>` link in the same paragraph.
+- Hash-redirect map on landing: `/#changelog` lands on `/changelog/`.
 
 ## Build pipeline changes
 
@@ -164,17 +192,19 @@ Extend `build/tests/verify_seo_pass.js` with new assertions:
 ## Open items for user review
 
 1. **The four initial changelog entries** as drafted above — voice and length match the author's preference? Each is one paragraph; the spec leans terse. User revises during diff review if needed.
-2. **Footer ordering**: the proposed sequence is `© 2026 Mihai · Last updated <date> · Bucharest · All rights reserved · Changelog`. Alternative orderings (Changelog first; date last; Changelog as part of `.footer-contact` instead of `.footer-copy`) all defensible. Spec uses the proposed order.
-3. **Day-of-month formatting**: `%B %d, %Y` produces `May 27, 2026` (zero-padded day on Linux). If non-padded preferred (`May 27, 2026` vs `May 27, 2026` — these look identical for two-digit days; only single-digit days differ, e.g. `May 7, 2026` vs `May 07, 2026`), switch to `%B %-d, %Y`. Spec uses the zero-padded form for consistency.
+2. **Day-of-month formatting**: `%B %d, %Y` produces `May 27, 2026` (zero-padded day on Linux; single-digit days like the 7th render as `May 07, 2026`). If non-padded preferred (`May 7, 2026`), switch to `%B %-d, %Y` (GNU extension). Spec uses zero-padded for simplicity.
 
 ## Resolved decisions
 
-1. **Date placement**: footer only (one segment in `.footer-copy`).
+1. **Date placement**: footer only — one segment inside `.footer-copy`, immediately after the copyright holder.
 2. **Changelog as dedicated page**: `/changelog/`. New top-level section.
-3. **Initial content**: backfill the three recent passes + first-public-version entry.
+3. **Initial content**: backfill the three recent passes + first-public-version entry (2026-05-26, verified against `git log --reverse`).
 4. **Granularity**: dates only, no commit SHAs or PR links in changelog entries (keep them terse and human-readable).
 5. **Update mechanism**: manual editorial — author adds entries on each meaningful release. Smaller copy-edits don't get a changelog row (footer date covers them).
 6. **TOC placement of changelog**: between About-the-author and Appendix A (housekeeping sequence).
 7. **Breadcrumb shape**: `Home → Changelog` (two-level), matching About/Foreword/Closing.
 8. **No RSS feed in this pass.**
-9. **Footer link styling**: inherits from existing `.footer-copy` link defaults; add a one-rule fallback (`.footer-copy a { color: inherit; text-decoration: underline; }`) if the existing styling doesn't apply.
+9. **Changelog link placement**: inside `.footer-contact` (alongside email + LinkedIn + ai-leaders.ro), NOT in `.footer-copy`. Changelog is semantically a navigation link; placing it in the copyright row with the same `·` separator would visually treat it as another data field. Putting it in `.footer-contact` reuses existing link styling — no new CSS rules needed.
+10. **Reading-time badge suppressed on the changelog page** (`kind="changelog"`). A ~150-word page rendered as "1 min read" feels confused.
+11. **Prev/next nav on changelog**: prev = `/about-the-author/`, next = `/appendix-a-cost-economics/`. No customization needed; follows the section-order default.
+12. **`/read/` page** contains the changelog inline AND a footer link to `/changelog/`. Mild redundancy accepted — the footer link is consistent across pages and serves users who want to deep-link or share the changelog URL.
