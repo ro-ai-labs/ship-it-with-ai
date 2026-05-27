@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{TITLE}} - {{AUTHOR}}</title>
+  <title>{{PAGE_TITLE}}</title>
 
-  <meta name="description" content="How to ship software with AI agents. Architecture (six primitives), method (six-phase loop), and reality (eight kill signals) for agentic software delivery in 2026. A vendor-neutral field manual by {{AUTHOR}}." />
+  <meta name="description" content="{{PAGE_DESCRIPTION}}" />
   <meta name="keywords" content="agentic coding, AI coding agents, write code with AI, ship code with AI, agentic software delivery, AGENTS.md, claude code, codex cli, opencode, AI development methodology, coding with AI agents, AI software engineering" />
   <meta name="author" content="{{AUTHOR}}" />
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-  <link rel="canonical" href="https://ship-it-with.ai/" />
+  <link rel="canonical" href="{{PAGE_URL}}" />
 
   <meta property="og:type" content="article" />
-  <meta property="og:title" content="{{TITLE}} - A Field Manual for Agentic Software Delivery" />
-  <meta property="og:description" content="How to ship software with AI agents. Architecture, method, and reality for agentic software delivery in 2026. A vendor-neutral field manual." />
-  <meta property="og:url" content="https://ship-it-with.ai/" />
+  <meta property="og:title" content="{{PAGE_TITLE}}" />
+  <meta property="og:description" content="{{PAGE_DESCRIPTION}}" />
+  <meta property="og:url" content="{{PAGE_URL}}" />
   <meta property="og:site_name" content="Ship It With AI" />
   <meta property="og:locale" content="en_US" />
   <meta property="og:image" content="https://ship-it-with.ai/cover.jpg" />
@@ -25,46 +25,15 @@
   <meta property="article:published_time" content="2026-05-26" />
 
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="{{TITLE}} - A Field Manual for Agentic Software Delivery" />
-  <meta name="twitter:description" content="How to ship software with AI agents. Architecture, method, and reality for agentic delivery in 2026." />
+  <meta name="twitter:title" content="{{PAGE_TITLE}}" />
+  <meta name="twitter:description" content="{{PAGE_DESCRIPTION}}" />
   <meta name="twitter:image" content="https://ship-it-with.ai/cover.jpg" />
   <meta name="twitter:image:alt" content="Ship It With AI - A Manual for Shipping Software with AI Agents" />
+  <meta name="twitter:url" content="{{PAGE_URL}}" />
 
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    "headline": "{{TITLE}}",
-    "alternativeHeadline": "A Field Manual for Agentic Software Delivery in 2026",
-    "author": {
-      "@type": "Person",
-      "name": "{{AUTHOR}}",
-      "url": "https://www.linkedin.com/in/mihaicvasnievschi/",
-      "sameAs": [
-        "https://www.linkedin.com/in/mihaicvasnievschi/",
-        "https://ai-leaders.ro"
-      ]
-    },
-    "publisher": {
-      "@type": "Person",
-      "name": "{{AUTHOR}}",
-      "url": "https://ship-it-with.ai/"
-    },
-    "datePublished": "2026-05-26",
-    "dateModified": "2026-05-26",
-    "inLanguage": "en",
-    "url": "https://ship-it-with.ai/",
-    "image": "https://ship-it-with.ai/cover.jpg",
-    "description": "How to ship software with AI agents. Architecture (six primitives), method (six-phase loop), and reality (eight kill signals) for agentic software delivery in 2026.",
-    "keywords": "agentic coding, AI coding agents, write code with AI, AGENTS.md, agentic software delivery, claude code, codex cli, opencode",
-    "about": [
-      { "@type": "Thing", "name": "Agentic AI" },
-      { "@type": "Thing", "name": "AI Coding Agents" },
-      { "@type": "Thing", "name": "Software Engineering" },
-      { "@type": "Thing", "name": "AI Development Methodology" }
-    ]
-  }
-  </script>
+  <script>window.SITE_MODE = '{{SITE_MODE}}';</script>
+  {{HEAD_SCHEMA}}
+  {{HEAD_EXTRA}}
 
   <style>
     :root {
@@ -207,10 +176,25 @@
       font-size: 15px;
       color: var(--color-text);
       text-decoration: none;
-      flex: 1;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+    .topbar-byline {
+      font-size: 13px;
+      color: var(--color-text-soft);
+      text-decoration: none;
+      margin-left: 12px;
+      padding-left: 12px;
+      border-left: 1px solid var(--color-border);
+      white-space: nowrap;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .topbar-byline:hover { color: var(--color-text); }
+    @media (max-width: 720px) {
+      .topbar-byline { display: none; }
     }
     .topbar-actions {
       display: flex;
@@ -435,6 +419,14 @@
       margin: 0 0 16px;
       letter-spacing: -0.02em;
     }
+    .article-title-keyword {
+      display: block;
+      font-size: 0.55em;
+      font-weight: 500;
+      color: var(--color-text-soft);
+      letter-spacing: normal;
+      margin-top: 8px;
+    }
     .article-subtitle {
       font-size: 20px;
       color: var(--color-text-soft);
@@ -530,7 +522,7 @@
       line-height: 1.2;
       scroll-margin-top: 80px;
     }
-    .article h1.part-heading, .article h1.closing-heading {
+    .article h2.part-heading, .article h2.closing-heading, .article h2.prologue-heading {
       font-size: 14px;
       font-weight: 600;
       text-transform: uppercase;
@@ -543,10 +535,12 @@
       flex-direction: column;
       gap: 8px;
     }
-    .article h1.part-heading .part-label,
-    .article h1.closing-heading .part-label { font-size: 14px; }
-    .article h1.part-heading .part-title,
-    .article h1.closing-heading .part-title {
+    .article h2.part-heading .part-label,
+    .article h2.closing-heading .part-label,
+    .article h2.prologue-heading .part-label { font-size: 14px; }
+    .article h2.part-heading .part-title,
+    .article h2.closing-heading .part-title,
+    .article h2.prologue-heading .part-title {
       font-size: 32px;
       font-weight: 700;
       text-transform: none;
@@ -911,22 +905,6 @@
     @media (prefers-reduced-motion: reduce) {
       .anchor-link { transition: none; }
     }
-    .anchor-toast {
-      position: fixed;
-      bottom: 32px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--color-text);
-      color: var(--color-bg);
-      padding: 8px 16px;
-      border-radius: 6px;
-      font-size: 13px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease;
-      z-index: 1000;
-    }
-    .anchor-toast.show { opacity: 1; }
 
     /* Source cards (Appendix C) */
     .source-card {
@@ -1603,6 +1581,67 @@
       border: 0;
     }
 
+    @media print {
+      .topbar, .sidebar, .progress, .article-footer { display: none !important; }
+      .layout { display: block; padding: 0; }
+      .article { max-width: none; }
+      .action-box, .try-box, .case-note, .artifact-box, .source-note, figure.diagram { break-inside: avoid; box-shadow: none; }
+      .search-overlay, .kbd-overlay { display: none !important; }
+    }
+
+    /* === Per-chapter page chrome === */
+    .reading-time {
+      font-size: 13px;
+      color: var(--color-text-soft);
+      margin: 8px 0 0;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .chapter-nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 64px 0 32px;
+      padding: 24px 0;
+      border-top: 1px solid var(--color-border);
+      font-size: 14px;
+      flex-wrap: wrap;
+    }
+    .chapter-nav a {
+      color: var(--color-text);
+      text-decoration: none;
+      max-width: 48%;
+    }
+    .chapter-nav a:hover { color: var(--color-accent); }
+    .chapter-prev { margin-right: auto; }
+    .chapter-next { margin-left: auto; text-align: right; }
+    .toc-current > a,
+    .toc-current-link {
+      font-weight: 700;
+      color: var(--color-accent);
+    }
+
+    /* @region-end critical */
+
+    /* === Deferred CSS — loaded async via <link rel="preload"> === */
+    /* Anchor-link toast (created lazily on first ¶ click) */
+    .anchor-toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--color-text);
+      color: var(--color-bg);
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 1000;
+    }
+    .anchor-toast.show { opacity: 1; }
+
     /* Search overlay */
     .search-overlay {
       position: fixed;
@@ -1911,14 +1950,7 @@
       .kbd-overlay { padding: 0; align-items: stretch; }
       .kbd-card { max-width: none; max-height: 100vh; border-radius: 0; border: none; }
     }
-
-    @media print {
-      .topbar, .sidebar, .progress, .article-footer { display: none !important; }
-      .layout { display: block; padding: 0; }
-      .article { max-width: none; }
-      .action-box, .try-box, .case-note, .artifact-box, .source-note, figure.diagram { break-inside: avoid; box-shadow: none; }
-      .search-overlay, .kbd-overlay { display: none !important; }
-    }
+    /* @region-end deferred */
   </style>
 </head>
 <body>
@@ -1927,6 +1959,7 @@
   <header class="topbar">
     <button class="topbar-btn menu-toggle" id="menuToggle" aria-label="Toggle navigation">☰</button>
     <a href="#top" class="topbar-title">{{TITLE}}</a>
+    <a class="topbar-byline" href="{{BYLINE_HREF}}">{{AUTHOR}}</a>
     <div class="topbar-actions">
       <span class="kbd-hint" aria-hidden="true">Press <kbd>?</kbd> for shortcuts</span>
       <button class="topbar-btn search-trigger" id="searchTrigger" type="button" aria-label="Open search" aria-haspopup="dialog" aria-controls="searchOverlay" title="Search (Ctrl K)">
@@ -1967,23 +2000,7 @@
     </button>
 
     <main class="article" id="top">
-      <header class="article-header">
-        <h1 class="article-title">{{TITLE}}</h1>
-        <p class="article-subtitle">{{SUBTITLE}}</p>
-        <p class="article-dek">Agentic software delivery is not a tooling problem. It is a control problem: control the context, control the actions, control the verification, control the adoption surface.</p>
-        <div class="article-author"><a href="#contact">{{AUTHOR}}</a></div>
-        <nav class="hero-cta" aria-label="Quick start">
-          <a class="cta-primary" href="#chapter-7">Start with the architecture review</a>
-          <a class="cta-secondary" href="#appendix-b">Download the templates</a>
-          <a class="cta-secondary" href="mailto:info@ship-it-with.ai?subject=Agentic%20delivery%20assessment">Book an assessment</a>
-        </nav>
-      </header>
-
-      {{CONTENT}}
-
-      <figure class="article-cover article-cover-end">
-        <img src="cover.jpg" alt="Ship It With AI - A Manual for Shipping Software with AI Agents, by {{AUTHOR}}" width="1200" height="630" loading="lazy" decoding="async" />
-      </figure>
+      {{ARTICLE_BODY}}
 
       <footer class="article-footer">
         <div class="footer-contact">
@@ -2386,6 +2403,14 @@
         function jumpTo(i) {
           const entry = currentMatches[i];
           if (!entry) return;
+          // On /read/ (single-page mode) every anchor is in-page — stay
+          // inside the SPA and scroll. On landing or per-chapter pages,
+          // hop to the entry's owning URL (search index carries entry.url).
+          if (window.SITE_MODE !== 'read' && entry.url) {
+            closeOverlay();
+            window.location.href = entry.url + '#' + entry.id;
+            return;
+          }
           const target = document.getElementById(entry.id);
           closeOverlay();
           if (target) {
