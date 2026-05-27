@@ -590,6 +590,42 @@ async function main() {
       await ctx.close();
     }
 
+    // ===== Memory primitive — Commit 2 assertions (Chapter 6 + Appendix C) =====
+
+    // 8. Chapter 6 framing intro paragraph.
+    {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      await page.goto(`${baseUrl}/chapter-6-agents-md/`);
+      const body = await page.locator('main').textContent();
+      if (!/manually defined layer of the Memory primitive named in Chapter 1/.test(body || '')) {
+        fail('chapter-6 missing Memory framing intro paragraph');
+      } else ok('chapter-6 framing intro present');
+      await ctx.close();
+    }
+
+    // 9. Appendix C three new entries.
+    {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      await page.goto(`${baseUrl}/appendix-c-sources/`);
+      const body = (await page.locator('main').textContent()) || '';
+      const requiredEntries = [
+        'AGENTS.md as cross-vendor standard',
+        'Claude Code Auto Memory',
+        'Auto Dream',
+      ];
+      let entriesOk = true;
+      for (const heading of requiredEntries) {
+        if (!body.includes(heading)) { fail(`appendix-c missing entry "${heading}"`); entriesOk = false; }
+      }
+      if (!body.includes('Code with Claude SF')) { fail('appendix-c missing Auto Dream attribution'); entriesOk = false; }
+      if (!body.includes('code.claude.com/docs/en/memory')) { fail('appendix-c missing code.claude.com/docs/en/memory source'); entriesOk = false; }
+      if (!body.includes('agents.md')) { fail('appendix-c missing agents.md source'); entriesOk = false; }
+      if (entriesOk) ok('appendix-c has all 3 new entries with correct sources');
+      await ctx.close();
+    }
+
   } finally {
     await browser.close();
     stop();

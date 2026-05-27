@@ -997,6 +997,10 @@ Run one feature through the full six-phase loop. Time each phase. Note which pha
 
 ---
 
+AGENTS.md is the manually defined layer of the Memory primitive named in Chapter 1. It is the team-shareable surface - the layer the team authors, reviews, and owns in source control, as infrastructure the team owns. The auto-memory system (Auto Memory, Auto Dream) is per-developer and largely automatic; this chapter focuses on the layer the team explicitly owns, because that is where team-level discipline lives. What follows is six things that go in AGENTS.md, the 200-line budget rule, and the failure modes you see in practice.
+
+---
+
 A team I worked with last year had been using a coding agent for six months when a senior engineer brought me a complaint. "Every time we generate an API endpoint, I have to fix the validation. Always the same fix. The agent puts the validation in the wrong layer."
 
 I asked the obvious question. "Why isn't the rule written down?"
@@ -2354,6 +2358,35 @@ This appendix exists because every claim in this manual deserves a verifiable so
 **Source:** Claude Code docs ([code.claude.com/docs/en/discover-plugins](https://code.claude.com/docs/en/discover-plugins)); the marketplace itself.
 **Where used:** Chapter 1 (The primitives, plugins section).
 **Caveat:** Plugin counts and marketplace policies will drift; the supply-chain discipline described in Chapter 1 is what to take away rather than any specific count.
+
+---
+
+### Memory primitive sources
+
+#### AGENTS.md as cross-vendor standard
+
+**Claim:** AGENTS.md is read at session start by Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, and the wider open-source coding-agent ecosystem (20+ vendors listed at agents.md as of 2026-05). Claude Code reads CLAUDE.md, which can import AGENTS.md to share the same content with other agents. The convergence puts AGENTS.md in the manually defined memory layer of the Memory primitive named in Chapter 1.
+**Source:** [agents.md](https://agents.md/) (the open standard's site), plus vendor documentation for each agent listed.
+**Where used:** Chapter 1 (The primitives, Memory section) and Chapter 6 (AGENTS.md as team infrastructure).
+**Caveat:** The exact filename and load semantics vary by vendor - Claude Code reads CLAUDE.md (importable from AGENTS.md via `@AGENTS.md` or symlink); Cursor reads AGENTS.md plus `.cursorrules`. Convergence is on the structural role - user-written, always-loaded, team-shareable - not on byte-identical file format.
+
+---
+
+#### Claude Code Auto Memory
+
+**Claim:** Claude Code maintains an auto-memory layer in which Claude writes notes for itself across sessions - build commands it figured out, debugging insights it confirmed, code-style preferences it inferred - distinct from the user-written CLAUDE.md. Requires Claude Code v2.1.59+; on by default; per-repo storage.
+**Source:** [code.claude.com/docs/en/memory](https://code.claude.com/docs/en/memory).
+**Where used:** Chapter 1 (The primitives, Memory section).
+**Caveat:** Auto memory is Claude-Code-specific at the time of writing. Other coding agents are converging on similar mechanisms but had not shipped an equivalent at publication date.
+
+---
+
+#### Auto Dream (Anthropic background memory consolidation)
+
+**Claim:** Anthropic publicly unveiled Dreaming as part of Claude Managed Agents at Code with Claude SF on 2026-05-06 - a scheduled background process that reviews recent sessions and the memory store, identifies recurring mistakes and convergent workflows, and writes consolidated notes back into long-term memory. The Claude Code surface (`Auto Dream`, accessible via `/dream`) shipped earlier as a research preview gated behind developer access and was documented in March 2026.
+**Source:** Code with Claude SF announcement, 2026-05-06; [code.claude.com/docs/en/memory](https://code.claude.com/docs/en/memory).
+**Where used:** Chapter 1 (The primitives, Memory section).
+**Caveat:** Auto Dream is Claude-Code-specific at publication date. The structural role is what this manual indexes, not the vendor.
 
 ---
 

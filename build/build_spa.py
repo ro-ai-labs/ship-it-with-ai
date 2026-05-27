@@ -635,6 +635,7 @@ SOURCE_GROUPS = {
     "Vulnerabilities with patch versions": ("vuln",     "Vulnerability"),
     "Tool documentation":                  ("docs",     "Tool documentation"),
     "Marketplaces and plugin ecosystems":  ("market",   "Marketplace"),
+    "Memory primitive sources":            ("docs",     "Memory primitive"),
 }
 
 SOURCE_ENTRY_RE = re.compile(
