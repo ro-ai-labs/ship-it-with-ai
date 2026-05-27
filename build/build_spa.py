@@ -319,7 +319,7 @@ def diagram_primitives() -> str:
       <div class="primitive"><div class="primitive-icon">◉</div><div class="primitive-name">context window</div></div>
       <div class="primitive"><div class="primitive-icon">⚙</div><div class="primitive-name">tools</div></div>
       <div class="primitive">
-        <div class="primitive-icon">⛨</div>
+        <div class="primitive-icon">◫</div>
         <div class="primitive-name">permissions / sandbox</div>
         <div class="primitive-sublist">
           <span class="primitive-sub">decision layer</span>
