@@ -183,6 +183,13 @@ async function main() {
         ? ok('llms.txt references llms-full.txt')
         : fail('llms.txt is missing a pointer to llms-full.txt');
     }
+    {
+      const t = fs.readFileSync(path.join(repoRoot, '_site/llms.txt'), 'utf8');
+      if (!/\/\): .+/.test(t)) fail('llms.txt links lack per-link descriptions');
+      else ok('llms.txt links carry descriptions');
+      if (!/## Author/.test(t)) fail('llms.txt missing ## Author section');
+      else ok('llms.txt has ## Author section');
+    }
     if (!exists('deferred.css')) fail('deferred.css missing'); else ok('deferred.css present');
     if (!exists('sitemap.xml')) fail('sitemap.xml missing'); else ok('sitemap.xml present');
     if (!exists('read/index.html')) fail('read/index.html missing'); else ok('read/index.html present');

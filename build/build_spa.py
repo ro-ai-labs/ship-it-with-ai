@@ -2239,12 +2239,12 @@ def render_llms_txt(sections: list[Section]) -> str:
         for s in sections:
             if s.kind != kind:
                 continue
-            docs_lines.append(f"- [{_llms_label(s)}]({base}/{s.slug}/)")
+            docs_lines.append(f"- [{_llms_label(s)}]({base}/{s.slug}/): {_section_description(s)}")
 
     optional_lines: list[str] = []
     for s in sections:
         if s.kind in optional_kinds:
-            optional_lines.append(f"- [{_llms_label(s)}]({base}/{s.slug}/)")
+            optional_lines.append(f"- [{_llms_label(s)}]({base}/{s.slug}/): {_section_description(s)}")
     optional_lines.append(f"- [Read as one page]({base}/read/)")
 
     docs_block = "\n".join(docs_lines)
@@ -2263,6 +2263,9 @@ Full text in a single markdown file: {base}/llms-full.txt
 
 ## Optional
 {optional_block}
+
+## Author
+- [Mihai Cvasnievschi](https://www.linkedin.com/in/mihaicvasnievschi/): author; 25+ years shipping software, now focused on agentic delivery.
 """
 
 
