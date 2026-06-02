@@ -2396,6 +2396,9 @@ def main() -> int:
     search_json = build_search_index(md_text, parts, chapters, appendices,
                                      foreword, closing,
                                      anchor_index=anchor_index)
+    (SITE_DIR / "search-index.json").write_text(search_json)
+    print("Wrote _site/search-index.json")
+    inline_index = "[]"
 
     # /read/'s sidebar uses in-page anchors (jumps within the SPA body).
     toc_sidebar_read = build_toc(parts, chapters, appendices, foreword, closing,
@@ -2424,7 +2427,7 @@ def main() -> int:
         title=title, subtitle=subtitle, author=author,
         toc_html_sidebar=toc_chapter_url,
         toc_html_landing=toc_chapter_url,
-        search_index=search_json,
+        search_index=inline_index,
         head_schema=head_schema,
         hash_redirect_js=hash_redirect_js,
         date_modified_human=date_modified_human,
@@ -2439,7 +2442,7 @@ def main() -> int:
         title=title, subtitle=subtitle, author=author,
         toc_html_sidebar=toc_sidebar_read,
         content_html=content_html,
-        search_index=search_json,
+        search_index=inline_index,
         head_schema=head_schema,
         date_modified_human=date_modified_human,
     )
@@ -2465,7 +2468,7 @@ def main() -> int:
             prev_=prev_, next_=next_,
             author=author, title_meta=title,
             toc_html_sidebar=toc_sidebar_chapter,
-            search_index=search_json,
+            search_index=inline_index,
             anchor_index=anchor_index,
             date_modified_human=date_modified_human,
         )
@@ -2490,7 +2493,7 @@ def main() -> int:
     # 404 sidebar uses chapter-url mode so clicks resolve to real per-section
     # URLs (now that they exist).
     html_404 = render_404(template, title=title, author=author,
-                          toc_html=toc_chapter_url, search_index=search_json,
+                          toc_html=toc_chapter_url, search_index=inline_index,
                           date_modified_human=date_modified_human)
     (SITE_DIR / "404.html").write_text(html_404)
     print(f"Wrote _site/404.html ({(SITE_DIR / '404.html').stat().st_size / 1024:.1f} KB)")

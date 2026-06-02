@@ -2124,8 +2124,6 @@
     </div>
   </div>
 
-  <script id="searchIndex" type="application/json">{{SEARCH_INDEX}}</script>
-
   <script>
     (function() {
       // Theme toggle with persistence
@@ -2333,11 +2331,21 @@
         const status = document.getElementById('searchStatus');
         const announce = document.getElementById('searchAnnounce');
         const trigger = document.getElementById('searchTrigger');
-        const indexEl = document.getElementById('searchIndex');
-        if (!overlay || !input || !results || !indexEl) return;
+        if (!overlay || !input || !results) return;
 
         let index = [];
-        try { index = JSON.parse(indexEl.textContent || '[]'); } catch (err) { index = []; }
+        let indexLoaded = false;
+        let indexLoading = null;
+        function ensureIndex() {
+          if (indexLoaded) return Promise.resolve(index);
+          if (!indexLoading) {
+            indexLoading = fetch('/search-index.json')
+              .then(r => (r.ok ? r.json() : []))
+              .then(data => { index = data; indexLoaded = true; return index; })
+              .catch(() => { index = []; indexLoaded = true; return index; });
+          }
+          return indexLoading;
+        }
 
         const MAX_RESULTS = 8;
         let active = -1;
@@ -2474,6 +2482,7 @@
           }
         }
         function openOverlay() {
+          ensureIndex();
           if (!overlay.hidden) return;
           lastFocus = document.activeElement;
           overlay.hidden = false;
@@ -2500,11 +2509,11 @@
           const typing = tag === 'INPUT' || tag === 'TEXTAREA' || (e.target && e.target.isContentEditable);
           if (isMod && (e.key === 'k' || e.key === 'K')) {
             e.preventDefault();
-            overlay.hidden ? openOverlay() : closeOverlay();
+            if (overlay.hidden) { ensureIndex(); openOverlay(); } else { closeOverlay(); }
             return;
           }
           if (!overlay.hidden) return;
-          if (e.key === '/' && !typing) { e.preventDefault(); openOverlay(); }
+          if (e.key === '/' && !typing) { e.preventDefault(); ensureIndex(); openOverlay(); }
         });
         overlay.addEventListener('keydown', (e) => {
           if (e.key === 'Escape') { e.preventDefault(); closeOverlay(); return; }
@@ -2525,7 +2534,7 @@
         input.addEventListener('input', () => render(input.value));
         backdrop.addEventListener('click', closeOverlay);
         if (closeBtn) closeBtn.addEventListener('click', closeOverlay);
-        if (trigger) trigger.addEventListener('click', openOverlay);
+        if (trigger) trigger.addEventListener('click', () => { ensureIndex(); openOverlay(); });
         if (trigger) {
           const isMac = /Mac|iPhone|iPad|iPod/i.test(navigator.platform || navigator.userAgent);
           const kbd = trigger.querySelector('.search-trigger-kbd');

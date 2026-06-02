@@ -465,16 +465,18 @@ async function main() {
       await ctx.close();
     }
 
-    // Search index entries carry a `url` field.
+    // Search index entries carry a `url` field (externalized to search-index.json).
     {
-      const html = fs.readFileSync(path.join(repoRoot, '_site', 'index.html'), 'utf8');
-      const m = html.match(/<script id="searchIndex" type="application\/json">(.*?)<\/script>/s);
-      if (!m) fail('searchIndex JSON not found in landing');
+      if (!exists('search-index.json')) fail('search-index.json not emitted');
       else {
-        const entries = JSON.parse(m[1]);
+        const entries = JSON.parse(fs.readFileSync(path.join(repoRoot, '_site', 'search-index.json'), 'utf8'));
         const withUrl = entries.filter(e => e.url).length;
         if (withUrl < entries.length / 2) fail(`search index: only ${withUrl}/${entries.length} entries have url`);
-        else ok(`search index: ${withUrl}/${entries.length} entries have url field`);
+        else ok(`search-index.json: ${withUrl}/${entries.length} entries have url field`);
+        const land = fs.readFileSync(path.join(repoRoot, '_site', 'index.html'), 'utf8');
+        const inline = (land.match(/<script id="searchIndex" type="application\/json">(.*?)<\/script>/s) || [])[1] || '';
+        if (inline.length > 10) fail(`search index still inlined in landing (${inline.length} chars)`);
+        else ok('search index not inlined into landing (externalized)');
       }
     }
 
