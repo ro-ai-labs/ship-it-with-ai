@@ -885,6 +885,15 @@ async function main() {
       await ctx.close();
     }
 
+    // head theme-init must appear before <style> to prevent dark-mode FOUC
+    {
+      const html = fs.readFileSync(path.join(repoRoot, '_site', 'index.html'), 'utf8');
+      const initIdx = html.indexOf("setAttribute('data-theme'");
+      const styleIdx = html.indexOf('<style>');
+      if (initIdx === -1 || initIdx > styleIdx) fail('head theme-init missing or after <style> (FOUC)');
+      else ok('head theme-init present before <style>');
+    }
+
     // og:type per page + /read/ og:url
     {
       const land = fs.readFileSync(path.join(repoRoot, '_site', 'index.html'), 'utf8');

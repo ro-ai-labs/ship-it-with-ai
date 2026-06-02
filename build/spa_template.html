@@ -34,6 +34,7 @@
   <script>window.SITE_MODE = '{{SITE_MODE}}';</script>
   {{HEAD_SCHEMA}}
   {{HEAD_EXTRA}}
+  <script>try{var t=localStorage.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
 
   <style>
     :root {
