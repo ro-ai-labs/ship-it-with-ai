@@ -444,7 +444,7 @@ The primitives. Two implementations. Same anatomy. Different choices about how t
 | **Context** | Side-by-side experiment built while preparing this manual - pointing Claude Code at the source code of Codex (Rust) and opencode (TypeScript) simultaneously |
 | **Problem** | Readers needed to see that the primitives were not Claude-Code-specific marketing; they were structural invariants verifiable in source |
 | **Intervention** | Same prompt, two repositories, agent identifies the primitives in each codebase using grep + read-file tools |
-| **Agent time** | ~8 minutes |
+| **Agent time** | ~4 min wall clock (two panes in parallel) |
 | **Human correction time** | None - the experiment runs end-to-end without intervention once dispatched |
 | **Outcome** | Same primitives present in both codebases, in different files, under different names, with substantively different implementations; the anatomy is invariant; the implementation is not |
 | **Limitations** | Experiment verifies the primitives exist; does not prove they are equally well-implemented (and they are not) |
@@ -1285,9 +1285,9 @@ Fifteen minutes of agent work did not replace domain judgment; it made domain ju
 | **Context** | Regulated banking team, ~60k LOC Java service, 3-year-old codebase, stale documentation |
 | **Problem** | Team had drafted an 18-month rewrite proposal; senior engineering doubted the rewrite was necessary but lacked the evidence to argue otherwise |
 | **Intervention** | Architecture review workflow run on the codebase; produced docs/architecture.md as the auditable artifact |
-| **Agent time** | ~25 minutes |
-| **Human correction time** | ~45 minutes (reviewer had deep domain knowledge of the wire transfer subsystem) |
-| **Outcome** | Identified the actual problem - 3 of 47 modules carried the technical debt; rewrite proposal converted to targeted 3-month replacement |
+| **Agent time** | ~15-18 minutes |
+| **Human correction time** | ~45 minutes (reviewer had deep domain knowledge of the customer onboarding domain) |
+| **Outcome** | Identified the actual problem - two modules carried the technical debt; rewrite proposal converted to targeted 3-month replacement |
 | **Limitations** | Reviewer had to know the domain to evaluate the agent's output; the workflow does not substitute for domain knowledge, it accelerates it |
 
 ---
