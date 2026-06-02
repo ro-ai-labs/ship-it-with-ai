@@ -2341,7 +2341,7 @@
           if (!indexLoading) {
             indexLoading = fetch('/search-index.json')
               .then(r => (r.ok ? r.json() : []))
-              .then(data => { index = data; indexLoaded = true; return index; })
+              .then(data => { index = data; indexLoaded = true; if (!overlay.hidden && input.value) render(input.value); return index; })
               .catch(() => { index = []; indexLoaded = true; return index; });
           }
           return indexLoading;
