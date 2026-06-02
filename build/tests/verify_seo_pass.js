@@ -26,6 +26,7 @@ function fail(msg) { console.error('FAIL:', msg); process.exitCode = 1; }
 function ok(msg) { console.log('OK:', msg); }
 
 async function main() {
+  const repoRoot = path.resolve(__dirname, '..', '..');
   fs.mkdirSync(SHOTS_DIR, { recursive: true });
   // Commit 2+: build now emits _site/ directly; serve from there.
   const { baseUrl, stop } = await buildAndServe('_site');
@@ -76,10 +77,11 @@ async function main() {
             fail(`Book missing @id (got: ${book && book['@id']})`);
           } else ok(`Book has @id`);
 
-          // dateModified is today
-          const today = new Date().toISOString().slice(0, 10);
-          if (book && book.dateModified !== today) fail(`Book.dateModified=${book.dateModified}, expected ${today}`);
-          else ok(`Book.dateModified is today`);
+          // dateModified is deterministic (content date) and must match sitemap <lastmod>.
+          const sm = fs.readFileSync(path.join(repoRoot, '_site', 'sitemap.xml'), 'utf8');
+          const lastmod = (sm.match(/<lastmod>([0-9-]+)<\/lastmod>/) || [])[1];
+          if (!book || book.dateModified !== lastmod) fail(`Book.dateModified=${book && book.dateModified}, expected sitemap lastmod ${lastmod}`);
+          else ok(`Book.dateModified matches sitemap lastmod (${lastmod})`);
         }
 
         // No horizontal overflow at any viewport
@@ -144,7 +146,6 @@ async function main() {
     }
 
     // ===== File-system assertions (run once) =====
-    const repoRoot = path.resolve(__dirname, '..', '..');
     function exists(rel) { return fs.existsSync(path.join(repoRoot, '_site', rel)); }
     function sizeKB(rel) { return fs.statSync(path.join(repoRoot, '_site', rel)).size / 1024; }
 

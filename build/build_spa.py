@@ -5,7 +5,9 @@ Usage: python3 build_spa.py
 Output: ship_it_with_ai.html (single self-contained file)
 """
 
+import os
 import re
+import subprocess
 import sys
 import json
 import html as html_lib
@@ -23,6 +25,29 @@ SOURCE = REPO_ROOT / "source" / "Ship_It_With_AI.md"
 SITE_DIR = REPO_ROOT / "_site"
 STATIC_DIR = HERE / "static"
 TEMPLATE_PATH = HERE / "spa_template.html"
+
+
+def _content_date() -> datetime:
+    """Deterministic build timestamp for sitemap lastmod / JSON-LD dateModified.
+
+    Resolution order: SOURCE_DATE_EPOCH env override -> the source file's last
+    git commit date -> the source file's mtime. Never datetime.now(), so an
+    unchanged source rebuilds byte-identically and lastmod reflects the last
+    *content* edit rather than when CI happened to run.
+    """
+    epoch = os.environ.get("SOURCE_DATE_EPOCH")
+    if epoch:
+        return datetime.fromtimestamp(int(epoch), tz=timezone.utc)
+    try:
+        out = subprocess.run(
+            ["git", "log", "-1", "--format=%cI", "--", str(SOURCE)],
+            cwd=REPO_ROOT, capture_output=True, text=True, check=True,
+        ).stdout.strip()
+        if out:
+            return datetime.fromisoformat(out).astimezone(timezone.utc)
+    except Exception:
+        pass
+    return datetime.fromtimestamp(SOURCE.stat().st_mtime, tz=timezone.utc)
 
 
 # ---------------------------------------------------------------------------
@@ -1615,7 +1640,7 @@ def render_hash_redirect_js(sections: list[Section]) -> str:
 
 def render_sitemap(sections: list[Section]) -> str:
     """Full sitemap: landing + /read/ + every per-section URL."""
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    today = _content_date().strftime("%Y-%m-%d")
     # Slugs renamed in earlier passes — old URLs serve as redirect stubs,
     # not as canonical URLs. Exclude from sitemap so Google doesn't index them.
     REDIRECTED_OLD_SLUGS = {"chapter-1-six-primitives"}
@@ -1829,7 +1854,7 @@ def render_chapter_schema(section: Section) -> str:
     """Per-chapter JSON-LD: TechArticle (linked to the Book by @id) +
     BreadcrumbList. The Book entity itself is only defined on landing/read,
     keeping a single source of truth."""
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    today = _content_date().strftime("%Y-%m-%d")
     page_url = f"https://ship-it-with.ai/{section.slug}/"
 
     tech_article = {
@@ -2360,7 +2385,7 @@ def main() -> int:
 
     # JSON-LD shared by landing + /read/ (alternate format of same Book).
     number_of_pages = max(1, round(len(md_text.split()) / 250))
-    _now_utc = datetime.now(timezone.utc)
+    _now_utc = _content_date()
     date_modified = _now_utc.strftime("%Y-%m-%d")
     date_modified_human = _now_utc.strftime("%B %d, %Y")
     head_schema = _homepage_head_schema(author, number_of_pages, date_modified)
