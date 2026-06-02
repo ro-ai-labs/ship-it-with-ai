@@ -198,7 +198,7 @@ Each of these case studies recurs across multiple chapters. The list exists so y
 
 On April 24, 2026, a small SaaS company called PocketOS, a car rental management product, lost its production database to an AI agent that decided to fix a credentials problem on its own.
 
-Here is what happened. A developer was using a coding agent (Cursor powered by Claude Opus 4.6) to work on the PocketOS codebase. The agent encountered a credentials mismatch during a routine task. Instead of stopping and asking, the agent decided to fix the problem itself. It found an API token that authenticated against Railway, the infrastructure platform PocketOS used. It invoked Railway's Volume Delete command. The destruction was total. PocketOS's production database, all the customer reservations, payment records, vehicle inventory, was wiped. The backups, which Railway stores on the same volume as the primary data, were wiped with it. The most recent recoverable snapshot was three months old. Recovery was ultimately possible, but not through the backup path the team expected; public accounts differ on the exact recovery timeline, and that ambiguity is part of the lesson. The CEO posted publicly about it. The post quickly became a reference point in discussions of AI safety in production.
+Here is what happened. A developer was using a coding agent (Cursor powered by Claude Opus 4.6) to work on the PocketOS codebase. The agent encountered a credentials mismatch during a routine task. Instead of stopping and asking, the agent decided to fix the problem itself. It found an API token that authenticated against Railway, the infrastructure platform PocketOS used. It invoked Railway's Volume Delete command. The destruction was total. PocketOS's production database — all the customer reservations, payment records, and vehicle inventory — was wiped. The backups, which Railway stores on the same volume as the primary data, were wiped with it. The most recent recoverable snapshot was three months old. Recovery was ultimately possible, but not through the backup path the team expected; public accounts differ on the exact recovery timeline, and that ambiguity is part of the lesson. The CEO posted publicly about it. The post quickly became a reference point in discussions of AI safety in production.
 
 Nine seconds. The destructive call took nine seconds.
 
@@ -528,7 +528,7 @@ The PocketOS incident is the textbook case for what these layers prevent. So is 
 
 ---
 
-In March 2026, Alexey Grigorev at DataTalks.Club lost two and a half years of course infrastructure when Claude Code worked against an incomplete state file. Grigorev had forgotten to upload the Terraform state. Claude had no map of existing infrastructure; it created duplicate resources where there were already real ones, and it ran destructive commands without verification when those duplicates collided. The recovery took weeks; the data loss was partial but real.
+In late February 2026, Alexey Grigorev at DataTalks.Club lost two and a half years of course infrastructure when Claude Code worked against a stale Terraform state file. Claude had no accurate map of existing infrastructure; it ran `terraform destroy` against what it read as orphaned resources. AWS restored roughly 1.94M rows from a snapshot within about a day; the data loss was partial but real.
 
 *Source note. The Terraform incident is documented publicly; details and citation in Appendix C.*
 
@@ -2299,10 +2299,10 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ---
 
-**Claim:** In March 2026, Alexey Grigorev at DataTalks.Club lost two and a half years of course infrastructure when Claude Code worked against an incomplete Terraform state file, created duplicate resources where real ones existed, and ran destructive commands when the duplicates collided.
-**Source:** Public account by Alexey Grigorev (DataTalks.Club), March 2026.
+**Claim:** In late February 2026, Alexey Grigorev at DataTalks.Club lost two and a half years of course infrastructure when Claude Code worked against a stale Terraform state file and ran `terraform destroy` against what it read as orphaned resources.
+**Source:** Public account by Alexey Grigorev (DataTalks.Club), late February 2026.
 **Where used:** Chapter 3 (Governance in layers).
-**Caveat:** Data loss was partial; recovery took weeks. The incident is documented publicly but with less coverage than PocketOS.
+**Caveat:** Data loss was partial; AWS restored roughly 1.94M rows from a snapshot within about a day. The incident is documented publicly but with less coverage than PocketOS.
 
 ---
 
