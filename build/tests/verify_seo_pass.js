@@ -885,6 +885,21 @@ async function main() {
       await ctx.close();
     }
 
+    // og:type per page + /read/ og:url
+    {
+      const land = fs.readFileSync(path.join(repoRoot, '_site', 'index.html'), 'utf8');
+      if (!/og:type" content="website"/.test(land)) fail('landing og:type should be website');
+      else ok('landing og:type=website');
+      const ch = fs.readFileSync(path.join(repoRoot, '_site', 'chapter-1-primitives', 'index.html'), 'utf8');
+      if (!/og:type" content="article"/.test(ch)) fail('chapter og:type should be article');
+      else ok('chapter og:type=article');
+      const read = fs.readFileSync(path.join(repoRoot, '_site', 'read', 'index.html'), 'utf8');
+      if (!/og:url" content="https:\/\/ship-it-with\.ai\/read\/"/.test(read)) fail('/read/ og:url should be /read/');
+      else ok('/read/ og:url=/read/');
+      if (!/rel="canonical" href="https:\/\/ship-it-with\.ai\/"/.test(read)) fail('/read/ canonical should stay /');
+      else ok('/read/ canonical stays /');
+    }
+
   } finally {
     await browser.close();
     stop();
