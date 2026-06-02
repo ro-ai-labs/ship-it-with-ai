@@ -156,6 +156,12 @@ async function main() {
       if (kb > 150) fail(`cover.webp size ${kb.toFixed(1)} KB > 150 KB`);
       else ok(`cover.webp present (${kb.toFixed(1)} KB)`);
     }
+    if (!exists('cover-720.webp')) fail('cover-720.webp missing'); else ok('cover-720.webp present');
+    {
+      const land = fs.readFileSync(path.join(repoRoot, '_site', 'index.html'), 'utf8');
+      if (!/<source type="image\/webp" srcset="\/cover-720\.webp/.test(land)) fail('cover <picture>/<source> missing');
+      else ok('cover served via <picture> with webp srcset');
+    }
     if (!exists('404.html')) fail('404.html missing'); else ok('404.html present');
     if (!exists('llms.txt')) fail('llms.txt missing'); else ok('llms.txt present');
     if (!exists('llms-full.txt')) {

@@ -15,7 +15,7 @@ from PIL import Image
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parent
 SOURCE = HERE / "cover.png"
-OUTPUT = REPO_ROOT / "cover.webp"
+STATIC_DIR = HERE / "static"
 TARGET_W, TARGET_H = 1200, 630
 TARGET_RATIO = TARGET_W / TARGET_H
 
@@ -37,11 +37,11 @@ def main() -> int:
         top = (h - new_h) // 2
         img = img.crop((0, top, w, top + new_h))
 
-    img = img.resize((TARGET_W, TARGET_H), Image.Resampling.LANCZOS)
-    img.save(OUTPUT, format="WEBP", quality=82, method=6)
-
-    size_kb = OUTPUT.stat().st_size / 1024
-    print(f"wrote {OUTPUT.relative_to(REPO_ROOT)} ({size_kb:.1f} KB, {TARGET_W}x{TARGET_H})")
+    base = img.resize((TARGET_W, TARGET_H), Image.Resampling.LANCZOS)
+    for name, w, h in [("cover.webp", TARGET_W, TARGET_H), ("cover-720.webp", 720, 378)]:
+        out = STATIC_DIR / name
+        base.resize((w, h), Image.Resampling.LANCZOS).save(out, format="WEBP", quality=82, method=6)
+        print(f"wrote {out.relative_to(REPO_ROOT)} ({out.stat().st_size / 1024:.1f} KB, {w}x{h})")
     return 0
 
 

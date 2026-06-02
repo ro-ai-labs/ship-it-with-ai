@@ -1405,7 +1405,10 @@ READ_ARTICLE_BODY = '''<header class="article-header">
       {CONTENT}
 
       <figure class="article-cover article-cover-end">
-        <img src="/cover.jpg" alt="Ship It With AI - A Manual for Shipping Software with AI Agents, by {AUTHOR}" width="1200" height="630" loading="lazy" decoding="async" />
+        <picture>
+          <source type="image/webp" srcset="/cover-720.webp 720w, /cover.webp 1200w" sizes="(max-width: 760px) 100vw, 720px" />
+          <img src="/cover.jpg" alt="Ship It With AI - A Manual for Shipping Software with AI Agents, by {AUTHOR}" width="1200" height="630" loading="lazy" decoding="async" />
+        </picture>
       </figure>'''
 
 
@@ -1433,7 +1436,10 @@ LANDING_ARTICLE_BODY = '''<header class="article-header">
       </section>
 
       <figure class="article-cover article-cover-end">
-        <img src="/cover.jpg" alt="Ship It With AI - A Manual for Shipping Software with AI Agents, by {AUTHOR}" width="1200" height="630" loading="lazy" decoding="async" />
+        <picture>
+          <source type="image/webp" srcset="/cover-720.webp 720w, /cover.webp 1200w" sizes="(max-width: 760px) 100vw, 720px" />
+          <img src="/cover.jpg" alt="Ship It With AI - A Manual for Shipping Software with AI Agents, by {AUTHOR}" width="1200" height="630" loading="lazy" decoding="async" />
+        </picture>
       </figure>'''
 
 
