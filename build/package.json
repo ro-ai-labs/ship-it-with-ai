@@ -5,7 +5,8 @@
   "description": "Build + verification scripts for ship-it-with.ai",
   "type": "commonjs",
   "scripts": {
-    "verify": "node tests/verify_feedback_pass.js"
+    "verify": "node tests/verify_feedback_pass.js",
+    "verify:site": "node tests/verify_seo_pass.js"
   },
   "devDependencies": {
     "playwright": "^1.60.0"

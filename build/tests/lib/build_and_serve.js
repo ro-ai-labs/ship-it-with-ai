@@ -38,7 +38,11 @@ async function waitForReady(port, timeoutMs = 5000) {
 
 async function buildAndServe(serveDir = '.') {
   const repoRoot = path.resolve(__dirname, '..', '..', '..');
-  execFileSync('python3', ['build/build_spa.py'], { cwd: repoRoot, stdio: 'inherit' });
+  // CI builds once (the workflow's Build step) then verifies those exact bytes.
+  // Set SITE_NO_REBUILD=1 to serve the existing _site/ without rebuilding.
+  if (!process.env.SITE_NO_REBUILD) {
+    execFileSync('python3', ['build/build_spa.py'], { cwd: repoRoot, stdio: 'inherit' });
+  }
 
   const port = await freePort();
   const server = spawn('python3', ['-m', 'http.server', '-d', serveDir, String(port)],
