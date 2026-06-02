@@ -2318,7 +2318,7 @@ This appendix exists because every claim in this manual deserves a verifiable so
 **Claim:** Claude Code was vulnerable to remote code execution via untrusted project files: malicious `.mcp.json` or `.claude/settings.json` files in untrusted repos could execute hooks before the trust dialog, enabling RCE.
 **Source:** Check Point Research, February 2026. CVE-2025-59536. NVD: [nvd.nist.gov/vuln/detail/CVE-2025-59536](https://nvd.nist.gov/vuln/detail/CVE-2025-59536). Writeup: [research.checkpoint.com/2026/rce-and-api-token-exfiltration-through-claude-code-project-files-cve-2025-59536/](https://research.checkpoint.com/2026/rce-and-api-token-exfiltration-through-claude-code-project-files-cve-2025-59536/).
 **Where used:** Chapter 3 (Governance in layers); referenced in Chapter 10 (Adoption, security committee scene).
-**Caveat:** Patched in Claude Code v1.0.111. Versions earlier than the patch remain vulnerable; the class survives even after the specific patch.
+**Caveat:** Disclosed and patched in Claude Code v1.0.111 (October 2025); the Check Point writeup was published February 2026. Versions earlier than the patch remain vulnerable; the class survives even after the specific patch.
 
 ---
 
@@ -2344,7 +2344,7 @@ This appendix exists because every claim in this manual deserves a verifiable so
 ---
 
 **Claim:** Permission parsers in coding agents recognize only a known set of shell-read commands; agents invoking Python's `open()`, Node's `fs.readFile`, or any unrecognized binary bypass the deny rules entirely.
-**Source:** [eve.gd](https://eve.gd) (Eve Cailey), public writeup of the architectural class.
+**Source:** [Martin Paul Eve](https://eve.gd), public writeup of the permission-parser bypass class.
 **Where used:** Chapter 3 (Governance in layers), as the permission-parser bypass class.
 **Caveat:** Architectural, not a single CVE. Mitigation is the OS sandbox `denyRead` list (kernel-level), not a vendor patch. The class persists across patches because the parser cannot enumerate every binary.
 
@@ -2381,7 +2381,7 @@ This appendix exists because every claim in this manual deserves a verifiable so
 ---
 
 **Claim:** opencode is an open-source coding agent maintained by an independent team, written in TypeScript and licensed under MIT. Source-organized around the same primitives this manual identifies in Codex CLI and Claude Code.
-**Source:** opencode repository ([github.com/opencode-ai/opencode](https://github.com/opencode-ai/opencode)); LICENSE and README.
+**Source:** opencode repository ([github.com/sst/opencode](https://github.com/sst/opencode)); LICENSE and README.
 **Where used:** Chapter 1 (The primitives, source survey) and Chapter 2 (Anatomy invariant, two-agent demo).
 **Caveat:** Project naming and maintainer composition may evolve; the architectural convergence claim survives renames.
 
