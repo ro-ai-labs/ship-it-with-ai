@@ -894,6 +894,13 @@ async function main() {
       else ok('head theme-init present before <style>');
     }
 
+    // kbdOverlayTitle must not be an <h2> (demoted to avoid spurious heading outline entry)
+    {
+      const html = fs.readFileSync(path.join(repoRoot, '_site', 'chapter-1-primitives', 'index.html'), 'utf8');
+      if (/<h2[^>]*id="kbdOverlayTitle"/.test(html)) fail('kbdOverlayTitle is still an <h2>');
+      else ok('kbdOverlayTitle demoted out of heading outline');
+    }
+
     // og:type per page + /read/ og:url
     {
       const land = fs.readFileSync(path.join(repoRoot, '_site', 'index.html'), 'utf8');
