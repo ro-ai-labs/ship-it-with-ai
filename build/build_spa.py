@@ -1652,7 +1652,8 @@ def render_sitemap(sections: list[Section]) -> str:
     # not as canonical URLs. Exclude from sitemap so Google doesn't index them.
     REDIRECTED_OLD_SLUGS = {"chapter-1-six-primitives"}
 
-    urls = ["https://ship-it-with.ai/", "https://ship-it-with.ai/read/"]
+    # /read/ is noindex (duplicate of the per-section pages) — keep it out of the sitemap.
+    urls = ["https://ship-it-with.ai/"]
     urls += [
         f"https://ship-it-with.ai/{s.slug}/"
         for s in sections
@@ -2081,7 +2082,7 @@ def render_read(template: str, *, title: str, subtitle: str, author: str,
         "AUTHOR": html_lib.escape(author),
         "BYLINE_HREF": "#contact",
         "HEAD_SCHEMA": head_schema,
-        "HEAD_EXTRA": "",
+        "HEAD_EXTRA": '<meta name="robots" content="noindex, follow">',
         "TOC": toc_html_sidebar,
         "ARTICLE_BODY": _read_article_body(content_html, subtitle, author, "#contact"),
         "SEARCH_INDEX": search_index,

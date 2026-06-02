@@ -220,6 +220,17 @@ async function main() {
       await ctx.close();
     }
 
+    // /read/ is noindex (kept for humans, out of the index) and absent from the sitemap.
+    {
+      const html = fs.readFileSync(path.join(repoRoot, '_site', 'read', 'index.html'), 'utf8');
+      const robots = [...html.matchAll(/<meta name="robots" content="([^"]+)"/g)].map(m => m[1]);
+      if (!robots.some(r => /noindex/.test(r))) fail(`/read/ missing noindex robots meta (got: ${robots})`);
+      else ok('/read/ emits noindex robots meta');
+      const sitemap = fs.readFileSync(path.join(repoRoot, '_site', 'sitemap.xml'), 'utf8');
+      if (/ship-it-with\.ai\/read\//.test(sitemap)) fail('/read/ still listed in sitemap');
+      else ok('/read/ excluded from sitemap');
+    }
+
     // deferred.css loaded via preload on landing AND /read/.
     // The <link rel="preload" onload="this.rel='stylesheet'"> swaps `rel`
     // to "stylesheet" once the CSS lands, so by the time Playwright runs the
@@ -292,13 +303,12 @@ async function main() {
 
     // ===== Commit 3 assertions =====
 
-    // Sitemap is now the full 21 URLs (landing + /read/ + 19 sections,
-    // updated from 20 when the Changelog section was added).
+    // Sitemap is now the full 20 URLs (landing + 19 sections; /read/ excluded).
     {
       const sitemap = fs.readFileSync(path.join(repoRoot, '_site', 'sitemap.xml'), 'utf8');
       const urlCount = (sitemap.match(/<url>/g) || []).length;
-      if (urlCount !== 21) fail(`sitemap has ${urlCount} URLs, expected 21`);
-      else ok(`sitemap has 21 URLs (landing + /read/ + 19 sections)`);
+      if (urlCount !== 20) fail(`sitemap has ${urlCount} URLs, expected 20`);
+      else ok(`sitemap has 20 URLs (landing + 19 sections; /read/ excluded)`);
     }
 
     // Every section page returns 200, has one <h1>, unique title, canonical,
@@ -813,10 +823,10 @@ async function main() {
       if (!sitemap.includes('<loc>https://ship-it-with.ai/changelog/</loc>')) {
         fail('sitemap missing /changelog/');
       } else ok('sitemap includes /changelog/');
-      // Sitemap should now have 21 URLs total (was 20)
+      // Sitemap should now have 20 URLs total (/read/ excluded for noindex)
       const urlCount = (sitemap.match(/<url>/g) || []).length;
-      if (urlCount !== 21) fail(`sitemap has ${urlCount} URLs, expected 21`);
-      else ok('sitemap has 21 URLs (was 20)');
+      if (urlCount !== 20) fail(`sitemap has ${urlCount} URLs, expected 20`);
+      else ok('sitemap has 20 URLs (/read/ excluded for noindex)');
     }
 
     // 15. Footer "Last updated" stamp on landing + chapter page
