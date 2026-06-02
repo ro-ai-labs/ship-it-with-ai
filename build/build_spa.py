@@ -17,7 +17,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Literal
 
-import markdown
+try:
+    import markdown
+except ImportError:
+    sys.exit("build_spa.py: missing dependency. Run: pip install -r build/requirements.txt")
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parent
@@ -85,6 +88,10 @@ for _k, _v in SECTION_SLUGS.items():
     if _v in _seen:
         raise RuntimeError(f"duplicate slug in SECTION_SLUGS: {_v}")
     _seen.add(_v)
+
+# Single source of truth for how many per-section pages the build must emit.
+# Used by the build's own print + the CI smoke check.
+EXPECTED_PAGE_COUNT = len(SECTION_SLUGS)  # 19 as of this pass
 
 
 SectionKind = Literal["foreword", "prologue", "chapter", "closing",
@@ -2421,9 +2428,10 @@ def main() -> int:
     (SITE_DIR / "read" / "index.html").write_text(read_html)
     print(f"Wrote _site/read/index.html ({len(read_html) / 1024:.1f} KB)")
 
-    # Per-section pages (18 total: foreword, prologue, 10 chapters, closing,
-    # acknowledgments, about, 3 appendices). Each gets a "you are here" mark
-    # on its sidebar TOC entry.
+    # Per-section pages (EXPECTED_PAGE_COUNT total). Each gets a "you are here"
+    # mark on its sidebar TOC entry.
+    assert len(sections) == EXPECTED_PAGE_COUNT, (
+        f"emitted {len(sections)} sections, expected {EXPECTED_PAGE_COUNT}")
     for i, section in enumerate(sections):
         prev_ = sections[i - 1] if i > 0 else None
         next_ = sections[i + 1] if i + 1 < len(sections) else None
