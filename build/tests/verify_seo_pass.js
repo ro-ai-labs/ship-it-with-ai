@@ -929,6 +929,13 @@ async function main() {
       else ok('/read/ canonical stays /');
     }
 
+    {
+      const html = fs.readFileSync(path.join(repoRoot, '_site', 'index.html'), 'utf8');
+      if (!/rel="alternate" type="text\/markdown" href="https:\/\/ship-it-with\.ai\/llms-full\.txt"/.test(html))
+        fail('head missing rel=alternate markdown link to llms-full.txt');
+      else ok('head links the markdown corpus (llms-full.txt)');
+    }
+
   } finally {
     await browser.close();
     stop();
