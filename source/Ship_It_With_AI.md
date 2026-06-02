@@ -179,7 +179,7 @@ Some workflows are too regulated for these defaults. The manual assumes the team
 Each of these case studies recurs across multiple chapters. The list exists so you can navigate by example as well as by framework.
 
 - **PocketOS** - nine-second production loss to an unconstrained agent. Prologue + Chapter 3 (Governance in layers). Source notes in Appendix C.
-- **Terraform / DataTalks.Club** - two and a half years of infrastructure lost to a missing state file. Chapter 3 (Governance in layers).
+- **Terraform / DataTalks.Club** - two and a half years of infrastructure lost to a stale state file. Chapter 3 (Governance in layers).
 - **Two-agent demo** - side-by-side architecture inspection of Codex CLI and opencode, demonstrating the anatomy invariant. Chapter 2.
 - **The validation rule** - a single [AGENTS.md](https://agents.md/) line that eliminated three hours of monthly correction time. Chapter 6 (AGENTS.md as team infrastructure).
 - **The 900-line AGENTS.md** - instruction-bloat failure mode and the recovery. Chapter 6.
