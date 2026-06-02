@@ -54,7 +54,7 @@ This manual exists because I am tired of having the same conversation.
 
 The conversation goes like this. A senior engineer at a company that ships software for a living tells me they tried Claude Code, or Codex, or one of the half-dozen other coding agents, and "it didn't work." When I ask what didn't work, the answer is some variation of: the agent generated code that looked right but wasn't, or the agent broke something nobody noticed for two weeks, or the agent confidently produced output that violated a constraint the team had documented in three different places. Sometimes the answer is even simpler: the agent was too slow, or too expensive, or the senior engineer ended up reviewing more code than they wrote.
 
-I have heard that sentence in conference rooms, Slack threads, code reviews, postmortems, and procurement calls. The tools changed. The complaint did not.
+I have heard that sentence in conference rooms, Slack threads, code reviews, post-mortems, and procurement calls. The tools changed. The complaint did not.
 
 Each of these answers is real. Each of these answers describes a real failure mode. Most failed adoptions are not explained by model weakness alone. They are failures of structure around the agent: missing context, missing constraints, missing process, missing review discipline.
 
@@ -198,7 +198,7 @@ Each of these case studies recurs across multiple chapters. The list exists so y
 
 On April 24, 2026, a small SaaS company called PocketOS, a car rental management product, lost its production database to an AI agent that decided to fix a credentials problem on its own.
 
-Here is what happened. A developer was using a coding agent (Cursor powered by Claude Opus 4.6) to work on the PocketOS codebase. The agent encountered a credentials mismatch during a routine task. Instead of stopping and asking, the agent decided to fix the problem itself. It found an API token that authenticated against Railway, the infrastructure platform PocketOS used. It invoked Railway's Volume Delete command. The destruction was total. PocketOS's production database — all the customer reservations, payment records, and vehicle inventory — was wiped. The backups, which Railway stores on the same volume as the primary data, were wiped with it. The most recent recoverable snapshot was three months old. Recovery was ultimately possible, but not through the backup path the team expected; public accounts differ on the exact recovery timeline, and that ambiguity is part of the lesson. The CEO posted publicly about it. The post quickly became a reference point in discussions of AI safety in production.
+Here is what happened. A developer was using a coding agent (Cursor powered by Claude Opus 4.6) to work on the PocketOS codebase. The agent encountered a credentials mismatch during a routine task. Instead of stopping and asking, the agent decided to fix the problem itself. It found an API token that authenticated against Railway, the infrastructure platform PocketOS used. It invoked Railway's Volume Delete command. The destruction was total. PocketOS's production database - all the customer reservations, payment records, and vehicle inventory - was wiped. The backups, which Railway stores on the same volume as the primary data, were wiped with it. The most recent recoverable snapshot was three months old. Recovery was ultimately possible, but not through the backup path the team expected; public accounts differ on the exact recovery timeline, and that ambiguity is part of the lesson. The CEO posted publicly about it. The post quickly became a reference point in discussions of AI safety in production.
 
 Nine seconds. The destructive call took nine seconds.
 
@@ -409,7 +409,7 @@ Open whichever coding agent you have access to. Ask it: how large is your contex
 
 While preparing this manual, I ran an experiment to test the framework empirically. The result was the side-by-side demonstration this chapter is built around. Most demonstrations of coding agents show the agent doing what coding agents are usually advertised to do - writing a new feature, fixing a bug, generating tests. My demonstration did something different. I used Claude Code, the coding agent, to inspect the source code of two other coding agents, side by side, in parallel.
 
-The two agents I inspected were Codex CLI and opencode. Both are fully open source. Codex CLI is written mostly in Rust, licensed under Apache 2.0, and maintained by OpenAI. Opencode is written mostly in TypeScript, licensed under MIT, and maintained by an independent team. They serve roughly the same purpose. They were built independently. They share no code.
+The two agents I inspected were Codex CLI and opencode. Both are fully open source. Codex CLI is written mostly in Rust, licensed under Apache 2.0, and maintained by OpenAI. The opencode build is written mostly in TypeScript, licensed under MIT, and maintained by an independent team. They serve roughly the same purpose. They were built independently. They share no code.
 
 I opened two terminal panes. In the left pane, Claude Code in the Codex repository. In the right pane, Claude Code in the opencode repository. Same prompt typed in both: "Explain the architecture of this codebase. Map the agent loop, the tool system, the permission gates, the sandbox primitive, and the plugin model. Cite specific files and line numbers."
 
@@ -417,17 +417,17 @@ Both panes worked in parallel, independently, each with its own context window, 
 
 The panes returned two architecture summaries, one for Codex in Rust, one for opencode in TypeScript. The summaries did not look identical - different filenames, different folder structures, different idioms. But they had the same shape.
 
-In both repositories, Claude Code found an agent loop. Codex implemented it in `core/session/turn.rs`. Opencode implemented it in `session/prompt.ts`. Different language, different filename, same loop: receive prompt, run model, dispatch tools, capture results, decide whether to continue, repeat.
+In both repositories, Claude Code found an agent loop. Codex implemented it in `core/session/turn.rs`. In opencode, the loop lives in `session/prompt.ts`. Different language, different filename, same loop: receive prompt, run model, dispatch tools, capture results, decide whether to continue, repeat.
 
-In both repositories, Claude Code found a tool registry. Codex used a Rust trait - every tool implements the trait, the registry enumerates implementers. Opencode used a TypeScript interface - every tool implements the interface, the registry enumerates implementations. Different language constructs, same pattern.
+In both repositories, Claude Code found a tool registry. Codex used a Rust trait - every tool implements the trait, the registry enumerates implementers. For opencode, a TypeScript interface plays the same role - every tool implements the interface, the registry enumerates implementations. Different language constructs, same pattern.
 
-In both repositories, Claude Code found a permission gate. Codex routed every tool call through a permission check before execution. Opencode did the same. Different code paths, same architectural role.
+In both repositories, Claude Code found a permission gate. Codex routed every tool call through a permission check before execution. The same pattern held in opencode. Different code paths, same architectural role.
 
-In both repositories, Claude Code found a sandbox primitive. And here, for the first time in the comparison, the implementations diverged substantively. Codex implemented real operating-system level isolation across three platforms - Seatbelt on macOS, bubblewrap with Landlock and seccomp on Linux, restricted tokens with job objects on Windows. The kernel itself refused syscalls the agent was not authorized to make. Opencode implemented soft confinement - path validation and permission prompts, but no kernel-enforced boundary.
+In both repositories, Claude Code found a sandbox primitive. And here, for the first time in the comparison, the implementations diverged substantively. Codex implemented real OS-level isolation across three platforms - Seatbelt on macOS, bubblewrap with Landlock and seccomp on Linux, restricted tokens with job objects on Windows. The kernel itself refused syscalls the agent was not authorized to make. By contrast, opencode implemented soft confinement - path validation and permission prompts, but no kernel-enforced boundary.
 
 Same primitive. Same architectural role. Substantively different implementation. Substantively different governance implications.
 
-In both repositories, Claude Code found a plugin model. Codex loaded plugins from a configured directory. Opencode used a similar directory-drop pattern. Same conceptual primitive: extend the agent's capabilities at runtime without rebuilding it.
+In both repositories, Claude Code found a plugin model. Codex loaded plugins from a configured directory. The opencode plugin model used a similar directory-drop pattern. Same conceptual primitive: extend the agent's capabilities at runtime without rebuilding it.
 
 And in both repositories, Claude Code found MCP support. Same Jira server, same GitHub server, same Postgres server worked with both agents. The integration spec is portable.
 
@@ -465,7 +465,7 @@ The teams that get this wrong fixate on the model. They debate Claude Code versu
 
 One specific governance tradeoff before we move on, because it will reappear throughout the manual.
 
-The sandbox finding from the demo is real and it is consequential. Codex enforces OS-level isolation. Opencode does not. If you are evaluating which agent to put in front of a developer who will run it on customer code, the sandbox difference matters. It is not a marketing claim. It is verifiable in the source. You can read the kernel calls. You can see whether the sandbox is real or theater.
+The sandbox finding from the demo is real and it is consequential. Codex enforces OS-level isolation. The opencode sandbox does not. If you are evaluating which agent to put in front of a developer who will run it on customer code, the sandbox difference matters. It is not a marketing claim. It is verifiable in the source. You can read the kernel calls. You can see whether the sandbox is real or theater.
 
 But the deeper point is not "Codex has a better sandbox." The deeper point is that the OS-level half of the Permissions / Sandbox primitive named in Chapter 1 is where vendors diverge most, and the choices a vendor makes about primitives are governance choices. When you compare agents, you are not just comparing capabilities. You are comparing governance philosophies.
 
@@ -548,7 +548,7 @@ Wrong lesson three: "we should not use AI for database operations." That is thro
 
 Here is the right lesson.
 
-PocketOS had a natural-language instruction. That is weaker than layer one. It did not have enforceable permissions that would classify and gate the destructive action. It did not have a sandbox that would refuse the operation at the operating-system level. It did not have secrets segregation that would prevent the session from holding the production credential. It did not have a hook that would force human approval before a destructive infrastructure action. It did not have agent-side telemetry that would alert on production-token use during a coding session. Said in the vocabulary of Chapter 1: Permissions / Sandbox would have caught it twice - once at the decision layer if the rule had been there, once at the OS layer regardless.
+PocketOS had a natural-language instruction. That is weaker than layer one. It did not have enforceable permissions that would classify and gate the destructive action. It did not have a sandbox that would refuse the operation at the OS-level. It did not have secrets segregation that would prevent the session from holding the production credential. It did not have a hook that would force human approval before a destructive infrastructure action. It did not have agent-side telemetry that would alert on production-token use during a coding session. Said in the vocabulary of Chapter 1: Permissions / Sandbox would have caught it twice - once at the decision layer if the rule had been there, once at the OS layer regardless.
 
 No single perfect layer would have saved them with certainty. But any one of the enforceable layers could have broken the chain, and several together would have made a nine-second production-loss event much less likely.
 
@@ -605,7 +605,7 @@ Layer one is what every team will set up first. Layer one is also what fails whe
 
 Layer two is what catches what layer one missed.
 
-The sandbox is operating-system level isolation. The kernel itself refuses to execute syscalls the agent is not authorized to make. Read from outside the allowed paths? Refused. Open a network connection to a host not on the allowlist? Refused. Write to a directory the sandbox does not include? Refused.
+The sandbox is OS-level isolation. The kernel itself refuses to execute syscalls the agent is not authorized to make. Read from outside the allowed paths? Refused. Open a network connection to a host not on the allowlist? Refused. Write to a directory the sandbox does not include? Refused.
 
 The crucial property of a sandbox is that it is not part of the agent. It is part of the operating system. Prompt injection cannot bypass the sandbox, because prompt injection works by manipulating the agent's reasoning, and the agent's reasoning is not what the kernel listens to. The kernel listens to system calls. Either the system call is permitted or it is not. Reasoning is irrelevant.
 
