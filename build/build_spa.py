@@ -1460,7 +1460,7 @@ FAQ_ENTRIES: list[dict] = [
     {
         "q": "What is AGENTS.md and why does it matter?",
         "home_slug": "chapter-6-agents-md",
-        "a": "AGENTS.md is a plain-Markdown file at the root of a repository that tells coding agents how the project actually works - forbidden patterns, conventions, build commands, where things live, and the mistakes the team has already made. It is the de-facto standard across Claude Code, Codex, Cursor, and Aider for instructing agents at the project level, and is tracked as an open standard at agents.md.",
+        "a": "AGENTS.md is a plain-Markdown file at the root of a repository that tells coding agents how the project actually works - forbidden patterns, conventions, build commands, where things live, and the mistakes the team has already made. It is the vendor-neutral standard read at session start by Codex CLI, Cursor, GitHub Copilot, Gemini CLI, and Aider; Claude Code reads the equivalent CLAUDE.md and can import AGENTS.md to share the same content. It is tracked as an open standard at agents.md.",
     },
     {
         "q": "How do you safely roll out AI coding agents in an engineering team?",

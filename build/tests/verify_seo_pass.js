@@ -963,6 +963,16 @@ async function main() {
         else ok(`${slug} has mirrored FAQPage`);
       }
     }
+    {
+      const land = fs.readFileSync(path.join(repoRoot, '_site', 'index.html'), 'utf8');
+      const faqLd = [...land.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)]
+        .map(m => { try { return JSON.parse(m[1]); } catch { return null; } })
+        .filter(o => o && o['@type'] === 'FAQPage');
+      const agentsQ = faqLd.flatMap(o => o.mainEntity).find(q => /What is AGENTS\.md/.test(q.name));
+      if (!agentsQ || !/CLAUDE\.md/.test(agentsQ.acceptedAnswer.text)) {
+        fail('AGENTS.md FAQ answer must distinguish CLAUDE.md (Claude Code is not AGENTS.md-native)');
+      } else ok('AGENTS.md FAQ answer correctly distinguishes CLAUDE.md');
+    }
 
   } finally {
     await browser.close();
