@@ -1613,12 +1613,13 @@ def _read_article_body(content_html: str, subtitle: str, author: str,
 def _landing_article_body(subtitle: str, author: str, byline_href: str,
                           toc_html: str) -> str:
     """Build the landing page's article body (hero + landing TOC + cover)."""
-    return LANDING_ARTICLE_BODY.format(
+    body = LANDING_ARTICLE_BODY.format(
         SUBTITLE=html_lib.escape(subtitle),
         AUTHOR=html_lib.escape(author),
         BYLINE_HREF=html_lib.escape(byline_href),
         TOC_HTML=toc_html,
     )
+    return body + faq_visible_html(FAQ_ENTRIES)
 
 
 def _json_escape(value: str) -> str:
@@ -1950,14 +1951,14 @@ def render_chapter_schema(section: Section) -> str:
         "itemListElement": crumbs,
     }
 
-    return (
-        f'<script type="application/ld+json">'
-        f'{json.dumps(tech_article, ensure_ascii=False)}'
-        f'</script>\n  '
-        f'<script type="application/ld+json">'
-        f'{json.dumps(breadcrumb_list, ensure_ascii=False)}'
-        f'</script>'
-    )
+    blocks = [
+        f'<script type="application/ld+json">{json.dumps(tech_article, ensure_ascii=False)}</script>',
+        f'<script type="application/ld+json">{json.dumps(breadcrumb_list, ensure_ascii=False)}</script>',
+    ]
+    page_faq = [e for e in FAQ_ENTRIES if e["home_slug"] == section.slug]
+    if page_faq:
+        blocks.append(faq_jsonld(page_faq))
+    return "\n  ".join(blocks)
 
 
 _STABLE_SECTION_DESCRIPTIONS: dict[str, str] = {
