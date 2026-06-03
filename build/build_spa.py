@@ -1443,6 +1443,85 @@ LANDING_ARTICLE_BODY = '''<header class="article-header">
       </figure>'''
 
 
+# Single source of truth for the FAQ. Each entry renders to (1) the visible
+# landing <section>, (2) the landing FAQPage JSON-LD, and (3) — when home_slug
+# is set — a FAQPage block on that chapter page.
+FAQ_ENTRIES: list[dict] = [
+    {
+        "q": "What is agentic coding?",
+        "home_slug": None,
+        "a": "Agentic coding is the practice of using AI agents that read, write, run, and verify code largely on their own, with humans in the loop for review and governance rather than for every keystroke. Unlike autocomplete or chat assistants, an agentic system holds a multi-step plan, executes through real tools (filesystem, shell, browser, version control), and surfaces work for verification rather than producing isolated suggestions.",
+    },
+    {
+        "q": "How does agentic coding differ from AI autocomplete and from vibe coding?",
+        "home_slug": None,
+        "a": "Autocomplete completes the next token under your cursor. Vibe coding accepts whatever the model generates with minimal verification. Agentic coding sits between: the agent plans, edits across files, runs tests, and reports back, but the human controls the context the agent sees, the actions it can take, the verification gates it passes through, and the adoption surface it operates on. The difference is methodological discipline, not model quality.",
+    },
+    {
+        "q": "What is AGENTS.md and why does it matter?",
+        "home_slug": "chapter-6-agents-md",
+        "a": "AGENTS.md is a plain-Markdown file at the root of a repository that tells coding agents how the project actually works - forbidden patterns, conventions, build commands, where things live, and the mistakes the team has already made. It is the de-facto standard across Claude Code, Codex, Cursor, and Aider for instructing agents at the project level, and is tracked as an open standard at agents.md.",
+    },
+    {
+        "q": "How do you safely roll out AI coding agents in an engineering team?",
+        "home_slug": "chapter-10-adoption-90-days",
+        "a": "A safe rollout treats agentic delivery as a control problem with five layers of governance: permissions, sandboxing, secrets, security hooks, and telemetry. Pair that with a clear methodology - a six-phase loop covering research, plan, execute, review, verify, ship - and a 90-day adoption arc with three named roles (Champion, Lead, Manager). Skip any of these and adoption produces more harm than benefit.",
+    },
+    {
+        "q": "What is the six-phase agentic loop?",
+        "home_slug": "chapter-5-six-phase-loop",
+        "a": "The six-phase loop is a delivery discipline for agentic work: research (the agent maps the codebase into a durable note), plan (a reviewable file-level task list), execute (constrained subagents make the changes), review (separate spec-compliance and code-quality passes), verify (new tests run, including accessibility-tree UI tests), and ship (a normal pull request your existing process reviews). Most failures route back to plan, not back to research.",
+    },
+    {
+        "q": "How much does agentic coding cost?",
+        "home_slug": "appendix-a-cost-economics",
+        "a": "Per-seat tool pricing is the small line item; the real cost is total cost of ownership - seats, token and usage spend, the human review time the loop requires, and the governance setup. The durable way to budget is to match seat tier to actual usage rather than buying uniform tooling, and to compare the loaded cost of agent-assisted delivery against the cost of the work it replaces, not against zero.",
+    },
+    {
+        "q": "What is MCP (Model Context Protocol)?",
+        "home_slug": "chapter-1-primitives",
+        "a": "MCP, the Model Context Protocol, is a specification that lets a coding agent connect to external tools and data sources - issue trackers, databases, documentation, internal services - through a uniform interface. It is one of the agent primitives: where Tools are the agent's built-in actions, MCP is how the agent reaches capabilities the harness did not ship with.",
+    },
+    {
+        "q": "Are AI coding agents production-ready?",
+        "home_slug": "chapter-8-readiness-kill-signals",
+        "a": "It depends on the codebase, not the company. Readiness is a per-project question answered by eight kill signals and a green/yellow/red traffic light: a well-tested, documented, decoupled module with a team that can evaluate the output is green; an undocumented, untested, tightly-coupled system whose team cannot verify the result is red. Most companies have a mix, and the mix tells you the order of operations.",
+    },
+]
+
+
+def faq_jsonld(entries: list[dict]) -> str:
+    """One <script type=ld+json> FAQPage block for the given entries."""
+    faq = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {"@type": "Question", "name": e["q"],
+             "acceptedAnswer": {"@type": "Answer", "text": e["a"]}}
+            for e in entries
+        ],
+    }
+    return ('<script type="application/ld+json">'
+            + json.dumps(faq, ensure_ascii=False)
+            + '</script>')
+
+
+def faq_visible_html(entries: list[dict]) -> str:
+    """Visible, crawlable FAQ section: real <h2>/<h3> so search + answer engines
+    see question->answer adjacency (not just JSON-LD)."""
+    items = "\n".join(
+        f'        <h3>{html_lib.escape(e["q"])}</h3>\n'
+        f'        <p>{html_lib.escape(e["a"])}</p>'
+        for e in entries
+    )
+    return (
+        '\n      <section class="article-faq" id="faq" aria-labelledby="faq-heading">\n'
+        '        <h2 id="faq-heading">Frequently asked questions</h2>\n'
+        f'{items}\n'
+        '      </section>\n'
+    )
+
+
 # Homepage JSON-LD (Book + Organization + FAQPage). Lives in the build script
 # rather than the template so the 404 path can simply substitute an empty
 # string for {{HEAD_SCHEMA}} — keeping crawlers from treating /404.html as a
