@@ -274,7 +274,7 @@ What goes in the context window? The system prompt that defines the agent's role
 
 What does not go in the context window by default? The rest of your codebase. The git history. The Jira tickets. The Confluence wiki. The Slack channel where the team discusses architecture. All of that is potentially relevant, all of that lives somewhere, none of that is automatically in the agent's awareness. The agent has to ask for it - through tools, through plugins, through MCP. Which means the agent has to know it exists, or be told, or be configured to look.
 
-This is the first thing that surprises teams new to agentic coding. The agent is brilliant at the things it can see, and oblivious to everything else. Most "the agent made an obviously wrong decision" failures trace back to "the agent did not have the context required to make a correct decision." The agent did not know about the new authentication library because nobody told it. The agent did not know about the team's preferred test framework because nobody put it in the configuration. The agent made the best decision it could with the context it had, and that decision was wrong because the context was incomplete.
+This is the first thing that surprises teams new to agentic coding. The agent is brilliant at the things it can see, and oblivious to everything else. Most "the agent made an obviously wrong decision" failures trace back to "the agent did not have the context required to make a correct decision." The agent did not know about the new authentication library because nobody told it. It defaulted to the wrong test framework because nobody put the team's preference in the configuration. The agent made the best decision it could with the context it had, and that decision was wrong because the context was incomplete.
 
 Context window management is therefore one of the central engineering disciplines of agentic coding. You are constantly making decisions about what to load, what to summarize, what to drop, what to ask for at the right moment. Bigger context windows help - a million tokens of context is genuinely more forgiving than two hundred thousand - but bigger windows do not eliminate the constraint. They raise the ceiling.
 
@@ -783,7 +783,7 @@ Second, the alternative is worse. The "let the agent freestyle" approach feels f
 
 Across multiple teams: those that imposed rigor early shipped faster on a quarterly basis. Those that let the agent freestyle felt faster in the moment and shipped slower on the quarter. Same teams, same agents, same codebases. Different formulation discipline. Substantially different outcomes.
 
-A heuristic for when formulation discipline pays back. Not every task needs the full loop. The cost of formulating well - the research note, the file-level plan, the test definitions - is real and is borne up front. For trivial work, the formulation cost exceeds the agent's contribution and you lose time.
+A heuristic for when formulation discipline pays back. Not every task needs the full loop. The cost of formulating well - the research note, the file-level plan, the test definitions - is paid up front, before the agent writes a line. For trivial work, the formulation cost exceeds the agent's contribution and you lose time.
 
 The practice pays back when at least one of these is true: the work touches more than three files (blast radius is large enough that an unguided agent will get something wrong); the change crosses concerns (database schema plus service layer plus UI, where a single misstep cascades); or you would not do the work yourself by typing it in (it is genuinely novel, or large, or in code you do not know well enough to write by hand). If none of those apply, type it. A two-line bug fix does not need a research note. A one-line config change does not need a plan.
 
@@ -799,7 +799,7 @@ The most vivid version of this contrast I have personally observed involved two 
 
 Team B spent month one on the practice. AGENTS.md drafted and iterated. Skills written for the team's specific patterns. Hooks configured. They shipped no agent-led work in month one. By month two they returned to baseline velocity with the practice in place. By month three they were shipping at noticeably better quality and velocity than they had been pre-agent. The investment had compounded.
 
-Same company. Adjacent codebases. Same agent. The difference was formulation discipline imposed early. The cost was a slow first month. The benefit was a compounding quarter. This was a field observation across multiple teams, not a controlled experiment. The contrast was clear enough to change how I teach adoption, with the caveat that adjacent teams in the same company are not independent samples.
+Same company. Adjacent codebases. Same agent. The difference was formulation discipline imposed early. The cost was a slow first month. The benefit paid back over the quarter. This was a field observation across multiple teams, not a controlled experiment. The contrast was clear enough to change how I teach adoption, with the caveat that adjacent teams in the same company are not independent samples.
 
 ---
 
@@ -913,7 +913,7 @@ What subagent isolation does not solve: orchestrator-level contamination. The or
 
 The related cost is mediation when parallel subagents make conflicting edits. The cheap mediation: the orchestrator detects that two branches touched the same file in incompatible ways, drops the later branch, and re-runs it sequentially with the first branch's output passed in as context. The expensive mediation: the orchestrator summarizes the conflicting changes, asks a higher-capability model to pick the right merge, then re-applies. Most conflicts are cheap. Some are not, and the expensive ones eat the speed gain you went parallel to capture.
 
-The coordination cost is real and bounded. The bound: the more independent the subagent tasks are, the lower the conflict rate. The way to keep them independent is to scope by file or by module, not by feature. Six subagents each editing one file is safe. Six subagents all editing the same feature across overlapping files is a recipe for the expensive case every time. In my experience, the teams that hit this problem are usually dispatching too many subagents for the work at hand. Three well-scoped subagents finish faster than eight overlapping ones, every time.
+The coordination cost shows up as conflict mediation - re-running a dropped branch, or paying a higher-capability model to pick a merge - and it is bounded. The bound: the more independent the subagent tasks are, the lower the conflict rate. The way to keep them independent is to scope by file or by module, not by feature. Six subagents each editing one file is safe. Six subagents all editing the same feature across overlapping files is a recipe for the expensive case every time. In my experience, the teams that hit this problem are usually dispatching too many subagents for the work at hand. Three well-scoped subagents finish faster than eight overlapping ones, every time.
 
 Execute is also where the agent encounters governance. Every tool call goes through the permission gate. Every Bash command goes through the security hooks. Every file write goes through the sandbox. If the agent tries something the governance layer disallows, the action is blocked, the agent reports back to the orchestrator, the orchestrator decides how to proceed. The rigor lives in the layers below execute; execute just runs the work.
 
@@ -965,7 +965,7 @@ So the discipline is the obvious one, applied where teams forget to apply it: re
 
 **Phase six: ship.**
 
-Ship is the phase that produces the artifact your team's normal review process handles. The agent commits the changes with a structured commit message. The agent pushes the branch. The agent opens a pull request with a structured description: what changed, why, how it was verified, what risks remain, what reviewers are tagged. If a Jira ticket was linked at the start, the agent updates the ticket. If Slack notifications are wired, the agent posts to the relevant channel.
+Ship is the phase that produces the artifact your team's normal review process handles. The agent commits the changes with a structured commit message. It pushes the branch and opens a pull request with a structured description: what changed, why, how it was verified, what risks remain, what reviewers are tagged. If a Jira ticket was linked at the start, the agent updates the ticket. If Slack notifications are wired, the agent posts to the relevant channel.
 
 Ship takes thirty seconds. It is the easiest phase. It is also the phase that makes the rest of the loop palatable to the team, because the *artifact* the agent produces - the pull request - is exactly the artifact the team is already used to reviewing. There is no special "AI lane" in your repository. There is the same pull request review process that every change goes through. The reviewer reads the diff, reads the description, reads the research note linked in the description, reads the test results, approves or requests changes. Same as always.
 
@@ -977,7 +977,7 @@ The full loop, on a small feature, takes about twenty to thirty minutes of total
 
 That total includes both the agent's processing time and the human gate review time. The agent itself runs in maybe a third of the wall clock; the rest is you reading the research note, you reviewing the plan, you approving the diff, you watching the verify step pass. The human gates are the rate-limiter on a healthy workflow, not the agent. If your loop is taking three hours on a small feature, the issue is almost certainly that the gates are over-engineered or that you are doing them in a slow back-and-forth instead of a focused pass. The agent will not save you from your own meeting culture.
 
-The friction relative to "just have the agent write the code" is real but bounded. The benefit relative to "ship code without rigor" is substantial.
+The friction relative to "just have the agent write the code" is the gate time - the note, the plan, the diff review - and it is bounded. The benefit relative to "ship code without rigor" is substantial.
 
 ---
 
@@ -1336,7 +1336,7 @@ That is the bridge into the rest of Part III. The next chapter - the kill signal
 
 **Ship this week.**
 
-Pick the codebase nobody on the team understands well. Paste the architecture review prompt into the agent. Set a sixty-minute budget - agent processing plus your correction time. Commit the resulting document as `docs/architecture.md` and reference it from AGENTS.md. Then run the same workflow on two more poorly-understood codebases. Note which produce clean output and which produce garbage. That pattern is the diagnostic ahead of Chapter 8: clean output means agentic work has a chance; garbage output is one of the kill signals.
+Run the architecture review prompt on your three most poorly-understood codebases, sixty-minute budget each. Note which produce a clean review and which produce garbage. That pattern is the diagnostic ahead of Chapter 8: clean output means agentic work has a chance; garbage output is one of the kill signals.
 
 ---
 
@@ -1418,7 +1418,7 @@ The codebase has no architectural overview, no in-code comments explaining why d
 
 This blocks safe agent-led work because the agent invents context when context is missing. In one team, the senior engineer responsible for commission logic knew the fee tier was calculated differently for the legacy product line because of a regulatory carve-out from 2017. The agent did not. The agent read the code, saw a single calculation, assumed uniform treatment, and proposed a refactor that "simplified" the function. The senior engineer spotted the bug in code review. The senior engineer was now reviewing AI output for forty hours a week instead of building.
 
-The shift is real. When the team adopts agentic delivery without first investing in documentation, the team's senior engineers stop building and start reviewing. The throughput might be the same; the experience is much worse, and the senior engineers eventually leave because reviewing AI output all day is not a job anyone took for the love of it.
+The shift lands on the people you can least afford to lose. When the team adopts agentic delivery without first investing in documentation, the team's senior engineers stop building and start reviewing. The throughput might be the same; the experience is much worse, and the senior engineers eventually leave because reviewing AI output all day is not a job anyone took for the love of it.
 
 What to do: run the architecture review workflow from Chapter 7 first. The agent produces documentation in fifteen minutes that would have taken a senior engineer a week. Commit it. Reference it from AGENTS.md. Add a brief domain glossary. Now the agent has context.
 
@@ -1448,7 +1448,7 @@ Banking example: the maximum transfer amount. Defined in a config file for the U
 
 The agent makes this worse, faster. Without a single source of truth, the agent will guess which copy is canonical, and guess wrong.
 
-What to do: identify the duplications and consolidate them. The pattern is "extract the rule to a single source, derive the other expressions from the source." For banking-style validations, this often means moving rules into a typed rules engine or a configuration service that all layers consult. It is real refactor work. It pays off whether or not you ever bring in agents, because the duplication was already a bug factory.
+What to do: identify the duplications and consolidate them. The pattern is "extract the rule to a single source, derive the other expressions from the source." For banking-style validations, this often means moving rules into a typed rules engine or a configuration service that all layers consult. It is weeks of refactor work, not an afternoon. It pays off whether or not you ever bring in agents, because the duplication was already a bug factory.
 
 If the team will not do the consolidation, the agent's contribution to this codebase will be limited to areas that do not touch the duplicated rules. That is a more restricted use of the agent than the team probably wants, but it is honest about the constraint.
 
@@ -1581,7 +1581,7 @@ Three more examples, briefer than the earlier ones, cover shapes the first three
 
 | Project | Signals | Color | The lesson |
 |---|---|---|---|
-| Greenfield API service - no code yet, senior team, clear spec | 0 | Green-plus | Treat the agent's involvement as a first-class architectural decision: set up AGENTS.md before the first commit, establish conventions while they are cheap to change, bake in test rigor from day one. Greenfield is the home turf of agentic coding, and the compounding is enormous over the project's lifetime. |
+| Greenfield API service - no code yet, senior team, clear spec | 0 | Green-plus | Treat the agent's involvement as a first-class architectural decision: set up AGENTS.md before the first commit, establish conventions while they are cheap to change, bake in test rigor from day one. Greenfield is the home turf of agentic coding, and the payoff builds over the project's lifetime. |
 | Internal tool - 20 developers, written 2019, modest tests, low regulatory exposure, not customer-facing | 1 | Green-leaning | The right first target for a team new to agentic work: realistic enough to teach something, bounded enough that a mistake costs nobody a customer. Internal tools are ideal training grounds; the learnings transfer to the higher-stakes codebases without the higher stakes. |
 | Vendor-customized fork - hasty contractor layer, no tests or docs on the customizations, severe upstream coupling | 4 | Red | The diagnostic is sometimes about the codebase and sometimes about the strategy. Here it asks whether the custom layer should exist at all - replace the customizations with upstream features, contribute them back, or maintain them deliberately, but do not use the agent to make the wrong work faster. |
 
