@@ -2022,6 +2022,14 @@ def render_chapter(template: str, section: Section, *,
     """Render a single per-section page (chapter / appendix / foreword / etc.)."""
     body_html = render_section_body(section, anchor_index)
 
+    # Standalone pages put the chapter title at <h1>, so bump body headings up one
+    # level (h3->h2, h4->h3, ...) to keep the outline sequential (h1 -> h2 -> h3).
+    body_html = re.sub(
+        r'<(/?)h([3-6])\b',
+        lambda m: f'<{m.group(1)}h{int(m.group(2)) - 1}',
+        body_html,
+    )
+
     reading_time = (
         f'<p class="reading-time">{section.reading_time_min} min read</p>'
         if section.reading_time_min and section.kind != "changelog" else ''
