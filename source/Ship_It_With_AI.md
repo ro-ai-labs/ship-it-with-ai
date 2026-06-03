@@ -231,6 +231,8 @@ The tools change. The methodology endures. That is the bet of this manual.
 ## Chapter 1
 ## The primitives
 
+### What is a coding-agent primitive? {#what-is-a-primitive}
+
 Open the source code or documentation of most production-grade coding agents - Codex CLI in Rust, opencode in TypeScript, the public-source parts of Claude Code, the agents shipped by half a dozen smaller vendors - and you see the same architecture emerging: a small set of primitives wrapped by a harness. The implementations differ. The anatomy converges. Different names sometimes, different file layouts always, but the same conceptual building blocks. Most are local capabilities of the agent. One - subagents - is the composition mechanism that makes the agent recursive: it can spawn constrained instances of itself.
 
 Context window. Tools. Skills. Plugins. MCP. Memory. Subagents.
@@ -333,6 +335,8 @@ Blast radius. A plugin that operates inside the agent's sandbox is bounded by th
 The marketplace is a real distribution channel. The discipline is the discipline you already use for dependencies. The cost of vetting once per plugin is small compared to the cost of one supply-chain incident.
 
 ---
+
+### What is MCP? {#what-is-mcp}
 
 **MCP** stands for Model Context Protocol. It is a specification for how agents talk to external systems. Your Jira. Your Confluence. Your Postgres. Your GitHub. Your internal data warehouse. Anything that lives outside the agent's local environment but that the agent needs to query or update.
 
@@ -852,6 +856,8 @@ Take one task you were about to dispatch to the agent. Write a 200-word research
 ## Chapter 5
 ## The six-phase loop
 
+### What is the six-phase agentic loop? {#what-is-the-six-phase-loop}
+
 The six phases are research, plan, execute, review, verify, ship. Each phase is a skill, in the agent-anatomy sense - a packaged set of instructions the agent loads when the phase is active. Each phase has a clear input, a clear output, and a clear hand-off to the next phase. Each phase is designed to be gated at its boundary; today's concrete Superpowers implementation uses skill instructions to request the discipline, and you may need to wire in a project-specific PreToolUse hook to enforce the gating strictly. Kernel-level phase enforcement is still maturing as of mid-2026.
 
 ```
@@ -1021,6 +1027,8 @@ Run one feature through the full six-phase loop. Time each phase. Note which pha
 
 ---
 
+### AGENTS.md vs CLAUDE.md: what's the difference? {#agents-md-vs-claude-md}
+
 **Names and conventions.** The vendor-neutral standard for the team instruction file is `AGENTS.md`, with native support across Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, Zed, Windsurf, and others. The Claude Code-specific variant is `CLAUDE.md`. The format is markdown either way; the loading semantics are equivalent. If you came to this chapter from the Claude Code ecosystem, read `AGENTS.md` as "the file your agent reads at session start" - the discipline this chapter teaches is identical regardless of the filename. Where this manual discusses Claude Code-specific behavior, I use `CLAUDE.md`; otherwise I use the vendor-neutral name.
 
 ---
@@ -1050,6 +1058,8 @@ There is a failure mode in AGENTS.md that is the inverse of the success story ab
 The fix was unglamorous. We cut AGENTS.md from nine hundred lines to ninety. We moved the project-specific conventions that did not need to be loaded on every session into skills that dispatched on detection. We moved the documentation-of-past-mistakes into the architecture document, where it lived as prose rather than as instructions. The compliance ratio on the rules that remained jumped within a week. The pattern I now teach: if your AGENTS.md has grown past two hundred lines, the file is not getting more useful, the file is getting more ignored. Cut it, move material into skills, and treat the surviving rules as the load-bearing ones.
 
 ---
+
+### What is AGENTS.md? {#what-is-agents-md}
 
 AGENTS.md is a markdown file that lives in the root of your repository. The coding agent reads it at session start, before any user prompt. It is the document that turns "what the agent thinks is reasonable" into "what your team has agreed is reasonable." Without it, every developer's agent session has a different opinion about how to write code for your codebase. With it, the opinion is the team's - committed in git, signed by the author, reviewable in pull request.
 
@@ -1347,6 +1357,8 @@ Part III is the reality check. The method works on a lot of things. It does not 
 ## Chapter 8
 ## Readiness: The Kill Signals and the Traffic Light
 
+### When should you not use AI coding agents? {#when-not-to-use-agents}
+
 An unfashionable claim to open this chapter. There are codebases where you should not use agentic delivery. Not because the agent is bad, not because the team is bad, but because the codebase has properties that make agentic work unsafe, unproductive, or both. The honest thing to do, when a team asks me whether they should put an agent on their legacy monolith, is to evaluate the codebase first, then answer.
 
 The rubric I use for this evaluation is eight kill signals. Each signal is a property of the codebase or the team. The more signals present, the more dangerous it is to put an agent in front of the code. At a certain threshold, you stop and fix the codebase before you bring the agent in.
@@ -1483,6 +1495,8 @@ What to do: if your codebase is in a framework or dependency migration, slow the
 ---
 
 Eight signals. No tests. No documentation. Tight coupling. Scattered business rules. Regulatory constraints. Team cannot evaluate output. Model-context fit. Velocity-of-change.
+
+### Are AI coding agents production-ready? {#are-agents-production-ready}
 
 The signals are not a rejection of the agent. They are the discipline that lets the agent succeed where it can. What remains is to combine them into a decision rule. The decision rule I use is a traffic light: green, yellow, red.
 
@@ -1712,6 +1726,8 @@ Set up one git worktree on a project you are about to dispatch the agent on. Use
 
 ## Chapter 10
 ## Adoption: 90 days, three roles
+
+### How do you roll out AI coding agents on a team? {#how-to-roll-out}
 
 I close the manual with the practical question: where do you start?
 
@@ -2025,6 +2041,8 @@ Manual published at ship-it-with.ai. Ten chapters across three parts (Architectu
 ---
 
 ## Appendix A. Cost Economics
+
+### How much does agentic coding cost? {#how-much-does-it-cost}
 
 The second most common question from engineering managers after "does it work" is "what does it cost." Specific prices change every quarter; the rubric does not. Plug your team's numbers into the structure below.
 
