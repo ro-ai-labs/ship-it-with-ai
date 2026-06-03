@@ -1590,7 +1590,7 @@ The specific kill signals will need updating as the field matures. The disciplin
 
 The traffic light tells you which codebases are ready for the agent. This chapter is about the operational patterns that make agentic work effective on legacy codebases - yellow projects in particular, where the practice matters most.
 
-I will walk through eight patterns. The first five are the default operating patterns I install on most brownfield teams: worktrees, champions, hooks, PR review, and governance storytelling. The final three are maturity patterns for teams past the first few months: mistake-journal review, demo-day backstop, and failure watchlist.
+I will walk through seven patterns. The first four are the default operating patterns I install on most brownfield teams: worktrees, champions, hooks, and PR review. The final three are maturity patterns for teams past the first few months: mistake-journal review, demo-day backstop, and failure watchlist. A sidebar between the two sets covers governance for companies that sell AI to their own clients - a segment-specific concern rather than a brownfield operating pattern, but one worth naming.
 
 Each one is something I have watched make the difference between an agent that contributes and an agent that frustrates.
 
@@ -1642,9 +1642,9 @@ Set up the review agents. Wire them into the pull request flow. The agents do th
 
 ---
 
-**Pattern five: governance for AI-selling companies.**
+**Sidebar: governance for companies that sell AI to their clients.**
 
-If your company sells AI capabilities to its own clients - not just consumes AI internally, but resells AI as part of your product - then the governance pattern is different from a pure consumer of AI. Your demos, your sales calls, your client engagements are all situations where your team's discipline is on display. The client is evaluating whether you know how to do AI responsibly, not just whether the AI works.
+This one is not a brownfield operating pattern - it is advice for a particular audience segment, set apart from the numbered patterns for that reason. If your company sells AI capabilities to its own clients - not just consumes AI internally, but resells AI as part of your product - then the governance pattern is different from a pure consumer of AI. Your demos, your sales calls, your client engagements are all situations where your team's discipline is on display. The client is evaluating whether you know how to do AI responsibly, not just whether the AI works.
 
 This calls for a few additional patterns on top of the general ones.
 
@@ -1658,7 +1658,7 @@ The patterns above apply to any team. They apply with extra force to teams whose
 
 ---
 
-Five patterns. Worktrees. Champions. hookify rules. PR review toolkit. Governance for AI-selling companies. None of them require inventing a new process. All of them slot into how engineering teams already ship code, with the small additions that agentic work requires.
+Four patterns. Worktrees. Champions. hookify rules. PR review toolkit. None of them require inventing a new process. All of them slot into how engineering teams already ship code, with the small additions that agentic work requires.
 
 Three more patterns, briefly, because they appear in the well-functioning teams I have worked with even though they are less often discussed.
 
