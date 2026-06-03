@@ -949,6 +949,20 @@ I run this with banking teams constantly. They have long histories of failed UI 
 
 ---
 
+### Can you trust the tests the agent writes? {#trusting-agent-tests}
+
+A green test suite the agent wrote is evidence, not proof.
+
+It is evidence the change does what the test says. It is not proof the test says the right thing. The worked example later in this chapter makes the gap concrete: the audit-log task shipped a *passing* test that asserted the old log format. Green, and wrong. The suite was happy. The behavior was incorrect. Nothing but Review caught it, because nothing else was looking at what the test claimed - only at whether it passed.
+
+Coverage percentage does not close this gap; it widens the illusion. Coverage measures which lines executed, not whether anything meaningful was checked. An agent optimizing for a coverage gate will write tests that call the code, assert nothing of consequence, and turn the number green. You get the metric and not the safety. A high coverage figure on agent-written tests tells you the code ran during the test. It does not tell you the code is right.
+
+Characterization tests have the same shape of limitation, named in Chapter 8: they lock in current *behavior*, not correctness. They are genuinely valuable - a regression net that lets the agent refactor without silently changing what the code does. But they will preserve a bug as faithfully as they preserve a feature. A characterization suite that goes green after a refactor proves you did not change the behavior. It says nothing about whether the behavior was ever correct.
+
+So the discipline is the obvious one, applied where teams forget to apply it: review the agent's tests the way you review the agent's code. Read what they assert, not just whether they pass. For backend logic especially, a human or a second agent should check the assertions against the spec - against what the code is *supposed* to do - not against the implementation that happens to be in front of them. A test written from the implementation will agree with the implementation. That is the failure mode. The assertion has to come from the intent.
+
+---
+
 **Phase six: ship.**
 
 Ship is the phase that produces the artifact your team's normal review process handles. The agent commits the changes with a structured commit message. The agent pushes the branch. The agent opens a pull request with a structured description: what changed, why, how it was verified, what risks remain, what reviewers are tagged. If a Jira ticket was linked at the start, the agent updates the ticket. If Slack notifications are wired, the agent posts to the relevant channel.
