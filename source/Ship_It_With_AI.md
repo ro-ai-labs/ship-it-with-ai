@@ -1549,25 +1549,13 @@ If you find signal six is present for a particular kind of work, the answer is n
 
 ---
 
-Three more examples, briefer than the earlier ones but worth naming because they cover different shapes of project.
+Three more examples, briefer than the earlier ones, cover shapes the first three did not:
 
-Example four. A greenfield API service the team is starting from scratch, no existing code. The team has senior backend engineers and a clear specification. The architecture decisions are in front of them, not behind them.
-
-Signal count: zero (there is no codebase yet, so most signals do not apply; you cannot score "no tests" against a codebase that has not been written). This is the green-plus case. The agent will be unusually productive here, because greenfield is the home turf of agentic coding - the agent can establish patterns, write tests alongside code, structure the architecture to be agent-friendly from day one. Greenfield is where the productivity numbers people quote about agentic AI tend to come from. Use it.
-
-The lesson: when you are starting a new service, treat the agent's involvement as a first-class architectural decision. Set up AGENTS.md before the first commit. Establish conventions while they are easy to change. Bake in test rigor from the start. It compounds enormously over the project's lifetime.
-
-Example five. An internal tool used by twenty developers, written in 2019, modest test coverage, decent documentation, low regulatory exposure, mid-level team. The tool is important but not critical. If it breaks for a day, the developers complain but no customer is affected.
-
-Signal count: one (modest test coverage is half, no documentation gaps, no coupling issues, no scattered rules, no regulatory constraints, team can evaluate). Green-leaning. This is the right codebase to use as the first agent target if the team is new to agentic work, because the consequences of a mistake are bounded (internal users, no customer impact) but the work is realistic enough to teach the team something.
-
-The lesson: internal tools are great training grounds. They are where I recommend teams start when they want to build experience without putting customer-facing work at risk. The learnings transfer to the higher-stakes codebases without the higher stakes.
-
-Example six. A vendor-customized fork of an open-source product the team adopted three years ago. Original upstream code is decent. The team's customizations were made hastily by a contractor and are essentially a layer of duct tape on top. No tests for the custom layer. Documentation that describes the upstream product but says nothing about the customizations. Coupling between the custom layer and the upstream code is severe - every upstream upgrade has been painful.
-
-Signal count: four (no tests on the custom layer, no documentation of the custom layer, severe coupling, scattered rules in the customizations). Red. The right answer is not "use the agent on the custom layer." The right answer is "decide whether to maintain the custom layer, replace the customizations with upstream features, or contribute the customizations back upstream where they can be tested and documented properly." The agent makes the customization-maintenance work faster, which is the wrong work to be fast at. Strategic clarity first; agentic productivity second.
-
-The lesson: red codebases are sometimes a signal about the codebase, and sometimes a signal about the strategic situation. The traffic light is a diagnostic. The diagnostic sometimes tells you to fix the codebase. Sometimes it tells you to question whether the codebase should exist in its current form at all.
+| Project | Signals | Color | The lesson |
+|---|---|---|---|
+| Greenfield API service - no code yet, senior team, clear spec | 0 | Green-plus | Treat the agent's involvement as a first-class architectural decision: set up AGENTS.md before the first commit, establish conventions while they are cheap to change, bake in test rigor from day one. Greenfield is the home turf of agentic coding, and the compounding is enormous over the project's lifetime. |
+| Internal tool - 20 developers, written 2019, modest tests, low regulatory exposure, not customer-facing | 1 | Green-leaning | The right first target for a team new to agentic work: realistic enough to teach something, bounded enough that a mistake costs nobody a customer. Internal tools are ideal training grounds; the learnings transfer to the higher-stakes codebases without the higher stakes. |
+| Vendor-customized fork - hasty contractor layer, no tests or docs on the customizations, severe upstream coupling | 4 | Red | The diagnostic is sometimes about the codebase and sometimes about the strategy. Here it asks whether the custom layer should exist at all - replace the customizations with upstream features, contribute them back, or maintain them deliberately, but do not use the agent to make the wrong work faster. |
 
 ---
 
