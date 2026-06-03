@@ -242,6 +242,10 @@ async function main() {
       const sitemap = fs.readFileSync(path.join(repoRoot, '_site', 'sitemap.xml'), 'utf8');
       if (/ship-it-with\.ai\/read\//.test(sitemap)) fail('/read/ still listed in sitemap');
       else ok('/read/ excluded from sitemap');
+      const readLd = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)]
+        .map(m => { try { return JSON.parse(m[1])['@type']; } catch { return null; } });
+      if (readLd.includes('FAQPage')) fail('/read/ should not carry FAQPage (landing owns it)');
+      else ok('/read/ carries no FAQPage');
     }
 
     // deferred.css loaded via preload on landing AND /read/.

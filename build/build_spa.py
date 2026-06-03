@@ -1565,46 +1565,6 @@ HOMEPAGE_HEAD_SCHEMA = '''<script type="application/ld+json">
     "url": "https://ship-it-with.ai/",
     "logo": "https://ship-it-with.ai/cover.jpg"
   }}
-  </script>
-  <script type="application/ld+json">
-  {{
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {{
-        "@type": "Question",
-        "name": "What is agentic coding?",
-        "acceptedAnswer": {{
-          "@type": "Answer",
-          "text": "Agentic coding is the practice of using AI agents that read, write, run, and verify code largely on their own, with humans in the loop for review and governance rather than for every keystroke. Unlike autocomplete or chat-based assistants, an agentic system holds a multi-step plan, executes through real tools (filesystem, shell, browser, version control), and surfaces work for verification rather than producing isolated suggestions."
-        }}
-      }},
-      {{
-        "@type": "Question",
-        "name": "How does agentic coding differ from AI autocomplete and from vibe coding?",
-        "acceptedAnswer": {{
-          "@type": "Answer",
-          "text": "Autocomplete completes the next token under your cursor. Vibe coding accepts whatever the model generates with minimal verification. Agentic coding sits between: the agent plans, edits across files, runs tests, and reports back, but the human controls the context the agent sees, the actions it can take, the verification gates it passes through, and the adoption surface it operates on. The difference is methodological discipline, not model quality."
-        }}
-      }},
-      {{
-        "@type": "Question",
-        "name": "What is AGENTS.md and why does it matter?",
-        "acceptedAnswer": {{
-          "@type": "Answer",
-          "text": "AGENTS.md is a plain-Markdown file at the root of a repository that tells coding agents how the project actually works — forbidden patterns, conventions, build commands, where things live, and the mistakes the team has already made. It is becoming the de-facto standard across Claude Code, Codex, Cursor, and Aider for instructing agents at the project level, and is now an open standard tracked at agents.md."
-        }}
-      }},
-      {{
-        "@type": "Question",
-        "name": "How do you safely roll out AI coding agents in an engineering team?",
-        "acceptedAnswer": {{
-          "@type": "Answer",
-          "text": "A safe rollout treats agentic delivery as a control problem with five layers of governance: permissions, sandboxing, secrets, security hooks, and telemetry. Pair that with a clear methodology — a six-phase loop covering research, plan, execute, review, verify, ship — and a 90-day adoption arc with three named roles (Champion, Lead, Manager). Skip any of these and adoption produces more harm than benefit."
-        }}
-      }}
-    ]
-  }}
   </script>'''
 
 
@@ -2495,7 +2455,9 @@ def main() -> int:
     _now_utc = _content_date()
     date_modified = _now_utc.strftime("%Y-%m-%d")
     date_modified_human = _now_utc.strftime("%B %d, %Y")
-    head_schema = _homepage_head_schema(author, number_of_pages, date_modified)
+    book_org_schema = _homepage_head_schema(author, number_of_pages, date_modified)
+    head_schema_landing = book_org_schema + "\n  " + faq_jsonld(FAQ_ENTRIES)
+    head_schema_read = book_org_schema  # /read/ is noindex + carries no FAQPage
 
     # Hash-redirect shim (landing only; migrates /#chapter-N → /<slug>/).
     hash_redirect_js = render_hash_redirect_js(sections)
@@ -2507,7 +2469,7 @@ def main() -> int:
         toc_html_sidebar=toc_chapter_url,
         toc_html_landing=toc_chapter_url,
         search_index=inline_index,
-        head_schema=head_schema,
+        head_schema=head_schema_landing,
         hash_redirect_js=hash_redirect_js,
         date_modified_human=date_modified_human,
     )
@@ -2522,7 +2484,7 @@ def main() -> int:
         toc_html_sidebar=toc_sidebar_read,
         content_html=content_html,
         search_index=inline_index,
-        head_schema=head_schema,
+        head_schema=head_schema_read,
         date_modified_human=date_modified_human,
     )
     (SITE_DIR / "read" / "index.html").write_text(read_html)
