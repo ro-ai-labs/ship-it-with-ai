@@ -650,7 +650,7 @@ My recommendations: do not commit `.env` files to git. Use a secrets vault (Hash
 
 The framing I use with teams: deny rules and configuration are defense in depth. The sandbox is the hard boundary. The vault is the structural choice. Layered controls.
 
-The vectors above are the named ones. There is another vector that gets less attention and hits teams more often: injection through the work itself. The Jira ticket whose acceptance criteria contain a paragraph beginning "ignore all previous instructions and..." The PR comment from an outside contributor that smuggles an instruction inside what looks like a code review note. The error message from a flaky third-party test that the agent reads and interprets as a directive. The README of the vendor library the agent fetched during research. Anywhere the agent reads natural-language content as part of doing its work is a potential injection surface. I have watched an agent helpfully follow an instruction embedded in a copied-pasted log file because the operator did not think of a log file as untrusted input.
+The vectors above are the named ones. There is another vector that gets less attention and hits teams more often: injection through the work itself. The Jira ticket whose acceptance criteria contain a paragraph beginning "ignore all previous instructions and..." The PR comment from an outside contributor that smuggles an instruction inside what looks like a code review note. The error message from a flaky third-party test that the agent reads and interprets as a directive. The README of the vendor library the agent fetched during research. Anywhere the agent reads natural-language content as part of doing its work is a potential injection surface. I have watched an agent helpfully follow an instruction embedded in a copy-pasted log file because the operator did not think of a log file as untrusted input.
 
 The mitigation is the same posture as the rest of governance: do not rely on the agent's reasoning to spot the injection. Constrain what the agent can do regardless of what it has read. The sandbox catches the dangerous action even when the agent is convinced the action is legitimate. The hook catches the dangerous category even when the agent is convinced "just this once is fine." Treat every input the agent reads as untrusted text - the same posture an experienced engineer takes with user input on a web form - and your governance layers will catch the injection attempt your prompt design missed. The injection that succeeds is the one that finds an action the layers below it did not bound.
 
@@ -983,7 +983,7 @@ The friction relative to "just have the agent write the code" is the gate time -
 
 The loop's timing in rehearsal is not the loop's timing in production. I learned this from a demo I ran for a client team earlier this year. The demo plan called for an architecture-review run that produced an HTML report from a fresh repo in roughly four minutes. In rehearsal, with the agent's [AGENTS.md](https://agents.md/) pre-loaded and the repo paths cached, four minutes was achievable. The first live attempt in front of the team took eight minutes per pane and started a clock on the audience's patience that I could feel from the front of the room. The second live attempt, two days later in a different room, took ten minutes.
 
-The pattern was not a bug. It was the predictable difference between a warm-cache run and a cold-start run. The discipline I should have built into the demo plan from the start was the same discipline this chapter teaches: assume the variable matters, plan for the worse-case timing, have a fallback ready when the live system blows your budget. The recovery pattern I now use on every demo is two-layer: a pre-generated fallback artifact in a git branch I can check out in two seconds, and a resumable session I can continue from the rehearsal state if the live session hangs. Neither is glamorous. Both eliminated the live-demo failure mode that I had been improvising around for a year.
+The pattern was not a bug. It was the predictable difference between a warm-cache run and a cold-start run. The discipline I should have built into the demo plan from the start was the same discipline this chapter teaches: assume the variable matters, plan for the worst-case timing, have a fallback ready when the live system blows your budget. The recovery pattern I now use on every demo is two-layer: a pre-generated fallback artifact in a git branch I can check out in two seconds, and a resumable session I can continue from the rehearsal state if the live session hangs. Neither is glamorous. Both eliminated the live-demo failure mode that I had been improvising around for a year.
 
 ---
 
@@ -1142,7 +1142,7 @@ The AGENTS.md should be under two hundred lines. This is a hard constraint, not 
 
 Two hundred is the budget because AGENTS.md is loaded into the agent's context at every session start. Every line costs context that the agent could be using for the actual task. Two hundred lines fits comfortably without crowding out reasoning capacity. If your AGENTS.md is past two hundred lines, it is doing too much. The two failure modes:
 
-Failure mode A: too many rules. Your team has accumulated rules over time and never deprecated the ones that no longer apply. Audit. Remove rules that have not been triggered in six months. Move rarely-applicable rules into skills that load on detection rather than always.
+Failure mode A: too many rules. Your team has accumulated rules over time and never deprecated the ones that no longer apply. Audit. Remove rules that have not been triggered in six months. Move rarely applicable rules into skills that load on detection rather than always.
 
 Failure mode B: too verbose. Each rule is a paragraph instead of a line. Tighten. The agent does not need three sentences of justification for each rule; it needs the rule. Justifications belong in comments in the AGENTS.md itself, or in linked documentation.
 
@@ -1178,7 +1178,7 @@ Three: structured citation formats with verification hooks. If the agent cites a
 
 The general pattern: trust nothing the agent has not just demonstrated it knows. The architecture review workflow from the next chapter is one form of this discipline applied at the codebase level. The cross-check, the forced-read, the citation hook are forms of it applied at the file and function level.
 
-Hallucination is the agent's most-publicized failure mode and the one most over-corrected for. You do not need to verify everything the agent does. You need to verify the specific things the agent makes claims about that would compound if wrong. File and function citations are first on that list.
+Hallucination is the agent's most publicized failure mode and the one most over-corrected for. You do not need to verify everything the agent does. You need to verify the specific things the agent makes claims about that would compound if wrong. File and function citations are first on that list.
 
 ---
 
@@ -1274,7 +1274,7 @@ I include the plugin alternative for completeness. The markdown architecture doc
 
 ---
 
-Run the architecture review workflow on your most poorly-understood codebase first. Watch the agent produce in fifteen minutes what would have taken a senior engineer a week. Save the artifact. Reference it from AGENTS.md. Move on to the next codebase.
+Run the architecture review workflow on your most poorly understood codebase first. Watch the agent produce in fifteen minutes what would have taken a senior engineer a week. Save the artifact. Reference it from AGENTS.md. Move on to the next codebase.
 
 That is the recipe.
 
@@ -1324,7 +1324,7 @@ The architecture review workflow is the cheapest possible test of whether agenti
 
 Either outcome is valuable. The investment is fifteen minutes plus an hour. The downside is bounded. The upside, in cases like the banking one I just described, is months of saved work.
 
-Run the workflow this week. Run it on your three or four most poorly-understood codebases. The agent's output will tell you a great deal about which of those codebases are ready for the rest of this manual and which need investment first.
+Run the workflow this week. Run it on your three or four most poorly understood codebases. The agent's output will tell you a great deal about which of those codebases are ready for the rest of this manual and which need investment first.
 
 That is the bridge into the rest of Part III. The next chapter - the kill signals - is the structured rubric for evaluating codebase readiness. The architecture review workflow gives you the cheap empirical test; the kill signals give you the systematic checklist. They work together.
 
@@ -1336,13 +1336,13 @@ That is the bridge into the rest of Part III. The next chapter - the kill signal
 
 **Ship this week.**
 
-Run the architecture review prompt on your three most poorly-understood codebases, sixty-minute budget each. Note which produce a clean review and which produce garbage. That pattern is the diagnostic ahead of Chapter 8: clean output means agentic work has a chance; garbage output is one of the kill signals.
+Run the architecture review prompt on your three most poorly understood codebases, sixty-minute budget each. Note which produce a clean review and which produce garbage. That pattern is the diagnostic ahead of Chapter 8: clean output means agentic work has a chance; garbage output is one of the kill signals.
 
 ---
 
 **Try it yourself.**
 
-The architecture review is the highest-leverage exercise in this manual. You can run it on any repository you can clone, in fifteen minutes per repository, and you can rerun it any time the codebase changes substantially.
+The architecture review is the highest-leverage exercise in this manual. You can run it on any repository you can clone, in fifteen minutes per repository, and you can re-run it any time the codebase changes substantially.
 
 1. Pick the codebase your team understands least well. Original author gone, partial docs, "do not touch this unless you have to" - that codebase.
 2. Open your primary coding agent at the repository root.
@@ -1654,7 +1654,7 @@ The use case for hookify in brownfield work is specific. You have areas of the c
 
 hookify rules complement AGENTS.md. AGENTS.md tells the agent the team's conventions and forbidden patterns; the agent reads them and applies them by default. hookify enforces the rules structurally; if the agent tries to violate them anyway (because LLMs sometimes do), the hook catches it. AGENTS.md is the polite request. hookify is the firm boundary.
 
-For yellow projects, I recommend establishing hookify rules for at least the regulatory-sensitive areas and the historically-broken modules. Five to ten rules is usually enough. Each rule is one line of configuration plus a one-line justification.
+For yellow projects, I recommend establishing hookify rules for at least the regulatory-sensitive areas and the historically broken modules. Five to ten rules is usually enough. Each rule is one line of configuration plus a one-line justification.
 
 ---
 
