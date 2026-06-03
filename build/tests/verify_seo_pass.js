@@ -955,12 +955,12 @@ async function main() {
       await ctx.close();
     }
     {
-      for (const slug of ['chapter-6-agents-md', 'appendix-a-cost-economics', 'chapter-10-adoption-90-days']) {
+      for (const slug of ['chapter-6-agents-md', 'appendix-a-cost-economics', 'chapter-10-adoption-90-days', 'chapter-1-primitives']) {
         const h = fs.readFileSync(path.join(repoRoot, '_site', slug, 'index.html'), 'utf8');
         const types = [...h.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)]
           .map(m => { try { return JSON.parse(m[1])['@type']; } catch { return null; } });
-        if (!types.includes('FAQPage')) fail(`${slug} missing mirrored FAQPage`);
-        else ok(`${slug} has mirrored FAQPage`);
+        if (types.includes('FAQPage')) fail(`${slug} should NOT carry FAQPage (orphaned schema — landing owns it)`);
+        else ok(`${slug} has no orphaned FAQPage`);
       }
     }
     {
