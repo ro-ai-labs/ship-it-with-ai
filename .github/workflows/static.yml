@@ -58,7 +58,10 @@ jobs:
           bash build/tests/smoke_check.sh _site
           cd build
           npm ci
-          npx playwright install --with-deps chromium
+          for i in 1 2 3; do
+            npx playwright install --with-deps chromium && break
+            echo "playwright install attempt $i failed; retrying in 5s"; sleep 5
+          done
           SITE_NO_REBUILD=1 npm run verify:site
 
       - name: Setup Pages
