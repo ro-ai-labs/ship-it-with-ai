@@ -2366,7 +2366,7 @@ This appendix exists because every claim in this manual deserves a verifiable so
 ---
 
 **Claim:** Permission parsers in coding agents recognize only a known set of shell-read commands; agents invoking Python's `open()`, Node's `fs.readFile`, or any unrecognized binary bypass the deny rules entirely.
-**Source:** [Martin Paul Eve](https://eve.gd), public writeup of the permission-parser bypass class.
+**Source:** Adam Kinney, April 2026. Writeup: [Claude Code's Deny Rules Don't Protect You — Here's What Actually Does](https://adamkinney.com/aatt/claude-code/deny-rules-dont-protect-you-sandbox-does/).
 **Where used:** Chapter 3 (Governance in layers), as the permission-parser bypass class.
 **Caveat:** Architectural, not a single CVE. Mitigation is the OS sandbox `denyRead` list (kernel-level), not a vendor patch. The class persists across patches because the parser cannot enumerate every binary.
 
