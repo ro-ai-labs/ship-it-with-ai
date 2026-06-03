@@ -942,6 +942,28 @@ async function main() {
       else ok('head links the markdown corpus (llms-full.txt)');
     }
 
+    {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      await page.goto(baseUrl + '/');
+      const faqH2 = await page.locator('section.article-faq h2#faq-heading').count();
+      const faqH3 = await page.locator('section.article-faq h3').count();
+      if (faqH2 !== 1) fail(`landing visible FAQ <h2> count ${faqH2}, expected 1`);
+      else ok('landing has a visible FAQ section');
+      if (faqH3 < 8) fail(`landing visible FAQ has ${faqH3} questions, expected >= 8`);
+      else ok(`landing visible FAQ has ${faqH3} questions`);
+      await ctx.close();
+    }
+    {
+      for (const slug of ['chapter-6-agents-md', 'appendix-a-cost-economics', 'chapter-10-adoption-90-days']) {
+        const h = fs.readFileSync(path.join(repoRoot, '_site', slug, 'index.html'), 'utf8');
+        const types = [...h.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)]
+          .map(m => { try { return JSON.parse(m[1])['@type']; } catch { return null; } });
+        if (!types.includes('FAQPage')) fail(`${slug} missing mirrored FAQPage`);
+        else ok(`${slug} has mirrored FAQPage`);
+      }
+    }
+
   } finally {
     await browser.close();
     stop();
