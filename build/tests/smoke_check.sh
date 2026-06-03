@@ -7,7 +7,7 @@ set -euo pipefail
 SITE="${1:-_site}"
 fail() { echo "SMOKE FAIL: $*" >&2; exit 1; }
 
-for f in index.html .nojekyll CNAME 404.html sitemap.xml robots.txt llms.txt llms-full.txt read/index.html search-index.json cover-720.webp; do
+for f in index.html .nojekyll CNAME 404.html sitemap.xml robots.txt llms.txt llms-full.txt read/index.html search-index.json cover-720.webp favicon.ico favicon.svg; do
   [ -f "$SITE/$f" ] || fail "missing $SITE/$f"
 done
 
