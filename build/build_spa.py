@@ -753,7 +753,7 @@ def transform_artifacts(html: str) -> str:
             f'{CLIPBOARD_SVG}'
             '<span class="artifact-label">Artifact</span>'
             '</div>'
-            f'<h4 class="artifact-title">{title}</h4>'
+            f'<p class="artifact-title">{title}</p>'
             f'<p>{body}</p>'
             '</aside>'
         )
@@ -936,11 +936,12 @@ def _strip_markdown(text: str) -> str:
     text = _MD_LINK_RE.sub(r"\1", text)
     text = _MD_INLINE_CODE_RE.sub(lambda m: m.group(0)[1:-1], text)
     text = _MD_HEADING_RE.sub(" ", text)
-    text = _MD_HTML_TAG_RE.sub("", text)
+    text = _MD_HTML_TAG_RE.sub(" ", text)
     text = _MD_BLOCKQUOTE_RE.sub("", text)
     text = _MD_LISTMARK_RE.sub("", text)
     text = _MD_ATTR_RE.sub("", text)
     text = _MD_EMPH_RE.sub("", text)
+    text = re.sub(r"\s+", " ", text).strip()
     return text
 
 

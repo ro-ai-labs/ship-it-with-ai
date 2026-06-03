@@ -974,6 +974,21 @@ async function main() {
       } else ok('AGENTS.md FAQ answer correctly distinguishes CLAUDE.md');
     }
 
+    // No heading-level skip on standalone section pages (h1->h3 with no h2, etc.).
+    {
+      let skipBad = [];
+      for (const slug of SLUGS) {
+        const h = fs.readFileSync(path.join(repoRoot, '_site', slug, 'index.html'), 'utf8');
+        const levels = [...h.matchAll(/<h([1-6])[ >]/g)].map(m => +m[1]);
+        const present = [...new Set(levels)].sort((a,b)=>a-b);
+        for (let i = 1; i < present.length; i++) {
+          if (present[i] - present[i-1] > 1) { skipBad.push(`${slug}(h${present[i-1]}->h${present[i]})`); break; }
+        }
+      }
+      if (skipBad.length) fail(`heading-level skip on: ${skipBad.join(', ')}`);
+      else ok('no heading-level skips on standalone section pages');
+    }
+
   } finally {
     await browser.close();
     stop();
