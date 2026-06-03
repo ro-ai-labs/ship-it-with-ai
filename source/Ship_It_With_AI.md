@@ -82,7 +82,7 @@ Agentic software delivery is at the same kind of inflection point now. The speci
 
 The landscape moves fast, but the methodology endures.
 
-In the eighteen months between when I built my first agentic coding workflow and when I sat down to write this manual, four things happened that would have been front-page tech news in any prior decade. A model jumped seven percentage points on a coding benchmark. An official marketplace for coding-agent plugins became a real distribution channel. A major cloud provider announced end-of-support for one of its developer AI products. The largest agentic-AI vendor formalized "skills" as a primitive that any agent could implement. Four shifts. Four months. Any one of them, in 2015, would have been a quarter's worth of conference talks. In 2026, they were the news cycle of a single week.
+In the eighteen months between when I built my first agentic coding workflow and when I sat down to write this manual, four things happened that would have been front-page tech news in any prior decade. A model jumped 7 percentage points on a coding benchmark. An official marketplace for coding-agent plugins became a real distribution channel. A major cloud provider announced end-of-support for one of its developer AI products. The largest agentic-AI vendor formalized "skills" as a primitive that any agent could implement. Four shifts. Four months. Any one of them, in 2015, would have been a quarter's worth of conference talks. In 2026, they were the news cycle of a single week.
 
 There is no permanently right tool. The teams that handle this well built a frame of reference for evaluating tools - what an agent is anatomically, what it should be able to do, what they refuse to let it do, how they wire it into their existing review and shipping processes. When a new tool appears, they apply the frame. The frame survives even when every specific tool gets replaced.
 
@@ -554,7 +554,7 @@ Wrong lesson three: "we should not use AI for database operations." That is thro
 
 Here is the right lesson.
 
-PocketOS had a natural-language instruction. That is weaker than layer one. It did not have enforceable permissions that would classify and gate the destructive action. It did not have a sandbox that would refuse the operation at the OS-level. It did not have secrets segregation that would prevent the session from holding the production credential. It did not have a hook that would force human approval before a destructive infrastructure action. It did not have agent-side telemetry that would alert on production-token use during a coding session. Said in the vocabulary of Chapter 1: Permissions / Sandbox would have caught it twice - once at the decision layer if the rule had been there, once at the OS layer regardless.
+PocketOS had a natural-language instruction. That is weaker than layer one. It did not have enforceable permissions that would classify and gate the destructive action. It did not have a sandbox that would refuse the operation at the OS level. It did not have secrets segregation that would prevent the session from holding the production credential. It did not have a hook that would force human approval before a destructive infrastructure action. It did not have agent-side telemetry that would alert on production-token use during a coding session. Said in the vocabulary of Chapter 1: Permissions / Sandbox would have caught it twice - once at the decision layer if the rule had been there, once at the OS layer regardless.
 
 No single perfect layer would have saved them with certainty. But any one of the enforceable layers could have broken the chain, and several together would have made a nine-second production-loss event much less likely.
 
@@ -1692,7 +1692,7 @@ Three more patterns, briefly, because they appear in the well-functioning teams 
 
 ---
 
-**Pattern six: the mistake-journal review.**
+**Pattern five: the mistake-journal review.**
 
 The mistake journal in AGENTS.md is alive. Every entry is a real failure the team experienced. But the journal grows over time, and not every entry stays load-bearing forever. Some failures are structurally resolved - the underlying cause has been refactored out, the dependency has been replaced, the convention has been internalized to the point where nobody would make the mistake again. Those entries can be retired without losing safety, and retiring them keeps the journal lean.
 
@@ -1702,7 +1702,7 @@ The habit keeps the journal from becoming a graveyard. A graveyard of rules is a
 
 ---
 
-**Pattern seven: the demo-day backstop.**
+**Pattern six: the demo-day backstop.**
 
 When the team is preparing a demo of agentic work - for leadership, for clients, for an internal showcase - there is a temptation to do the demo live, with the agent doing real work in front of the audience. Sometimes this works. Sometimes the agent has a bad day, the network hiccups, the model decides to be unusually verbose. Live demos of probabilistic systems carry real failure risk.
 
@@ -1712,7 +1712,7 @@ The backstop is not cheating. The backstop is professional execution. Every seni
 
 ---
 
-**Pattern eight: the failure watchlist.**
+**Pattern seven: the failure watchlist.**
 
 When the team has been doing agentic work for a few months, you start to notice failure modes that recur. Specific kinds of mistakes the agent makes that you have to correct repeatedly. Specific situations where the workflow breaks down. Specific user behaviors that lead to predictable problems.
 
@@ -1722,7 +1722,7 @@ The watchlist is to operations what the mistake journal is to development. The m
 
 ---
 
-Eight patterns total. They will not all apply to every team. The first five - worktrees, champions, hookify, PR review, AI-selling governance - apply broadly. The remaining three - mistake-journal review, demo backstop, failure watchlist - are for teams that are past the first six months and ready to professionalize their practice.
+Seven patterns total. They will not all apply to every team. The first four - worktrees, champions, hookify rules, PR review toolkit - apply broadly. The remaining three - mistake-journal review, demo backstop, failure watchlist - are for teams past the first few months.
 
 Next chapter: the adoption framework - how a team that has read this manual starts. Three roles, ninety days, specific commitments.
 
