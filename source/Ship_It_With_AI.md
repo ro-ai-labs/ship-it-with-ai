@@ -170,7 +170,7 @@ Model behavior will improve. Several of the kill signals are bounded by current 
 
 Pricing will shift. The tier structure and TCO categories in Appendix A are durable; the specific quotes you put through them will not be.
 
-Some teams will get value with lighter process. The six-phase loop is the discipline I have seen work across teams. A team with deeper engineering culture, smaller scope, and lower compliance burden may get most of the benefit with a three-phase loop or a structured-pair-programming pattern. The full discipline is the safe bet, not the only path.
+Some teams will get value with lighter process. The six-phase loop is the discipline I have seen work across teams. A team with deeper engineering culture, smaller scope, and lower compliance burden may get most of the benefit with a three-phase loop or a structured-pair-programming pattern. The full discipline is the safe bet, not the only path. Chapter 5 shows one team that earned the lighter version - and the three conditions it had in place first.
 
 Some workflows are too regulated for these defaults. The manual assumes the team has the authority to install hooks, configure AGENTS.md, set up sandboxes, and run subagents. Some regulated environments do not allow this without architectural review boards, security committees, or vendor procurement processes that take months. In those environments, the manual describes the destination, not the path.
 
@@ -1020,6 +1020,18 @@ The whole loop, in one view:
 
 ---
 
+**Sidebar: the team that shipped with half the loop.**
+
+The full ceremony is not always the right amount, and pretending otherwise would cost me your trust the first time you watched a team thrive without it. One team I watched ran agentic delivery for the better part of a year with what looked like half the loop. Research was a comment thread on the ticket. The plan was three bullets in the PR description. No research notes, no review agents, no formal gates. Velocity went up. Defects did not.
+
+It worked because of three conditions, and the conditions are the lesson. The team was small and senior and had built the codebase themselves, so the research function was nearly free - the context a research note exists to assemble was already in their heads. The CI suite was genuinely strict, so the verify function ran on every push whether anyone called it a phase or not. And the PR culture was already serious, so review happened, with judgment, because it always had.
+
+Look at that list: research, verify, review. The functions did not disappear. They were built into the team's walls, so the explicit form was redundant. That is the honest reading of the loop - it is not a price you pay to use agents; it is the explicit form of six functions that have to happen somewhere. A team that has made some of the functions ambient - in its infrastructure, in its culture - can run lighter exactly there, and nowhere else.
+
+The test is accounting, not optimism. For each phase you want to skip, name the thing that already does its job. If you cannot name it, the phase stays.
+
+---
+
 The Superpowers plugin I have referenced is one implementation of this loop. There are others - GitHub Spec Kit, BMAD frameworks, custom team-built skill collections. They differ in the details. They share the iterative-loop pattern. Choose what integrates with your workflow, your tools, your compliance constraints. The carrier matters less than the discipline.
 
 Next chapter: the artifact that makes the discipline portable across team members, repositories, and time. AGENTS.md.
@@ -1669,6 +1681,14 @@ The review agents do not replace human review. They run before it, surfacing the
 The leverage is in the time savings on the mechanical findings. A senior engineer doing a fifteen-minute review can catch the obvious bugs. A senior engineer doing a five-minute review (because the review agents caught the obvious bugs already) can spend the other ten minutes on the architectural judgment that the agents cannot make.
 
 Set up the review agents. Wire them into the pull request flow. The agents do the mechanical work; the humans do the human work.
+
+One failure story for this pattern, because it is the pattern with a failure mode the others do not have. A team I worked with installed the full toolkit, and the toolkit was good. The review agents caught real bugs, week after week, and the senior reviewers learned to trust the green checkmarks. Within a quarter, the fifteen-minute human reviews had become three-minute scans. Nobody decided that. Attention drifts away from work that appears to be already done.
+
+Then a PR shipped that every agent had passed. Tests green, no security findings, clean diff. It also applied a discount rule to the wrong customer tier - a business-correctness error, which is exactly the category the review agents do not evaluate and the category this pattern reserves for humans. It ran in production for weeks before a support ticket surfaced it.
+
+The post-mortem was honest: the toolkit had worked precisely as designed. It removed the mechanical findings from human review, and the humans let the judgment work drift away with the mechanical work. Chapter 10 names an archetype called the uncalibrated delegator; this was a whole team becoming one, with good tooling as the alibi.
+
+The fix was not removing the review agents. The fix was making the human floor explicit: a minimum review on business correctness and architectural fit for every agent-touched PR, tracked as a number next to defect rate. The review agents are a filter in front of human judgment. The moment they become a substitute for it, this pattern is making your reviews worse while making them look better.
 
 ---
 
