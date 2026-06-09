@@ -132,7 +132,7 @@ The central claim of this manual is simple: agentic software delivery is not pri
 
 Two ideas run through everything that follows, and it is worth being explicit about how they fit together. Durability is the why: tools churn quarterly, a practice pinned to this month's tool dies with this month's tool, and the only practice worth building is the one that survives the churn. Control is the how: the three parts of this manual are three controls you take back, in order. Architecture is the control of capability: what the agent can know and do. Method is the control of workflow: how work is formulated, executed, and verified. Reality is the control of adoption: where the method is applied and where it should not be. Durability is why you should care. Control is how the manual is built.
 
-The chapters that follow are how I have learned to make that bet pay off. The Prologue is what happens when none of the layers are in place.
+The chapters that follow are how I have learned to make that claim pay off. The Prologue is what happens when none of the layers are in place.
 
 ---
 
@@ -638,7 +638,7 @@ Three vulnerability classes documented in 2025-2026 are worth knowing in this la
 
 The third class deserves a specific note, because the failure mode is easy to misread. A security check that scans shell commands for deny-rule matches silently fell through to a generic "ask" prompt when the command chained more than fifty subcommands. Found by an external red team in early 2026 and patched within a week, but the class is worth knowing: a governance layer can have a quiet-failure mode whose existence is not obvious from reading the configuration. Defense in depth means assuming any single layer can have a bug; the other layers are what catch what this layer missed.
 
-Each class has been documented and patched. The class survives; the specific CVE and patched version live in Appendix C, because version numbers age faster than the underlying pattern.
+Each class has been documented and patched or mitigated. The class survives; the specific CVEs, patch versions, and mitigations live in Appendix C, because version numbers age faster than the underlying pattern.
 
 A related architectural concern is team-instruction-file content injection through a malicious dependency or compromised contributor, which can change the agent's behavior on every session start; the mitigation is treating the team instruction file (AGENTS.md or equivalent) as committed code, reviewed in PR, signed by the author, part of your supply chain.
 
@@ -843,7 +843,7 @@ On to the six phases.
 
 ---
 
-**Artifact: Task suitability heuristic.** Three questions per task: more than three files touched, crosses concerns, would I type it by hand? If none, skip the loop; if any, run it.
+**Artifact: Task suitability heuristic.** Three questions per task: more than three files touched, crosses concerns, beyond what you would just type by hand? If none, skip the loop; if any, run it.
 
 ---
 
@@ -975,7 +975,7 @@ This is the property that makes agentic delivery work in practice. The agent doe
 
 The full loop, on a small feature, takes about twenty to thirty minutes of total wall-clock time. On a medium feature, an hour. On a large feature, a few hours - and the large feature would have taken days without the agent, so the comparison is favorable.
 
-That total includes both the agent's processing time and the human gate review time. The agent itself runs in maybe a third of the wall clock; the rest is you reading the research note, you reviewing the plan, you approving the diff, you watching the verify step pass. The human gates are the rate-limiter on a healthy workflow, not the agent. If your loop is taking three hours on a small feature, the issue is almost certainly that the gates are over-engineered or that you are doing them in a slow back-and-forth instead of a focused pass. The agent will not save you from your own meeting culture.
+That total includes both the agent's processing time and the human gate review time. The agent itself runs in maybe a third to half of the wall clock; the rest is you reading the research note, you reviewing the plan, you approving the diff, you watching the verify step pass. The human gates are the rate-limiter on a healthy workflow, not the agent. If your loop is taking three hours on a small feature, the issue is almost certainly that the gates are over-engineered or that you are doing them in a slow back-and-forth instead of a focused pass. The agent will not save you from your own meeting culture.
 
 The friction relative to "just have the agent write the code" is the gate time - the note, the plan, the diff review - and it is bounded. The benefit relative to "ship code without rigor" is substantial.
 
@@ -1262,6 +1262,8 @@ Here is the prompt I use, lightly edited. Yours will differ; this is illustrativ
 
 That prompt, dispatched on a moderately complex Spring Boot service, will produce a ten-to-fifteen-page architecture document in under fifteen minutes. The document will be roughly 70% correct. The remaining 30% is what makes the human review essential - the agent will misinterpret some patterns, miss some context that lives outside the codebase, sometimes confidently describe a code path that has been deprecated. The human reviewer corrects these. After review, the document is solid.
 
+That is the single-agent version, and it is enough for most services. On a codebase too large for one context window, the same workflow fans out across subagents - one per module, each returning a structured summary, the orchestrator assembling the document from the parts. That is the architecture-analysis-at-scale pattern from Chapter 1, doing production duty.
+
 The corrected document goes into the repository. By convention, I put it at `docs/architecture.md`. It becomes the entry point for any subsequent work. New team members read it first. Senior engineers consult it when modifying unfamiliar parts of the system. The agent itself reads it (you reference it from [AGENTS.md](https://agents.md/)) when working in the codebase, so the agent's subsequent work is grounded in the architecture review rather than re-deriving the architecture each time.
 
 ---
@@ -1346,8 +1348,8 @@ The architecture review is the highest-leverage exercise in this manual. You can
 
 1. Pick the codebase your team understands least well. Original author gone, partial docs, "do not touch this unless you have to" - that codebase.
 2. Open your primary coding agent at the repository root.
-3. Send a prompt like this one (works on any coding agent in the May 2026 generation; adapt to your agent's calling convention): "Explain the architecture of this codebase. Map the main execution loop, the tool or capability registration surface, the permission or approval logic, the sandbox or isolation mechanism, and the plugin or extension model. Cite file:line for each finding."
-4. Save the output verbatim as `docs/architecture-review.md`. Commit it. Reference it from AGENTS.md so every new session reads it at startup.
+3. Send the architecture review prompt from this chapter - the nine-section version covering purpose, structure, data model, request flows, cross-cutting concerns, dependencies, test posture, build and deployment, and risks, with file:line citations throughout. Appendix B.1 is the copy-paste form; it works on any coding agent in the May 2026 generation.
+4. Save the corrected output as `docs/architecture.md`. Commit it. Reference it from AGENTS.md so every new session reads it at startup.
 5. Use the same artifact as a diagnostic. If the agent could not produce a coherent map, that is a kill signal: the codebase is not yet ready for autonomous agent work. The fix is human-led documentation first, not a different prompt.
 
 On the May 2026 generation of agents, a medium codebase produces a useful review in four to ten minutes. A less self-documenting codebase takes closer to fifteen. The artifact you generate is the same one a senior engineer would have spent a week producing.
@@ -1593,7 +1595,7 @@ Three more examples, briefer than the earlier ones, cover shapes the first three
 
 **Ship this week.**
 
-Have the green/yellow/red conversation with your tech lead. Get one project officially classified. Defend the classification with the kill signal scores from yesterday.
+Have the green/yellow/red conversation with your tech lead. Get one project officially classified. Defend the classification with the kill signal scores from your portfolio scorecard.
 
 ---
 
@@ -1787,7 +1789,7 @@ Pick the arc that matches your situation. If your manager has heard of agentic A
 
 The framework I recommend when the team has budget and management buy-in has three roles and a ninety-day arc. The roles are champion, lead, manager. Each one has specific commitments. Each commitment is small enough to fit alongside normal work; the cumulative effect is enough to move the team into sustained agentic delivery.
 
-The arc is asymmetric, which surprises people the first time I describe it. The first thirty days produce almost no measurable productivity. The champion is learning, the lead is classifying, the manager is procuring. The team is investing. The metrics will not show benefit yet, and people who expect immediate ROI will be disappointed.
+The arc is asymmetric, which surprises people the first time I describe it. The first thirty days produce almost no measurable productivity. The champion is learning, the lead is classifying, the manager is keeping the premature metrics questions away. The team is investing. The metrics will not show benefit yet, and people who expect immediate ROI will be disappointed.
 
 The second thirty days produce visible productivity on the green project. The team starts shipping work the way I described in Part II - research, plan, execute, review, verify, ship. The cycle times improve. The quality holds. The reviewers start to notice that the agent-produced PRs are easier to review than the pre-agent PRs were, because the description is more structured.
 
@@ -2313,7 +2315,7 @@ Twice as long as the ideal arc; works in companies that are not yet ready for th
 
 ## Appendix C. Sources and Further Reading
 
-This appendix exists because every claim in this manual deserves a verifiable source if you choose to chase it down. I have organized the entries by claim, not by source, so you can map back from a passage in the body to the evidence behind it. Entries are grouped by category (studies, named incidents, vulnerabilities with patch versions, tool documentation, marketplaces, memory primitive sources) and each entry follows the same shape: the claim, the source, where in the manual it is used, and any caveat worth knowing.
+This appendix exists because every claim in this manual deserves a verifiable source if you choose to chase it down. I have organized the entries by claim, not by source, so you can map back from a passage in the body to the evidence behind it. Entries are grouped by category (studies, named incidents, vulnerabilities with patch versions, tool documentation, marketplaces, memory primitive sources, permissions / sandbox primitive sources) and each entry follows the same shape: the claim, the source, where in the manual it is used, and any caveat worth knowing.
 
 ### Studies and research
 
