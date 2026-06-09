@@ -124,9 +124,13 @@ This is a field manual, not a treatise. I write in first person because I am sha
 
 If you want a list of tools and ratings, this manual will disappoint you. If you want a way of thinking that survives the next five years of churn, keep reading.
 
+One commitment about audience. This manual is written for one reader first: the senior engineer - staff, principal, or tech lead - who will run this practice on a real team and then defend it upward. Parts I and II are where you do that work. Part III is how you win the argument with the people who sign off. Chapter 10 names this reader the champion. If you are the manager or director on the other side of that argument, your path is shorter; it is in the next section.
+
 One framing convention. The teammate framing I will use throughout the manual is a stance, not a claim about the agent's nature. The agent is software. The stance is: invest in it the way you would invest in a junior teammate - onboarding, shared infrastructure, feedback loops, patience with mistakes - and the operational results compound. Skip the investment and the agent stays a tool, with tool-level returns.
 
-The central claim of this manual is simple: agentic software delivery is not primarily a tooling problem. It is a control problem. Control the context, the actions, the verification, and the adoption surface, and the agent becomes useful. Fail to control them, and the agent becomes expensive noise or operational risk. The three parts of this manual map to three layers of control. Architecture is the control of capability: what the agent can know and do. Method is the control of workflow: how work is formulated, executed, and verified. Reality is the control of adoption: where the method is applied and where it should not be.
+The central claim of this manual is simple: agentic software delivery is not primarily a tooling problem. It is a control problem. Control the context, the actions, the verification, and the adoption surface, and the agent becomes useful. Fail to control them, and the agent becomes expensive noise or operational risk.
+
+Two ideas run through everything that follows, and it is worth being explicit about how they fit together. Durability is the why: tools churn quarterly, a practice pinned to this month's tool dies with this month's tool, and the only practice worth building is the one that survives the churn. Control is the how: the three parts of this manual are three controls you take back, in order. Architecture is the control of capability: what the agent can know and do. Method is the control of workflow: how work is formulated, executed, and verified. Reality is the control of adoption: where the method is applied and where it should not be. Durability is why you should care. Control is how the manual is built.
 
 The chapters that follow are how I have learned to make that bet pay off. The Prologue is what happens when none of the layers are in place.
 
@@ -136,13 +140,9 @@ The chapters that follow are how I have learned to make that bet pay off. The Pr
 
 This is a field manual. Read it linearly the first time; treat it as a reference after.
 
-**If you are a senior engineer or staff engineer:** read Chapters 1, 2, 4, 5, 6, and 8. These are the technical spine: anatomy, formulation, loop, team instructions, and readiness.
+**The primary path is the champion's,** and it is simply: all of it, in order. Chapters 1, 2, 4, 5, 6, 7, and 8 are the technical spine - anatomy, formulation, loop, team instructions, review-as-diagnostic, readiness. Chapters 3, 9, and 10 are governance, brownfield patterns, and adoption - the chapters you need the moment the practice touches more people than you.
 
-**If you are a tech lead:** add Chapters 3, 7, 9, and 10. These are the chapters for governance, diagnosis, brownfield rollout, and adoption.
-
-**If you are an engineering manager or director:** read the Foreword, Scope and limits, Chapters 3, 8, 10, and Appendix A. Those give you risk posture, portfolio classification, rollout, and cost.
-
-**If you are facilitating adoption:** use Appendix B as the artifact set and Chapters 7-10 as the facilitation sequence.
+Two detours for everyone else. **If you are an engineering manager or director:** read the Foreword, Scope and limits, Chapters 3, 8, and 10, and Appendix A - risk posture, portfolio classification, rollout, and cost. It is the packet your champion will hand you anyway. **If you are facilitating adoption:** Appendix B is the artifact set; Chapters 7-10 are the facilitation sequence.
 
 You can skip backwards. Each chapter assumes the chapter before it, but the templates and frameworks are designed to be lifted directly.
 
@@ -162,7 +162,7 @@ Number style: statistics and percentages use numerals (19%, 43 points); small no
 
 A field manual that does not name its own failure modes will lose to the reader's experience the moment that experience diverges from the manual. So here are the places I think this manual can be wrong.
 
-The tools will change. The specific products I have named - Claude Code, Codex CLI, Cursor, hookify, Superpowers, Understand Anything, the Anthropic plugin marketplace - will be different in two years. Some will be better. Some will be deprecated. Some will be replaced by tools that work differently than the architecture in Chapter 1 describes. If the primitives still hold, the manual is right. The primitives are an open set. Memory was missing from the original list eighteen months ago; the major agents converged on it within a six-month window. Permissions / Sandbox was named as a control layer in earlier drafts; the convergence test promoted it. If a future agent ships without a mechanism that maps to one of the primitives, I missed an invariant I thought was structural. If a new primitive emerges, the list grows.
+The tools will change. The specific products I have named - Claude Code, Codex CLI, Cursor, hookify, Superpowers, Understand Anything, the Anthropic plugin marketplace - will be different in two years. Some will be better. Some will be deprecated. Some will be replaced by tools that work differently than the architecture in Chapter 1 describes. If the primitives still hold, the manual is right. The primitives are an open set - two of the eight earned their slot only recently. If a future agent ships without a mechanism that maps to one of the primitives, I missed an invariant I thought was structural. If a new primitive emerges, the list grows.
 
 The governance API will change. The specific hook formats, the specific permission rule syntax, the specific sandbox flags - those are vendor-specific and version-specific. The five-layer model is what I expect to hold; the implementation details are what I expect to age.
 
@@ -224,7 +224,7 @@ The tools change. The methodology endures. That is the bet of this manual.
 
 # Part I - Architecture
 
-> *How agents are built and how you control them.*
+> *The control of capability: what the agent can know and do.*
 
 ---
 
@@ -366,7 +366,7 @@ The orchestrator agent spawns a subagent, hands it a bounded task with a scoped 
 
 What makes subagents structurally distinct from the other primitives is that they are recursive. A subagent is another instance of the primitives - it has its own context window, its own tools, its own permissions / sandbox, its own skills, plugins, MCP, memory - bounded to a smaller task and isolated from the orchestrator's context. The orchestrator does not see what the subagent saw. It sees only what the subagent returns. The subagent does not pollute the orchestrator's context with intermediate work. The orchestrator does not pollute the subagent's context with unrelated history.
 
-In Claude Code, the Task tool dispatches a subagent; recent versions added Agent Teams as a higher-level coordination layer. In Codex CLI, subagents went GA in early 2026 and run up to eight in parallel. Cursor 2.0 introduced its own subagent system; Cline shipped them natively. The convergence is not an accident. Subagents solve two problems no other primitive solves: parallel work bounded by independence rather than by coordination, and context isolation bounded by task scope rather than by session history.
+The tight-window convergence that opened this chapter - every major agent shipping subagents within roughly a year - is not an accident. Subagents solve two problems no other primitive solves: parallel work bounded by independence rather than by coordination, and context isolation bounded by task scope rather than by session history.
 
 The primary uses in serious work: parallel execution of a multi-task plan (the Execute phase of the loop in Chapter 5), structured review (dispatch one subagent to check spec compliance, another to check code quality), and architecture analysis at scale (one subagent per file or per module, returning structured summaries the orchestrator assembles - the workflow in Chapter 7).
 
@@ -386,15 +386,15 @@ Said plainly: the harness is the trim around the agent loop. The agent loop is t
 
 ---
 
-A note on vocabulary. The primitives named here are what the agent uses to know, act, gate, extend, integrate, remember, and delegate. The test for primitiveness is convergence: a mechanism is a primitive when every major coding agent ships it as a distinct, configurable bundle, even when the implementations differ substantively. Permissions / Sandbox passes that test on the decision-layer half across all the major agents; the OS-enforcement half is presence-converged but posture-divergent - Codex CLI defaults it on, Cursor and Gemini CLI ship it as a first-class option, Claude Code is opt-in, opencode leaves OS isolation to the operator. Same architectural role; different vendor postures. The Memory primitive has the same shape on its second half (auto-memory consolidation is an early-mover signal from Claude Code, with the others converging). Telemetry has not yet crossed the convergence line and remains a control layer around the primitives. When the next mechanism converges - observability event-push is the candidate to watch - the list will grow again. This chapter is the first convergence catalogue; Chapter 3 is the second.
+A note on vocabulary. The primitives named here are what the agent uses to know, act, gate, extend, integrate, remember, and delegate. The test for primitiveness is convergence: a mechanism is a primitive when every major coding agent ships it as a distinct, configurable bundle, even when the implementations differ substantively. Permissions / Sandbox passes that test on the decision-layer half across all the major agents; the OS-enforcement half is presence-converged but posture-divergent, with the vendor postures catalogued in its section above. The Memory primitive has the same shape on its second half. Telemetry has not yet crossed the convergence line and remains a control layer around the primitives. When the next mechanism converges - observability event-push is the candidate to watch - the list will grow again. This chapter is the first convergence catalogue; Chapter 3 is the second.
 
 ---
 
-Context window. Tools. Permissions / Sandbox. Skills. Plugins. MCP. Memory. Subagents. Plus the harness as the runtime that organizes them. That is the list today. The set is open; expect it to grow. Memory was missing eighteen months ago and converged across the major agents within a six-month window. The next one will appear when the convergence appears, not before.
+Context window. Tools. Permissions / Sandbox. Skills. Plugins. MCP. Memory. Subagents. Plus the harness as the runtime that organizes them. That is the list today. The set is open; expect it to grow. The next primitive will join the way Memory just did: when the convergence appears, not before.
 
 When the next coding agent appears in the marketplace next quarter, the evaluation rubric is right there. How big is the context window and how does the agent manage it under pressure? What tools are available and how are they constrained? What permission model does it ship - allow/ask/deny rules, auto-mode classifier - and what OS sandbox does it default to? How are skills implemented - always-loaded, or dispatched on detection? Is there a plugin marketplace and is it growing? Does it speak MCP, and how good is the MCP integration? Does it read a team-shared memory file at session start? Does it maintain any agent-written learned memory across sessions? How does it expose subagents - and is parallel dispatch a first-class operation or an afterthought?
 
-Nine questions today; more tomorrow. They tell you almost everything you need to know to compare the new agent to the one you are using today.
+Nine questions today, across eight primitives - Memory earns two; more tomorrow. They tell you almost everything you need to know to compare the new agent to the one you are using today.
 
 Next chapter: what happens when you point one agent at the source of another. The anatomy I just described becomes very real, very fast.
 
@@ -487,7 +487,7 @@ When the next coding agent appears in your marketplace - and one will appear in 
 
 You open its repository. You locate context assembly. You locate the tool registry. You locate the Permissions / Sandbox primitive (decision layer + OS sandbox, the two halves named in Chapter 1). You locate skills loading. You locate plugin extension. You check for MCP support. You locate the memory layer (AGENTS.md or equivalent; any auto-memory surface the vendor exposes). You locate subagent dispatch - all wrapped by the harness's agent loop.
 
-Eight inspection points: context assembly, tool registry, the Permissions / Sandbox primitive (decision layer + OS sandbox as two halves), skills loading, plugin extension, MCP support, memory layer, subagent dispatch - all wrapped by the harness's agent loop. Twenty minutes of inspection. You will know more about whether to adopt this agent than any review article will tell you, because you will know whether its specific implementation choices fit your team's specific constraints. Language affinity. License compatibility. Sandbox enforcement. Audit posture. The questions are stable.
+Eight inspection points. Twenty minutes of inspection. You will know more about whether to adopt this agent than any review article will tell you, because you will know whether its specific implementation choices fit your team's specific constraints. Language affinity. License compatibility. Sandbox enforcement. Audit posture. The questions are stable.
 
 The vendor's marketing will tell you what they want you to focus on. The source code will tell you what they actually built. The architecture invariant lets you read past the marketing.
 
@@ -530,7 +530,7 @@ On the May 2026 generation of agents, the walk takes four to ten minutes per rep
 
 I opened the manual with PocketOS. Here is the part of the lesson that requires its own chapter: governance, layered.
 
-The PocketOS incident is the textbook case for what these layers prevent. So is the Terraform incident that follows. Both happened in early 2026, to teams that thought they were being careful. Both would have been blocked by any one of several control mechanisms the teams did not have in place. This chapter is the catalogue of those mechanisms: five layers of defense, each catching what the others miss, each cheap to put in place once you have decided to put them in place at all.
+The PocketOS incident is the textbook case for what these layers prevent. So is the Terraform incident that follows. Both happened in early 2026, to teams that thought they were being careful. Both would have been blocked by any one of several control mechanisms the teams did not have in place. This chapter is the catalogue of those mechanisms: five layers of defense, each catching what the others miss, each cheap to put in place once you have decided to put them in place at all. When security or leadership asks what stands between your team and a PocketOS of its own, this catalogue is the answer you hand them.
 
 ---
 
@@ -742,7 +742,7 @@ Let's go.
 
 # Part II - Method
 
-> *How you ship software with agents.*
+> *The control of workflow: how work is formulated, executed, and verified.*
 
 ---
 
@@ -987,12 +987,6 @@ The pattern was not a bug. It was the predictable difference between a warm-cach
 
 ---
 
-The Superpowers plugin I have referenced is one implementation of this loop. There are others - GitHub Spec Kit, BMAD frameworks, custom team-built skill collections. They differ in the details. They share the iterative-loop pattern. Choose what integrates with your workflow, your tools, your compliance constraints. The carrier matters less than the discipline.
-
-Next chapter: the artifact that makes the discipline portable across team members, repositories, and time. AGENTS.md.
-
----
-
 **A worked example.**
 
 To make the loop concrete, here is one feature flowing through all six phases. The feature is small: add a `priority` field to the `Wire` record in a regulated banking service. Priority is one of low / normal / high / urgent, defaults to normal, and the urgent flag triggers a separate compliance-review queue.
@@ -1009,7 +1003,7 @@ To make the loop concrete, here is one feature flowing through all six phases. T
 
 **Ship.** PR opened with the research note, the plan, the per-task reports, the spec-compliance and code-quality reviews, and the test evidence attached. Senior reviewer spent eleven minutes on the PR, asked one question (about whether the urgent flag should be observable in the metrics dashboard, which I had not thought about), and approved. Merged. The whole feature, from "let's add a priority field" to merged code, took ninety minutes of clock time across the agent and me.
 
-Ninety minutes is not the point; the artifacts are. Every step produced something a senior reviewer could audit. The loop is the discipline that converts the agent's capability into work I can defend.
+Ninety minutes, not the twenty or thirty I quoted for a small feature - the difference is the regulated context: a 3,400-test suite, a staging smoke test, and a contract diff for the regulator. Small in scope is not small in ceremony. And the minutes are still not the point; the artifacts are. Every step produced something a senior reviewer could audit. The loop is the discipline that converts the agent's capability into work I can defend.
 
 ---
 
@@ -1023,6 +1017,12 @@ The whole loop, in one view:
 | Review | Spec compliance + quality reports | Senior review | Wrong or weak code |
 | Verify | Test evidence (failing -> passing) | QA or owner review | Behavioral failure |
 | Ship | PR with evidence trail | Normal PR process | Process violation |
+
+---
+
+The Superpowers plugin I have referenced is one implementation of this loop. There are others - GitHub Spec Kit, BMAD frameworks, custom team-built skill collections. They differ in the details. They share the iterative-loop pattern. Choose what integrates with your workflow, your tools, your compliance constraints. The carrier matters less than the discipline.
+
+Next chapter: the artifact that makes the discipline portable across team members, repositories, and time. AGENTS.md.
 
 ---
 
@@ -1330,7 +1330,7 @@ That is the bridge into the rest of Part III. The next chapter - the kill signal
 
 ---
 
-**Artifact: Review prompt + human correction checklist.** The architecture review prompt from Appendix B, paired with the five-point checklist of what the human must verify in the generated output.
+**Artifact: Review prompt + human correction checklist.** The architecture review prompt from Appendix B, paired with the five-point checklist of what the human must verify in the generated output: module purposes against business reality rather than implementation infrastructure; anything described as live that may be dead or commented out; dependency and advisory facts the agent cannot see; the compliance-sensitive paths; and every ambiguity the agent itself flagged.
 
 ---
 
@@ -1364,7 +1364,7 @@ Part III is the reality check. The method works on a lot of things. It does not 
 
 # Part III - Reality
 
-> *Where the method works, where it does not, and how to tell.*
+> *The control of adoption: where the method works, where it does not, and how to tell.*
 
 ---
 
@@ -1377,7 +1377,7 @@ An unfashionable claim to open this chapter. There are codebases where you shoul
 
 The rubric I use for this evaluation is eight kill signals. Each signal is a property of the codebase or the team. The more signals present, the more dangerous it is to put an agent in front of the code. At a certain threshold, you stop and fix the codebase before you bring the agent in.
 
-The rubric is not a rejection of agentic delivery. It is the opposite. It is the discipline that lets you say yes to agentic delivery in the places where it works, by saying no in the places where it does not. Without the kill signals, every project becomes an AI project, including the ones that should not be, and the failures of those bad-fit projects taint the reputation of the entire approach.
+The rubric is not a rejection of agentic delivery. It is the opposite. It is the discipline that lets you say yes to agentic delivery in the places where it works, by saying no in the places where it does not. Without the kill signals, every project becomes an AI project, including the ones that should not be, and the failures of those bad-fit projects taint the reputation of the entire approach. This is also the chapter built to travel upward: the eight signals and the traffic light are the portfolio conversation - which codebases now, which later, which never - in a form a director can act on.
 
 ---
 
@@ -1607,7 +1607,7 @@ This is a self-assessment you can run on any project in under fifteen minutes. H
 4. Count the TRIGGERED marks. Apply the rubric: zero or one is GREEN, agent-led work at normal velocity. Two or three is YELLOW, human-led with the agent supporting narrow tasks. Four or more is RED, stop autonomous agent work in this codebase until kill signals close.
 5. Before scoring, write your gut answer (GREEN, YELLOW, or RED) on a separate sheet. Compare it to the rubric result. The gap between intuition and rubric is the data point worth keeping; it tells you which signals you systematically over- or under-weight.
 
-Run this exercise quarterly, after major incidents, and before any decision to expand agent scope to a new team or codebase. The traffic light makes the discussion concrete and shared. "We are YELLOW because four signals are TRIGGERED" beats "I have a bad feeling about this" in every meeting that follows.
+Run this exercise quarterly, after major incidents, and before any decision to expand agent scope to a new team or codebase. The traffic light makes the discussion concrete and shared. "We are RED because four signals are TRIGGERED" beats "I have a bad feeling about this" in every meeting that follows.
 
 The specific kill signals will need updating as the field matures. The discipline of scoring will not.
 
@@ -1670,6 +1670,10 @@ Set up the review agents. Wire them into the pull request flow. The agents do th
 
 ---
 
+Four patterns. Worktrees. Champions. hookify rules. PR review toolkit. None of them require inventing a new process. All of them slot into how engineering teams already ship code, with the small additions that agentic work requires.
+
+---
+
 **Sidebar: governance for companies that sell AI to their clients.**
 
 This one is not a brownfield operating pattern - it is advice for a particular audience segment, set apart from the numbered patterns for that reason. If your company sells AI capabilities to its own clients - not just consumes AI internally, but resells AI as part of your product - then the governance pattern is different from a pure consumer of AI. Your demos, your sales calls, your client engagements are all situations where your team's discipline is on display. The client is evaluating whether you know how to do AI responsibly, not just whether the AI works.
@@ -1685,8 +1689,6 @@ Third, the kill signal framework is something you teach clients. The rubric is m
 The patterns above apply to any team. They apply with extra force to teams whose customers are watching - companies whose engineering quality is a visible product surface, not an internal cost center. Governance maturity is part of those companies' offering, and the discipline this manual describes is what makes the maturity defensible.
 
 ---
-
-Four patterns. Worktrees. Champions. hookify rules. PR review toolkit. None of them require inventing a new process. All of them slot into how engineering teams already ship code, with the small additions that agentic work requires.
 
 Three more patterns, briefly, because they appear in the well-functioning teams I have worked with even though they are less often discussed.
 
@@ -1941,11 +1943,13 @@ The specific tools I have named throughout - Claude Code, Codex CLI, opencode, S
 
 What you have learned in this manual is not the tools. What you have learned is a way of thinking that survives the tools.
 
-The architecture you learned in Part I is invariant. The primitives - context window, tools, permissions / sandbox, skills, plugins, MCP, memory, subagents - plus the harness that organizes them. Most production-grade coding agents converge on this anatomy. The coding agents that emerge in the next decade will, in most cases, take a similar shape, because the anatomy is determined by the work, not by the vendor. When you evaluate a new agent, you walk down the list, ask the question for each primitive, and you have your answer. The list is open; new primitives will appear as the major agents converge on new mechanisms.
+The architecture you learned in Part I is invariant - the control of capability. The primitives - context window, tools, permissions / sandbox, skills, plugins, MCP, memory, subagents - plus the harness that organizes them. Most production-grade coding agents converge on this anatomy. The coding agents that emerge in the next decade will, in most cases, take a similar shape, because the anatomy is determined by the work, not by the vendor. When you evaluate a new agent, you walk down the list, ask the question for each primitive, and you have your answer. The list is open; new primitives will appear as the major agents converge on new mechanisms.
 
-The method you learned in Part II is invariant. The shift from generating code to formulating work clearly is the foundational insight. The six-phase loop is one implementation of formulation discipline; other implementations will appear. The AGENTS.md pattern - committed code that encodes team conventions for the agent to read - will exist under different names in different tools, but the principle is permanent: discipline as code, not as oral tradition.
+The method you learned in Part II is invariant - the control of workflow. The shift from generating code to formulating work clearly is the foundational insight. The six-phase loop is one implementation of formulation discipline; other implementations will appear. The AGENTS.md pattern - committed code that encodes team conventions for the agent to read - will exist under different names in different tools, but the principle is permanent: discipline as code, not as oral tradition.
 
-The reality you learned in Part III is invariant. The kill signals are properties of codebases and teams, not of the tools that work on them. The traffic light is a decision rule that applies regardless of which agent you happen to be using this quarter. The adoption arc - champion, lead, manager, ninety days - is the same arc for any tooling transition that touches engineering practice meaningfully. The specific tooling changes; the change-management frame does not.
+The reality you learned in Part III is invariant - the control of adoption. The kill signals are properties of codebases and teams, not of the tools that work on them. The traffic light is a decision rule that applies regardless of which agent you happen to be using this quarter. The adoption arc - champion, lead, manager, ninety days - is the same arc for any tooling transition that touches engineering practice meaningfully. The specific tooling changes; the change-management frame does not.
+
+Three invariants, three controls. The Foreword called agentic delivery a control problem, not a tooling problem. Ten chapters later, that is still the whole argument.
 
 If you put down this manual, install the agent of the moment, and run the workflow exactly as I described it, you will get value. The instructions are concrete enough to follow literally.
 
@@ -1955,9 +1959,9 @@ If you put down this manual, internalize the architecture-method-reality frame, 
 
 One reflection, slightly off-topic from the rest of the manual.
 
-The teams I have watched succeed at agentic delivery share a property that is not in any of the models I have laid out. They take the work seriously. They invest in the agent the way they would invest in a junior teammate - onboarding, shared infrastructure, feedback loops, patience with mistakes. The team that treats the agent as a tool spends six months evaluating tools and never commits. The team that takes the investment stance spends six months building shared infrastructure and ends up with a working relationship that survives the inevitable rough patches.
+The teams I have watched succeed at agentic delivery share a property no framework in this manual can install for you. They take the work seriously. They invest in the agent the way they would invest in a junior teammate - onboarding, shared infrastructure, feedback loops, patience with mistakes. The team that treats the agent as a tool spends six months evaluating tools and never commits. The team that takes the investment stance spends six months building shared infrastructure and ends up with a working relationship that survives the inevitable rough patches.
 
-The teammate framing is a stance, not a claim about the agent's nature. The agent is software. The stance is: invest in it the way you would invest in a junior teammate, and the operational results compound. Skip the investment and the agent stays a tool, with tool-level returns.
+That is the stance the Foreword named as a framing convention, and this is where it cashes out. The agent is software; the teammate framing was never a claim about its nature. Make the investment and the operational results compound. Skip it and the agent stays a tool, with tool-level returns.
 
 ---
 
@@ -1987,7 +1991,7 @@ This was true when programming meant punching holes in cards. It was true when t
 
 That is the durable thing. The models I have laid out in this manual are scaffolding around that durable thing. They will help you get from where you are now to where you can ship software with agents in a way you can defend. Whether you use exactly the tools I named, or different ones, or tools that have not yet been built - does not matter. You handle the part that endures.
 
-The tools will change. The harnesses will improve. The model names will age out of this edition. But the durable work remains the same: understand the problem, formulate the work, constrain the execution, verify the result.
+The tools will change. The harnesses will improve. The model names will age out of this edition. But the durable work remains the same: understand the problem, formulate the work, constrain the execution, verify the result. That sequence is the whole control problem - and it never belonged to the tools. It belongs to you.
 
 The agents write the code. You understand the problem. That is the skill no one is automating.
 
@@ -2244,7 +2248,7 @@ Traffic light:
 - 2-3: YELLOW (human-led with agent support)
 - 4+: RED (fix codebase first)
 
-Signal 6 weights extra: any codebase scoring 1 on signal 6 is at minimum YELLOW for the affected work, regardless of other signals.
+Signal 6 weights extra: any codebase scoring 1 on signal 6 is RED for the affected work, regardless of other signals. Restrict the agent away from that work until the capability gap is closed.
 ```
 
 ### B.5 90-day adoption calendar (one-pager)
@@ -2277,13 +2281,21 @@ Month 3: present results. Honest data. Recommend adjustments.
 
 MANAGER (owns budget, procurement, hiring)
 
-Week 1: pick first green project. Commit publicly to it as the agent's first home.
+Months 1-2: protect the team. No per-engineer productivity metrics, no ROI
+projections, no vendor benchmarks yet. The practice is being built.
 
-Month 1: procurement conversation (6-item checklist from Chapter 10). Close it in month 1.
+Days 61-67: take the Champion/Lead handoff. Verify the dashboard metrics are
+real (agent-touched PR share, cycle time vs baseline, defect rate vs baseline).
 
-Month 2: budget conversation (5-question rubric). Allocate investment to move yellow projects.
+Days 68-74: close the seat-vs-enterprise procurement decision with the
+Appendix A rubric. Match tier to usage, not uniformity.
 
-Month 3: leadership rollout conversation (5-slide template). 30-60-90 plan for next quarter.
+Days 75-81: governance one-pager (hooks, sandbox, secrets, telemetry).
+Champion drafts; manager edits and signs.
+
+Days 82-90: leadership update - two sentences and one number. Defend the
+operational metric; leave revenue to whoever owns revenue. Hand off to
+quarterly cadence.
 
 ---
 
