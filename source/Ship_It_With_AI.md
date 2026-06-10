@@ -150,7 +150,7 @@ You can skip backwards. Each chapter assumes the chapter before it, but the temp
 
 ## A note on dated claims {#a-note-on-dated-claims}
 
-Tool-specific references in this manual are current as of May 2026. The frameworks are intended to outlast the specific tools. When a named product capability matters, I either date the claim or treat it as an example rather than a permanent property. Source notes for the load-bearing factual claims are in Appendix C.
+Tool-specific references in this manual are current as of June 2026. The frameworks are intended to outlast the specific tools. When a named product capability matters, I either date the claim or treat it as an example rather than a permanent property. Source notes for the load-bearing factual claims are in Appendix C.
 
 I do my best to keep the manual current and maintain a [changelog](/changelog/) of meaningful updates.
 
@@ -1032,7 +1032,11 @@ The test is accounting, not optimism. For each phase you want to skip, name the 
 
 ---
 
-The Superpowers plugin I have referenced is one implementation of this loop. There are others - GitHub Spec Kit, BMAD frameworks, custom team-built skill collections. They differ in the details. They share the iterative-loop pattern. Choose what integrates with your workflow, your tools, your compliance constraints. The carrier matters less than the discipline.
+One piece of vocabulary before we move on, because the word loop is getting overloaded in the field. The six phases here are the inner loop: one unit of work, six functions, gated by you. There is also an outer loop in growing circulation - re-invoking the agent on an interval or against a queue, with nobody between iterations, until a condition holds. That is a different instrument with different preconditions, and it is the final pattern in Chapter 9. The dependency runs one way: an outer loop is only as safe as the mechanization of the functions it re-runs, because it compounds whatever discipline - or whatever absence - it wraps.
+
+---
+
+The Superpowers plugin I have referenced is one implementation of the inner loop. There are others - GitHub Spec Kit, BMAD frameworks, custom team-built skill collections. They differ in the details. They share the iterative-loop pattern. Choose what integrates with your workflow, your tools, your compliance constraints. The carrier matters less than the discipline.
 
 Next chapter: the artifact that makes the discipline portable across team members, repositories, and time. AGENTS.md.
 
@@ -1630,9 +1634,9 @@ The specific kill signals will need updating as the field matures. The disciplin
 ## Chapter 9
 ## Patterns for brownfield codebases
 
-The traffic light tells you which codebases are ready for the agent. This chapter is about the operational patterns that make agentic work effective on legacy codebases - yellow projects in particular, where the practice matters most.
+The traffic light tells you which codebases are ready for the agent. This chapter is about the operational patterns that make agentic work effective on legacy codebases - yellow projects in particular, where the practice matters most. The last pattern is the exception; it is what becomes available when a codebase graduates to green.
 
-I will walk through seven patterns. The first four are the default operating patterns I install on most brownfield teams: worktrees, champions, hooks, and PR review. The final three are maturity patterns for teams past the first few months: mistake-journal review, demo-day backstop, and failure watchlist. A sidebar between the two sets covers governance for companies that sell AI to their own clients - a segment-specific concern rather than a brownfield operating pattern, but one worth naming.
+I will walk through eight patterns. The first four are the default operating patterns I install on most brownfield teams: worktrees, champions, hooks, and PR review. The final four are maturity patterns for teams past the first few months: mistake-journal review, demo-day backstop, failure watchlist, and the outer loop. A sidebar between the two sets covers governance for companies that sell AI to their own clients - a segment-specific concern rather than a brownfield operating pattern, but one worth naming.
 
 Each one is something I have watched make the difference between an agent that contributes and an agent that frustrates.
 
@@ -1712,7 +1716,7 @@ The patterns above apply to any team. They apply with extra force to teams whose
 
 ---
 
-Three more patterns, briefly, because they appear in the well-functioning teams I have worked with even though they are less often discussed.
+Four more patterns. Three are brief, because they appear in the well-functioning teams I have worked with even though they are less often discussed. The fourth is the newest material in this chapter, and it gets the room it needs.
 
 ---
 
@@ -1746,7 +1750,27 @@ The watchlist is to operations what the mistake journal is to development. The m
 
 ---
 
-Seven patterns total. They will not all apply to every team. The first four - worktrees, champions, hookify rules, PR review toolkit - apply broadly. The remaining three - mistake-journal review, demo backstop, failure watchlist - are for teams past the first few months.
+**Pattern eight: the outer loop.**
+
+The seven patterns above assume a human in the room. The eighth is the one teams reach for a few months in, when somebody asks the obvious question: if the agent can run a disciplined loop while I watch, why am I watching? The industry's answer is the outer loop - re-invoking the agent automatically, iteration after iteration, until a condition holds. The six-phase loop in Chapter 5 is the inner loop: one unit of work, six functions, gated by you. The outer loop wraps it. When an iteration ends, the next one starts, and nobody is between them.
+
+The idea has a prehistory, and the difference between the two eras is the entire lesson. In 2023, AutoGPT and BabyAGI looped a model against its own opinion of its progress. Nothing external graded an iteration - the model marked its own homework - so every lap compounded drift, and the approach collapsed as a way of shipping software within months. The revival is structurally different. In mid-2025, Geoff Huntley wired a coding agent into a bash while-loop - feed it one prompt file, let it run, repeat forever - and the technique spread under the name Ralph Wiggum. Each iteration starts with a fresh context window, does one unit of work, and ends against graders the model does not control: the compiler, the test suite, the diff. State lives in the repository, not in the conversation. Everything that makes the loop converge sits outside the model.
+
+Between late 2025 and spring 2026, the pattern stopped being a bash trick and became a product surface. GitHub's Copilot coding agent went generally available in September 2025: delegate a task, an agent works in an isolated environment, and the result comes back as a draft pull request. Cursor shipped Cloud Agents in October 2025 - many agents running detached, your laptop closed. Google's Jules added Scheduled Tasks that December for recurring maintenance work. The same month, a ralph-wiggum plugin appeared in the official Claude Code repository, and by spring 2026 the loop was first-class there: /loop re-runs a prompt on an interval or paces itself when you omit one, Routines fire cloud agents from a schedule or a GitHub event, /goal keeps the agent working until a completion condition holds, /autofix-pr watches CI and pushes fixes until the pull request goes green. One shape, many spellings. By Chapter 1's convergence test, the capability has arrived everywhere - though what converged is a workflow wrapped around the primitives, not a new primitive.
+
+The trend is real, and it is also where the discipline gets tested hardest, because the outer loop adds attempts, not judgment. It multiplies whatever your inner loop permits. If every iteration ends against a strict gate, the loop compounds progress: a queue of small verified units gets shorter overnight. If the gate is weak, the same patience compounds slop. Huntley's own name for the failure mode is overbaking - leave the loop running past its job and it keeps inventing work nobody asked for. The agent does not get tired. That is the feature, and unattended, it is also the threat.
+
+So the pattern is not the loop; the pattern is the contract you run it under. Five lines, written before the first unattended iteration. **A stop condition a machine can evaluate** - the queue is empty, the suite is green, the budget is spent. A loop without one is not autonomy; it is abandonment. **A budget** - tokens, money, iterations, or hours, whichever hits first; an unattended loop is the per-token pricing model's best customer, and the Appendix A math runs overnight too. **A gate the agent cannot edit** - tests, lint configuration, CI workflow, and hook rules sit behind a deny rule (pattern three). Chapter 5's caveat - a green suite the agent wrote is evidence, not proof - applies twice over when nobody reads the evidence until morning. The cheapest way for a loop to go green is to negotiate with its own grader. **Fresh context per iteration, durable state in the repository** - a queue file and a journal, committed, so each iteration starts clean and reads the loop's history from git instead of dragging a degrading context behind it. Chapter 5 called context contamination the single biggest reason long-running sessions go wrong; the outer loop done right is a context-hygiene instrument - forty short clean sessions instead of one long degrading one. **Isolation sized for absence** - its own worktree (pattern one), sandbox on, no production credentials, network constrained. An unattended session is the one place where prompt injection meets no human skeptic; Chapter 3's layers are load-bearing here, not optional. Appendix B.6 is this contract as a one-pager.
+
+What goes in the queue matters as much as the contract. Loop-eligible work has many similar units, each machine-verifiable, each reversible: migrations, lint and typing sweeps, dependency bumps, characterization-test backfill, mechanical refactors. Design-heavy single-artifact work is not eligible; more attempts do not add judgment, and the loop will spend your budget proving it. The traffic light from Chapter 8 applies with extra force, because the outer loop is autonomous agent work in its most concentrated form: GREEN codebases only. YELLOW means human-led, and the outer loop has no human in it by definition.
+
+The human floor does not disappear; it moves to the morning. Overnight output arrives as pull requests and gets reviewed as pull requests - pattern four's explicit floor, business correctness and architectural fit, not a glance at the checkmarks, because everything a loop produces arrives wearing green checkmarks. And the loop itself gets kill signals, the same discipline Chapter 8 applies to codebases. Four are enough: the same diff applied and then reverted across iterations; budget burning while the queue does not shrink; the same failure surfacing a third time; any iteration that touched the gate. Any one of them means stop - read the journal, fix the cause, then relaunch. A loop restarted on hope is a loop you have stopped controlling.
+
+Two poles mark how far teams take this. Huntley runs the loop raw and prices it like a utility - roughly $10 an hour. At the industrial end, StrongDM's software factory runs fully non-interactive delivery, humans neither writing nor reviewing code, with end-to-end scenarios held outside the codebase as a holdout set the loop cannot weaken - at a token spend Simon Willison pegged near $20,000 a month per engineer. This pattern sits deliberately between the poles: contract, queue, gates outside the agent's reach, and a human reading the pull requests in the morning. Nothing in Chapter 10's ninety days requires the outer loop; it is what month four can look like when the first ninety were honest. Attended, you are the backstop. Unattended, the contract is the backstop - which makes the outer loop the first consumer of every control this manual installs, and the cleanest test of whether they were ever really installed.
+
+---
+
+Eight patterns total. They will not all apply to every team. The first four - worktrees, champions, hookify rules, PR review toolkit - apply broadly. The next three - mistake-journal review, demo-day backstop, failure watchlist - are for teams past the first few months. The last one - the outer loop - is for teams past the other seven.
 
 Next chapter: the adoption framework - how a team that has read this manual starts. Three roles, ninety days, specific commitments.
 
@@ -2054,6 +2078,10 @@ That trajectory - four decades of writing code, twenty-five of them professional
 
 This page tracks meaningful updates to the manual. Smaller copy-edits and SEO tweaks are not listed; the footer shows the last updated date.
 
+### 2026-06-10 — The outer loop (pattern eight)
+
+Chapter 9 grows an eighth pattern covering the outer-loop trend - re-invoking the agent on an interval, a schedule, or a queue until a condition holds. The pattern traces the lineage (the 2023 self-grading loops; Ralph Wiggum in mid-2025; the late-2025 vendor wave of background and scheduled agents; the loop as a first-class surface by spring 2026) and installs the controls: a five-line loop contract, the loop-eligibility test, four loop kill signals, and the morning review floor. Chapter 5 gains the inner/outer loop vocabulary paragraph. New Appendix B.6 outer-loop contract one-pager (the template count is now six). Five new Appendix C entries under a new outer-loop and autonomy sources group. Dated-claims note bumped to June 2026.
+
 ### 2026-05-27 — Permissions / Sandbox primitive
 
 Permissions / Sandbox promoted to a named primitive - the third slot in the inventory, after Context window and Tools. Two halves like Memory: the agent-level decision layer (Allow / Ask / Deny + auto mode) and OS-level enforcement (Seatbelt / bubblewrap / restricted tokens / WSL2). The vocabulary note in Chapter 1 was rewritten to name the convergence test that promoted this primitive while leaving telemetry as a control layer. Chapter 3 gains a framing paragraph binding three of its five layers (permissions, hooks, sandbox) to the new primitive's configuration surfaces; the five-layer defense-in-depth narrative is preserved unchanged. Inspection-points count in Chapter 2 dropped from nine to eight (the two halves of P/S collapsed to one). Diagram updated to 8 cells. Three new Appendix C entries source the Claude Code / Codex / opencode implementations.
@@ -2122,7 +2150,7 @@ Specific prices in any quarter will be wrong the next quarter. The shape of the 
 
 ## Appendix B. Templates
 
-Five copy-paste templates referenced throughout the manual. All are starting points; customize for your team.
+Six copy-paste templates referenced throughout the manual. All are starting points; customize for your team.
 
 ### B.1 Architecture review prompt
 
@@ -2331,11 +2359,42 @@ Months 4-6: lead recruits manager using two-engineer evidence base.
 Twice as long as the ideal arc; works in companies that are not yet ready for the ideal one.
 ```
 
+### B.6 Outer-loop contract (one-pager)
+
+```
+Before any unattended run, fill every line. A blank line means the loop is not ready.
+
+WORK
+- Queue: ______ (file or issue list in the repo; one small, similar, reversible unit per item)
+- Eligibility: GREEN codebase (B.4 score 0-1) / every unit machine-verifiable / every unit revertible
+
+STOP CONDITION (machine-evaluable; the loop halts itself)
+- Done when: ______ (queue empty / suite green / N units ready for review)
+- Budget: max ______ tokens or $______ or ______ iterations or ______ hours - whichever hits first
+- Failure rule: same unit fails twice -> skip it and flag; three skipped units -> halt
+
+EACH ITERATION
+- Fresh context; state read from queue + journal in the repo, not from session history
+- One unit per iteration; finish it or journal why not - nothing left half-applied
+- Gate: ______ (tests / lint / typecheck / build) runs outside the agent's reach (CI or hook)
+- Deny rules: agent cannot edit test config, lint config, CI workflow, hook rules, or the journal's done-markers
+
+ISOLATION
+- Own worktree and branch; never the default branch
+- Sandbox on; no production credentials in the environment; network off or allowlisted
+
+MORNING REVIEW (the human floor)
+- Each PR reviewed for business correctness and architectural fit - not checkmark-glancing
+- Kill check before relaunch: oscillating diffs? budget spent but queue not shorter?
+  same failure a third time? gate touched?
+  Any yes -> do not relaunch. Read the journal, fix the cause first.
+```
+
 ---
 
 ## Appendix C. Sources and Further Reading
 
-This appendix exists because every claim in this manual deserves a verifiable source if you choose to chase it down. I have organized the entries by claim, not by source, so you can map back from a passage in the body to the evidence behind it. Entries are grouped by category (studies, named incidents, vulnerabilities with patch versions, tool documentation, marketplaces, memory primitive sources, permissions / sandbox primitive sources) and each entry follows the same shape: the claim, the source, where in the manual it is used, and any caveat worth knowing.
+This appendix exists because every claim in this manual deserves a verifiable source if you choose to chase it down. I have organized the entries by claim, not by source, so you can map back from a passage in the body to the evidence behind it. Entries are grouped by category (studies, named incidents, vulnerabilities with patch versions, tool documentation, marketplaces, memory primitive sources, permissions / sandbox primitive sources, outer-loop and autonomy sources) and each entry follows the same shape: the claim, the source, where in the manual it is used, and any caveat worth knowing.
 
 ### Studies and research
 
@@ -2516,6 +2575,43 @@ This appendix exists because every claim in this manual deserves a verifiable so
 **Source:** [vercel.com/kb/guide/running-opencode-securely-with-the-vercel-sandbox](https://vercel.com/kb/guide/running-opencode-securely-with-the-vercel-sandbox).
 **Where used:** Chapter 1 (Permissions / Sandbox section), Chapter 2 (side-by-side architecture finding).
 **Caveat:** The "soft confinement" framing is the manual's, not opencode's documentation. opencode does not claim to ship a sandbox - the absence is honest, not hidden.
+
+---
+
+### Outer-loop and autonomy sources
+
+**Claim:** By spring 2026 the outer loop is a first-class surface in Claude Code: /loop re-runs a prompt on an interval or paces itself when the interval is omitted (April 2026), Routines fire templated cloud agents from a schedule, a GitHub event, or an API call (April 2026), /goal keeps the agent working across turns until a completion condition holds (May 2026), and /autofix-pr watches CI and review comments and pushes fixes until the pull request is green (April 2026).
+**Source:** Claude Code release notes, "What's new": [code.claude.com/docs/en/whats-new](https://code.claude.com/docs/en/whats-new), weekly digests for April-May 2026.
+**Where used:** Chapter 9 (pattern eight).
+**Caveat:** Feature names and release weeks are vendor-current as of June 2026; expect drift, per the note on dated claims.
+
+---
+
+**Claim:** The Ralph Wiggum technique - a bash while-loop re-piping a prompt file into a coding agent, one fresh context per iteration, state in the repository - originates with Geoff Huntley in mid-2025 ("In its purest form, Ralph is a Bash loop": `while :; do cat PROMPT.md | claude-code ; done`), went viral in late 2025, and was adopted into the official Claude Code repository as the ralph-wiggum plugin in December 2025. Huntley prices raw loop operation at roughly $10 per hour, says many Y Combinator startups run Ralph, and names the core failure mode "overbaking."
+**Source:** Geoff Huntley, [ghuntley.com/ralph](https://ghuntley.com/ralph/) (July 2025); HumanLayer, "A Brief History of Ralph," January 6, 2026: [humanlayer.dev/blog/brief-history-of-ralph](https://www.humanlayer.dev/blog/brief-history-of-ralph); The Register, January 27, 2026: [theregister.com/2026/01/27/ralph_wiggum_claude_loops/](https://www.theregister.com/2026/01/27/ralph_wiggum_claude_loops/).
+**Where used:** Chapter 9 (pattern eight), lineage and overbaking paragraphs.
+**Caveat:** The $10-per-hour figure and the Y Combinator adoption claim are Huntley's own, relayed by The Register - practitioner-reported, not audited.
+
+---
+
+**Claim:** Background and scheduled agent execution shipped across vendors through late 2025: GitHub Copilot coding agent generally available September 25, 2025 (isolated GitHub Actions environment; output as a draft pull request; review requested from a human on completion); Cursor Cloud Agents October 30, 2025 (many detached agents, laptop closed); Google Jules Scheduled Tasks December 10, 2025 (recurring cadences for maintenance work).
+**Source:** GitHub changelog: [github.blog/changelog/2025-09-25-copilot-coding-agent-is-now-generally-available](https://github.blog/changelog/2025-09-25-copilot-coding-agent-is-now-generally-available/); Cursor blog: [cursor.com/blog/cloud-agents](https://cursor.com/blog/cloud-agents); Google blog: [blog.google/technology/developers/jules-proactive-updates](https://blog.google/technology/developers/jules-proactive-updates/).
+**Where used:** Chapter 9 (pattern eight), convergence paragraph.
+**Caveat:** Ship dates are the vendors' announcements; the surfaces have kept evolving since.
+
+---
+
+**Claim:** StrongDM's "software factory" team runs fully non-interactive agentic delivery - humans neither write nor review code - with end-to-end user-story scenarios stored outside the codebase as a holdout set the agents cannot see or weaken, and treats roughly $1,000 per day per engineer in token spend as a factory health floor; Simon Willison frames the economics at about $20,000 per month per engineer and flags that as the pattern's main limitation.
+**Source:** Simon Willison, "How StrongDM's AI team build serious software without even looking at the code," February 7, 2026: [simonwillison.net/2026/Feb/7/software-factory/](https://simonwillison.net/2026/Feb/7/software-factory/).
+**Where used:** Chapter 9 (pattern eight), the industrial pole.
+**Caveat:** Single-company self-description; the dollar figures are the team's and Willison's framing, not an audit.
+
+---
+
+**Claim:** The 2023 loop era - AutoGPT, BabyAGI - looped a model against its own assessment of progress, with no external grader per iteration, and collapsed as a software-delivery approach within months. The 2025 revival differs structurally: every iteration ends against compiler, tests, and diff.
+**Source:** The AutoGPT and BabyAGI repositories document the 2023 design: [github.com/Significant-Gravitas/AutoGPT](https://github.com/Significant-Gravitas/AutoGPT), [github.com/yoheinakajima/babyagi](https://github.com/yoheinakajima/babyagi). The structural contrast is this manual's analysis, drawn from the Ralph-era sources above.
+**Where used:** Chapter 9 (pattern eight), lineage paragraph.
+**Caveat:** The collapse judgment is interpretive; both projects continued in other roles.
 
 ---
 
