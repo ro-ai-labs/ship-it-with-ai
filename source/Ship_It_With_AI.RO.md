@@ -84,15 +84,15 @@ Peisajul se mișcă repede, dar metodologia rămâne.
 
 În cele optsprezece luni dintre momentul în care mi-am construit primul workflow de programare cu agenți și momentul în care m-am așezat să scriu manualul ăsta, s-au întâmplat patru lucruri care, în orice deceniu anterior, ar fi fost știri de primă pagină în presa tech. Un model a urcat cu 7 puncte procentuale pe un benchmark de coding. Un marketplace oficial de plugin-uri pentru coding agents a devenit un canal real de distribuție. Un mare furnizor de cloud a anunțat end-of-support pentru unul dintre produsele lui de AI pentru developeri. Cel mai mare vendor de AI agentic a formalizat „skills” ca primitiv pe care orice agent îl poate implementa. Patru schimbări. Patru luni. Oricare dintre ele, în 2015, ar fi alimentat un trimestru întreg de conference talks. În 2026, toate la un loc au fost ciclul de știri al unei singure săptămâni.
 
-Nu există un tool corect pentru totdeauna. Echipele care gestionează bine lucrul ăsta și-au construit un cadru de referință pentru evaluarea tool-urilor - ce e un agent din punct de vedere anatomic, ce ar trebui să poată face, ce refuză ele să-l lase să facă, cum îl leagă de procesele lor existente de review și de livrare. Când apare un tool nou, aplică acel cadru. Cadrul supraviețuiește chiar și atunci când fiecare tool concret e înlocuit.
+Nu există un tool corect pentru totdeauna. Echipele care gestionează bine lucrul ăsta și-au construit un framework de referință pentru evaluarea tool-urilor - ce e un agent din punct de vedere anatomic, ce ar trebui să poată face, ce refuză ele să-l lase să facă, cum îl leagă de procesele lor existente de review și de livrare. Când apare un tool nou, aplică acel framework. Framework-ul supraviețuiește chiar și atunci când fiecare tool concret e înlocuit.
 
 Echipele care gestionează prost lucrul ăsta au ales un tool, l-au integrat adânc fără să se gândească la portabilitate, și acum reiau întregul ciclu de selecție-și-integrare ori de câte ori se mișcă peisajul. Costul nu e tool-ul cel nou. Costul e munca refăcută, reinstruirea oamenilor, migrările lăsate la jumătate, oboseala instituțională.
 
 Mai rău, oboseala instituțională se acumulează de la un ciclu la altul. O echipă care a trecut prin trei adopții ratate de tool-uri în doi ani dezvoltă un scepticism justificat față de următoarea propunere de adopție. Scepticismul face următoarea adopție mai grea, chiar și atunci când următorul tool e cu adevărat mai bun decât cele dinainte. Refrenul echipei - „am încercat X, n-a mers” - devine șablonul aplicat fiecărui X care urmează. Așa ajung echipe bune să se blocheze.
 
-Ieșirea din capcană e să nu mai optimizezi pentru tool-ul concret și să începi să optimizezi pentru cadru. Cadrul e capacitatea de evaluare a echipei - cât de repede poate echipa să ia un tool nou, să-l evalueze în raport cu constrângerile pe care le cunoaște, să-și dea seama dacă se potrivește și fie să-l adopte curat, fie să-l refuze curat. Echipele cu un cadru bun pot schimba tool-uri pe bandă fără să-și macine propria disciplină. Echipele fără un cadru bun își macină propria practică de fiecare dată când se schimbă tool-ul.
+Ieșirea din capcană e să nu mai optimizezi pentru tool-ul concret și să începi să optimizezi pentru framework. Framework-ul e capacitatea de evaluare a echipei - cât de repede poate echipa să ia un tool nou, să-l evalueze în raport cu constrângerile pe care le cunoaște, să-și dea seama dacă se potrivește și fie să-l adopte curat, fie să-l refuze curat. Echipele cu un framework bun pot schimba tool-uri pe bandă fără să-și macine propria disciplină. Echipele fără un framework bun își macină propria practică de fiecare dată când se schimbă tool-ul.
 
-Manualul ăsta e despre construirea cadrului. Tool-urile concrete pe care le numesc pe parcurs - Claude Code, Codex CLI, opencode, diversele plugin-uri și marketplace-uri - vor fi altele până la data la care ar fi scadentă ediția următoare. Cadrul va fi același.
+Manualul ăsta e despre construirea framework-ului. Tool-urile concrete pe care le numesc pe parcurs - Claude Code, Codex CLI, opencode, diversele plugin-uri și marketplace-uri - vor fi altele până la data la care ar fi scadentă ediția următoare. Framework-ul va fi același.
 
 ---
 
@@ -116,7 +116,7 @@ Majoritatea echipelor care eșuează cu livrarea cu agenți eșuează pentru că
 
 ---
 
-### Cadrul manualului {#the-frame-of-this-book}
+### Framework-ul manualului {#the-frame-of-this-book}
 
 Trei părți. Arhitectura: cum sunt construiți agenții și cum îl evaluezi pe următorul când apare. Metoda: bucla iterativă care transformă „AI care generează cod” în „AI care livrează software”. Realitatea: unde funcționează asta, unde nu, și care sunt kill signals care îți spun în ce situație ești.
 
@@ -1714,7 +1714,7 @@ Unu: demo-urile n-au voie să sară peste rigoare. Dacă îi arăți unui client
 
 Doi: AGENTS.md-ul tău e un instrument de vânzare. Clienții vor vrea să vadă ce a codificat echipa ta. Un AGENTS.md bine întreținut, de o sută de linii, cu un jurnal de greșeli care arată lecții reale, e mai credibil decât un AGENTS.md de o mie de linii care pare scris de un consultant. Arată disciplina, nu volumul.
 
-Trei: framework-ul de kill signals e ceva ce îi înveți pe clienți. Grila valorează pentru client mai mult decât orice recomandare punctuală ai face tu, pentru că lentila asta îi permite clientului să-și evalueze singur codebase-urile, fără să depindă de tine. Când dai cadrul mai departe, întărești relația de încredere. Echipele care țin framework-urile doar pentru ele pierd în fața echipelor care le împărtășesc.
+Trei: framework-ul de kill signals e ceva ce îi înveți pe clienți. Grila valorează pentru client mai mult decât orice recomandare punctuală ai face tu, pentru că lentila asta îi permite clientului să-și evalueze singur codebase-urile, fără să depindă de tine. Când dai framework-ul mai departe, întărești relația de încredere. Echipele care țin framework-urile doar pentru ele pierd în fața echipelor care le împărtășesc.
 
 Pattern-urile de mai sus se aplică oricărei echipe. Se aplică însă cu forță dublă echipelor ai căror clienți stau cu ochii pe ele - companiilor la care calitatea ingineriei e o suprafață vizibilă de produs, nu un centru intern de cost. Maturitatea guvernanței face parte din oferta acelor companii, iar disciplina descrisă în manualul ăsta e ceea ce face maturitatea apărabilă.
 
@@ -1997,13 +1997,13 @@ Arhitectura pe care ai învățat-o în Partea I e invariantă - controlul capab
 
 Metoda pe care ai învățat-o în Partea a II-a e invariantă - controlul workflow-ului. Trecerea de la a genera cod la a formula munca limpede e intuiția fundamentală. Bucla în șase faze e o implementare a disciplinei formulării; vor apărea și alte implementări. Pattern-ul AGENTS.md - cod versionat în repo, care codifică convențiile echipei ca agentul să le citească - va exista sub alte nume în alte tool-uri, dar principiul e permanent: disciplină sub formă de cod, nu de tradiție orală.
 
-Realitatea pe care ai învățat-o în Partea a III-a e invariantă - controlul adopției. Kill signals sunt proprietăți ale codebase-urilor și ale echipelor, nu ale tool-urilor care lucrează pe ele. Semaforul e o regulă de decizie valabilă indiferent ce agent se întâmplă să folosești trimestrul ăsta. Arcul adopției - champion, lead, manager, nouăzeci de zile - e același arc pentru orice tranziție de tooling care atinge serios practica de inginerie. Tooling-ul concret se schimbă; cadrul de change management nu.
+Realitatea pe care ai învățat-o în Partea a III-a e invariantă - controlul adopției. Kill signals sunt proprietăți ale codebase-urilor și ale echipelor, nu ale tool-urilor care lucrează pe ele. Semaforul e o regulă de decizie valabilă indiferent ce agent se întâmplă să folosești trimestrul ăsta. Arcul adopției - champion, lead, manager, nouăzeci de zile - e același arc pentru orice tranziție de tooling care atinge serios practica de inginerie. Tooling-ul concret se schimbă; framework-ul de change management nu.
 
 Trei invariante, trei controale. Cuvântul înainte numea livrarea de software cu agenți o problemă de control, nu de tooling. Zece capitole mai târziu, ăsta e în continuare tot argumentul.
 
 Dacă lași manualul din mână, instalezi agentul momentului și rulezi workflow-ul exact cum l-am descris, vei obține valoare. Instrucțiunile sunt suficient de concrete cât să le urmezi literal.
 
-Dacă lași manualul din mână, îți însușești cadrul arhitectură-metodă-realitate și îl aplici oricăror tool-uri îți ies în cale în următorul deceniu, vei obține mult mai mult. Cadrul e activul. Instrucțiunile concrete sunt doar exemplul lucrat.
+Dacă lași manualul din mână, îți însușești framework-ul arhitectură-metodă-realitate și îl aplici oricăror tool-uri îți ies în cale în următorul deceniu, vei obține mult mai mult. Framework-ul e activul. Instrucțiunile concrete sunt doar exemplul lucrat.
 
 ---
 
@@ -2025,11 +2025,11 @@ Dacă manualul și-a făcut treaba, n-o să ai nevoie de o ediție revizuită pe
 
 ---
 
-Dacă iei o singură practică din manualul ăsta, ia workflow-ul de review de arhitectură și cadrul lui de diagnostic din Capitolul 7. E testul cu cel mai mic cost pentru a afla dacă munca cu agenți va reuși pe codebase-urile tale. Rulează-l o dată și câștigul rămâne al tău.
+Dacă iei o singură practică din manualul ăsta, ia workflow-ul de review de arhitectură și framework-ul lui de diagnostic din Capitolul 7. E testul cu cel mai mic cost pentru a afla dacă munca cu agenți va reuși pe codebase-urile tale. Rulează-l o dată și câștigul rămâne al tău.
 
 Dacă iei un singur framework, ia kill signals și semaforul din Capitolul 8. Ele sunt regula care îți permite să spui da acolo unde agentul ajută și nu acolo unde nu ajută. „Nu”-ul contează la fel de mult ca „da”-ul.
 
-Dacă iei o singură orientare filozofică, ia postura „cadrul supraviețuiește tool-ului”. Tool-urile se vor schimba. Felul în care gândești munca se compune în timp. Investește în modul de a gândi.
+Dacă iei o singură orientare filozofică, ia postura „framework-ul supraviețuiește tool-ului”. Tool-urile se vor schimba. Felul în care gândești munca se compune în timp. Investește în modul de a gândi.
 
 ---
 
@@ -2063,11 +2063,11 @@ București, 2026
 
 Forma unui manual depinde de forma celui care îl scrie, iar tu meriți să știi dacă experiența autorului e genul de experiență care se potrivește cu situația ta.
 
-Am dat prima oară de un calculator în biroul părinților mei, prin 1984, pe la șase ani - o sală de mainframe cu podea înălțată, Space Invaders rulând pe un terminal și o inițiere în BASIC. Primele programe le-am scris în BASIC, în 1989. A urmat Borland Pascal sub DOS, în 1993, cu assembly pe lângă, pentru bucățile la care limbajul nu ajungea, apoi Visual Basic - primul IDE adevărat pe care l-am folosit și primul limbaj în care am vândut software, încă adolescent. Cariera profesională mi-a început în 2000, ca IT Manager într-o companie de producție industrială. În 2001 am trecut la inginerie software propriu-zisă, într-un startup care construia software de multicasting pentru operatori de satelit pe DVB. Când startup-ul și-a pierdut investitorii și a pivotat spre outsourcing, am trecut de la C++ la .NET și mi-am petrecut următoarele două decenii, până în 2023, livrând pentru clienți din industrii diverse pe Visual Studio.NET și pe urmașii lui. În paralel cu munca pe .NET am livrat cod de producție în C, Java, JavaScript, Go și Python, în echipe și pe linii de produs diferite, inclusiv pe ținte embedded - expunerea poliglotă care a făcut, mai târziu, ca paralela despre anatomia agenților din Capitolul 2 să-mi vină natural la scris. Sunt, prin formație și prin înclinație, întâi inginer și abia apoi consultant; consultanța a crescut firesc din faptul că fac inginerie alături de echipe care vor ajutor.
+Am dat prima oară de un calculator în biroul părinților mei, prin 1984, pe la șase ani - o sală de mainframe cu podea înălțată, Space Invaders rulând pe un terminal și o inițiere în BASIC. Primele programe le-am scris în BASIC, în 1989. A urmat Borland Pascal sub DOS, în 1993, cu assembly pe lângă, pentru bucățile la care limbajul nu ajungea, apoi Visual Basic - primul IDE adevărat pe care l-am folosit și primul limbaj în care am vândut software, încă adolescent. Cariera profesională mi-a început în 2000, ca IT Manager într-o companie de producție industrială. În 2001 am trecut la inginerie software propriu-zisă, într-un startup care construia software de multicasting pentru operatori de satelit pe DVB. Când startup-ul și-a pierdut investitorii și a pivotat spre outsourcing, am trecut de la C++ la .NET și mi-am petrecut următoarele două decenii, până în 2023, livrând pentru clienți din industrii diverse pe Visual Studio.NET și pe urmașii lui. În paralel cu munca pe .NET am livrat cod de producție în C, Java, JavaScript, Go și Python, în echipe și pe linii de produs diferite, inclusiv pe target-uri embedded - expunerea poliglotă care a făcut, mai târziu, ca paralela despre anatomia agenților din Capitolul 2 să-mi vină natural la scris. Sunt, prin formație și prin înclinație, întâi inginer și abia apoi consultant; consultanța a crescut firesc din faptul că fac inginerie alături de echipe care vor ajutor.
 
 Interesul pentru machine learning mi-a apărut prin 2013. Primul deep dive serios a venit la finalul lui 2015, când am portat DarkNet și YOLO pe un headset XR; de atunci construiesc aplicații AI profesionist. În 2023 m-am alăturat unei companii care construia primul SoC neuromorfic, lucrând pe zona de nano-ML a domeniului. Pe partea de coding asistat, am folosit fiecare generație: Visual Assist de la Whole Tomato (primul asistent de cod inteligent pe care l-am instalat vreodată), tooling-ul timpuriu de la JetBrains în lumea .NET, primele versiuni de Copilot și LLM-uri pentru cod din ziua în care a apărut ChatGPT. Nu mi-am construit propriul coding agent. I-am folosit însă pe majoritatea celor care există acum și am văzut multe echipe folosindu-i.
 
-Manualul se sprijină pe traiectoria asta. Metodologia pe care o descriu a fost rafinată de-a lungul a două decenii de proiecte de inginerie - și, mai recent, cu echipe care adoptă concret livrarea de software cu agenți. Cadrele pe care le împărtășesc sunt cele care au rezistat în ambele contexte; cele care n-au rezistat au fost scoase la pensie. Nu e primul set de cadre pe care îl scriu despre livrarea cu agenți. E a treia sau a patra iterație. Iterațiile de dinainte au greșit în feluri interesante. Asta e, sper, mai puțin greșită.
+Manualul se sprijină pe traiectoria asta. Metodologia pe care o descriu a fost rafinată de-a lungul a două decenii de proiecte de inginerie - și, mai recent, cu echipe care adoptă concret livrarea de software cu agenți. Framework-urile pe care le împărtășesc sunt cele care au rezistat în ambele contexte; cele care n-au rezistat au fost scoase la pensie. Nu e primul set de framework-uri pe care îl scriu despre livrarea cu agenți. E a treia sau a patra iterație. Iterațiile de dinainte au greșit în feluri interesante. Asta e, sper, mai puțin greșită.
 
 Nu sunt neutru pe subiectul ăsta. Cred că livrarea de software cu agenți e schimbarea cu cele mai mari consecințe din domeniul nostru de la apariția limbajelor de programare de nivel înalt încoace. Mai cred și că felul în care o adoptă acum majoritatea echipelor le face mai mult rău decât bine. Ambele pot fi adevărate în același timp. Rostul manualului e să te ajute să adopți într-un fel care păstrează câștigul fără pagube. Framework-urile sunt mijlocul.
 

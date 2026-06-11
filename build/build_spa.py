@@ -2790,7 +2790,7 @@ RO = Lang(
         ("the-shift-in-context", "Schimbarea, pusă în context"),
         ("where-i-am-coming-from", "De unde vorbesc"),
         ("what-agentic-ai-means-in-this-book", "Ce înseamnă „AI agentic” în acest manual"),
-        ("the-frame-of-this-book", "Cadrul manualului"),
+        ("the-frame-of-this-book", "Framework-ul manualului"),
     ],
     front_matter_items=[
         ("how-to-read-this-book", "Cum se citește manualul"),

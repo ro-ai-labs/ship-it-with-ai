@@ -33,6 +33,12 @@ Dacă o formulare sună bine în engleză dar prost în română, RESCRIE ideea 
 - "Iată chestia:" (here's the thing) → reformulează natural
 - NU traduce idiomuri mot-à-mot. Găsește echivalentul românesc sau reformulează.
 - Atenție la topica românească: nu copia ordinea cuvintelor din engleză.
+- "framework" / "the frame" (conceptul de cadru de evaluare, de referință) → "framework"
+  (NU "cadru" - sună prost; folosește "framework-ul / framework-uri / framework-ului").
+  Excepție: "cadru" în sensul ramei unei diagrame ("încap în cadru") rămâne; "încadrare"
+  e alt cuvânt, se păstrează.
+- "embedded targets" → "target-uri embedded" (NU "ținte embedded" - "ținte" sună prost
+  pentru termenul tehnic; păstrează "target" în engleză, articulat: target-uri).
 
 ## Ce rămâne în ENGLEZĂ (neapărat, ca în vorbirea corporate RO)
 
