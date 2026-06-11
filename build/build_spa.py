@@ -2936,7 +2936,7 @@ def set_language(lang: Lang) -> None:
             r"## Anexa [A-Z] |## Despre autor\b|## Changelog\b)"
         )
         FIGURE_RENDERERS_BY_CAPTION_KEY = [
-            ("Primitivele și harness-ul", diagram_primitives),
+            ("Componentele principale și harness-ul", diagram_primitives),
             ("cinci straturi de guvernanță", diagram_layers),
             ("Bucla în șase faze", diagram_loop),
             ("Kill signals și regula de decizie", diagram_traffic_light),

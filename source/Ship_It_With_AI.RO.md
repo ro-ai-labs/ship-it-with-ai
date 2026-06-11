@@ -23,7 +23,7 @@
 **Prolog** - Nouă secunde
 
 **Partea I - Arhitectura**
-1. Primitivele
+1. Componentele principale
 2. Anatomia invariantă
 3. Guvernanța în straturi
 
@@ -82,7 +82,7 @@ Livrarea de software cu agenți e acum în același tip de punct de inflexiune. 
 
 Peisajul se mișcă repede, dar metodologia rămâne.
 
-În cele optsprezece luni dintre momentul în care mi-am construit primul workflow de programare cu agenți și momentul în care m-am așezat să scriu manualul ăsta, s-au întâmplat patru lucruri care, în orice deceniu anterior, ar fi fost știri de primă pagină în presa tech. Un model a urcat cu 7 puncte procentuale pe un benchmark de coding. Un marketplace oficial de plugin-uri pentru coding agents a devenit un canal real de distribuție. Un mare furnizor de cloud a anunțat end-of-support pentru unul dintre produsele lui de AI pentru developeri. Cel mai mare vendor de AI agentic a formalizat „skills” ca primitiv pe care orice agent îl poate implementa. Patru schimbări. Patru luni. Oricare dintre ele, în 2015, ar fi alimentat un trimestru întreg de conference talks. În 2026, toate la un loc au fost ciclul de știri al unei singure săptămâni.
+În cele optsprezece luni dintre momentul în care mi-am construit primul workflow de programare cu agenți și momentul în care m-am așezat să scriu manualul ăsta, s-au întâmplat patru lucruri care, în orice deceniu anterior, ar fi fost știri de primă pagină în presa tech. Un model a urcat cu 7 puncte procentuale pe un benchmark de coding. Un marketplace oficial de plugin-uri pentru coding agents a devenit un canal real de distribuție. Un mare furnizor de cloud a anunțat end-of-support pentru unul dintre produsele lui de AI pentru developeri. Cel mai mare vendor de AI agentic a formalizat „skills” ca componentă principală pe care orice agent îl poate implementa. Patru schimbări. Patru luni. Oricare dintre ele, în 2015, ar fi alimentat un trimestru întreg de conference talks. În 2026, toate la un loc au fost ciclul de știri al unei singure săptămâni.
 
 Nu există un tool corect pentru totdeauna. Echipele care gestionează bine lucrul ăsta și-au construit un framework de referință pentru evaluarea tool-urilor - ce e un agent din punct de vedere anatomic, ce ar trebui să poată face, ce refuză ele să-l lase să facă, cum îl leagă de procesele lor existente de review și de livrare. Când apare un tool nou, aplică acel framework. Framework-ul supraviețuiește chiar și atunci când fiecare tool concret e înlocuit.
 
@@ -162,7 +162,7 @@ Stilul numerelor: statisticile și procentele sunt scrise cu cifre (19%, 43 de p
 
 Un manual practic care nu-și numește propriile moduri de eșec va pierde în fața experienței cititorului în clipa în care experiența aceea se desparte de manual. Așa că iată locurile în care cred că manualul ăsta poate greși.
 
-Tool-urile se vor schimba. Produsele concrete pe care le-am numit - Claude Code, Codex CLI, Cursor, hookify, Superpowers, Understand Anything, marketplace-ul de plugin-uri al Anthropic - vor arăta altfel peste doi ani. Unele vor fi mai bune. Unele vor fi deprecated. Unele vor fi înlocuite de tool-uri care funcționează altfel decât arhitectura descrisă în Capitolul 1. Dacă primitivele rămân valabile, manualul are dreptate. Primitivele sunt un set deschis - două dintre cele opt și-au câștigat locul abia recent. Dacă un agent viitor apare fără vreun mecanism care să corespundă unuia dintre primitive, înseamnă că am ratat o invariantă pe care o credeam structurală. Dacă apare un primitiv nou, lista crește.
+Tool-urile se vor schimba. Produsele concrete pe care le-am numit - Claude Code, Codex CLI, Cursor, hookify, Superpowers, Understand Anything, marketplace-ul de plugin-uri al Anthropic - vor arăta altfel peste doi ani. Unele vor fi mai bune. Unele vor fi deprecated. Unele vor fi înlocuite de tool-uri care funcționează altfel decât arhitectura descrisă în Capitolul 1. Dacă componentele principale rămân valabile, manualul are dreptate. Componentele principale sunt un set deschis - două dintre cele opt și-au câștigat locul abia recent. Dacă un agent viitor apare fără vreun mecanism care să corespundă unuia dintre componente principale, înseamnă că am ratat o invariantă pe care o credeam structurală. Dacă apare o componentă principală nouă, lista crește.
 
 API-ul de guvernanță se va schimba. Formatele concrete de hook-uri, sintaxa concretă a regulilor de permisiuni, flag-urile concrete de sandbox - astea sunt specifice fiecărui vendor și fiecărei versiuni. Modelul în cinci straturi e ce mă aștept să reziste; detaliile de implementare sunt ce mă aștept să îmbătrânească.
 
@@ -212,7 +212,7 @@ După aceea, agentul și-a recunoscut vina în scris: „I violated every princi
 
 Ăsta e pattern-ul de eșec pe care manualul de față e construit să-l prevină.
 
-Nu pentru că vreo metodologie ar face agenții perfecți. Niciuna nu o face. Ci pentru că prevenirea incidentului nu cerea magie. Cerea controale de engineering obișnuite, aplicate unui tip nou de lucrător: credențiale limitate, tool-uri constrânse, porți de review, telemetrie și o echipă care să știe ce acțiuni nu are voie agentul să facă. Mai multe straturi din practica descrisă în manualul ăsta ar fi putut rupe lanțul. Telemetria ar fi putut scurta reacția. Un sandbox ar fi putut bloca apelul distructiv. Segregarea secretelor ar fi putut împiedica sesiunea să aibă la îndemână credențialul cu pricina. Un hook de securitate ar fi putut forța o aprobare umană înainte ca acțiunea periculoasă să ruleze.
+Nu pentru că vreo metodologie ar face agenții perfecți. Niciuna nu o face. Ci pentru că prevenirea incidentului nu cerea magie. Cerea controale de engineering obișnuite, aplicate unui tip nou de lucrător: credențiale limitate, tool-uri constrânse, gate-uri de review, telemetrie și o echipă care să știe ce acțiuni nu are voie agentul să facă. Mai multe straturi din practica descrisă în manualul ăsta ar fi putut rupe lanțul. Telemetria ar fi putut scurta reacția. Un sandbox ar fi putut bloca apelul distructiv. Segregarea secretelor ar fi putut împiedica sesiunea să aibă la îndemână credențialul cu pricina. Un hook de securitate ar fi putut forța o aprobare umană înainte ca acțiunea periculoasă să ruleze.
 
 Niciunul dintre straturile astea nu e exotic. Sunt aceleași controale pe care un inginer cu experiență le-ar aplica oricărui coleg junior nou care primește drept de push în producție. Limitezi credențialele. Limitezi tool-urile. Faci review la muncă înainte să ajungă live. Înregistrezi ce s-a întâmplat, ca să poți învăța din asta. Agentul e software, dar controalele din jurul agentului sunt practică de engineering care precedă agentul cu decenii. Capitolele care urmează sunt, fiecare, câte o bucată din învelișul ăsta - numită, delimitată și făcută suficient de concretă încât s-o pui în funcțiune săptămâna asta.
 
@@ -229,17 +229,17 @@ Tool-urile se schimbă. Metodologia rămâne. Ăsta e pariul manualului.
 ---
 
 ## Capitolul 1
-## Primitivele
+## Componentele principale
 
-### Ce este un primitiv de coding agent? {#what-is-a-primitive}
+### Ce este o componentă principală a unui coding agent? {#what-is-a-primitive}
 
-Deschide codul sursă sau documentația aproape oricărui coding agent de nivel de producție - Codex CLI scris în Rust, opencode în TypeScript, părțile cu sursă publică din Claude Code, agenții livrați de o jumătate de duzină de vendori mai mici - și vei vedea conturându-se aceeași arhitectură: un set restrâns de primitive împachetate într-un harness. Implementările diferă. Anatomia converge. Uneori alte nume, întotdeauna altă așezare a fișierelor, dar aceleași cărămizi conceptuale. Cele mai multe sunt capabilități locale ale agentului. Una singură - subagenții - e mecanismul de compoziție care face agentul recursiv: poate porni instanțe constrânse ale lui însuși.
+Deschide codul sursă sau documentația aproape oricărui coding agent de nivel de producție - Codex CLI scris în Rust, opencode în TypeScript, părțile cu sursă publică din Claude Code, agenții livrați de o jumătate de duzină de vendori mai mici - și vei vedea conturându-se aceeași arhitectură: un set restrâns de componente principale împachetate într-un harness. Implementările diferă. Anatomia converge. Uneori alte nume, întotdeauna altă așezare a fișierelor, dar aceleași cărămizi conceptuale. Cele mai multe sunt capabilități locale ale agentului. Una singură - subagenții - e mecanismul de compoziție care face agentul recursiv: poate porni instanțe constrânse ale lui însuși.
 
 Context window. Tool-uri. Permisiuni / Sandbox. Skill-uri. Plugin-uri. MCP. Memory. Subagenți.
 
-Subagenții au intrat de curând în vocabularul public - nu pentru că ideea ar fi nouă, ci pentru că au devenit universali la toți agenții majori într-un interval foarte scurt. Claude Code a livrat tool-ul Task, apoi a construit peste el Agent Teams, pentru coordonare la nivel mai înalt. La începutul lui 2026, Codex CLI expunea deja subagenții ca workflow de primă clasă și permitea rularea mai multor subagenți în paralel. Cursor 2.0 a introdus propriul sistem de subagenți. Cline i-a livrat nativ. În circa un an, dispatch-ul unei instanțe-copil constrânse a agentului a trecut de la „workflow avansat” la „un primitiv pe care harness-ul îl expune by default”. Ăsta e testul pe care îl folosesc pentru statutul de primitiv, iar subagenții îl trec.
+Subagenții au intrat de curând în vocabularul public - nu pentru că ideea ar fi nouă, ci pentru că au devenit universali la toți agenții majori într-un interval foarte scurt. Claude Code a livrat tool-ul Task, apoi a construit peste el Agent Teams, pentru coordonare la nivel mai înalt. La începutul lui 2026, Codex CLI expunea deja subagenții ca workflow de primă clasă și permitea rularea mai multor subagenți în paralel. Cursor 2.0 a introdus propriul sistem de subagenți. Cline i-a livrat nativ. În circa un an, dispatch-ul unei instanțe-copil constrânse a agentului a trecut de la „workflow avansat” la „o componentă principală pe care harness-ul îl expune by default”. Ăsta e testul pe care îl folosesc pentru statutul de componentă principală, iar subagenții îl trec.
 
-Asta e anatomia. Orice întrebare interesantă despre un coding agent - ce poate face, ce nu poate face, cum îl controlezi, cu ce îl compari - se reduce la unul sau mai multe dintre aceste primitive. Când apare un agent nou, prima ta întrebare e: cum tratează acesta fiecare primitiv? Când decizi dacă lași un agent să se atingă de un anumit codebase, a doua întrebare e: care primitiv e punctul de control relevant pentru riscul respectiv? Când cumperi tooling, a treia întrebare e: ce primitiv îmbunătățește tooling-ul ăsta și cu ce cost?
+Asta e anatomia. Orice întrebare interesantă despre un coding agent - ce poate face, ce nu poate face, cum îl controlezi, cu ce îl compari - se reduce la unul sau mai multe dintre aceste componente principale. Când apare un agent nou, prima ta întrebare e: cum tratează acesta fiecare componentă principală? Când decizi dacă lași un agent să se atingă de un anumit codebase, a doua întrebare e: care componentă principală e punctul de control relevant pentru riscul respectiv? Când cumperi tooling, a treia întrebare e: ce componentă principală îmbunătățește tooling-ul ăsta și cu ce cost?
 
 ```
                           THE HARNESS
@@ -264,7 +264,7 @@ Asta e anatomia. Orice întrebare interesantă despre un coding agent - ce poate
         ale agentului însuși
 ```
 
-*Figura: Primitivele și harness-ul care le rulează. Permisiuni / Sandbox ocupă poziția 3 ca primitiv ale cărui două jumătăți - stratul de decizie de la nivelul agentului și enforcement-ul la nivel de OS - converg ca prezență, dar diverg ca postură de la un vendor la altul. Memory e celălalt primitiv a cărui a doua jumătate e încă în plină convergență. Subagenții stau sub linie pentru că sunt primitivul recursiv: fiecare subagent e, la rândul lui, o instanță a celorlalte.*
+*Figura: Componentele principale și harness-ul care le rulează. Permisiuni / Sandbox ocupă poziția 3 ca componentă principală ale cărei două jumătăți - stratul de decizie de la nivelul agentului și enforcement-ul la nivel de OS - converg ca prezență, dar diverg ca postură de la un vendor la altul. Memory e cealaltă componentă principală a cărei a doua jumătate e încă în plină convergență. Subagenții stau sub linie pentru că sunt componenta principală recursivă: fiecare subagent e, la rândul lui, o instanță a celorlalte.*
 
 ---
 
@@ -292,23 +292,23 @@ Tot la nivelul tool call-urilor trăiește și guvernanța. O să dedicăm un ca
 
 ### Permisiuni / Sandbox {#permissions-sandbox}
 
-**Permisiuni / Sandbox** e primitivul care i-a lipsit lui PocketOS. Are două jumătăți, iar ele nu sunt același control scris în două feluri - sunt două controale diferite, pe care agenții convergenți le livrează împreună pentru că fiecare prinde ce scapă celălalt.
+**Permisiuni / Sandbox** e componenta principală care i-a lipsit lui PocketOS. Are două jumătăți, iar ele nu sunt același control scris în două feluri - sunt două controale diferite, pe care agenții convergenți le livrează împreună pentru că fiecare prinde ce scapă celălalt.
 
 **Stratul de decizie de la nivelul agentului** e cel pe care agentul însuși îl consultă înaintea fiecărui tool call. Reguli Allow / Ask / Deny, plus clasificatorul mai nou de auto-mode, care rezolvă în tăcere deciziile de rutină și le scoate la suprafață pe celelalte, pentru operator. Toți coding agents majori îl livrează: Claude Code, Codex CLI, opencode, Cursor, Gemini CLI. Sintaxa regulilor diferă de la vendor la vendor; rolul arhitectural, nu. E stratul spre care întind mâna întâi cele mai multe echipe. E și stratul pe care prompt injection-ul îl poate învinge, pentru că prompt injection-ul funcționează manipulând raționamentul agentului, iar tocmai raționamentul agentului e cel care consultă regulile.
 
 **Enforcement-ul la nivel de OS** rulează dedesubt. Kernelul însuși refuză syscall-urile pe care agentul nu era autorizat să le facă: Seatbelt pe macOS, bubblewrap cu Landlock și seccomp pe Linux, token-uri restricționate sau izolare pe bază de WSL2 pe Windows. Agentul nu poate „raționa” pe lângă stratul ăsta, pentru că kernelul nu ascultă raționamentul agentului - ascultă apeluri de sistem. Ori syscall-ul e permis, ori nu e.
 
-Convergența pe jumătatea asta e reală, dar inegală. Codex CLI impune sandbox la nivel de OS by default pe Linux și macOS. Cursor a adăugat controale de sandbox cu suport în kernel în linia 2.x. Gemini CLI livrează profile de sandbox per platformă. Claude Code e opt-in - sandbox-ul există, dar majoritatea instalărilor îl sar. opencode e excepția parțială: livrează doar jumătatea de decizie și lasă izolarea la nivel de OS în seama Docker-ului sau microVM-ului pe care îl configurează operatorul în jurul lui. Convergența e pe *prezența ambelor jumătăți ca pachet configurabil*, nu pe *postură* - exact asimetria pe care o are și primitivul Memory pe a doua lui jumătate. Asta e citirea onestă.
+Convergența pe jumătatea asta e reală, dar inegală. Codex CLI impune sandbox la nivel de OS by default pe Linux și macOS. Cursor a adăugat controale de sandbox cu suport în kernel în linia 2.x. Gemini CLI livrează profile de sandbox per platformă. Claude Code e opt-in - sandbox-ul există, dar majoritatea instalărilor îl sar. opencode e excepția parțială: livrează doar jumătatea de decizie și lasă izolarea la nivel de OS în seama Docker-ului sau microVM-ului pe care îl configurează operatorul în jurul lui. Convergența e pe *prezența ambelor jumătăți ca pachet configurabil*, nu pe *postură* - exact asimetria pe care o are și componenta principală Memory pe a doua lui jumătate. Asta e citirea onestă.
 
-Spus direct: stratul de la nivelul agentului poate fi ocolit prin prompt injection. Stratul de la nivelul OS-ului, nu. Cele două se livrează împreună pentru că niciunul nu e suficient singur. Perechea convergentă e primitivul.
+Spus direct: stratul de la nivelul agentului poate fi ocolit prin prompt injection. Stratul de la nivelul OS-ului, nu. Cele două se livrează împreună pentru că niciunul nu e suficient singur. Perechea convergentă e componenta principală.
 
-Capitolul 3 parcurge suprafețele de configurare ale acestui primitiv - cum își expune fiecare agent major regulile de allow/ask/deny, unde se activează sau se dezactivează sandbox-ul de OS și cum se mapează cele cinci straturi de guvernanță din acel capitol pe cele două jumătăți ale primitivului.
+Capitolul 3 parcurge suprafețele de configurare ale acestei componente principale - cum își expune fiecare agent major regulile de allow/ask/deny, unde se activează sau se dezactivează sandbox-ul de OS și cum se mapează cele cinci straturi de guvernanță din acel capitol pe cele două jumătăți ale componentei principale.
 
 ---
 
 **Skill-urile** sunt instrucțiuni împachetate, pe care agentul le încarcă atunci când devin relevante. Felul în care preferă echipa să scrie un serviciu de Spring Boot. Convențiile pentru testarea componentelor React. Pattern-ul pentru adăugarea unei coloane noi într-un tabel multi-tenant. Fiecare dintre ele e o bucată de markdown - de obicei între câteva sute și câteva mii de cuvinte - pe care agentul o citește exact în momentul în care are nevoie de expertiza respectivă.
 
-Implementarea skill-urilor diferă de la un agent la altul în numele fișierelor și în semantica de încărcare, dar primitivul de dedesubt e acum comun tuturor agenților majori. Primitivul always-loaded a ajuns la convergență pe două nume de fișier: [AGENTS.md](https://agents.md/), neutru față de vendor, suportat de Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider și de restul ecosistemului; și CLAUDE.md, pe care Claude Code îl citește nativ. Cele două sunt interoperabile - Claude Code poate importa AGENTS.md în CLAUDE.md, astfel încât conținutul echipei stă într-un singur loc, indiferent de vendor. Ambele se încarcă la începutul sesiunii, ambele joacă același rol. A ajuns la convergență și primitivul on-demand: fișiere markdown individuale, activate la detecție, ținute în afara contextului până când un task se potrivește cu trigger-ul skill-ului (Claude Code le numește Skills; Codex CLI livrează fișiere SKILL.md cu frontmatter YAML și progressive disclosure). Skill-ul de code review pentru Spring Boot se încarcă atunci când faci review pe cod Spring; nu poluează contextul când agentul ia un task de migrare de schemă. Pattern-ul always-loaded (AGENTS.md, CLAUDE.md) e mai vechi. Pattern-ul dispatch-on-detection (Skills în Claude Code, Skills în Codex) e mai nou și scalează mai bine pe măsură ce crește catalogul de skill-uri al echipei.
+Implementarea skill-urilor diferă de la un agent la altul în numele fișierelor și în semantica de încărcare, dar componenta principală de dedesubt e acum comună tuturor agenților majori. Componenta principală always-loaded a ajuns la convergență pe două nume de fișier: [AGENTS.md](https://agents.md/), neutru față de vendor, suportat de Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider și de restul ecosistemului; și CLAUDE.md, pe care Claude Code îl citește nativ. Cele două sunt interoperabile - Claude Code poate importa AGENTS.md în CLAUDE.md, astfel încât conținutul echipei stă într-un singur loc, indiferent de vendor. Ambele se încarcă la începutul sesiunii, ambele joacă același rol. A ajuns la convergență și componenta principală on-demand: fișiere markdown individuale, activate la detecție, ținute în afara contextului până când un task se potrivește cu trigger-ul skill-ului (Claude Code le numește Skills; Codex CLI livrează fișiere SKILL.md cu frontmatter YAML și progressive disclosure). Skill-ul de code review pentru Spring Boot se încarcă atunci când faci review pe cod Spring; nu poluează contextul când agentul ia un task de migrare de schemă. Pattern-ul always-loaded (AGENTS.md, CLAUDE.md) e mai vechi. Pattern-ul dispatch-on-detection (Skills în Claude Code, Skills în Codex) e mai nou și scalează mai bine pe măsură ce crește catalogul de skill-uri al echipei.
 
 Ambele pattern-uri funcționează. Cel cu dispatch la detecție e mai eficient la scară - poți avea cincizeci de skill-uri pentru cincizeci de tipuri de muncă fără să umpli fereastra de context, în fiecare moment, cu patruzeci și nouă irelevante. Pattern-ul always-loaded e mai simplu și mai predictibil. Alege în funcție de tipurile de task-uri pe care le rulează echipa ta și de problemele de context plin de care te lovești.
 
@@ -348,15 +348,15 @@ Asta contează pentru achizițiile enterprise. O integrare MCP e portabilă. Inv
 
 ### Memory {#memory}
 
-Memory e primitivul devenit universal cel mai recent. Acum optsprezece luni era implicit: agentul încărca un prompt, lucra ceva, iar sesiunea următoare pornea de la zero. Astăzi Memory are două jumătăți - una complet convergentă la toți agenții majori, una în care Claude Code deschide drumul, cu ceilalți pe traseu.
+Memory e componenta principală devenită universală cel mai recent. Acum optsprezece luni era implicit: agentul încărca un prompt, lucra ceva, iar sesiunea următoare pornea de la zero. Astăzi Memory are două jumătăți - una complet convergentă la toți agenții majori, una în care Claude Code deschide drumul, cu ceilalți pe traseu.
 
 **Memoria definită manual** e stratul pe care îl scrie echipa. Convergența e reală: Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider și restul ecosistemului citesc toți AGENTS.md din rădăcina repository-ului la începutul sesiunii. Claude Code citește CLAUDE.md, care poate importa AGENTS.md pentru a împărți același conținut cu ceilalți agenți. Fișierul e versionat în source control, trecut prin review în pull request-uri, deținut de echipă. Acolo trăiesc pattern-urile interzise, intrările din jurnalul de greșeli, comenzile de build și glosarele de domeniu. Capitolul 6 detaliază ce intră în fișierul ăsta și de ce contează.
 
 **Sistemul de auto-memory** e ceea ce scrie agentul pentru sine. Claude Code e primul venit; ceilalți agenți converg spre mecanisme similare, dar nu livraseră echivalente la data publicării. Are două suprafețe vizibile: Auto Memory e stratul în care Claude salvează pattern-uri învățate de la o sesiune la alta - comenzi de build pe care le-a dedus, concluzii de debugging pe care le-a confirmat, preferințe de stil de cod pe care le-a inferat - fără ca utilizatorul să le fi scris explicit. Auto Dream e stratul de consolidare în fundal pe care Anthropic l-a dezvăluit la Code with Claude SF pe 2026-05-06: un proces programat care trece în revistă sesiunile recente și memoria stocată, identifică greșelile recurente și workflow-urile convergente și scrie note consolidate înapoi în memoria pe termen lung. Agentul devine mai bun pe codebase-ul tău între rulări.
 
-O precizare despre ce *nu* e memorie în taxonomia asta: memoria de sesiune (istoricul conversației plus rezultatele tool-urilor din interiorul unei singure sesiuni) e doar context window-ul. E memorie în sensul de zi cu zi, dar nu un primitiv separat - e primitivul numit primul.
+O precizare despre ce *nu* e memorie în taxonomia asta: memoria de sesiune (istoricul conversației plus rezultatele tool-urilor din interiorul unei singure sesiuni) e doar context window-ul. E memorie în sensul de zi cu zi, dar nu o componentă principală separată - e componenta principală numită prima.
 
-Memoria definită manual trece testul convergenței încă de azi. Sistemul de auto-memory e pe traseu - Claude Code e primul; ceilalți urmează. Manualul le tratează ca pe un singur primitiv pentru că rolul structural e identic, cu mențiunea că a doua jumătate e un semnal de pionierat, nu încă o convergență.
+Memoria definită manual trece testul convergenței încă de azi. Sistemul de auto-memory e pe traseu - Claude Code e primul; ceilalți urmează. Manualul le tratează ca pe o singură componentă principală pentru că rolul structural e identic, cu mențiunea că a doua jumătate e un semnal de pionierat, nu încă o convergență.
 
 ---
 
@@ -364,45 +364,45 @@ Memoria definită manual trece testul convergenței încă de azi. Sistemul de a
 
 Agentul-orchestrator pornește un subagent, îi dă un task delimitat, cu un prompt cu scop restrâns, și îl lasă să ruleze în propriul context izolat, cu propriul acces limitat la tool-uri. Subagentul face treaba. Subagentul întoarce un rezultat. Orchestratorul colectează.
 
-Ce îi face pe subagenți distincți structural față de celelalte primitive e că sunt recursivi. Un subagent e o altă instanță a primitivelor - are propriul context window, propriile tool-uri, propriile reguli de permisiuni și propriul sandbox, propriile skill-uri, plugin-uri, MCP și Memory - limitată la un task mai mic și izolată de contextul orchestratorului. Orchestratorul nu vede ce a văzut subagentul. Vede doar ce întoarce subagentul. Subagentul nu poluează contextul orchestratorului cu muncă intermediară. Orchestratorul nu poluează contextul subagentului cu istoric care nu-l privește.
+Ce îi face pe subagenți distincți structural față de celelalte componente principale e că sunt recursivi. Un subagent e o altă instanță a componentelor principale - are propriul context window, propriile tool-uri, propriile reguli de permisiuni și propriul sandbox, propriile skill-uri, plugin-uri, MCP și Memory - limitată la un task mai mic și izolată de contextul orchestratorului. Orchestratorul nu vede ce a văzut subagentul. Vede doar ce întoarce subagentul. Subagentul nu poluează contextul orchestratorului cu muncă intermediară. Orchestratorul nu poluează contextul subagentului cu istoric care nu-l privește.
 
-Convergența în interval scurt cu care s-a deschis capitolul - toți agenții majori livrând subagenți în circa un an - nu e un accident. Subagenții rezolvă două probleme pe care nu le rezolvă niciun alt primitiv: muncă în paralel delimitată de independență, nu de coordonare, și izolare a contextului delimitată de scopul task-ului, nu de istoricul sesiunii.
+Convergența în interval scurt cu care s-a deschis capitolul - toți agenții majori livrând subagenți în circa un an - nu e un accident. Subagenții rezolvă două probleme pe care nu le rezolvă niciun alt componentă principală: muncă în paralel delimitată de independență, nu de coordonare, și izolare a contextului delimitată de scopul task-ului, nu de istoricul sesiunii.
 
 Utilizările principale în munca serioasă: execuția în paralel a unui plan cu mai multe task-uri (faza de Execute a buclei din Capitolul 5), review structurat (trimiți un subagent să verifice conformitatea cu specificația, altul să verifice calitatea codului) și analiză de arhitectură la scară (câte un subagent per fișier sau per modul, care întoarce rezumate structurate pe care orchestratorul le asamblează - workflow-ul din Capitolul 7).
 
 Costul principal: tokenii. Fiecare subagent își rulează propriul model și propriile tool-uri, așa că un dispatch de opt subagenți consumă cam de opt ori tokenii unei rulări cu un singur agent. Folosește-i acolo unde contează paralelismul sau izolarea. Nu-i folosi by default pentru muncă pe care un singur agent ar putea s-o facă liniar.
 
-La mijlocul lui 2026, compoziția asta începe să fie oferită direct de tool-uri, ca funcționalitate. /workflows din Claude Code pune agentul să scrie un script scurt care trimite subagenți în mod determinist - fazele rulează în ordine, munca se ramifică în paralel sau curge printr-un pipeline, fiecare predare întoarce o structură validată după o schemă, nu text liber, iar un pas de verificare poate pune un gate pe rezultat înainte să-l întoarcă. Un singur workflow se poate ramifica în sute de copii, ține munca lor intermediară în variabile de script, nu în context window-ul orchestratorului, se poate relua și are buget limitat. Nu e un primitiv nou. E o comoditate la nivel de harness peste primitivul subagent pe care îl ai deja: determinismul - fluxul de control scris în cod, predări validate prin schemă - e singura diferență reală față de dispatch-ul condus de model pe care ți-l dă deja un plugin ca Superpowers, unde orchestratorul decide în timpul rulării câți copii pornește și le citește înapoi proza. Apelează la varianta scriptată când fan-out-ul e mare, repetabil sau merită verificat mecanic; apelează la dispatch-ul condus de model când nu știi forma muncii până nu intri în ea cu agentul. Ce se compune e același lucru în ambele cazuri.
+La mijlocul lui 2026, compoziția asta începe să fie oferită direct de tool-uri, ca funcționalitate. /workflows din Claude Code pune agentul să scrie un script scurt care trimite subagenți în mod determinist - fazele rulează în ordine, munca se ramifică în paralel sau curge printr-un pipeline, fiecare predare întoarce o structură validată după o schemă, nu text liber, iar un pas de verificare poate pune un gate pe rezultat înainte să-l întoarcă. Un singur workflow se poate ramifica în sute de copii, ține munca lor intermediară în variabile de script, nu în context window-ul orchestratorului, se poate relua și are buget limitat. Nu e o componentă principală nouă. E o comoditate la nivel de harness peste componenta principală subagent pe care îl ai deja: determinismul - fluxul de control scris în cod, predări validate prin schemă - e singura diferență reală față de dispatch-ul condus de model pe care ți-l dă deja un plugin ca Superpowers, unde orchestratorul decide în timpul rulării câți copii pornește și le citește înapoi proza. Apelează la varianta scriptată când fan-out-ul e mare, repetabil sau merită verificat mecanic; apelează la dispatch-ul condus de model când nu știi forma muncii până nu intri în ea cu agentul. Ce se compune e același lucru în ambele cazuri.
 
-Revenim la subagenți în Capitolul 5 (Execute) și în Capitolul 7 (review de arhitectură la scară). Ideea din capitolul ăsta e că ei nu sunt o tehnică așezată peste arhitectură. Sunt primitivul de compoziție al arhitecturii.
+Revenim la subagenți în Capitolul 5 (Execute) și în Capitolul 7 (review de arhitectură la scară). Ideea din capitolul ăsta e că ei nu sunt o tehnică așezată peste arhitectură. Sunt componenta principală de compoziție al arhitecturii.
 
 ---
 
 Mai e o piesă care le organizează pe toate. Vendorii îi spun harness. Harness-ul e runtime-ul din jurul modelului - partea care transformă modelul brut în ceva util pentru scris cod.
 
-Când îi ceri unui agent să facă o treabă, harness-ul e codul care îți ia cererea, o formatează pentru model, gestionează context window-ul, trimite spre execuție tool call-urile pe care vrea să le facă modelul, capturează rezultatele, i le dă înapoi modelului, decide când a terminat modelul și îți întoarce rezultatul final. Toate primitivele trăiesc în interiorul harness-ului. Harness-ul e arhitectura; primitivele sunt componentele.
+Când îi ceri unui agent să facă o treabă, harness-ul e codul care îți ia cererea, o formatează pentru model, gestionează context window-ul, trimite spre execuție tool call-urile pe care vrea să le facă modelul, capturează rezultatele, i le dă înapoi modelului, decide când a terminat modelul și îți întoarce rezultatul final. Toate componentele principale trăiesc în interiorul harness-ului. Harness-ul e arhitectura; componentele principale sunt componentele.
 
 De ce contează distincția asta: când compari agenți, tentația e să compari modele. „E Claude Code mai bun decât Codex sau Cursor pentru workflow-ul pe care îl rulează echipa mea?” - asta e întrebarea corectă. „Care model are scorul de benchmark mai mare trimestrul ăsta?” - asta e cea greșită. Modelul determină plafonul. Harness-ul determină dacă îl atingi. Compară harness-uri, nu modele.
 
-Spus simplu: harness-ul e tot ce îmbracă bucla agentului. Bucla agentului în sine e banală. Are cam forma unui handler de request HTTP dintr-un framework web - primește promptul, rulează modelul, execută tool-urile, întoarce răspunsul, repetă. Middleware-ul din jurul buclei e locul unde stă munca adevărată. Middleware-ul *este* harness-ul, *este* primitivele, *este* ceea ce cumperi de fapt când adopți un agent.
+Spus simplu: harness-ul e tot ce îmbracă bucla agentului. Bucla agentului în sine e banală. Are cam forma unui handler de request HTTP dintr-un framework web - primește promptul, rulează modelul, execută tool-urile, întoarce răspunsul, repetă. Middleware-ul din jurul buclei e locul unde stă munca adevărată. Middleware-ul *este* harness-ul, *este* componentele principale, *este* ceea ce cumperi de fapt când adopți un agent.
 
 ---
 
-O notă despre vocabular. Primitivele numite aici sunt ceea ce folosește agentul ca să știe, să acționeze, să fie ținut în frâu, să se extindă, să se integreze, să-și amintească și să delege. Testul pentru statutul de primitiv e convergența: un mecanism e primitiv atunci când fiecare coding agent major îl livrează ca pachet distinct și configurabil, chiar dacă implementările diferă substanțial. Permisiuni / Sandbox trece testul pe jumătatea stratului de decizie la toți agenții majori; jumătatea de enforcement la nivel de OS e convergentă ca prezență, dar divergentă ca postură, cu posturile vendorilor catalogate în secțiunea de mai sus. Primitivul Memory are aceeași formă pe a doua lui jumătate. Telemetria nu a trecut încă linia convergenței și rămâne un strat de control în jurul primitivelor. Când va converge următorul mecanism - candidatul de urmărit e event-push-ul de observabilitate - lista va crește din nou. Capitolul ăsta e primul catalog de convergență; Capitolul 3 e al doilea.
+O notă despre vocabular. Componentele principale numite aici sunt ceea ce folosește agentul ca să știe, să acționeze, să fie ținut în frâu, să se extindă, să se integreze, să-și amintească și să delege. Testul pentru statutul de componentă principală e convergența: un mecanism e componentă principală atunci când fiecare coding agent major îl livrează ca pachet distinct și configurabil, chiar dacă implementările diferă substanțial. Permisiuni / Sandbox trece testul pe jumătatea stratului de decizie la toți agenții majori; jumătatea de enforcement la nivel de OS e convergentă ca prezență, dar divergentă ca postură, cu posturile vendorilor catalogate în secțiunea de mai sus. Componenta principală Memory are aceeași formă pe a doua lui jumătate. Telemetria nu a trecut încă linia convergenței și rămâne un strat de control în jurul componentelor principale. Când va converge următorul mecanism - candidatul de urmărit e event-push-ul de observabilitate - lista va crește din nou. Capitolul ăsta e primul catalog de convergență; Capitolul 3 e al doilea.
 
 ---
 
-Context window. Tool-uri. Permisiuni / Sandbox. Skill-uri. Plugin-uri. MCP. Memory. Subagenți. Plus harness-ul, ca runtime care le organizează. Asta e lista de azi. Setul e deschis; așteaptă-te să crească. Următorul primitiv va intra în listă exact cum a intrat Memory: când apare convergența, nu înainte.
+Context window. Tool-uri. Permisiuni / Sandbox. Skill-uri. Plugin-uri. MCP. Memory. Subagenți. Plus harness-ul, ca runtime care le organizează. Asta e lista de azi. Setul e deschis; așteaptă-te să crească. Următoarea componentă principală va intra în listă exact cum a intrat Memory: când apare convergența, nu înainte.
 
 Când apare următorul coding agent în marketplace, trimestrul viitor, grila de evaluare e deja aici. Cât de mare e context window-ul și cum îl gestionează agentul sub presiune? Ce tool-uri sunt disponibile și cum sunt constrânse? Ce model de permisiuni livrează - reguli allow/ask/deny, clasificator auto-mode - și ce sandbox de OS are by default? Cum sunt implementate skill-urile - always-loaded sau activate la detecție? Există un marketplace de plugin-uri și crește? Vorbește MCP, și cât de bună e integrarea MCP? Citește un fișier de memorie partajat de echipă la începutul sesiunii? Menține vreo memorie învățată, scrisă de agent, de la o sesiune la alta? Cum expune subagenții - și e dispatch-ul în paralel o operație de primă clasă sau o idee adăugată ulterior?
 
-Nouă întrebări azi, pe opt primitive - Memory primește două; mâine vor fi mai multe. Îți spun aproape tot ce ai nevoie ca să compari agentul nou cu cel pe care îl folosești acum.
+Nouă întrebări azi, pe opt componente principale - Memory primește două; mâine vor fi mai multe. Îți spun aproape tot ce ai nevoie ca să compari agentul nou cu cel pe care îl folosești acum.
 
 Capitolul următor: ce se întâmplă când îndrepți un agent spre sursa altuia. Anatomia pe care tocmai am descris-o devine foarte reală, foarte repede.
 
 ---
 
-**Artefact: fișa de evaluare a agenților.** Câte o coloană per primitiv; notează implementarea fiecărui agent nou cu basic / intermediate / advanced. Folosește-o ca grilă pentru orice agent nou pe care îl evaluează echipa ta.
+**Artefact: fișa de evaluare a agenților.** Câte o coloană per componentă principală; notează implementarea fiecărui agent nou cu basic / intermediate / advanced. Folosește-o ca grilă pentru orice agent nou pe care îl evaluează echipa ta.
 
 ---
 
@@ -419,9 +419,9 @@ Deschide orice coding agent la care ai acces. Întreabă-l: cât de mare e conte
 
 Cei doi agenți inspectați au fost Codex CLI și opencode. Amândoi sunt complet open source. Codex CLI e scris în cea mai mare parte în Rust, licențiat Apache 2.0 și întreținut de OpenAI. opencode e scris în cea mai mare parte în TypeScript, licențiat MIT și întreținut de o echipă independentă. Servesc cam același scop. Au fost construiți independent. Nu au nicio linie de cod în comun.
 
-Am deschis două panouri de terminal. În panoul din stânga, Claude Code în repository-ul Codex. În cel din dreapta, Claude Code în repository-ul opencode. Același prompt tastat în ambele: "Explain the architecture of this codebase. Map the agent loop, the tool system, the permission gates, the sandbox primitive, and the plugin model. Cite specific files and line numbers."
+Am deschis două panouri de terminal. În panoul din stânga, Claude Code în repository-ul Codex. În cel din dreapta, Claude Code în repository-ul opencode. Același prompt tastat în ambele: "Explain the architecture of this codebase. Map the agent loop, the tool system, the permission gates, the sandbox componente principale, and the plugin model. Cite specific files and line numbers."
 
-Ambele panouri au lucrat în paralel, independent, fiecare cu propriul context window, fiecare pe propriul repository. Cam patru minute pe ceas - am refăcut benchmark-ul în mai 2026 și a ieșit patru minute și treisprezece secunde, din care vreo șapte au fost `git clone`-ul shallow. Restul a fost agentul umblând prin arborii de directoare, numind primitivele și citând fișiere. Cifra depinde de faptul că ambele repository-uri își publică arhitectura în numele crate-urilor și ale directoarelor: Codex are `core-skills`, `core-plugins`, `mcp-server`, `tools`, `agent`; opencode are `skill/`, `plugin/`, `mcp/`, `tool/`, `agent/`. Pentru un codebase mai puțin auto-documentat, socotește mai degrabă zece-cincisprezece minute per repo. Demo-ul e rapid pentru că, la nivel de nume de fișier, convergența se vede cu ochiul liber - ceea ce e, în sine, lecția de fond.
+Ambele panouri au lucrat în paralel, independent, fiecare cu propriul context window, fiecare pe propriul repository. Cam patru minute pe ceas - am refăcut benchmark-ul în mai 2026 și a ieșit patru minute și treisprezece secunde, din care vreo șapte au fost `git clone`-ul shallow. Restul a fost agentul umblând prin arborii de directoare, numind componentele principale și citând fișiere. Cifra depinde de faptul că ambele repository-uri își publică arhitectura în numele crate-urilor și ale directoarelor: Codex are `core-skills`, `core-plugins`, `mcp-server`, `tools`, `agent`; opencode are `skill/`, `plugin/`, `mcp/`, `tool/`, `agent/`. Pentru un codebase mai puțin auto-documentat, socotește mai degrabă zece-cincisprezece minute per repo. Demo-ul e rapid pentru că, la nivel de nume de fișier, convergența se vede cu ochiul liber - ceea ce e, în sine, lecția de fond.
 
 Panourile au întors două rezumate de arhitectură, unul pentru Codex în Rust, unul pentru opencode în TypeScript. Rezumatele nu arătau identic - alte nume de fișiere, alte structuri de foldere, alte idiomuri. Dar aveau aceeași formă.
 
@@ -429,33 +429,33 @@ Panourile au întors două rezumate de arhitectură, unul pentru Codex în Rust,
 
 În ambele repository-uri, Claude Code a găsit un registru de tool-uri. Codex folosea un trait de Rust - fiecare tool implementează trait-ul, registrul enumeră implementatorii. La opencode, același rol îl joacă o interfață TypeScript - fiecare tool implementează interfața, registrul enumeră implementările. Constructe de limbaj diferite, același pattern.
 
-În ambele repository-uri, Claude Code a găsit o poartă de permisiuni. Codex trecea fiecare tool call printr-o verificare de permisiuni înainte de execuție. Același pattern se regăsea în opencode. Căi de cod diferite, același rol arhitectural.
+În ambele repository-uri, Claude Code a găsit un gate de permisiuni. Codex trecea fiecare tool call printr-o verificare de permisiuni înainte de execuție. Același pattern se regăsea în opencode. Căi de cod diferite, același rol arhitectural.
 
-În ambele repository-uri, Claude Code a găsit un primitiv de sandbox. Și aici, pentru prima dată în comparație, implementările au divergat substanțial. Codex implementa izolare reală la nivel de OS pe trei platforme - Seatbelt pe macOS, bubblewrap cu Landlock și seccomp pe Linux, token-uri restricționate cu job objects pe Windows. Kernelul însuși refuza syscall-urile pe care agentul nu era autorizat să le facă. Prin contrast, opencode implementa o îngrădire soft - validare de căi și prompt-uri de permisiune, dar fără o graniță impusă de kernel.
+În ambele repository-uri, Claude Code a găsit o componentă principală de sandbox. Și aici, pentru prima dată în comparație, implementările au divergat substanțial. Codex implementa izolare reală la nivel de OS pe trei platforme - Seatbelt pe macOS, bubblewrap cu Landlock și seccomp pe Linux, token-uri restricționate cu job objects pe Windows. Kernelul însuși refuza syscall-urile pe care agentul nu era autorizat să le facă. Prin contrast, opencode implementa o îngrădire soft - validare de căi și prompt-uri de permisiune, dar fără o graniță impusă de kernel.
 
-Același primitiv. Același rol arhitectural. Implementare substanțial diferită. Implicații de guvernanță substanțial diferite.
+Aceeași componentă principală. Același rol arhitectural. Implementare substanțial diferită. Implicații de guvernanță substanțial diferite.
 
-În ambele repository-uri, Claude Code a găsit un model de plugin-uri. Codex încărca plugin-urile dintr-un director configurat. Modelul de plugin-uri din opencode folosea un pattern similar, de tip „pui fișierul în director”. Același primitiv conceptual: extinzi capabilitățile agentului la runtime, fără să-l reconstruiești.
+În ambele repository-uri, Claude Code a găsit un model de plugin-uri. Codex încărca plugin-urile dintr-un director configurat. Modelul de plugin-uri din opencode folosea un pattern similar, de tip „pui fișierul în director”. Aceeași componentă principală conceptuală: extinzi capabilitățile agentului la runtime, fără să-l reconstruiești.
 
 Și în ambele repository-uri, Claude Code a găsit suport pentru MCP. Același server de Jira, același server de GitHub, același server de Postgres funcționau cu amândoi agenții. Specificația de integrare e portabilă.
 
-Și tot în ambele repository-uri, Claude Code a găsit o cale de dispatch pentru subagenți. În codebase-ul Codex, primitivul de subagenți e cel mai vizibil dintre toate - acolo a fost feature-ul de afiș, iar codul de dispatch e ușor de găsit după nume. În opencode, calea echivalentă poartă un nume mai puțin proeminent, dar există, iar Claude Code a identificat-o după comportament: o funcție care pornește o instanță proaspătă de agent pe un prompt delimitat și un context izolat, întoarce un singur rezultat structurat și nu lasă niciodată contextul copilului să se scurgă înapoi în părinte. Suprafață diferită, același primitiv.
+Și tot în ambele repository-uri, Claude Code a găsit o cale de dispatch pentru subagenți. În codebase-ul Codex, componenta principală de subagenți e cel mai vizibil dintre toate - acolo a fost feature-ul de afiș, iar codul de dispatch e ușor de găsit după nume. În opencode, calea echivalentă poartă un nume mai puțin proeminent, dar există, iar Claude Code a identificat-o după comportament: o funcție care pornește o instanță proaspătă de agent pe un prompt delimitat și un context izolat, întoarce un singur rezultat structurat și nu lasă niciodată contextul copilului să se scurgă înapoi în părinte. Suprafață diferită, aceeași componentă principală.
 
-Primitivele. Două implementări. Aceeași anatomie. Alegeri diferite despre cum materializezi anatomia.
+Componentele principale. Două implementări. Aceeași anatomie. Alegeri diferite despre cum materializezi anatomia.
 
 ---
 
-**Fișă de caz: demo-ul cu doi agenți, primitivele observabile în amândoi.**
+**Fișă de caz: demo-ul cu doi agenți, componentele principale observabile în amândoi.**
 
 | | |
 |---|---|
 | **Context** | Experiment în oglindă construit în timpul pregătirii manualului - Claude Code îndreptat simultan spre codul sursă al Codex (Rust) și al opencode (TypeScript) |
-| **Problema** | Cititorii trebuiau să vadă că primitivele nu sunt marketing specific Claude Code, ci invarianți structurali verificabili în sursă |
-| **Intervenția** | Același prompt, două repository-uri; agentul identifică primitivele din fiecare codebase folosind grep + tool-uri de citit fișiere |
+| **Problema** | Cititorii trebuiau să vadă că componentele principale nu sunt marketing specific Claude Code, ci invarianți structurali verificabili în sursă |
+| **Intervenția** | Același prompt, două repository-uri; agentul identifică componentele principale din fiecare codebase folosind grep + tool-uri de citit fișiere |
 | **Timp de agent** | ~4 min pe ceas (două panouri în paralel) |
 | **Timp de corecție umană** | Zero - odată pornit, experimentul rulează cap-coadă fără intervenție |
-| **Rezultat** | Aceleași primitive prezente în ambele codebase-uri, în fișiere diferite, sub nume diferite, cu implementări substanțial diferite; anatomia e invariantă; implementarea, nu |
-| **Limitări** | Experimentul verifică faptul că primitivele există; nu dovedește că sunt la fel de bine implementate (și nu sunt) |
+| **Rezultat** | Aceleași componente principale prezente în ambele codebase-uri, în fișiere diferite, sub nume diferite, cu implementări substanțial diferite; anatomia e invariantă; implementarea, nu |
+| **Limitări** | Experimentul verifică faptul că componentele principale există; nu dovedește că sunt la fel de bine implementate (și nu sunt) |
 
 ---
 
@@ -467,7 +467,7 @@ Odată ce ai văzut anatomia într-un agent, începi s-o vezi în fiecare agent.
 
 Care sunt constrângerile tale? Afinitatea de limbaj - se potrivește runtime-ul agentului cu stack-ul echipei? Licența - Apache, MIT, comercială; poți citi sursa dacă ai nevoie? Potrivirea cu ecosistemul - conține marketplace-ul de plugin-uri integrările de care ai nevoie? Enforcement-ul de sandbox - ai nevoie de izolare la nivel de kernel sau e suficientă o îngrădire soft? Postura de audit - trebuie să demonstrezi conformitate în fața unui reglementator, și produce agentul artefactele cu care s-o demonstrezi? Sunt întrebări concrete, comparabile, decidabile. Nu sunt „care e mai bun”. Sunt „care se potrivește constrângerilor tale”.
 
-Echipele care greșesc aici se fixează pe model. Dezbat Claude Code versus Codex versus Cursor, sau dezbat modelele de dedesubt ca și cum calitatea modelului ar determina singură calitatea livrării. Sunt întrebări diferite. În livrarea de software cu agenți, harness-ul, modelul de guvernanță și integrarea în workflow contează la fel de mult ca plafonul modelului. Harness-ul înseamnă primitivele plus felul în care sunt organizate, iar diferențele dintre harness-uri sunt locul unde se joacă miza reală.
+Echipele care greșesc aici se fixează pe model. Dezbat Claude Code versus Codex versus Cursor, sau dezbat modelele de dedesubt ca și cum calitatea modelului ar determina singură calitatea livrării. Sunt întrebări diferite. În livrarea de software cu agenți, harness-ul, modelul de guvernanță și integrarea în workflow contează la fel de mult ca plafonul modelului. Harness-ul înseamnă componentele principale plus felul în care sunt organizate, iar diferențele dintre harness-uri sunt locul unde se joacă miza reală.
 
 ---
 
@@ -475,7 +475,7 @@ Un compromis de guvernanță concret înainte să mergem mai departe, pentru că
 
 Constatarea despre sandbox din demo e reală și are consecințe. Codex impune izolare la nivel de OS. Sandbox-ul opencode, nu. Dacă evaluezi ce agent pui în fața unui developer care îl va rula pe cod de client, diferența de sandbox contează. Nu e o afirmație de marketing. E verificabilă în sursă. Poți citi apelurile de kernel. Poți vedea dacă sandbox-ul e real sau e teatru.
 
-Dar ideea de profunzime nu e „Codex are un sandbox mai bun”. Ideea de profunzime e că jumătatea de la nivel de OS a primitivului Permisiuni / Sandbox numit în Capitolul 1 e locul unde vendorii diverg cel mai tare, iar alegerile pe care le face un vendor în privința primitivelor sunt alegeri de guvernanță. Când compari agenți, nu compari doar capabilități. Compari filozofii de guvernanță.
+Dar ideea de profunzime nu e „Codex are un sandbox mai bun”. Ideea de profunzime e că jumătatea de la nivel de OS a componentei principale Permisiuni / Sandbox numit în Capitolul 1 e locul unde vendorii diverg cel mai tare, iar alegerile pe care le face un vendor în privința componentelor principale sunt alegeri de guvernanță. Când compari agenți, nu compari doar capabilități. Compari filozofii de guvernanță.
 
 Un vendor care livrează un sandbox real îți spune că se așteaptă ca agentul lui să fie folosit în medii în care pot ajunge instrucțiuni ostile - prin dependențe, prin fișiere compromise, prin prompt injection chiar în codebase. Construiește apărare în adâncime (defense in depth). Un vendor care livrează o îngrădire soft îți spune că se așteaptă ca agentul lui să fie folosit în medii de încredere, în care utilizatorul e la comandă, iar prompt injection-ul e o grijă teoretică. Ambele posturi pot fi apărate. Sunt posturi diferite.
 
@@ -487,7 +487,7 @@ Acum ai mutarea.
 
 Când apare următorul coding agent în marketplace-ul tău - și va apărea unul în trimestrul următor, pentru că ciclul se măsoară acum în luni - nu trebuie să citești postarea de lansare de pe blog. Nu trebuie să aștepți articolul comparativ. Nu trebuie să-l instalezi și să-l rulezi o săptămână ca să-ți formezi o părere.
 
-Îi deschizi repository-ul. Localizezi asamblarea contextului. Localizezi registrul de tool-uri. Localizezi primitivul Permisiuni / Sandbox (stratul de decizie + sandbox-ul de OS, cele două jumătăți numite în Capitolul 1). Localizezi încărcarea skill-urilor. Localizezi extinderea prin plugin-uri. Verifici suportul de MCP. Localizezi stratul de memorie (AGENTS.md sau echivalentul lui; orice suprafață de auto-memory expune vendorul). Localizezi dispatch-ul de subagenți - toate înfășurate în bucla de agent a harness-ului.
+Îi deschizi repository-ul. Localizezi asamblarea contextului. Localizezi registrul de tool-uri. Localizezi componenta principală Permisiuni / Sandbox (stratul de decizie + sandbox-ul de OS, cele două jumătăți numite în Capitolul 1). Localizezi încărcarea skill-urilor. Localizezi extinderea prin plugin-uri. Verifici suportul de MCP. Localizezi stratul de memorie (AGENTS.md sau echivalentul lui; orice suprafață de auto-memory expune vendorul). Localizezi dispatch-ul de subagenți - toate înfășurate în bucla de agent a harness-ului.
 
 Opt puncte de inspecție. Douăzeci de minute de inspecție. Vei ști mai multe despre oportunitatea adoptării acestui agent decât îți va spune orice articol de review, pentru că vei ști dacă alegerile lui concrete de implementare se potrivesc constrângerilor concrete ale echipei tale. Afinitate de limbaj. Compatibilitate de licență. Enforcement de sandbox. Postură de audit. Întrebările sunt stabile.
 
@@ -501,7 +501,7 @@ Capitolul următor e dedicat guvernanței - care sunt straturile, ce face fiecar
 
 ---
 
-**Artefact: checklist-ul de inspecție a sursei.** Cele opt puncte de inspecție din capitolul ăsta. Folosește checklist-ul pe următorul agent care intră în coada de evaluare a echipei tale.
+**Artefact: checklist-ul de inspecție a sursei.** Cele opt puncte de inspecție din capitolul ăsta. Folosește checklist-ul pe următorul agent care intră în queue-ul de evaluare a echipei tale.
 
 ---
 
@@ -515,15 +515,15 @@ Deschide repository-ul sursă al oricărui coding agent open source. Găsește f
 
 Agenții de mai jos vor fi înlocuiți. Tehnica de mai jos, nu.
 
-Alege doi coding agents open source al căror cod sursă e publicat. În mai 2026, Codex CLI și opencode sunt perechea cea mai la îndemână pentru început: ambele repository-uri sunt publice, ambele își numesc primitivele în structura de directoare și fac alegeri de guvernanță substanțial diferite, pe care le poți vedea în sursă.
+Alege doi coding agents open source al căror cod sursă e publicat. În mai 2026, Codex CLI și opencode sunt perechea cea mai la îndemână pentru început: ambele repository-uri sunt publice, ambele își numesc componentele principale în structura de directoare și fac alegeri de guvernanță substanțial diferite, pe care le poți vedea în sursă.
 
 1. Clonează ambele repository-uri.
 2. Deschide coding agent-ul tău principal (cel pe care îl folosești zi de zi) într-un repo. Deschide o a doua instanță în celălalt.
 3. Pune-i fiecărei instanțe aceeași întrebare: "Walk this codebase and name the primitives - context window, tools, permissions / sandbox, skills, plugins, MCP, memory, subagents. For each, tell me which file or module implements it, and rate the implementation basic, intermediate, or advanced."
 4. Salvează cele două răspunsuri într-un tabel markdown pe două coloane.
-5. Citește tabelul. Primitivele sunt aceleași în ambele. Alegerile de implementare sunt diferite. Acele alegeri sunt alegeri de guvernanță, și ele sunt felul în care deosebești doi agenți la nivel de cod sursă.
+5. Citește tabelul. Componentele principale sunt aceleași în ambele. Alegerile de implementare sunt diferite. Acele alegeri sunt alegeri de guvernanță, și ele sunt felul în care deosebești doi agenți la nivel de cod sursă.
 
-Pe generația de agenți din mai 2026, parcurgerea durează între patru și zece minute per repo. Pentru un codebase mai puțin auto-documentat, socotește mai degrabă cincisprezece. Cei doi agenți pe care îi vei compara peste un an nu vor mai fi aceștia doi. Primitivele, diagnosticul și ce îți spune diagnosticul despre guvernanță - da.
+Pe generația de agenți din mai 2026, parcurgerea durează între patru și zece minute per repo. Pentru un codebase mai puțin auto-documentat, socotește mai degrabă cincisprezece. Cei doi agenți pe care îi vei compara peste un an nu vor mai fi aceștia doi. Componentele principale, diagnosticul și ce îți spune diagnosticul despre guvernanță - da.
 
 ---
 
@@ -566,7 +566,7 @@ Până la finalul capitolului vei ști ce face fiecare strat, ce nu poate face f
 
 ---
 
-Principiul care guvernează toate cele cinci straturi este principiul privilegiului minim: la fiecare nivel - agentul, procesul sub care rulează agentul, credențialele pe care le deține agentul, rețeaua la care ajunge agentul - acorzi minimul care permite muncii să se întâmple, și nimic în plus. Fiecare strat de mai jos e privilegiul minim aplicat pe altă dimensiune: ce poate face agentul, unde poate face, ce poate citi, ce categorii de acțiuni declanșează o poartă umană, ce se înregistrează pentru audit. Privilegiul minim e coloana vertebrală. Straturile sunt implementarea.
+Principiul care guvernează toate cele cinci straturi este principiul privilegiului minim: la fiecare nivel - agentul, procesul sub care rulează agentul, credențialele pe care le deține agentul, rețeaua la care ajunge agentul - acorzi minimul care permite muncii să se întâmple, și nimic în plus. Fiecare strat de mai jos e privilegiul minim aplicat pe altă dimensiune: ce poate face agentul, unde poate face, ce poate citi, ce categorii de acțiuni declanșează un gate uman, ce se înregistrează pentru audit. Privilegiul minim e coloana vertebrală. Straturile sunt implementarea.
 
 ```
 +----------------------------------------------------+
@@ -589,7 +589,7 @@ Principiul care guvernează toate cele cinci straturi este principiul privilegiu
 
 ---
 
-Trei dintre aceste cinci straturi - permisiunile, hook-urile de securitate, sandbox-ul - sunt suprafețele de configurare ale primitivului Permisiuni / Sandbox numit în Capitolul 1. Primitivul e ceea ce livrează orice coding agent major; suprafețele sunt felul în care echipa ta îl configurează pentru codebase-ul tău, pentru modelul tău de amenințări, pentru postura ta de conformitate. Aceeași formă ca la Memory în Capitolul 1: un primitiv, mai multe suprafețe de configurare. Memory are una (AGENTS.md / CLAUDE.md); Permisiuni / Sandbox are mai multe. Gestionarea secretelor și telemetria sunt controale de guvernanță adiacente - își au locul în acest capitol pentru că prind ce le scapă suprafețelor primitivului, dar nu sunt ele însele suprafețe de configurare ale primitivului. Tratarea în cinci straturi care urmează nu depinde de cum citești primitivul - un pachet unitar sau cinci controale separate; ambele perspective duc la aceeași muncă de configurare.
+Trei dintre aceste cinci straturi - permisiunile, hook-urile de securitate, sandbox-ul - sunt suprafețele de configurare ale componentei principale Permisiuni / Sandbox numit în Capitolul 1. Componenta principală e ceea ce livrează orice coding agent major; suprafețele sunt felul în care echipa ta îl configurează pentru codebase-ul tău, pentru modelul tău de amenințări, pentru postura ta de conformitate. Aceeași formă ca la Memory în Capitolul 1: o componentă principală, mai multe suprafețe de configurare. Memory are una (AGENTS.md / CLAUDE.md); Permisiuni / Sandbox are mai multe. Gestionarea secretelor și telemetria sunt controale de guvernanță adiacente - își au locul în acest capitol pentru că prind ce le scapă suprafețelor componentei principale, dar nu sunt ele însele suprafețe de configurare ale componentei principale. Tratarea în cinci straturi care urmează nu depinde de cum citești componenta principală - un pachet unitar sau cinci controale separate; ambele perspective duc la aceeași muncă de configurare.
 
 ---
 
@@ -605,7 +605,7 @@ Auto mode e mai permisiv în cazurile ușoare (zero fricțiune pe acțiunile de 
 
 Setul mic trebuie să rămână mic. Reperul meu: zece-cincisprezece override-uri per repository. Dacă lista ta de override-uri crește peste atât, [AGENTS.md](https://agents.md/)-ul tău (ajungem și la AGENTS.md) e prea subțire, nu lista de reguli prea scurtă. Lista de override-uri se reduce scriind un ghidaj mai bun la nivel de echipă, pe care clasificatorul din auto mode să-l poată folosi, nu scriind tot mai multe reguli fragile care încearcă să anticipeze fiecare situație.
 
-Stratul unu e ce va configura orice echipă prima dată. Stratul unu e și ce cedează când reușește un prompt injection. Un atacator iscusit, care poate injecta conținut în contextul agentului, poate uneori convinge agentul să ocolească poarta de permisiuni - nu spărgând poarta, ci păcălind agentul să ceară acțiuni pe care poarta nu le-ar vedea în mod normal. Permisiunile sunt necesare. Permisiunile nu sunt suficiente.
+Stratul unu e ce va configura orice echipă prima dată. Stratul unu e și ce cedează când reușește un prompt injection. Un atacator iscusit, care poate injecta conținut în contextul agentului, poate uneori convinge agentul să ocolească gate-ul de permisiuni - nu spărgând gate-ul, ci păcălind agentul să ceară acțiuni pe care gate-ul nu le-ar vedea în mod normal. Permisiunile sunt necesare. Permisiunile nu sunt suficiente.
 
 ---
 
@@ -668,7 +668,7 @@ Pattern-ul cel mai des întâlnit e folosirea unui plugin (în ecosistemul Claud
 
 Rostul hook-urilor e că sunt programabile. Cele opt sau zece categorii livrate de un plugin de-a gata sunt o bază bună. Echipa ta va avea propriile categorii pe deasupra - poate o regulă conform căreia orice schimbare în logica de conversie valutară cere aprobare explicită, sau una conform căreia orice commit care atinge tabela de clienți cere un reviewer de securitate, sau una conform căreia orice modificare a unui anumit modul relevant pentru conformitate e blocată complet în afara orelor de program. Adaugi regulile astea în hook, agentul le moștenește, fiecare sesiune le impune.
 
-Hook-urile sunt instrumentul la care apelezi când stratul unu (permisiunile) e prea grosier, când stratul doi (sandbox-ul) e prea brutal, când stratul trei (secretele) e în regulă structural, dar tot vrei o poartă per acțiune pe anumite operațiuni periculoase. Hook-urile sunt instrumentul de precizie.
+Hook-urile sunt instrumentul la care apelezi când stratul unu (permisiunile) e prea grosier, când stratul doi (sandbox-ul) e prea brutal, când stratul trei (secretele) e în regulă structural, dar tot vrei un gate per acțiune pe anumite operațiuni periculoase. Hook-urile sunt instrumentul de precizie.
 
 ---
 
@@ -700,7 +700,7 @@ Configurează cele cinci straturi o singură dată. Întreține-le ca pe orice a
 
 Cele cinci straturi de mai sus sunt controalele orientate către agent. Două practici adiacente țin de aceeași postură de guvernanță, pentru că prind ce nu prind straturile.
 
-Separarea mediilor. Agentul nu deține credențiale de producție by default. Credențialele de staging și de development sunt limitate la ce e accesibil din acele medii. Acțiunile de producție trec printr-o poartă de workflow separată - o aprobare umană, un pipeline de CI, un script de deploy - pe care agentul o declanșează, dar nu o execută cap-coadă. Incidentul PocketOS e, în parte, o poveste despre o sesiune de agent care deținea credențiale ce ar fi trebuit segregate.
+Separarea mediilor. Agentul nu deține credențiale de producție by default. Credențialele de staging și de development sunt limitate la ce e accesibil din acele medii. Acțiunile de producție trec printr-un gate de workflow separat - o aprobare umană, un pipeline de CI, un script de deploy - pe care agentul o declanșează, dar nu o execută cap-coadă. Incidentul PocketOS e, în parte, o poveste despre o sesiune de agent care deținea credențiale ce ar fi trebuit segregate.
 
 Branch-uri protejate, CODEOWNERS, politică de CI. Agentul face commit și deschide pull request-uri, ca orice alt contributor. Regulile de protected branch, review-urile CODEOWNERS și politica de CI se aplică PR-urilor agentului exact cum se aplică PR-urilor unui om. Majoritatea echipelor le au deja. Asigură-te că PR-urile agentului trec prin ele, nu pe lângă ele.
 
@@ -722,10 +722,10 @@ E o disciplină pe care o poți rula la orice cadență: lunar, după fiecare in
 
 Alege un repository deținut de echipa ta. Ideal, unul în care lași deja un agent să facă commit-uri. Auditează-l față de cele cinci straturi de guvernanță din acest capitol:
 
-1. Permisiuni. Ce poate rula agentul fără un prompt de confirmare? Sunt operațiunile distructive (rm, terraform destroy, drop table, force push pe main) păzite de o poartă? Punctează stratul cu DEFAULT, CONFIGURED, ENFORCED sau MONITORED.
+1. Permisiuni. Ce poate rula agentul fără un prompt de confirmare? Sunt operațiunile distructive (rm, terraform destroy, drop table, force push pe main) păzite de un gate? Punctează stratul cu DEFAULT, CONFIGURED, ENFORCED sau MONITORED.
 2. Sandbox. Rulează agentul într-un sandbox impus de kernel, sau „izolarea” lui e o validare de căi în codul agentului însuși? Aceeași scară în patru trepte.
 3. Secrete. Unde trăiesc credențialele? Au ajuns fișiere .env în repo? Poate agentul ajunge la token-uri de producție din mediul lui de lucru curent? Punctează.
-4. Hook-uri. Există hook-uri pre-tool-call care auditează, loghează sau pun o poartă pe operațiunile periculoase? Punctează.
+4. Hook-uri. Există hook-uri pre-tool-call care auditează, loghează sau pun un gate pe operațiunile periculoase? Punctează.
 5. Telemetrie. Când agentul rulează o comandă distructivă, apare asta într-un dashboard pe care echipa îl va vedea în câteva minute? Punctează.
 
 Scrie cele cinci scoruri pe o foaie de o pagină. Pentru fiecare strat aflat sub ENFORCED, numește un fix concret și un responsabil. Foaia e planul tău de remediere pentru trimestrul următor.
@@ -905,7 +905,7 @@ Review-ul de plan ia câteva minute. Te scutește de o după-amiază pierdută �
 
 **Faza a treia: Execute.**
 
-Aici își câștigă pâinea primitivul recursiv din Capitolul 1 - subagenții. Execute e faza în care orchestratorul trimite în lucru mai mulți agenți-copil constrânși, fiecare lucrând la un task delimitat, în propriul context izolat.
+Aici își câștigă pâinea componenta principală recursivă din Capitolul 1 - subagenții. Execute e faza în care orchestratorul trimite în lucru mai mulți agenți-copil constrânși, fiecare lucrând la un task delimitat, în propriul context izolat.
 
 Agentul trimite câte un subagent per task. Fiecare subagent lucrează în propriul context izolat - o trăsătură arhitecturală cheie, pentru că contaminarea contextului e cel mai mare motiv pentru care sesiunile lungi de agent o iau razna. Raționamentul confuz din task-ul unu nu poluează foaia curată a task-ului patru. Fiecare subagent citește doar ce are nevoie, face modificarea care i-a fost atribuită, rulează pasul de verificare din plan și raportează înapoi. Agentul-orchestrator asamblează rezultatele.
 
@@ -993,9 +993,9 @@ Pattern-ul nu era un bug. Era diferența previzibilă dintre o rulare cu cache c
 
 **Un exemplu lucrat.**
 
-Ca să facem bucla concretă, iată un feature care curge prin toate cele șase faze. Feature-ul e mic: adaugă un câmp `priority` pe recordul `Wire`, într-un serviciu bancar reglementat. Priority e una dintre valorile low / normal / high / urgent, are default normal, iar flag-ul urgent declanșează o coadă separată de compliance review.
+Ca să facem bucla concretă, iată un feature care curge prin toate cele șase faze. Feature-ul e mic: adaugă un câmp `priority` pe recordul `Wire`, într-un serviciu bancar reglementat. Priority e una dintre valorile low / normal / high / urgent, are default normal, iar flag-ul urgent declanșează un queue separat de compliance review.
 
-**Research.** I-am cerut agentului să citească codebase-ul și să producă o notă de research. Nota a numit patru fișiere pe care nu le-aș fi găsit nici într-o oră de grep: recordul `Wire` în sine, directorul de migrații, serviciul cozii de compliance review și emitter-ul de audit log. A ridicat și o întrebare deschisă: priority să fie enum sau text liber, dat fiind că spec-ul reglementatorului folosește text liber în unele documente și enum în altele. Am ales enum.
+**Research.** I-am cerut agentului să citească codebase-ul și să producă o notă de research. Nota a numit patru fișiere pe care nu le-aș fi găsit nici într-o oră de grep: recordul `Wire` în sine, directorul de migrații, serviciul queue-ului de compliance review și emitter-ul de audit log. A ridicat și o întrebare deschisă: priority să fie enum sau text liber, dat fiind că spec-ul reglementatorului folosește text liber în unele documente și enum în altele. Am ales enum.
 
 **Plan.** Agentul a produs un plan de șase task-uri, în ordine: adaugă coloana în baza de date, cu default; actualizează clasa recordului `Wire`; actualizează serviciul wire-builder; actualizează contractul de API; actualizează logica de rutare pe compliance ca să citească noul câmp; actualizează emitter-ul de audit log. Fiecare task era constrâns la un fișier sau la o pereche de fișiere. La review am prins o singură chestiune: task-ul cinci depindea de schimbarea de contract de API din task-ul patru, dar ordinea era corectă și agentul marcase dependența în descrierea task-ului. Aprobat.
 
@@ -1036,7 +1036,7 @@ Testul e contabilitate, nu optimism. Pentru fiecare fază peste care vrei să sa
 
 ---
 
-O precizare de vocabular înainte să mergem mai departe, pentru că termenul „buclă” începe să fie suprasolicitat în domeniu. Cele șase faze de aici sunt bucla interioară (inner loop): o unitate de muncă, șase funcții, cu gate-uri ținute de tine. Mai există și o buclă exterioară (outer loop), tot mai răspândită - reinvocarea agentului la interval sau pe o coadă, fără nimeni între iterații, până când o condiție e îndeplinită. Acela e un instrument diferit, cu precondiții diferite, și e pattern-ul final din Capitolul 9. Dependența curge într-un singur sens: o buclă exterioară e exact atât de sigură cât e mecanizarea funcțiilor pe care le rerulează, pentru că ea compune orice disciplină - sau orice absență - pe care o împachetează.
+O precizare de vocabular înainte să mergem mai departe, pentru că termenul „buclă” începe să fie suprasolicitat în domeniu. Cele șase faze de aici sunt bucla interioară (inner loop): o unitate de muncă, șase funcții, cu gate-uri ținute de tine. Mai există și o buclă exterioară (outer loop), tot mai răspândită - reinvocarea agentului la interval sau pe un queue, fără nimeni între iterații, până când o condiție e îndeplinită. Acela e un instrument diferit, cu precondiții diferite, și e pattern-ul final din Capitolul 9. Dependența curge într-un singur sens: o buclă exterioară e exact atât de sigură cât e mecanizarea funcțiilor pe care le rerulează, pentru că ea compune orice disciplină - sau orice absență - pe care o împachetează.
 
 ---
 
@@ -1067,7 +1067,7 @@ Treci un feature prin bucla completă în șase faze. Cronometrează fiecare faz
 
 ---
 
-AGENTS.md este stratul definit manual al primitivului Memory, numit în Capitolul 1. E suprafața care se partajează în echipă - stratul pe care echipa îl scrie, îl dă la review și îl deține în source control. Sistemul de memorie automată (Auto Memory, Auto Dream) e per developer și în mare parte automat; capitolul ăsta se concentrează pe stratul deținut manual, pentru că acolo trăiește disciplina la nivel de echipă. Urmează cele șase lucruri care intră în AGENTS.md, regula bugetului de 200 de linii și modurile de eșec pe care le vezi în practică.
+AGENTS.md este stratul definit manual al componentei principale Memory, numit în Capitolul 1. E suprafața care se partajează în echipă - stratul pe care echipa îl scrie, îl dă la review și îl deține în source control. Sistemul de memorie automată (Auto Memory, Auto Dream) e per developer și în mare parte automat; capitolul ăsta se concentrează pe stratul deținut manual, pentru că acolo trăiește disciplina la nivel de echipă. Urmează cele șase lucruri care intră în AGENTS.md, regula bugetului de 200 de linii și modurile de eșec pe care le vezi în practică.
 
 ---
 
@@ -1411,7 +1411,7 @@ Semnalele, pe scurt:
 | 2. Fără documentație | Agentul inventează contextul lipsă; produce cod plauzibil, dar greșit | Workflow-ul de review de arhitectură (Capitolul 7) |
 | 3. Cuplare strânsă | Blast radius (raza de impact) imprevizibil; o schimbare declanșează o cascadă | Sparge mai întâi cea mai gravă graniță de cuplare |
 | 4. Reguli împrăștiate | Agentul actualizează o copie a logicii de business și le ratează pe celelalte | O singură sursă de adevăr pentru regulă |
-| 5. Constrângeri de reglementare | Agentul nu poate satisface singur auditul; e nevoie de o poartă umană | Workflow cu pași de aprobare umană |
+| 5. Constrângeri de reglementare | Agentul nu poate satisface singur auditul; e nevoie de un gate uman | Workflow cu pași de aprobare umană |
 | 6. Echipa nu poate evalua output-ul | Review-ul uman nu poate prinde eșecul de domeniu | Restrânge scope-ul sau adaugă un reviewer expert (cântărește greu) |
 | 7. Potrivirea model-context | Agentului îi lipsește familiaritatea cu corpusul; performanța scade | Adaugă documentație/skill-uri sau alege un model cu potrivire mai bună |
 | 8. Viteza schimbării | Framework-ul sau versiunea se mișcă sub agent | Reguli specifice versiunii în [AGENTS.md](https://agents.md/) |
@@ -1756,21 +1756,21 @@ Watchlist-ul e pentru operațiuni ceea ce e jurnalul de greșeli pentru developm
 
 **Pattern-ul opt: bucla exterioară (outer loop).**
 
-Cele șapte pattern-uri de mai sus presupun un om în cameră. Al optulea e cel la care echipele ajung după câteva luni, când cineva pune întrebarea evidentă: dacă agentul poate rula o buclă disciplinată cât timp mă uit eu la el, de ce mă mai uit? Răspunsul industriei e bucla exterioară - reinvocarea automată a agentului, iterație după iterație, până când o condiție e îndeplinită. Bucla în șase faze din Capitolul 5 e bucla interioară (inner loop): o unitate de lucru, șase funcții, cu tine pe post de poartă. Bucla exterioară o învelește. Când o iterație se termină, începe următoarea, și nimeni nu mai stă între ele.
+Cele șapte pattern-uri de mai sus presupun un om în cameră. Al optulea e cel la care echipele ajung după câteva luni, când cineva pune întrebarea evidentă: dacă agentul poate rula o buclă disciplinată cât timp mă uit eu la el, de ce mă mai uit? Răspunsul industriei e bucla exterioară - reinvocarea automată a agentului, iterație după iterație, până când o condiție e îndeplinită. Bucla în șase faze din Capitolul 5 e bucla interioară (inner loop): o unitate de lucru, șase funcții, cu tine pe post de gate. Bucla exterioară o învelește. Când o iterație se termină, începe următoarea, și nimeni nu mai stă între ele.
 
 Ideea are o preistorie, iar diferența dintre cele două epoci e toată lecția. În 2023, AutoGPT și BabyAGI învârteau un model în buclă pe baza propriei lui păreri despre progres. Nimic din exterior nu nota o iterație - modelul își corecta singur tema -, așa că fiecare tură amplifica deriva, iar abordarea s-a prăbușit în câteva luni ca mod de a livra software. Renașterea e structural diferită. La mijlocul lui 2025, Geoff Huntley a legat un coding agent într-un while-loop de bash - îi dai un singur fișier de prompt, îl lași să ruleze, repeți la nesfârșit - iar tehnica s-a răspândit sub numele Ralph Wiggum. Fiecare iterație pornește cu un context window proaspăt, face o unitate de lucru și se termină în fața unor evaluatori pe care modelul nu-i controlează: compilatorul, suita de teste, diff-ul. Starea trăiește în repository, nu în conversație. Tot ce face bucla să conveargă stă în afara modelului.
 
-Între sfârșitul lui 2025 și primăvara lui 2026, pattern-ul a încetat să mai fie un truc de bash și a devenit o suprafață de produs. Copilot coding agent de la GitHub a devenit general disponibil în septembrie 2025: deleghi un task, un agent lucrează într-un mediu izolat, iar rezultatul se întoarce ca draft de pull request. Cursor a lansat Cloud Agents în octombrie 2025 - mulți agenți rulând detașat, cu laptopul tău închis. Jules de la Google a adăugat Scheduled Tasks în decembrie, pentru lucrările de mentenanță recurente. În aceeași lună, un plugin ralph-wiggum a apărut în repository-ul oficial Claude Code, iar până în primăvara lui 2026 bucla ajunsese acolo funcționalitate de prim rang: /loop re-rulează un prompt la un interval dat sau își alege singur ritmul când nu specifici unul, Routines pornesc agenți cloud după un program sau după un eveniment GitHub, /goal ține agentul la lucru până când o condiție de finalizare e îndeplinită, /autofix-pr urmărește CI-ul și împinge fix-uri până când pull request-ul trece pe verde. O singură formă, multe grafii. După testul convergenței din Capitolul 1, capabilitatea a ajuns peste tot - deși ceea ce a ajuns la convergență e un workflow înfășurat în jurul primitivelor, nu un primitiv nou.
+Între sfârșitul lui 2025 și primăvara lui 2026, pattern-ul a încetat să mai fie un truc de bash și a devenit o suprafață de produs. Copilot coding agent de la GitHub a devenit general disponibil în septembrie 2025: deleghi un task, un agent lucrează într-un mediu izolat, iar rezultatul se întoarce ca draft de pull request. Cursor a lansat Cloud Agents în octombrie 2025 - mulți agenți rulând detașat, cu laptopul tău închis. Jules de la Google a adăugat Scheduled Tasks în decembrie, pentru lucrările de mentenanță recurente. În aceeași lună, un plugin ralph-wiggum a apărut în repository-ul oficial Claude Code, iar până în primăvara lui 2026 bucla ajunsese acolo funcționalitate de prim rang: /loop re-rulează un prompt la un interval dat sau își alege singur ritmul când nu specifici unul, Routines pornesc agenți cloud după un program sau după un eveniment GitHub, /goal ține agentul la lucru până când o condiție de finalizare e îndeplinită, /autofix-pr urmărește CI-ul și împinge fix-uri până când pull request-ul trece pe verde. O singură formă, multe grafii. După testul convergenței din Capitolul 1, capabilitatea a ajuns peste tot - deși ceea ce a ajuns la convergență e un workflow înfășurat în jurul componentelor principale, nu o componentă principală nouă.
 
-Trendul e real, și tot aici disciplina e testată cel mai dur, pentru că bucla exterioară adaugă încercări, nu judecată. Multiplică orice îi permite bucla ta interioară. Dacă fiecare iterație se termină într-o poartă strictă, bucla acumulează progres: o coadă de unități mici și verificate se scurtează peste noapte. Dacă poarta e slabă, aceeași răbdare acumulează rebut. Numele dat de Huntley acestui mod de eșec e overbaking - ai lăsat-o prea mult „în cuptor”: lași bucla să ruleze după ce și-a terminat treaba și continuă să inventeze muncă pe care n-a cerut-o nimeni. Agentul nu obosește. Ăsta e avantajul - și, nesupravegheat, tot ăsta e pericolul.
+Trendul e real, și tot aici disciplina e testată cel mai dur, pentru că bucla exterioară adaugă încercări, nu judecată. Multiplică orice îi permite bucla ta interioară. Dacă fiecare iterație se termină într-un gate strict, bucla acumulează progres: un queue de unități mici și verificate se scurtează peste noapte. Dacă gate-ul e slab, aceeași răbdare acumulează rebut. Numele dat de Huntley acestui mod de eșec e overbaking - ai lăsat-o prea mult „în cuptor”: lași bucla să ruleze după ce și-a terminat treaba și continuă să inventeze muncă pe care n-a cerut-o nimeni. Agentul nu obosește. Ăsta e avantajul - și, nesupravegheat, tot ăsta e pericolul.
 
-Așa că pattern-ul nu e bucla; pattern-ul e contractul sub care o rulezi. Cinci linii, scrise înainte de prima iterație nesupravegheată. **O condiție de oprire pe care o poate evalua o mașină** - coada e goală, suita e verde, bugetul s-a consumat. O buclă fără așa ceva nu e autonomie; e abandon. **Un buget** - tokeni, bani, iterații sau ore, oricare se atinge primul; o buclă nesupravegheată e clientul ideal al modelului de tarifare per token, iar calculele din Anexa A rulează și ele peste noapte. **O poartă pe care agentul n-o poate edita** - testele, configurația de lint, workflow-ul de CI și regulile de hook stau în spatele unei reguli de deny (pattern-ul trei). Avertismentul din Capitolul 5 - o suită verde scrisă de agent e un indiciu, nu o dovadă - se aplică de două ori atunci când nimeni nu citește indiciile până dimineața. Cel mai ieftin mod în care o buclă ajunge pe verde e să negocieze cu propriul evaluator. **Context proaspăt la fiecare iterație, stare durabilă în repository** - un fișier de coadă și un jurnal, ținute în repo prin commit-uri, astfel încât fiecare iterație pornește curată și citește istoria buclei din git, în loc să târască după ea un context care se degradează. Capitolul 5 numea contaminarea contextului drept cel mai mare motiv pentru care sesiunile lungi o iau razna; bucla exterioară făcută corect e un instrument de igienă a contextului - patruzeci de sesiuni scurte și curate în loc de una lungă, în degradare. **Izolare dimensionată pentru absență** - worktree-ul ei propriu (pattern-ul unu), sandbox-ul pornit, fără credențiale de producție, rețea constrânsă. O sesiune nesupravegheată e singurul loc în care prompt injection nu mai întâlnește niciun sceptic uman; straturile din Capitolul 3 nu sunt opționale aici - pe ele se sprijină toată greutatea. Anexa B.6 e contractul ăsta într-o singură pagină.
+Așa că pattern-ul nu e bucla; pattern-ul e contractul sub care o rulezi. Cinci linii, scrise înainte de prima iterație nesupravegheată. **O condiție de oprire pe care o poate evalua o mașină** - queue-ul e gol, suita e verde, bugetul s-a consumat. O buclă fără așa ceva nu e autonomie; e abandon. **Un buget** - tokeni, bani, iterații sau ore, oricare se atinge primul; o buclă nesupravegheată e clientul ideal al modelului de tarifare per token, iar calculele din Anexa A rulează și ele peste noapte. **Un gate pe care agentul nu-l poate edita** - testele, configurația de lint, workflow-ul de CI și regulile de hook stau în spatele unei reguli de deny (pattern-ul trei). Avertismentul din Capitolul 5 - o suită verde scrisă de agent e un indiciu, nu o dovadă - se aplică de două ori atunci când nimeni nu citește indiciile până dimineața. Cel mai ieftin mod în care o buclă ajunge pe verde e să negocieze cu propriul evaluator. **Context proaspăt la fiecare iterație, stare durabilă în repository** - un fișier de queue și un jurnal, ținute în repo prin commit-uri, astfel încât fiecare iterație pornește curată și citește istoria buclei din git, în loc să târască după ea un context care se degradează. Capitolul 5 numea contaminarea contextului drept cel mai mare motiv pentru care sesiunile lungi o iau razna; bucla exterioară făcută corect e un instrument de igienă a contextului - patruzeci de sesiuni scurte și curate în loc de una lungă, în degradare. **Izolare dimensionată pentru absență** - worktree-ul ei propriu (pattern-ul unu), sandbox-ul pornit, fără credențiale de producție, rețea constrânsă. O sesiune nesupravegheată e singurul loc în care prompt injection nu mai întâlnește niciun sceptic uman; straturile din Capitolul 3 nu sunt opționale aici - pe ele se sprijină toată greutatea. Anexa B.6 e contractul ăsta într-o singură pagină.
 
-Ce pui în coadă contează la fel de mult ca contractul. Munca eligibilă pentru buclă are multe unități similare, fiecare verificabilă de o mașină, fiecare reversibilă: migrări, curățenii de lint și de typing, dependency bump-uri, completarea testelor de caracterizare, refactorizări mecanice. Munca de design, cu un singur artefact, nu e eligibilă; mai multe încercări nu adaugă judecată, iar bucla îți va cheltui bugetul demonstrându-ți asta. Semaforul din Capitolul 8 se aplică aici cu forță dublă, pentru că bucla exterioară e munca autonomă a agentului în forma ei cea mai concentrată: doar codebase-uri pe VERDE. GALBEN înseamnă condus de om, iar bucla exterioară n-are, prin definiție, niciun om în ea.
+Ce pui în queue contează la fel de mult ca contractul. Munca eligibilă pentru buclă are multe unități similare, fiecare verificabilă de o mașină, fiecare reversibilă: migrări, curățenii de lint și de typing, dependency bump-uri, completarea testelor de caracterizare, refactorizări mecanice. Munca de design, cu un singur artefact, nu e eligibilă; mai multe încercări nu adaugă judecată, iar bucla îți va cheltui bugetul demonstrându-ți asta. Semaforul din Capitolul 8 se aplică aici cu forță dublă, pentru că bucla exterioară e munca autonomă a agentului în forma ei cea mai concentrată: doar codebase-uri pe VERDE. GALBEN înseamnă condus de om, iar bucla exterioară n-are, prin definiție, niciun om în ea.
 
-Pragul uman nu dispare; se mută dimineața. Producția de peste noapte sosește sub formă de pull request-uri și primește review ca orice pull request - pragul explicit din pattern-ul patru, corectitudine de business și potrivire arhitecturală, nu o privire aruncată pe bife, pentru că tot ce produce o buclă sosește gata îmbrăcat în bife verzi. Iar bucla însăși primește kill signals, aceeași disciplină pe care Capitolul 8 o aplică pe codebase-uri. Patru sunt de ajuns: același diff aplicat și apoi revertat de la o iterație la alta; buget care arde în timp ce coada nu scade; același eșec apărut a treia oară; orice iterație care a atins poarta. Oricare dintre ele înseamnă stop - citești jurnalul, repari cauza, abia apoi relansezi. O buclă repornită pe speranță e o buclă pe care ai încetat s-o mai controlezi.
+Pragul uman nu dispare; se mută dimineața. Producția de peste noapte sosește sub formă de pull request-uri și primește review ca orice pull request - pragul explicit din pattern-ul patru, corectitudine de business și potrivire arhitecturală, nu o privire aruncată pe bife, pentru că tot ce produce o buclă sosește gata îmbrăcat în bife verzi. Iar bucla însăși primește kill signals, aceeași disciplină pe care Capitolul 8 o aplică pe codebase-uri. Patru sunt de ajuns: același diff aplicat și apoi revertat de la o iterație la alta; buget care arde în timp ce queue-ul nu scade; același eșec apărut a treia oară; orice iterație care a atins gate-ul. Oricare dintre ele înseamnă stop - citești jurnalul, repari cauza, abia apoi relansezi. O buclă repornită pe speranță e o buclă pe care ai încetat s-o mai controlezi.
 
-Două extreme arată cât de departe duc echipele chestia asta. Huntley rulează bucla în forma ei brută și o tarifează ca pe un serviciu de utilități - în jur de 10 dolari pe oră. La capătul industrial, fabrica de software de la StrongDM rulează livrare complet non-interactivă, cu oameni care nici nu scriu, nici nu fac review la cod, și cu scenarii end-to-end ținute în afara codebase-ului, ca un holdout set pe care bucla nu-l poate slăbi - la un consum de tokeni pe care Simon Willison l-a estimat la aproape 20.000 de dolari pe lună per inginer. Pattern-ul ăsta stă deliberat între cele două extreme: contract, coadă, porți în afara razei de acțiune a agentului și un om care citește pull request-urile dimineața. Nimic din cele nouăzeci de zile ale Capitolului 10 nu cere bucla exterioară; ea e cum poate arăta luna a patra, dacă primele nouăzeci de zile au fost oneste. Supravegheat, plasa de siguranță ești tu. Nesupravegheat, plasa de siguranță e contractul - ceea ce face din bucla exterioară primul consumator al fiecărui control pe care îl instalează manualul ăsta, și testul cel mai curat dacă au fost vreodată instalate cu adevărat.
+Două extreme arată cât de departe duc echipele chestia asta. Huntley rulează bucla în forma ei brută și o tarifează ca pe un serviciu de utilități - în jur de 10 dolari pe oră. La capătul industrial, fabrica de software de la StrongDM rulează livrare complet non-interactivă, cu oameni care nici nu scriu, nici nu fac review la cod, și cu scenarii end-to-end ținute în afara codebase-ului, ca un holdout set pe care bucla nu-l poate slăbi - la un consum de tokeni pe care Simon Willison l-a estimat la aproape 20.000 de dolari pe lună per inginer. Pattern-ul ăsta stă deliberat între cele două extreme: contract, queue, gate-uri în afara razei de acțiune a agentului și un om care citește pull request-urile dimineața. Nimic din cele nouăzeci de zile ale Capitolului 10 nu cere bucla exterioară; ea e cum poate arăta luna a patra, dacă primele nouăzeci de zile au fost oneste. Supravegheat, plasa de siguranță ești tu. Nesupravegheat, plasa de siguranță e contractul - ceea ce face din bucla exterioară primul consumator al fiecărui control pe care îl instalează manualul ăsta, și testul cel mai curat dacă au fost vreodată instalate cu adevărat.
 
 ---
 
@@ -1937,7 +1937,7 @@ Ziua nouăzeci. Predarea înapoi către operațiunile curente. Dashboard-ul răm
 
 Cele trei roluri descriu ce se întâmplă când arcul funcționează. Există însă două arhetipuri de ingineri pe care le vei vedea în orice echipă în timpul adopției și care vor omorî rollout-ul pe tăcute dacă nu le numești cu voce tare.
 
-Arhetipul unu: scepticul de principiu. Seniorul care a mai văzut cicluri de hype AI și nu e convins că ăsta e diferit. Nu va folosi agentul. Nu va scrie AGENTS.md pentru modulele pe care le deține. Va face review la PR-urile conduse de agent cu o ostilitate în plus, căutând dovezi că abordarea e greșită. Două feluri în care iese prost. Echipa începe să lucreze pe lângă el - review-urile lui întârzie PR-urile, modulele lui devin o insulă pe care agentul n-o atinge, codebase-ul se bifurcă în teritorii prietenoase cu agentul și teritorii ostile. Sau scepticul de principiu câștigă disputa politică din interiorul echipei și rollout-ul se blochează. Soluția nu e să-l convertești pe scepticul de principiu. Inginerii seniori și-au câștigat dreptul de a nu fi de acord. Soluția e să-i dai o graniță clară: „modulele tale, regulile tale, agentul nu se atinge de ele; peste tot în rest se aplică standardul echipei”. Și ai grijă ca sarcina lui de review să nu devină bottleneck-ul velocity-ului echipei - dacă fiecare PR condus de agent stă în coada lui, echipa i-a dat scepticului de principiu un drept de veto pe care nu intenționa să i-l acorde.
+Arhetipul unu: scepticul de principiu. Seniorul care a mai văzut cicluri de hype AI și nu e convins că ăsta e diferit. Nu va folosi agentul. Nu va scrie AGENTS.md pentru modulele pe care le deține. Va face review la PR-urile conduse de agent cu o ostilitate în plus, căutând dovezi că abordarea e greșită. Două feluri în care iese prost. Echipa începe să lucreze pe lângă el - review-urile lui întârzie PR-urile, modulele lui devin o insulă pe care agentul n-o atinge, codebase-ul se bifurcă în teritorii prietenoase cu agentul și teritorii ostile. Sau scepticul de principiu câștigă disputa politică din interiorul echipei și rollout-ul se blochează. Soluția nu e să-l convertești pe scepticul de principiu. Inginerii seniori și-au câștigat dreptul de a nu fi de acord. Soluția e să-i dai o graniță clară: „modulele tale, regulile tale, agentul nu se atinge de ele; peste tot în rest se aplică standardul echipei”. Și ai grijă ca sarcina lui de review să nu devină bottleneck-ul velocity-ului echipei - dacă fiecare PR condus de agent stă în queue-ul lui, echipa i-a dat scepticului de principiu un drept de veto pe care nu intenționa să i-l acorde.
 
 Arhetipul doi: delegatorul necalibrat. Inginerul (deseori mai junior, alteori mai senior decât te-ai aștepta) care sare peste citirea atentă a output-ului agentului pentru că „agentul o nimerește mereu”. Problema nu e delegarea în sine; problema e calibrarea proastă a momentelor în care să ai încredere și a celor în care să inspectezi. Livrează PR-uri conduse de agent fără să le parcurgă. Defectele se adună, pentru că agentul face greșeli pe care omul le-ar fi prins dacă omul ar fi fost atent. Două feluri în care iese prost. Rata de defecte urcă încet, iar echipa dă vina pe agent, nu pe pasul de review care lipsește. Sau cunoștințele de domeniu ale delegatorului necalibrat se atrofiază, și după șase luni nu mai poate depana sistemul pe care agentul l-a ajutat să-l construiască. Soluția e disciplina de review deja numită: fiecare PR condus de agent primește același review uman ca fiecare PR condus de om, fără excepții. În prima lună, pune-l pe delegatorul necalibrat în pereche cu un reviewer senior care citește output-ul agentului linie cu linie. Calibrează.
 
@@ -1993,7 +1993,7 @@ Tool-urile concrete pe care le-am numit pe parcurs - Claude Code, Codex CLI, ope
 
 Ce ai învățat din manualul ăsta nu sunt tool-urile. Ce ai învățat e un mod de a gândi care supraviețuiește tool-urilor.
 
-Arhitectura pe care ai învățat-o în Partea I e invariantă - controlul capabilității. Primitivele - context window, tool-uri, Permisiuni / Sandbox, skill-uri, plugin-uri, MCP, Memory, subagenți - plus harness-ul care le organizează. Majoritatea agenților de cod de nivel de producție converg spre anatomia asta. Agenții de cod care vor apărea în următorul deceniu vor lua, în cele mai multe cazuri, o formă similară, pentru că anatomia e dictată de natura muncii, nu de vendor. Când evaluezi un agent nou, parcurgi lista, pui întrebarea pentru fiecare primitiv și ai răspunsul. Lista e deschisă; vor apărea primitive noi pe măsură ce agenții mari converg spre mecanisme noi.
+Arhitectura pe care ai învățat-o în Partea I e invariantă - controlul capabilității. Componentele principale - context window, tool-uri, Permisiuni / Sandbox, skill-uri, plugin-uri, MCP, Memory, subagenți - plus harness-ul care le organizează. Majoritatea agenților de cod de nivel de producție converg spre anatomia asta. Agenții de cod care vor apărea în următorul deceniu vor lua, în cele mai multe cazuri, o formă similară, pentru că anatomia e dictată de natura muncii, nu de vendor. Când evaluezi un agent nou, parcurgi lista, pui întrebarea pentru fiecare componentă principală și ai răspunsul. Lista e deschisă; vor apărea componente principale noi pe măsură ce agenții mari converg spre mecanisme noi.
 
 Metoda pe care ai învățat-o în Partea a II-a e invariantă - controlul workflow-ului. Trecerea de la a genera cod la a formula munca limpede e intuiția fundamentală. Bucla în șase faze e o implementare a disciplinei formulării; vor apărea și alte implementări. Pattern-ul AGENTS.md - cod versionat în repo, care codifică convențiile echipei ca agentul să le citească - va exista sub alte nume în alte tool-uri, dar principiul e permanent: disciplină sub formă de cod, nu de tradiție orală.
 
@@ -2084,23 +2084,23 @@ Pagina asta urmărește actualizările semnificative ale manualului. Corecturile
 
 ### 2026-06-11 - Orchestrare scriptată a subagenților (`/workflows`)
 
-Secțiunea despre subagenți din Capitolul 1 capătă un paragraf despre orchestrarea programatică: /workflows din Claude Code, care pune agentul să scrie un script determinist ce trimite subagenți pe faze, cu fan-out în paralel sau prin pipeline și predări validate prin schemă, cu un gate de verificare. Încadrat pe linia tezei cărții - nu un primitiv nou, ci o comoditate la nivel de harness peste primitivul subagent, unde determinismul e singura diferență reală față de dispatch-ul condus de model (de pildă, un plugin în stil Superpowers). Datat la mijlocul lui 2026.
+Secțiunea despre subagenți din Capitolul 1 capătă un paragraf despre orchestrarea programatică: /workflows din Claude Code, care pune agentul să scrie un script determinist ce trimite subagenți pe faze, cu fan-out în paralel sau prin pipeline și predări validate prin schemă, cu un gate de verificare. Încadrat pe linia tezei cărții - nu o componentă principală nouă, ci o comoditate la nivel de harness peste componenta principală subagent, unde determinismul e singura diferență reală față de dispatch-ul condus de model (de pildă, un plugin în stil Superpowers). Datat la mijlocul lui 2026.
 
 ### 2026-06-10 - Bucla exterioară (pattern-ul opt)
 
-Capitolul 9 capătă un al optulea pattern, care acoperă trendul outer-loop - re-invocarea agentului la interval, după un program sau dintr-o coadă, până când o condiție e îndeplinită. Pattern-ul trasează filiația (buclele cu auto-evaluare din 2023; Ralph Wiggum la mijlocul lui 2025; valul de agenți de background și programați lansați de vendori la finalul lui 2025; bucla ca suprafață de prim rang până în primăvara lui 2026) și instalează controalele: un contract de buclă în cinci linii, testul de eligibilitate pentru buclă, patru kill signals de buclă și pragul minim al review-ului de dimineață. Capitolul 5 primește paragraful de vocabular inner/outer loop. Anexă nouă: B.6, one-pager-ul cu contractul outer-loop (numărul de template-uri ajunge la șase). Cinci intrări noi în Anexa C, sub un grup nou de surse despre outer loop și autonomie. Nota despre afirmațiile datate, actualizată la iunie 2026.
+Capitolul 9 capătă un al optulea pattern, care acoperă trendul outer-loop - re-invocarea agentului la interval, după un program sau dintr-un queue, până când o condiție e îndeplinită. Pattern-ul trasează filiația (buclele cu auto-evaluare din 2023; Ralph Wiggum la mijlocul lui 2025; valul de agenți de background și programați lansați de vendori la finalul lui 2025; bucla ca suprafață de prim rang până în primăvara lui 2026) și instalează controalele: un contract de buclă în cinci linii, testul de eligibilitate pentru buclă, patru kill signals de buclă și pragul minim al review-ului de dimineață. Capitolul 5 primește paragraful de vocabular inner/outer loop. Anexă nouă: B.6, one-pager-ul cu contractul outer-loop (numărul de template-uri ajunge la șase). Cinci intrări noi în Anexa C, sub un grup nou de surse despre outer loop și autonomie. Nota despre afirmațiile datate, actualizată la iunie 2026.
 
-### 2026-05-27 - Primitivul Permisiuni / Sandbox
+### 2026-05-27 - Componenta principală Permisiuni / Sandbox
 
-Permisiuni / Sandbox a fost promovat la rang de primitiv numit - al treilea loc în inventar, după Context window și Tools. Două jumătăți, ca la Memory: stratul de decizie la nivel de agent (Allow / Ask / Deny + modul auto) și impunerea la nivel de OS (Seatbelt / bubblewrap / token-uri restricționate / WSL2). Nota de vocabular din Capitolul 1 a fost rescrisă ca să numească testul de convergență care a promovat acest primitiv, lăsând telemetria ca strat de control. Capitolul 3 primește un paragraf de încadrare care leagă trei dintre cele cinci straturi ale lui (permisiuni, hook-uri, sandbox) de suprafețele de configurare ale noului primitiv; narațiunea apărării în adâncime pe cinci straturi rămâne neschimbată. Numărul punctelor de inspecție din Capitolul 2 a scăzut de la nouă la opt (cele două jumătăți ale P/S s-au comasat într-una singură). Diagrama, actualizată la 8 celule. Trei intrări noi în Anexa C documentează implementările din Claude Code / Codex / opencode.
+Permisiuni / Sandbox a fost promovat la rang de componentă principală numită - al treilea loc în inventar, după Context window și Tools. Două jumătăți, ca la Memory: stratul de decizie la nivel de agent (Allow / Ask / Deny + modul auto) și impunerea la nivel de OS (Seatbelt / bubblewrap / token-uri restricționate / WSL2). Nota de vocabular din Capitolul 1 a fost rescrisă ca să numească testul de convergență care a promovat această componentă principală, lăsând telemetria ca strat de control. Capitolul 3 primește un paragraf de încadrare care leagă trei dintre cele cinci straturi ale lui (permisiuni, hook-uri, sandbox) de suprafețele de configurare ale noii componente principale; narațiunea apărării în adâncime pe cinci straturi rămâne neschimbată. Numărul punctelor de inspecție din Capitolul 2 a scăzut de la nouă la opt (cele două jumătăți ale P/S s-au comasat într-una singură). Diagrama, actualizată la 8 celule. Trei intrări noi în Anexa C documentează implementările din Claude Code / Codex / opencode.
 
 ### 2026-05-27 - Changelog + footer cu data ultimei actualizări
 
 Am adăugat pagina asta și o linie „Last updated &lt;date&gt;” în footer, plus un link spre Changelog în rândul de contact. Intenția: cititorii care revin să poată vedea ce s-a mișcat de la ultima vizită fără să compare capitolele diff cu diff.
 
-### 2026-05-27 - Primitivul Memory + încadrarea ca listă deschisă
+### 2026-05-27 - Componenta principală Memory + încadrarea ca listă deschisă
 
-Memory a fost promovat la rang de primitiv numit în toată cartea; Capitolul 1 a fost reintitulat „Primitivele”, iar argumentul structural rescris ca „primitive numite + primitivul recursiv (subagenții)”. Am renunțat peste tot la numărătoarea închisă de „șase primitive”; lista e acum încadrată ca listă deschisă. Noua secțiune Memory acoperă două jumătăți - memoria definită manual (AGENTS.md/CLAUDE.md, agnostică față de agent) și sistemul de memorie automată (Auto Memory, Auto Dream - deocamdată cu Claude Code în frunte). Diagrama, actualizată. Capitolul 6 primește o introducere de un paragraf care ancorează AGENTS.md ca strat de memorie partajabil în echipă. Trei intrări noi în Anexa C documentează afirmațiile despre Memory.
+Memory a fost promovat la rang de componentă principală numită în toată cartea; Capitolul 1 a fost reintitulat „Componentele principale”, iar argumentul structural rescris ca „componente principale numite + componenta principală recursivă (subagenții)”. Am renunțat peste tot la numărătoarea închisă de „șase componente principale”; lista e acum încadrată ca listă deschisă. Noua secțiune Memory acoperă două jumătăți - memoria definită manual (AGENTS.md/CLAUDE.md, agnostică față de agent) și sistemul de memorie automată (Auto Memory, Auto Dream - deocamdată cu Claude Code în frunte). Diagrama, actualizată. Capitolul 6 primește o introducere de un paragraf care ancorează AGENTS.md ca strat de memorie partajabil în echipă. Trei intrări noi în Anexa C documentează afirmațiile despre Memory.
 
 ### 2026-05-27 - Trecere de SEO: URL-uri per capitol
 
@@ -2375,18 +2375,18 @@ De două ori mai lung decât arcul ideal; merge în companii care nu sunt încă
 Înainte de orice rulare nesupravegheată, completează fiecare linie. O linie goală înseamnă că bucla nu e gata.
 
 MUNCA
-- Coada: ______ (fișier sau listă de issue-uri în repo; câte o unitate mică, similară, reversibilă per element)
+- Queue: ______ (fișier sau listă de issue-uri în repo; câte o unitate mică, similară, reversibilă per element)
 - Eligibilitate: codebase VERDE (scor B.4 0-1) / fiecare unitate verificabilă de mașină / fiecare unitate revertibilă
 
 CONDIȚIA DE OPRIRE (evaluabilă de mașină; bucla se oprește singură)
-- Done când: ______ (coada goală / suita verde / N unități gata de review)
+- Done când: ______ (queue gol / suita verde / N unități gata de review)
 - Buget: max ______ tokeni sau $______ sau ______ iterații sau ______ ore - ce se atinge primul
 - Regula de eșec: aceeași unitate eșuează de două ori -> sari peste ea și marcheaz-o; trei unități sărite -> oprește tot
 
 FIECARE ITERAȚIE
-- Context proaspăt; starea se citește din coadă + jurnalul din repo, nu din istoricul sesiunii
+- Context proaspăt; starea se citește din queue + jurnalul din repo, nu din istoricul sesiunii
 - O unitate per iterație; termin-o sau notează în jurnal de ce nu - nimic lăsat aplicat pe jumătate
-- Poarta: ______ (teste / lint / typecheck / build) rulează în afara razei agentului (CI sau hook)
+- Gate: ______ (teste / lint / typecheck / build) rulează în afara razei agentului (CI sau hook)
 - Reguli de deny: agentul nu poate edita configurația de teste, configurația de lint, workflow-ul de CI, regulile de hook sau marker-ele de done din jurnal
 
 IZOLARE
@@ -2395,8 +2395,8 @@ IZOLARE
 
 REVIEW-UL DE DIMINEAȚĂ (pragul uman minim)
 - Fiecare PR e citit pentru corectitudine de business și potrivire arhitecturală - nu bifat din ochi
-- Verificarea de kill înainte de relansare: diff-uri care oscilează? buget consumat, dar coada nu e mai scurtă?
-  același eșec a treia oară? poarta a fost atinsă?
+- Verificarea de kill înainte de relansare: diff-uri care oscilează? buget consumat, dar queue-ul nu e mai scurt?
+  același eșec a treia oară? gate-ul a fost atins?
   Orice „da” -> nu relansa. Citește jurnalul, repară întâi cauza.
 ```
 
@@ -2404,7 +2404,7 @@ REVIEW-UL DE DIMINEAȚĂ (pragul uman minim)
 
 ## Anexa C - Surse și lecturi suplimentare
 
-Anexa asta există pentru că fiecare afirmație din manual merită o sursă verificabilă, dacă vrei să mergi pe fir până la capăt. Am organizat intrările după afirmație, nu după sursă, ca să poți porni de la un pasaj din corpul cărții și să ajungi la dovezile din spatele lui. Intrările sunt grupate pe categorii (studii, incidente cunoscute, vulnerabilități cu versiuni de patch, documentația tool-urilor, marketplace-uri, surse pentru primitivul Memory, surse pentru primitivul Permisiuni / Sandbox, surse despre bucla exterioară și autonomie), iar fiecare intrare are aceeași formă: afirmația, sursa, unde anume e folosită în manual și orice avertisment care merită știut.
+Anexa asta există pentru că fiecare afirmație din manual merită o sursă verificabilă, dacă vrei să mergi pe fir până la capăt. Am organizat intrările după afirmație, nu după sursă, ca să poți porni de la un pasaj din corpul cărții și să ajungi la dovezile din spatele lui. Intrările sunt grupate pe categorii (studii, incidente cunoscute, vulnerabilități cu versiuni de patch, documentația tool-urilor, marketplace-uri, surse pentru componenta principală Memory, surse pentru componenta principală Permisiuni / Sandbox, surse despre bucla exterioară și autonomie), iar fiecare intrare are aceeași formă: afirmația, sursa, unde anume e folosită în manual și orice avertisment care merită știut.
 
 ### Studii și cercetare
 
@@ -2477,37 +2477,37 @@ Anexa asta există pentru că fiecare afirmație din manual merită o sursă ver
 
 ### Documentația tool-urilor
 
-**Afirmația:** Codex CLI a livrat Agent Skills ca primitiv de primă clasă în decembrie 2025, cu fișiere SKILL.md cu frontmatter YAML și semantici de progressive disclosure comparabile cu Skills din Claude Code.
+**Afirmația:** Codex CLI a livrat Agent Skills ca componentă principală de primă clasă în decembrie 2025, cu fișiere SKILL.md cu frontmatter YAML și semantici de progressive disclosure comparabile cu Skills din Claude Code.
 **Sursa:** OpenAI Codex CLI docs, [developers.openai.com/codex/skills](https://developers.openai.com/codex/skills).
-**Unde e folosită:** Capitolul 1 (Primitivele), ca partea Codex a convergenței pe primitivul de skill.
+**Unde e folosită:** Capitolul 1 (Componentele principale), ca partea Codex a convergenței pe componenta principală de skill.
 **Atenție:** Documentație de vendor; datele de GA sunt corecte la mijlocul lui 2026, dar pot fi revizuite retroactiv.
 
 ---
 
 **Afirmația:** Subagenții din Codex CLI au ajuns la GA la începutul lui 2026 și pot rula până la opt în paralel.
 **Sursa:** OpenAI Codex CLI docs, [developers.openai.com/codex/](https://developers.openai.com/codex/).
-**Unde e folosită:** Capitolul 1 (Primitivele) și Capitolul 5 (Bucla în șase faze, faza de Execute).
+**Unde e folosită:** Capitolul 1 (Componentele principale) și Capitolul 5 (Bucla în șase faze, faza de Execute).
 **Atenție:** Documentație de vendor; numărul de agenți rulați în paralel se poate schimba în versiunile următoare.
 
 ---
 
 **Afirmația:** Codex CLI documentează [AGENTS.md](https://agents.md/) drept convenția pentru instrucțiuni de agent la nivel de proiect, încărcată la începutul sesiunii și echivalentă ca rol cu fișierele de instrucțiuni de echipă ale celorlalți vendori.
 **Sursa:** OpenAI Codex CLI documentation, [developers.openai.com/codex/agents-md](https://developers.openai.com/codex/agents-md).
-**Unde e folosită:** Capitolul 1 (Primitivele, secțiunea despre skills) și Capitolul 6 (AGENTS.md ca infrastructură de echipă).
+**Unde e folosită:** Capitolul 1 (Componentele principale, secțiunea despre skills) și Capitolul 6 (AGENTS.md ca infrastructură de echipă).
 **Atenție:** Numele fișierului și semantica de încărcare sunt stabile; regulile specifice de frontmatter și de descoperire pot evolua de la o versiune la alta.
 
 ---
 
 **Afirmația:** AGENTS.md, în calitate de convenție neutră față de vendor pentru fișierul de instrucțiuni al echipei, are suport nativ în Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, Zed și Windsurf. Formatul e markdown; semantica de încărcare e echivalentă între tool-uri.
 **Sursa:** Cross-vendor documentation: Codex CLI ([developers.openai.com/codex/agents-md](https://developers.openai.com/codex/agents-md)), Cursor ([cursor.sh/docs](https://cursor.sh/docs)), GitHub Copilot ([docs.github.com/copilot](https://docs.github.com/copilot)), Gemini CLI ([cloud.google.com/gemini/docs/codeassist](https://cloud.google.com/gemini/docs/codeassist)), Aider ([aider.chat/docs](https://aider.chat/docs)), Zed ([zed.dev/docs/ai](https://zed.dev/docs/ai)), Windsurf ([codeium.com/windsurf/docs](https://codeium.com/windsurf/docs)).
-**Unde e folosită:** Capitolul 1 (Primitivele, secțiunea despre skills) și Capitolul 6 (Nume și convenții).
+**Unde e folosită:** Capitolul 1 (Componentele principale, secțiunea despre skills) și Capitolul 6 (Nume și convenții).
 **Atenție:** Lista tool-urilor care îl suportă crește în timp; afirmația e că AGENTS.md e convenția de facto neutră față de vendor, nu că lista ar fi exhaustivă.
 
 ---
 
-**Afirmația:** opencode e un coding agent open-source întreținut de o echipă independentă, scris în TypeScript și licențiat sub MIT. Codul sursă e organizat în jurul acelorași primitive pe care manualul ăsta le identifică în Codex CLI și Claude Code.
+**Afirmația:** opencode e un coding agent open-source întreținut de o echipă independentă, scris în TypeScript și licențiat sub MIT. Codul sursă e organizat în jurul acelorași componente principale pe care manualul ăsta le identifică în Codex CLI și Claude Code.
 **Sursa:** opencode repository ([github.com/sst/opencode](https://github.com/sst/opencode)); LICENSE and README.
-**Unde e folosită:** Capitolul 1 (Primitivele, trecerea în revistă a codului sursă) și Capitolul 2 (Anatomia invariantă, demo-ul cu doi agenți).
+**Unde e folosită:** Capitolul 1 (Componentele principale, trecerea în revistă a codului sursă) și Capitolul 2 (Anatomia invariantă, demo-ul cu doi agenți).
 **Atenție:** Numele proiectului și componența echipei de mentenanță pot evolua; afirmația despre convergența arhitecturală supraviețuiește redenumirilor.
 
 ---
@@ -2528,7 +2528,7 @@ Anexa asta există pentru că fiecare afirmație din manual merită o sursă ver
 
 **Afirmația:** Cursor 2.0 a introdus un sistem de subagenți; Cline a livrat subagenți nativ; Claude Code a adăugat Agent Teams ca strat de coordonare de nivel mai înalt peste tool-ul Task.
 **Sursa:** Vendor announcements and docs for Cursor, Cline, and Claude Code; collated across early-to-mid 2026.
-**Unde e folosită:** Capitolul 1 (Primitivele), ca dovadă pentru convergența pe primitivul de subagent în aproximativ un an.
+**Unde e folosită:** Capitolul 1 (Componentele principale), ca dovadă pentru convergența pe componenta principală de subagent în aproximativ un an.
 **Atenție:** Suprafețele de produs ale vendorilor evoluează; afirmația despre convergență rămâne în picioare chiar și când nume specifice de produs se rebranduiesc.
 
 ---
@@ -2537,35 +2537,35 @@ Anexa asta există pentru că fiecare afirmație din manual merită o sursă ver
 
 **Afirmația:** Marketplace-ul `claude-plugins-official` al Anthropic vine inclus în Claude Code din mai 2026 și împachetează skill-uri, hook-uri, tool-uri și comenzi în spatele unei singure comenzi de instalare. Marketplace-ul avertizează utilizatorii să verifice dacă au încredere în plugin-uri înainte să le instaleze.
 **Sursa:** Claude Code docs ([code.claude.com/docs/en/discover-plugins](https://code.claude.com/docs/en/discover-plugins)); the marketplace itself.
-**Unde e folosită:** Capitolul 1 (Primitivele, secțiunea despre plugin-uri).
+**Unde e folosită:** Capitolul 1 (Componentele principale, secțiunea despre plugin-uri).
 **Atenție:** Numărul de plugin-uri și politicile marketplace-ului se vor schimba în timp; ce trebuie să iei cu tine e disciplina de supply chain descrisă în Capitolul 1, nu vreun număr anume.
 
 ---
 
-### Surse pentru primitivul Memory
+### Surse pentru componenta principală Memory
 
-**Afirmația:** AGENTS.md e citit la începutul sesiunii de Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider și de ecosistemul mai larg de coding agents open-source (peste 20 de vendori listați pe agents.md la 2026-05). Claude Code citește CLAUDE.md, care poate importa AGENTS.md pentru a împărți același conținut cu ceilalți agenți. Convergența plasează AGENTS.md în stratul de memorie definită manual al primitivului Memory numit în Capitolul 1.
+**Afirmația:** AGENTS.md e citit la începutul sesiunii de Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider și de ecosistemul mai larg de coding agents open-source (peste 20 de vendori listați pe agents.md la 2026-05). Claude Code citește CLAUDE.md, care poate importa AGENTS.md pentru a împărți același conținut cu ceilalți agenți. Convergența plasează AGENTS.md în stratul de memorie definită manual al componentei principale Memory numit în Capitolul 1.
 **Sursa:** [agents.md](https://agents.md/) (the open standard's site), plus vendor documentation for each agent listed.
-**Unde e folosită:** Capitolul 1 (Primitivele, secțiunea Memory) și Capitolul 6 (AGENTS.md ca infrastructură de echipă).
+**Unde e folosită:** Capitolul 1 (Componentele principale, secțiunea Memory) și Capitolul 6 (AGENTS.md ca infrastructură de echipă).
 **Atenție:** Numele exact al fișierului și semantica de încărcare diferă de la un vendor la altul - Claude Code citește CLAUDE.md (importabil din AGENTS.md prin `@AGENTS.md` sau symlink); Cursor citește AGENTS.md plus `.cursorrules`. Convergența e pe rolul structural - scris de utilizator, încărcat mereu, partajabil în echipă - nu pe un format de fișier identic la nivel de byte.
 
 ---
 
 **Afirmația:** Claude Code întreține un strat de auto-memory în care Claude își scrie singur notițe de la o sesiune la alta - comenzi de build pe care le-a deslușit, concluzii de debugging pe care le-a confirmat, preferințe de stil de cod pe care le-a dedus - distinct de CLAUDE.md-ul scris de utilizator. Necesită Claude Code v2.1.59+; activat implicit; stocare per repo.
 **Sursa:** [code.claude.com/docs/en/memory](https://code.claude.com/docs/en/memory).
-**Unde e folosită:** Capitolul 1 (Primitivele, secțiunea Memory).
+**Unde e folosită:** Capitolul 1 (Componentele principale, secțiunea Memory).
 **Atenție:** Auto memory e specific Claude Code la momentul scrierii. Ceilalți coding agents converg spre mecanisme similare, dar nu livraseră un echivalent la data publicării.
 
 ---
 
 **Afirmația:** Anthropic a anunțat public Dreaming ca parte din Claude Managed Agents la Code with Claude SF pe 2026-05-06 - un proces de fundal programat, care trece în revistă sesiunile recente și memory store-ul, identifică greșelile recurente și workflow-urile convergente și scrie notițe consolidate înapoi în memoria pe termen lung. Suprafața din Claude Code (`Auto Dream`, accesibilă prin `/dream`) fusese livrată mai devreme ca research preview, condiționată de developer access, și documentată în martie 2026.
 **Sursa:** Code with Claude SF announcement, 2026-05-06; [code.claude.com/docs/en/memory](https://code.claude.com/docs/en/memory).
-**Unde e folosită:** Capitolul 1 (Primitivele, secțiunea Memory).
+**Unde e folosită:** Capitolul 1 (Componentele principale, secțiunea Memory).
 **Atenție:** Auto Dream e specific Claude Code la data publicării. Manualul ăsta indexează rolul structural, nu vendorul.
 
 ---
 
-### Surse pentru primitivul Permisiuni / Sandbox
+### Surse pentru componenta principală Permisiuni / Sandbox
 
 **Afirmația:** Claude Code vine cu un model de permisiuni Allow/Ask/Deny, cu precedență deny-apoi-ask-apoi-allow, și cu un sandbox de OS opt-in - Seatbelt pe macOS, bubblewrap pe Linux - configurabil prin `/sandbox` și prin `.claude/settings.json` la nivel de proiect. Stratul de decizie e activ implicit; sandbox-ul de OS nu.
 **Sursa:** [code.claude.com/docs/en/permissions](https://code.claude.com/docs/en/permissions); [code.claude.com/docs/en/sandboxing](https://code.claude.com/docs/en/sandboxing).
@@ -2574,7 +2574,7 @@ Anexa asta există pentru că fiecare afirmație din manual merită o sursă ver
 
 ---
 
-**Afirmația:** Codex CLI impune implicit sandbox la nivel de OS pe Linux (Landlock + seccomp prin bwrap) și pe macOS (Seatbelt); pe Windows folosește restricted tokens plus izolare bazată pe ACL-uri. Stratul de decizie e livrat în paralel, ca poartă de aprobare per tool.
+**Afirmația:** Codex CLI impune implicit sandbox la nivel de OS pe Linux (Landlock + seccomp prin bwrap) și pe macOS (Seatbelt); pe Windows folosește restricted tokens plus izolare bazată pe ACL-uri. Stratul de decizie e livrat în paralel, ca gate de aprobare per tool.
 **Sursa:** [developers.openai.com/codex/concepts/sandboxing](https://developers.openai.com/codex/concepts/sandboxing); [developers.openai.com/codex/agent-approvals-security](https://developers.openai.com/codex/agent-approvals-security).
 **Unde e folosită:** Capitolul 1 (secțiunea Permisiuni / Sandbox), Capitolul 2 (constatarea din comparația arhitecturală cap la cap), Capitolul 3 (stratul doi).
 **Atenție:** Postură opt-out - poți configura Codex să ruleze fără sandbox, dar default-ul inversează convenția, de la "oprit dacă nu-l configurezi" la "pornit dacă nu-l dezactivezi". Implementarea pe Windows e cea mai puțin uniformă dintre agenții majori.

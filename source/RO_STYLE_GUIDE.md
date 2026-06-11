@@ -42,6 +42,15 @@ Dacă o formulare sună bine în engleză dar prost în română, RESCRIE ideea 
   e despre cum e împărțit manualul, nu despre metodologie).
 - Excepție generală: "cadru" în sensul ramei unei diagrame ("încap în cadru") rămâne;
   "încadrare" e alt cuvânt, se păstrează.
+- "primitive" (conceptul de arhitectură - building block) → "componentă principală"
+  (feminin: o componentă principală / două componente principale / componentele principale).
+  NU "primitiv" și NU "primitivă" - ambele sună prost. Atenție la acord (feminin) la articole,
+  demonstrative și adjective. NU atinge ancorele/slug-urile (ex. {#what-is-a-primitive}) și
+  nici prompturile păstrate în engleză ("name the primitives...").
+- "queue" → "queue" (NU "coadă"; masculin în romgleză: un queue / queue-ul / queue-uri /
+  queue-ului). EXCEPȚIE: idiomul "cap-coadă" (= cover-to-cover / end-to-end) NU se atinge.
+- "gate" → "gate" (NU "poartă"; masculin: un gate / gate-ul / gate-uri). EXCEPȚIE: verbul
+  "a purta" ("poartă semnătura", "poartă o conversație", "Poartă conversația...") NU se atinge.
 - "embedded targets" → "target-uri embedded" (NU "ținte embedded" - "ținte" sună prost
   pentru termenul tehnic; păstrează "target" în engleză, articulat: target-uri).
 
