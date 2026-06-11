@@ -116,7 +116,7 @@ Majoritatea echipelor care eșuează cu livrarea cu agenți eșuează pentru că
 
 ---
 
-### Framework-ul manualului {#the-frame-of-this-book}
+### Structura manualului {#the-frame-of-this-book}
 
 Trei părți. Arhitectura: cum sunt construiți agenții și cum îl evaluezi pe următorul când apare. Metoda: bucla iterativă care transformă „AI care generează cod” în „AI care livrează software”. Realitatea: unde funcționează asta, unde nu, și care sunt kill signals care îți spun în ce situație ești.
 
