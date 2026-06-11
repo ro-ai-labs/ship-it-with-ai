@@ -372,6 +372,8 @@ The primary uses in serious work: parallel execution of a multi-task plan (the E
 
 The primary cost: tokens. Each subagent runs its own model and tool work, so an eight-subagent dispatch consumes roughly eight times the tokens of a single agent run. Use them where parallelism or isolation matters. Do not use them as a default for work a single agent could handle linearly.
 
+As of mid-2026 this composition is being productized. Claude Code's `/workflows` has the agent write a short script that dispatches subagents deterministically - phases run in order, work fans out in parallel or streams through a pipeline, each handoff returns a schema-validated structure instead of free text, and a verification step can gate the result before it returns. A single workflow can fan out across hundreds of children, holds their intermediate work in script variables rather than the orchestrator's context window, and is resumable and budget-bounded. This is not a new primitive. It is harness convenience over the subagent primitive you already have: the determinism - control flow in code, handoffs validated by schema - is the only real difference from the model-driven dispatch a plugin like Superpowers already offers, where the orchestrator decides at runtime how many children to spawn and reads their prose back. Reach for the scripted version when the fan-out is large, repeatable, or worth verifying mechanically; reach for model-driven dispatch when you do not know the shape of the work until the agent is in it. What gets composed is the same either way.
+
 We will return to subagents in Chapter 5 (Execute) and Chapter 7 (architecture review at scale). The point in this chapter is that they are not a technique laid on top of the architecture. They are the architecture's composition primitive.
 
 ---
@@ -2078,31 +2080,35 @@ That trajectory - four decades of writing code, twenty-five of them professional
 
 This page tracks meaningful updates to the manual. Smaller copy-edits and SEO tweaks are not listed; the footer shows the last updated date.
 
-### 2026-06-10 — The outer loop (pattern eight)
+### 2026-06-11 - Scripted subagent orchestration (`/workflows`)
+
+Chapter 1's subagents section gains a paragraph on programmatic orchestration: Claude Code's `/workflows`, which has the agent write a deterministic script that dispatches subagents across phases, parallel/pipeline fan-out, and schema-validated handoffs, with a verification gate. Framed on-thesis - not a new primitive but harness convenience over the subagent primitive, where the determinism is the only real difference from model-driven parallel dispatch (e.g. a Superpowers-style plugin). Dated to mid-2026.
+
+### 2026-06-10 - The outer loop (pattern eight)
 
 Chapter 9 grows an eighth pattern covering the outer-loop trend - re-invoking the agent on an interval, a schedule, or a queue until a condition holds. The pattern traces the lineage (the 2023 self-grading loops; Ralph Wiggum in mid-2025; the late-2025 vendor wave of background and scheduled agents; the loop as a first-class surface by spring 2026) and installs the controls: a five-line loop contract, the loop-eligibility test, four loop kill signals, and the morning review floor. Chapter 5 gains the inner/outer loop vocabulary paragraph. New Appendix B.6 outer-loop contract one-pager (the template count is now six). Five new Appendix C entries under a new outer-loop and autonomy sources group. Dated-claims note bumped to June 2026.
 
-### 2026-05-27 — Permissions / Sandbox primitive
+### 2026-05-27 - Permissions / Sandbox primitive
 
 Permissions / Sandbox promoted to a named primitive - the third slot in the inventory, after Context window and Tools. Two halves like Memory: the agent-level decision layer (Allow / Ask / Deny + auto mode) and OS-level enforcement (Seatbelt / bubblewrap / restricted tokens / WSL2). The vocabulary note in Chapter 1 was rewritten to name the convergence test that promoted this primitive while leaving telemetry as a control layer. Chapter 3 gains a framing paragraph binding three of its five layers (permissions, hooks, sandbox) to the new primitive's configuration surfaces; the five-layer defense-in-depth narrative is preserved unchanged. Inspection-points count in Chapter 2 dropped from nine to eight (the two halves of P/S collapsed to one). Diagram updated to 8 cells. Three new Appendix C entries source the Claude Code / Codex / opencode implementations.
 
-### 2026-05-27 — Changelog + last-updated footer
+### 2026-05-27 - Changelog + last-updated footer
 
 Added this page and a "Last updated &lt;date&gt;" line in the footer, plus a Changelog link in the contact row. The intent: returning readers can see what moved since their last visit without diffing chapters.
 
-### 2026-05-27 — Memory primitive + open-set framing
+### 2026-05-27 - Memory primitive + open-set framing
 
 Memory promoted to a named primitive across the book; Chapter 1 retitled "The primitives" and the structural argument rewritten as "named primitives + the recursive primitive (subagents)". Dropped the closed "six primitives" count throughout; the list is now framed as open-set. New Memory section covers two halves - manually defined memory (AGENTS.md/CLAUDE.md, agent-agnostic) and the auto-memory system (Auto Memory, Auto Dream - currently Claude-Code-led). Diagram updated. Chapter 6 gains a one-paragraph framing intro anchoring AGENTS.md as the team-shareable memory layer. Three new Appendix C entries source the Memory claims.
 
-### 2026-05-27 — SEO pass: per-chapter URLs
+### 2026-05-27 - SEO pass: per-chapter URLs
 
 Every chapter and appendix now has its own URL (20 pages total). Old `/#chapter-N` bookmarks redirect. Each page got a unique title, meta description, canonical URL, prev/next nav, and `TechArticle` + `BreadcrumbList` structured data. Hero gained a three-button CTA row. Schema upgraded from `Article` to `Book` + `Organization` + `FAQPage`. Cross-section anchor rewriting, AGENTS.md de-linking, `/read/` mode for the single-page reading experience. Built-in 404 page, `llms.txt` for AI answer engines, `cover.webp`.
 
-### 2026-05-26 — Feedback-pass polish
+### 2026-05-26 - Feedback-pass polish
 
 External-reviewer pass: TOC chapter-to-part mismatch fixed, figure numbering dropped (web-manual style), new Source-note and Artifact callout components with light + dark variants, foreword bio trimmed to four sentences and full version moved to a new About-the-author section, hero gained a control-thesis dek, AGENTS.md links collapsed to at most one per chapter, per-section `¶` copy-link anchors, callout stack tightening.
 
-### 2026-05-26 — First public version
+### 2026-05-26 - First public version
 
 Manual published at ship-it-with.ai. Ten chapters across three parts (Architecture, Method, Reality), three appendices, plus foreword, prologue, closing.
 
@@ -2459,7 +2465,7 @@ This appendix exists because every claim in this manual deserves a verifiable so
 ---
 
 **Claim:** Permission parsers in coding agents recognize only a known set of shell-read commands; agents invoking Python's `open()`, Node's `fs.readFile`, or any unrecognized binary bypass the deny rules entirely.
-**Source:** Adam Kinney, April 2026. Writeup: [Claude Code's Deny Rules Don't Protect You — Here's What Actually Does](https://adamkinney.com/aatt/claude-code/deny-rules-dont-protect-you-sandbox-does/).
+**Source:** Adam Kinney, April 2026. Writeup: [Claude Code's Deny Rules Don't Protect You - Here's What Actually Does](https://adamkinney.com/aatt/claude-code/deny-rules-dont-protect-you-sandbox-does/).
 **Where used:** Chapter 3 (Governance in layers), as the permission-parser bypass class.
 **Caveat:** Architectural, not a single CVE. Mitigation is the OS sandbox `denyRead` list (kernel-level), not a vendor patch. The class persists across patches because the parser cannot enumerate every binary.
 

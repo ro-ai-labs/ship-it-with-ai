@@ -68,7 +68,7 @@ async function main() {
         }
       }
 
-      // Assertion: Artifact-box wrapping — should match the 10 chapters.
+      // Assertion: Artifact-box wrapping - should match the 10 chapters.
       if (vp.name === 'desktop' && theme === 'light') {
         const artifactCount = await page.locator('aside.artifact-box').count();
         if (artifactCount < 10) fail(`expected >= 10 .artifact-box elements, got ${artifactCount}`);
@@ -178,12 +178,19 @@ async function main() {
       if (theme === 'light' && vp.name === 'desktop') {
         const tooMany = await page.evaluate(() => {
           const chapters = Array.from(document.querySelectorAll('h2[id^="chapter-"]'));
+          // A chapter's region ends at the NEXT section-level heading - the next
+          // chapter, or (for the last chapter) Closing/About/Changelog/an
+          // Appendix. Without this, the last chapter would swallow the trailing
+          // sections and miscount their (correctly un-delinked) AGENTS.md links.
+          const isBoundary = (el) => el.tagName === 'H2' && (
+            /^chapter-/.test(el.id) || el.id === 'closing' ||
+            el.id === 'about-the-author' || el.id === 'changelog' ||
+            /^appendix-/.test(el.id));
           for (let i = 0; i < chapters.length; i++) {
             const start = chapters[i];
-            const end = chapters[i + 1] || null;
             const links = [];
             let n = start.nextElementSibling;
-            while (n && n !== end) {
+            while (n && !isBoundary(n)) {
               if (n.querySelectorAll) {
                 n.querySelectorAll('a[href^="https://agents.md"]').forEach(a => links.push(a));
               }
@@ -252,7 +259,7 @@ async function main() {
 
   await browser.close();
   if (process.exitCode) {
-    console.error('\nVerification FAILED — see above.');
+    console.error('\nVerification FAILED - see above.');
   } else {
     console.log('\nVerification PASSED.');
   }

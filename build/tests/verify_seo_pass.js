@@ -201,7 +201,7 @@ async function main() {
     // ===== Commit 2 assertions =====
 
     // Landing index.html is reasonably thin. The plan's 100 KB target is
-    // aspirational — the current template chrome (search modal + kbd modal +
+    // aspirational - the current template chrome (search modal + kbd modal +
     // sidebar TOC + critical CSS + JSON-LD + search index) bottoms out
     // around 110 KB on a thin-body landing. Anything under 130 KB is fine
     // for Commit 2; aggressive trimming can come later.
@@ -306,7 +306,7 @@ async function main() {
       else ok('404: emits noindex robots override');
       const ogUrl = (html.match(/<meta property="og:url" content="([^"]+)"/) || [])[1];
       if (!ogUrl || ogUrl === 'https://ship-it-with.ai/') {
-        fail(`404: og:url is homepage URL (should be 404-specific) — got: ${ogUrl}`);
+        fail(`404: og:url is homepage URL (should be 404-specific) - got: ${ogUrl}`);
       } else ok(`404: og:url is 404-specific (${ogUrl})`);
     }
 
@@ -320,12 +320,19 @@ async function main() {
 
     // ===== Commit 3 assertions =====
 
-    // Sitemap is now the full 20 URLs (landing + 19 sections; /read/ excluded).
+    // Combined sitemap: 20 URLs per language (landing + 19 sections; /read/
+    // excluded). EN at the root, RO under /ro/ => 40 total.
     {
       const sitemap = fs.readFileSync(path.join(repoRoot, '_site', 'sitemap.xml'), 'utf8');
       const urlCount = (sitemap.match(/<url>/g) || []).length;
-      if (urlCount !== 20) fail(`sitemap has ${urlCount} URLs, expected 20`);
-      else ok(`sitemap has 20 URLs (landing + 19 sections; /read/ excluded)`);
+      if (urlCount !== 40) fail(`sitemap has ${urlCount} URLs, expected 40 (20 EN + 20 RO)`);
+      else ok(`sitemap has 40 URLs (20 EN + 20 RO; /read/ excluded)`);
+      const enCount = (sitemap.match(/<loc>https:\/\/ship-it-with\.ai\/(?!ro\/)/g) || []).length;
+      const roCount = (sitemap.match(/<loc>https:\/\/ship-it-with\.ai\/ro\//g) || []).length;
+      if (enCount !== 20) fail(`sitemap has ${enCount} EN URLs, expected 20`);
+      else ok(`sitemap has 20 EN URLs`);
+      if (roCount !== 20) fail(`sitemap has ${roCount} RO URLs, expected 20`);
+      else ok(`sitemap has 20 RO URLs`);
     }
 
     // Every section page returns 200, has one <h1>, unique title, canonical,
@@ -527,7 +534,7 @@ async function main() {
 
     // 1. Slug rename: old URL serves a redirect stub, new URL serves the chapter.
     {
-      // Read the stub HTML directly from disk — Playwright follows the meta-refresh
+      // Read the stub HTML directly from disk - Playwright follows the meta-refresh
       // / location.replace before page.content() resolves, so we'd get the
       // destination chapter instead of the stub itself.
       const stubHtml = fs.readFileSync(
@@ -539,7 +546,7 @@ async function main() {
 
       const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
       const page = await ctx.newPage();
-      // Hit the old URL — should redirect (via meta-refresh or location.replace)
+      // Hit the old URL - should redirect (via meta-refresh or location.replace)
       // to the new chapter page; final URL should contain the new slug.
       await page.goto(`${baseUrl}/chapter-1-six-primitives/`);
       await page.waitForURL(/chapter-1-primitives/, { timeout: 3000 }).catch(() => {});
@@ -577,7 +584,7 @@ async function main() {
       await ctx.close();
     }
 
-    // 4. Global content sweep — count-anchored phrasings must be 0 in /read/.
+    // 4. Global content sweep - count-anchored phrasings must be 0 in /read/.
     // The Changelog section is meta-commentary and intentionally quotes the
     // old "six primitives" phrasing when describing what was dropped, so
     // exclude its <h2> block from the sweep.
@@ -586,7 +593,7 @@ async function main() {
       const cl = readHtmlRaw.indexOf('<h2 id="changelog"');
       const nextH2 = cl >= 0 ? readHtmlRaw.indexOf('<h2 id="', cl + 1) : -1;
       if (cl >= 0 && nextH2 <= cl) {
-        fail('changelog slice could not locate the next H2 in /read/ — section ordering may have changed; verify script needs updating');
+        fail('changelog slice could not locate the next H2 in /read/ - section ordering may have changed; verify script needs updating');
       }
       const readHtml = cl >= 0 && nextH2 > cl
         ? readHtmlRaw.slice(0, cl) + readHtmlRaw.slice(nextH2)
@@ -656,7 +663,7 @@ async function main() {
       await ctx.close();
     }
 
-    // ===== Memory primitive — Commit 2 assertions (Chapter 6 + Appendix C) =====
+    // ===== Memory primitive - Commit 2 assertions (Chapter 6 + Appendix C) =====
 
     // 8. Chapter 6 framing intro paragraph.
     {
@@ -792,12 +799,12 @@ async function main() {
       await page.goto(`${baseUrl}/changelog/`);
       const body = (await page.locator('main').textContent() || '');
       const required = [
-        '2026-05-27 — Permissions / Sandbox primitive',
-        '2026-05-27 — Changelog + last-updated footer',
-        '2026-05-27 — Memory primitive + open-set framing',
-        '2026-05-27 — SEO pass: per-chapter URLs',
-        '2026-05-26 — Feedback-pass polish',
-        '2026-05-26 — First public version',
+        '2026-05-27 - Permissions / Sandbox primitive',
+        '2026-05-27 - Changelog + last-updated footer',
+        '2026-05-27 - Memory primitive + open-set framing',
+        '2026-05-27 - SEO pass: per-chapter URLs',
+        '2026-05-26 - Feedback-pass polish',
+        '2026-05-26 - First public version',
       ];
       let allPresent = true;
       for (const entry of required) {
@@ -842,10 +849,10 @@ async function main() {
       if (!sitemap.includes('<loc>https://ship-it-with.ai/changelog/</loc>')) {
         fail('sitemap missing /changelog/');
       } else ok('sitemap includes /changelog/');
-      // Sitemap should now have 20 URLs total (/read/ excluded for noindex)
+      // Combined sitemap: 40 URLs total (20 EN + 20 RO; /read/ excluded for noindex)
       const urlCount = (sitemap.match(/<url>/g) || []).length;
-      if (urlCount !== 20) fail(`sitemap has ${urlCount} URLs, expected 20`);
-      else ok('sitemap has 20 URLs (/read/ excluded for noindex)');
+      if (urlCount !== 40) fail(`sitemap has ${urlCount} URLs, expected 40`);
+      else ok('sitemap has 40 URLs (20 EN + 20 RO; /read/ excluded for noindex)');
     }
 
     // 15. Footer "Last updated" stamp on landing + chapter page
@@ -856,7 +863,7 @@ async function main() {
         const page = await ctx.newPage();
         await page.goto(`${baseUrl}${path_}`);
         const footerText = (await page.locator('.footer-copy').first().textContent() || '');
-        if (!dateRegex.test(footerText)) fail(`footer at ${path_} missing "Last updated <date>" — got: "${footerText}"`);
+        if (!dateRegex.test(footerText)) fail(`footer at ${path_} missing "Last updated <date>" - got: "${footerText}"`);
         else ok(`footer at ${path_} has "Last updated <date>"`);
         await ctx.close();
       }
@@ -959,7 +966,7 @@ async function main() {
         const h = fs.readFileSync(path.join(repoRoot, '_site', slug, 'index.html'), 'utf8');
         const types = [...h.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)]
           .map(m => { try { return JSON.parse(m[1])['@type']; } catch { return null; } });
-        if (types.includes('FAQPage')) fail(`${slug} should NOT carry FAQPage (orphaned schema — landing owns it)`);
+        if (types.includes('FAQPage')) fail(`${slug} should NOT carry FAQPage (orphaned schema - landing owns it)`);
         else ok(`${slug} has no orphaned FAQPage`);
       }
     }
@@ -994,7 +1001,7 @@ async function main() {
     stop();
   }
 
-  if (process.exitCode) console.error('\nVerification FAILED — see above.');
+  if (process.exitCode) console.error('\nVerification FAILED - see above.');
   else console.log('\nVerification PASSED.');
 }
 

@@ -149,7 +149,7 @@ async function shotTop(page, file, vpHeight) {
 
     // Second pass for appendix-c: capture a TALLER viewport so we can see
     // the whole "Memory primitive sources" subsection with its 3 cards in one shot
-    // (per-theme, desktop width only — we just need to inspect content).
+    // (per-theme, desktop width only - we just need to inspect content).
     for (const theme of THEMES) {
       const ctx = await browser.newContext({ viewport: { width: 1280, height: 2200 } });
       const page = await ctx.newPage();

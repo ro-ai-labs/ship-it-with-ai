@@ -180,10 +180,10 @@ async function main() {
     {
       await page.goto(BASE + '/changelog/');
       const body = await page.locator('body').textContent();
-      const hasEntry = body.includes('2026-05-27 — Permissions / Sandbox primitive')
+      const hasEntry = body.includes('2026-05-27 - Permissions / Sandbox primitive')
                        || body.includes('2026-05-27 - Permissions / Sandbox primitive')
-                       || body.includes('2026-05-27 — Permissions / Sandbox primitive');
-      // Check it's the top dated entry — first date-style heading should be 2026-05-27
+                       || body.includes('2026-05-27 - Permissions / Sandbox primitive');
+      // Check it's the top dated entry - first date-style heading should be 2026-05-27
       const headings = await page.locator('h2, h3').allTextContents();
       const dateHeadings = headings.filter(h => /^\s*\d{4}-\d{2}-\d{2}/.test(h));
       const topIsToday = dateHeadings.length > 0 && /^\s*2026-05-27/.test(dateHeadings[0]);
@@ -219,7 +219,7 @@ async function main() {
     // ===== 15. Anchor copy-link =====
     {
       const h3Id = await page.locator('h3#permissions-sandbox').count();
-      // Look for copy-link anchor — convention is a sibling/child <a> with ¶ character.
+      // Look for copy-link anchor - convention is a sibling/child <a> with ¶ character.
       // Check inside h3, then immediately after.
       const html = await page.content();
       // Find the h3 and a nearby ¶ link
@@ -237,7 +237,7 @@ async function main() {
     {
       await page.goto(BASE + '/read/');
       // Approach: the canonical primitive list "Context window. Tools. Permissions / Sandbox. Skills. Plugins. MCP. Memory. Subagents."
-      // appears in /read/ — confirms the section is integrated in the right order.
+      // appears in /read/ - confirms the section is integrated in the right order.
       // Also confirm an h3#permissions-sandbox is present in /read/.
       const html = await page.content();
       const canonical = 'Context window. Tools. Permissions / Sandbox. Skills. Plugins. MCP. Memory. Subagents.';
@@ -245,7 +245,7 @@ async function main() {
       const hasH3 = /<h3[^>]*id="permissions-sandbox"[^>]*>\s*Permissions\s*\/\s*Sandbox/i.test(html);
       // Positional: find where the h3#permissions-sandbox sits and confirm "Skills" content appears after it in the same Ch.1 region.
       const psIdx = html.indexOf('id="permissions-sandbox"');
-      // Skills mention as a primitive-cell — find ".primitive-name">Skills inside the primitives-grid that follows the section
+      // Skills mention as a primitive-cell - find ".primitive-name">Skills inside the primitives-grid that follows the section
       const psToEnd = psIdx >= 0 ? html.slice(psIdx, psIdx + 200000) : '';
       // The very next "Tools section" of Ch.2 / Ch.3 doesn't matter; we just need P/S h3 to appear at the right depth.
       const ok = hasCanonical && hasH3 && psIdx > 0;
@@ -270,7 +270,7 @@ async function main() {
   const total = results.length;
   console.log(`${pass}/${total} pass`);
   for (const r of results) {
-    if (!r.pass) console.log(`  FAIL ${r.id}: ${r.name} — ${r.evidence}`);
+    if (!r.pass) console.log(`  FAIL ${r.id}: ${r.name} - ${r.evidence}`);
   }
   process.exit(pass === total ? 0 : 1);
 }

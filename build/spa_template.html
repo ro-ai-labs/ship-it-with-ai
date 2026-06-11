@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{HTML_LANG}}">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,6 +10,7 @@
   <meta name="author" content="{{AUTHOR}}" />
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
   <link rel="canonical" href="{{PAGE_URL}}" />
+  {{HREFLANG_ALTS}}
 
   <link rel="icon" href="/favicon.ico" sizes="any" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -20,7 +21,7 @@
   <meta property="og:description" content="{{PAGE_DESCRIPTION}}" />
   <meta property="og:url" content="{{OG_URL}}" />
   <meta property="og:site_name" content="Ship It With AI" />
-  <meta property="og:locale" content="en_US" />
+  <meta property="og:locale" content="{{OG_LOCALE}}" />
   <meta property="og:image" content="https://ship-it-with.ai/cover.jpg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -34,8 +35,8 @@
   <meta name="twitter:image" content="https://ship-it-with.ai/cover.jpg" />
   <meta name="twitter:image:alt" content="Ship It With AI - A Manual for Shipping Software with AI Agents" />
   <meta name="twitter:url" content="{{OG_URL}}" />
-  <link rel="alternate" type="text/markdown" href="https://ship-it-with.ai/llms-full.txt" title="Ship It With AI — full text (Markdown)" />
-  <link rel="alternate" type="text/markdown" href="https://ship-it-with.ai/llms.txt" title="Ship It With AI — URL index (Markdown)" />
+  <link rel="alternate" type="text/markdown" href="https://ship-it-with.ai/llms-full.txt" title="Ship It With AI - full text (Markdown)" />
+  <link rel="alternate" type="text/markdown" href="https://ship-it-with.ai/llms.txt" title="Ship It With AI - URL index (Markdown)" />
 
   <script>window.SITE_MODE = '{{SITE_MODE}}';</script>
   {{HEAD_SCHEMA}}
@@ -242,6 +243,35 @@
       .topbar-btn { min-height: 44px; min-width: 44px; }
     }
     .menu-toggle { display: none; }
+    .lang-switch {
+      display: inline-flex;
+      align-items: stretch;
+      border: 1px solid var(--color-border-strong);
+      border-radius: 6px;
+      overflow: hidden;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+    .lang-switch .lang-opt {
+      padding: 6px 9px;
+      color: var(--color-text-soft);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      transition: all 0.15s ease;
+    }
+    .lang-switch .lang-opt + .lang-opt { border-left: 1px solid var(--color-border-strong); }
+    .lang-switch .lang-opt:hover { color: var(--color-text); }
+    .lang-switch .lang-current {
+      background: var(--color-accent);
+      color: #fff;
+      cursor: default;
+    }
+    [data-theme="dark"] .lang-switch .lang-current { color: var(--color-bg); }
+    @media (max-width: 720px) {
+      .lang-switch .lang-opt { min-height: 44px; }
+    }
 
     /* Font-size variants (eReader-style) - scale body text in article only */
     [data-font="small"] .article p,
@@ -804,7 +834,7 @@
       color: var(--color-text);
     }
 
-    /* Source notes — inline annotations pointing to Appendix C. */
+    /* Source notes - inline annotations pointing to Appendix C. */
     .source-note {
       background: var(--color-source-bg);
       border: 1px solid var(--color-source-border);
@@ -832,7 +862,7 @@
       color: var(--color-source-text);
     }
 
-    /* Artifact boxes — chapter-ending deliverables. */
+    /* Artifact boxes - chapter-ending deliverables. */
     .artifact-box {
       background: var(--color-artifact-bg);
       border: 1px solid var(--color-border-strong);
@@ -1676,7 +1706,7 @@
 
     /* @region-end critical */
 
-    /* === Deferred CSS — loaded async via <link rel="preload"> === */
+    /* === Deferred CSS - loaded async via <link rel="preload"> === */
     /* Anchor-link toast (created lazily on first ¶ click) */
     .anchor-toast {
       position: fixed;
@@ -2034,6 +2064,7 @@
       <button class="topbar-btn" id="themeToggle" aria-label="Toggle theme">
         <span id="themeIcon">☾</span>
       </button>
+      {{LANG_SWITCH}}
     </div>
   </header>
 
@@ -2466,7 +2497,7 @@
         function jumpTo(i) {
           const entry = currentMatches[i];
           if (!entry) return;
-          // On /read/ (single-page mode) every anchor is in-page — stay
+          // On /read/ (single-page mode) every anchor is in-page - stay
           // inside the SPA and scroll. On landing or per-chapter pages,
           // hop to the entry's owning URL (search index carries entry.url).
           if (window.SITE_MODE !== 'read' && entry.url) {

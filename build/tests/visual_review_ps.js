@@ -158,7 +158,7 @@ async function shotRegionFromTextMatch(page, regex, file) {
     // Second pass: a taller desktop shot capturing the entire P/S sources group
     for (const theme of THEMES) {
       // Use a moderately-tall viewport (not 2400, which is taller than the document
-      // — the browser caps scrollY at docHeight - viewportHeight, leaving the
+      // - the browser caps scrollY at docHeight - viewportHeight, leaving the
       // target heading way above the top edge).
       const ctx = await browser.newContext({ viewport: { width: 1280, height: 1400 } });
       await injectThemeInit(ctx, theme);
@@ -190,7 +190,7 @@ async function shotRegionFromTextMatch(page, regex, file) {
     // see both halves of the prose (decision layer + OS enforcement + "Said plainly").
     for (const theme of THEMES) {
       // Use a moderately-tall viewport (not 2400, which is taller than the document
-      // — the browser caps scrollY at docHeight - viewportHeight, leaving the
+      // - the browser caps scrollY at docHeight - viewportHeight, leaving the
       // target heading way above the top edge).
       const ctx = await browser.newContext({ viewport: { width: 1280, height: 1400 } });
       await injectThemeInit(ctx, theme);
