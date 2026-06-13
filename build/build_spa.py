@@ -1945,6 +1945,72 @@ def rewrite_cross_section_anchors(html: str, current_slug: str,
     return out
 
 
+# HTML regions whose text must never be touched by the prose linker: existing
+# links, code/pre, headings (incl. their generated anchor links), and any bare
+# tag. finditer over this leaves the gaps (real prose) free to rewrite.
+_PROTECTED_HTML_RE = re.compile(
+    r'<a\b[^>]*>.*?</a>'
+    r'|<(code|pre|h1|h2|h3|h4|h5|h6)\b[^>]*>.*?</\1>'
+    r'|<[^>]+>',
+    re.DOTALL,
+)
+
+
+def _current_legacy_key(current_slug: str) -> str | None:
+    """The 'chapter-N' / 'appendix-x' key for the page being rendered, so the
+    linker never links a chapter/appendix to itself."""
+    m = re.match(r"^(chapter-\d+)-", current_slug)
+    if m:
+        return m.group(1)
+    m = re.match(r"^(appendix-[a-z])-", current_slug)
+    if m:
+        return m.group(1)
+    return None
+
+
+def link_cross_references(html: str, current_slug: str,
+                         anchor_index: dict[str, str]) -> str:
+    """Auto-link the FIRST prose mention of each "Chapter N" / "Appendix X"
+    (RO: "Capitolul N" / "Anexa X") to that section's page, for internal-link
+    equity and reader navigation.
+
+    Safe by construction: only the text *between* protected HTML regions (links,
+    code, headings) is rewritten; self-references and already-linked targets are
+    skipped; at most one link per target per page. Visible wording is unchanged.
+    """
+    chapter_word = re.escape(CFG.chapter_word)
+    appendix_word = re.escape(CFG.appendix_word)
+    phrase_re = re.compile(
+        rf'\b(?P<kind>{chapter_word}|{appendix_word})\s+(?P<num>\d+|[A-Z])\b'
+    )
+    cur_key = _current_legacy_key(current_slug)
+    seen: set[str] = set()
+
+    def make_link(m: re.Match) -> str:
+        kind, num = m.group("kind"), m.group("num")
+        if kind == CFG.chapter_word:
+            key = f"chapter-{num}"
+        else:
+            key = f"appendix-{num.lower()}"
+        owner = anchor_index.get(key)
+        if owner is None or key == cur_key or owner == current_slug or key in seen:
+            return m.group(0)
+        seen.add(key)
+        return f'<a href="{_rel(f"/{owner}/")}">{m.group(0)}</a>'
+
+    def link_prose(text: str) -> str:
+        return phrase_re.sub(make_link, text)
+
+    out: list[str] = []
+    pos = 0
+    for m in _PROTECTED_HTML_RE.finditer(html):
+        out.append(link_prose(html[pos:m.start()]))
+        out.append(m.group(0))
+        pos = m.end()
+    out.append(link_prose(html[pos:]))
+    return "".join(out)
+
+
 def _wrap_callouts(content_html: str) -> str:
     """Apply Ship-this-week / Try-it-yourself / Case-note paragraph wrappers.
 
@@ -2019,6 +2085,7 @@ def apply_transforms(html: str, *, mode: str, anchor_index: dict[str, str],
     html = inject_anchor_links(html)
     if mode != "read":
         html = rewrite_cross_section_anchors(html, current_slug, anchor_index)
+        html = link_cross_references(html, current_slug, anchor_index)
     return html
 
 
