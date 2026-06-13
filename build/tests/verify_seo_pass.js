@@ -220,10 +220,13 @@ async function main() {
       if (h1Count !== 1) fail(`/read/ has ${h1Count} <h1>, expected 1`);
       else ok('/read/ has exactly one <h1>');
 
+      // /read/ is self-canonical + noindex,follow: canonical, og:url and
+      // twitter:url all agree on /read/, and noindex keeps the full-text
+      // duplicate out of the index while still passing link equity.
       const canonical = await page.locator('link[rel="canonical"]').getAttribute('href');
-      if (canonical !== 'https://ship-it-with.ai/') {
-        fail(`/read/ canonical = ${canonical}, expected https://ship-it-with.ai/`);
-      } else ok('/read/ canonical → /');
+      if (canonical !== 'https://ship-it-with.ai/read/') {
+        fail(`/read/ canonical = ${canonical}, expected https://ship-it-with.ai/read/`);
+      } else ok('/read/ canonical → /read/ (self-canonical)');
 
       for (let n = 1; n <= 10; n++) {
         const count = await page.locator(`#chapter-${n}`).count();
@@ -938,8 +941,8 @@ async function main() {
       const read = fs.readFileSync(path.join(repoRoot, '_site', 'read', 'index.html'), 'utf8');
       if (!/og:url" content="https:\/\/ship-it-with\.ai\/read\/"/.test(read)) fail('/read/ og:url should be /read/');
       else ok('/read/ og:url=/read/');
-      if (!/rel="canonical" href="https:\/\/ship-it-with\.ai\/"/.test(read)) fail('/read/ canonical should stay /');
-      else ok('/read/ canonical stays /');
+      if (!/rel="canonical" href="https:\/\/ship-it-with\.ai\/read\/"/.test(read)) fail('/read/ should be self-canonical (/read/)');
+      else ok('/read/ self-canonical (/read/)');
     }
 
     {

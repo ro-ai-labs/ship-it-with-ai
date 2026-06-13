@@ -132,7 +132,7 @@ Structura cărții:
 - Appendix C - Sources and Further Reading → "Anexa C - Surse și lecturi suplimentare"
 
 Titluri de capitole (canonice):
-1. "Primitivele"
+1. "Componentele principale"
 2. "Anatomia invariantă"
 3. "Guvernanța în straturi"
 4. "De la cod generat la software livrat"
@@ -144,7 +144,7 @@ Titluri de capitole (canonice):
 10. "Adopția: 90 de zile, trei roluri"
 
 Termeni recurenți:
-- "the primitives" → "primitivele" (un primitive / primitive-ul când e la singular tehnic: folosește "primitivul, primitivele" - s-a românizat: "primitivul Memory")
+- "the primitives" → "componentele principale" (vezi regula din secțiunea anti-calc: o componentă principală / componentele principale; ex. "componenta principală Memory"). NU "primitivele".
 - "the harness" → "harness-ul"
 - "the agent loop" → "bucla agentului"
 - "the six-phase loop" → "bucla în șase faze"

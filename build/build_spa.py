@@ -33,6 +33,20 @@ TEMPLATE_PATH = HERE / "spa_template.html"
 # per-language URL prefix (below) is the only thing that varies between builds.
 BASE = "https://ship-it-with.ai"
 
+# First-publication date of the manual. Mirrors the <meta article:published_time>
+# in the template; used as datePublished in the per-chapter JSON-LD so articles
+# carry both a publish and a (git-derived) modified date. dateModified comes from
+# _content_date() and reflects the last content edit.
+SITE_PUBLISHED = "2026-05-26"
+
+# Author identity, referenced from JSON-LD (Book, TechArticle, Organization).
+AUTHOR_NAME = "Mihai Cvasnievschi"
+AUTHOR_SAMEAS = ["https://www.linkedin.com/in/mihaicvasnievschi/"]
+
+# robots directives, supplied as a single per-page meta (no double tags).
+ROBOTS_INDEX = "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+ROBOTS_NOINDEX = "noindex, follow"
+
 # Per-language build context. set_language() (near the bottom of this file)
 # rebinds these before each language pass. URL_PREFIX is "" for the default
 # English build and "/ro" for the Romanian build; CFG carries every
@@ -1468,7 +1482,7 @@ READ_ARTICLE_BODY = '''<header class="article-header">
       <figure class="article-cover article-cover-end">
         <picture>
           <source type="image/webp" srcset="/cover-720.webp 720w, /cover.webp 1200w" sizes="(max-width: 760px) 100vw, 720px" />
-          <img src="/cover.jpg" alt="Ship It With AI - A Manual for Shipping Software with AI Agents, by {AUTHOR}" width="1200" height="630" loading="lazy" decoding="async" />
+          <img src="/cover.jpg" alt="{COVER_ALT}" width="1200" height="630" loading="lazy" decoding="async" />
         </picture>
       </figure>'''
 
@@ -1499,7 +1513,7 @@ LANDING_ARTICLE_BODY = '''<header class="article-header">
       <figure class="article-cover article-cover-end">
         <picture>
           <source type="image/webp" srcset="/cover-720.webp 720w, /cover.webp 1200w" sizes="(max-width: 760px) 100vw, 720px" />
-          <img src="/cover.jpg" alt="Ship It With AI - A Manual for Shipping Software with AI Agents, by {AUTHOR}" width="1200" height="630" loading="lazy" decoding="async" />
+          <img src="/cover.jpg" alt="{COVER_ALT}" width="1200" height="630" loading="lazy" decoding="async" />
         </picture>
       </figure>'''
 
@@ -1590,21 +1604,47 @@ def faq_visible_html(entries: list[dict]) -> str:
 HOMEPAGE_HEAD_SCHEMA = '''<script type="application/ld+json">
   {{
     "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": "{URL_BASE}/#website",
+    "name": "Ship It With AI",
+    "alternateName": "{BOOK_ALT}",
+    "url": "{URL_BASE}/",
+    "inLanguage": "{LANG}",
+    "publisher": {{ "@id": "{URL_BASE}/#org" }},
+    "about": [ "Agentic coding", "AI coding agents", "AGENTS.md", "AI software delivery" ]
+  }}
+  </script>
+  <script type="application/ld+json">
+  {{
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "@id": "{URL_BASE}/#author",
+    "name": "{AUTHOR}",
+    "url": "{URL_BASE}/about-the-author/",
+    "sameAs": [ "https://www.linkedin.com/in/mihaicvasnievschi/" ],
+    "knowsAbout": [
+      "Agentic coding",
+      "AI coding agents",
+      "AGENTS.md",
+      "Software delivery",
+      "AI governance"
+    ]
+  }}
+  </script>
+  <script type="application/ld+json">
+  {{
+    "@context": "https://schema.org",
     "@type": "Book",
     "@id": "{URL_BASE}/#book",
     "name": "{BOOK_NAME}",
     "headline": "Ship It With AI",
     "alternateName": "{BOOK_ALT}",
-    "author": {{
-      "@type": "Person",
-      "name": "{AUTHOR}",
-      "url": "https://www.linkedin.com/in/mihaicvasnievschi/"
-    }},
+    "author": {{ "@id": "{URL_BASE}/#author" }},
     "publisher": {{ "@id": "{URL_BASE}/#org" }},
     "bookFormat": "https://schema.org/EBook",
     "inLanguage": "{LANG}",
     "numberOfPages": {NUMBER_OF_PAGES},
-    "genre": "Technology / Software Engineering",
+    "genre": ["Technology", "Software Engineering"],
     "about": [
       "Agentic coding",
       "AI software delivery",
@@ -1614,7 +1654,10 @@ HOMEPAGE_HEAD_SCHEMA = '''<script type="application/ld+json">
     "description": "{BOOK_DESC}",
     "url": "{URL_BASE}/",
     "image": "https://ship-it-with.ai/cover.jpg",
-    "dateModified": "{DATE_MODIFIED}"
+    "isAccessibleForFree": true,
+    "datePublished": "{DATE_PUBLISHED}",
+    "dateModified": "{DATE_MODIFIED}",
+    "mainEntityOfPage": "{URL_BASE}/"
   }}
   </script>
   <script type="application/ld+json">
@@ -1624,7 +1667,14 @@ HOMEPAGE_HEAD_SCHEMA = '''<script type="application/ld+json">
     "@id": "{URL_BASE}/#org",
     "name": "Ship It With AI",
     "url": "{URL_BASE}/",
-    "logo": "https://ship-it-with.ai/cover.jpg"
+    "logo": {{
+      "@type": "ImageObject",
+      "url": "https://ship-it-with.ai/cover.jpg",
+      "width": 1200,
+      "height": 630
+    }},
+    "founder": {{ "@id": "{URL_BASE}/#author" }},
+    "sameAs": [ "https://www.linkedin.com/in/mihaicvasnievschi/" ]
   }}
   </script>'''
 
@@ -1667,6 +1717,7 @@ def _read_article_body(content_html: str, subtitle: str, author: str,
         SUBTITLE=html_lib.escape(subtitle),
         CONTENT=content_html,
         AUTHOR=html_lib.escape(author),
+        COVER_ALT=html_lib.escape(CFG.cover_alt.format(AUTHOR=author)),
         BYLINE_HREF=html_lib.escape(byline_href),
         TITLE_KEYWORD=CFG.title_keyword,
         DEK=CFG.hero_dek,
@@ -1684,6 +1735,7 @@ def _landing_article_body(subtitle: str, author: str, byline_href: str,
     body = LANDING_ARTICLE_BODY.format(
         SUBTITLE=html_lib.escape(subtitle),
         AUTHOR=html_lib.escape(author),
+        COVER_ALT=html_lib.escape(CFG.cover_alt.format(AUTHOR=author)),
         BYLINE_HREF=html_lib.escape(byline_href),
         TOC_HTML=toc_html,
         TITLE_KEYWORD=CFG.title_keyword,
@@ -1721,6 +1773,7 @@ def _homepage_head_schema(author: str, number_of_pages: int, date_modified: str)
     return HOMEPAGE_HEAD_SCHEMA.format(
         AUTHOR=_json_escape(author),
         NUMBER_OF_PAGES=number_of_pages,
+        DATE_PUBLISHED=SITE_PUBLISHED,
         DATE_MODIFIED=date_modified,
         URL_BASE=f"{BASE}{URL_PREFIX}",
         LANG=CFG.html_lang,
@@ -2000,10 +2053,37 @@ def render_chapter_schema(section: Section) -> str:
         "@context": "https://schema.org",
         "@type": "TechArticle",
         "headline": section.title,
+        "name": section.title,
+        "description": _section_description(section, limit=155),
         "url": page_url,
-        "author": {"@type": "Person", "name": "Mihai Cvasnievschi"},
+        "mainEntityOfPage": {"@type": "WebPage", "@id": page_url},
+        "inLanguage": CFG.html_lang,
+        "image": {
+            "@type": "ImageObject",
+            "url": f"{BASE}/cover.jpg",
+            "width": 1200,
+            "height": 630,
+        },
+        "author": {
+            "@type": "Person",
+            "name": AUTHOR_NAME,
+            "url": _abs("/about-the-author/"),
+            "sameAs": AUTHOR_SAMEAS,
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "Ship It With AI",
+            "logo": {
+                "@type": "ImageObject",
+                "url": f"{BASE}/cover.jpg",
+                "width": 1200,
+                "height": 630,
+            },
+        },
         "isPartOf": {"@id": f"{BASE}{URL_PREFIX}/#book"},
+        "isAccessibleForFree": True,
         "articleSection": section.title,
+        "datePublished": SITE_PUBLISHED,
         "dateModified": today,
         "proficiencyLevel": "Expert",
         "dependencies": ["Claude Code", "AGENTS.md", "MCP"],
@@ -2038,26 +2118,34 @@ def render_chapter_schema(section: Section) -> str:
     )
 
 
-_STABLE_SECTION_DESCRIPTIONS: dict[str, str] = {
-    # Hard-coded for sections whose body contains dated/churning content that
-    # would otherwise produce a different SERP snippet on every release.
-    "changelog": (
-        "Meaningful changes to Ship It With AI - the agentic coding field "
-        "manual. Dated entries for content updates, structural revisions, "
-        "and SEO passes."
-    ),
-}
+def _truncate_at_boundary(text: str, limit: int) -> str:
+    """Trim `text` to <= limit chars at a sentence boundary when possible, else
+    at a word boundary. Never appends an ellipsis - a meta description that ends
+    on a clean clause reads better in the SERP than one cut mid-thought with '...'.
+    """
+    if len(text) <= limit:
+        return text
+    window = text[:limit]
+    # Prefer the last sentence end (. ! ?) inside the window, if it leaves a
+    # reasonably long description (>= 60% of limit).
+    best = max(window.rfind(". "), window.rfind("! "), window.rfind("? "))
+    if best >= int(limit * 0.6):
+        return window[:best + 1].strip()
+    return window.rsplit(" ", 1)[0].strip()
 
 
 def _section_description(section: Section, limit: int = 200) -> str:
-    """Build a meta description from the section's first real paragraph.
+    """Meta description for a section.
 
-    Strips markdown, blockquote markers, and rules. If the first paragraph is
-    shorter than ~120 chars, concatenates the next paragraph too - meta
-    descriptions in the 120-200 char range carry the most SERP weight.
+    Order of preference: (1) a curated, language-native description from
+    CFG.section_descriptions (keyed by slug) - the SERP-optimised copy; (2) the
+    first real paragraph(s) of the body, trimmed to a clean boundary with no
+    trailing ellipsis. The curated map covers every indexable section, so the
+    auto-snippet is a defensive fallback for any future un-mapped slug.
     """
-    if section.kind in _STABLE_SECTION_DESCRIPTIONS:
-        return _STABLE_SECTION_DESCRIPTIONS[section.kind]
+    curated = CFG.section_descriptions.get(section.slug)
+    if curated:
+        return curated
     paragraphs: list[str] = []
     buf: list[str] = []
     in_fence = False
@@ -2088,10 +2176,9 @@ def _section_description(section: Section, limit: int = 200) -> str:
 
     raw = " ".join(paragraphs[:2])
     clean = _MD_MULTI_WS_RE.sub(" ", _strip_markdown(raw)).strip()
-    if len(clean) <= limit:
-        return clean or f"{section.title} - Agentic Coding Field Manual."
-    cut = clean[:limit].rsplit(" ", 1)[0]
-    return cut + "..."
+    if not clean:
+        return CFG.empty_description or f"{section.title}{CFG.title_suffix}"
+    return _truncate_at_boundary(clean, limit)
 
 
 def _lang_switch_html(page_path: str) -> str:
@@ -2127,11 +2214,24 @@ def _hreflang_alts(page_path: str) -> str:
     return "\n  ".join(out)
 
 
+def _og_locale_alt() -> str:
+    """og:locale:alternate value: the other edition's locale (e.g. ro_RO on an
+    EN page). With two languages this is a single value - the first non-current
+    locale."""
+    for lang in LANGS:
+        if lang.code != CFG.code:
+            return lang.og_locale
+    return ""
+
+
 def _lang_subs(page_path: str, *, hreflang: bool = True) -> dict:
     """The per-page language placeholders every render site must supply."""
     return {
         "HTML_LANG": CFG.html_lang,
         "OG_LOCALE": CFG.og_locale,
+        "OG_LOCALE_ALT": _og_locale_alt(),
+        "KEYWORDS": html_lib.escape(CFG.meta_keywords),
+        "IMAGE_ALT": html_lib.escape(CFG.og_image_alt),
         "LANG_SWITCH": _lang_switch_html(page_path),
         "HREFLANG_ALTS": _hreflang_alts(page_path) if hreflang else "",
     }
@@ -2181,8 +2281,10 @@ def render_chapter(template: str, section: Section, *,
     )
 
     page_url = _abs(f"/{section.slug}/")
-    page_title = f"{section.title}{CFG.title_suffix}"
-    page_description = _section_description(section)
+    page_title = CFG.section_titles.get(section.slug) or f"{section.title}{CFG.title_suffix}"
+    # Meta descriptions cap at ~155 chars (full SERP snippet); curated entries are
+    # already sized, the limit only bites the auto-snippet fallback.
+    page_description = _section_description(section, limit=155)
 
     substitutions = {
         "PAGE_TITLE": html_lib.escape(page_title),
@@ -2190,6 +2292,7 @@ def render_chapter(template: str, section: Section, *,
         "PAGE_URL": page_url,
         "OG_TYPE": "article",
         "OG_URL": page_url,
+        "ROBOTS": ROBOTS_INDEX,
         "SITE_MODE": "chapter",
         "TITLE": html_lib.escape(title_meta),
         "AUTHOR": html_lib.escape(author),
@@ -2206,10 +2309,9 @@ def render_chapter(template: str, section: Section, *,
 
 
 LANDING_DESCRIPTION = (
-    "Agentic coding - letting an AI agent read, write, run, and verify your "
-    "code - is a control problem, not a tooling problem. A vendor-neutral "
-    "field manual: the primitives, the six-phase loop, AGENTS.md, governance, "
-    "kill signals, brownfield patterns, 90-day adoption."
+    "Agentic coding is a control problem, not a tooling problem. The "
+    "vendor-neutral field manual for shipping software with AI agents: "
+    "primitives, loop, AGENTS.md."
 )
 
 READ_DESCRIPTION = (
@@ -2231,6 +2333,7 @@ def render_landing(template: str, *, title: str, subtitle: str, author: str,
         "PAGE_URL": _abs("/"),
         "OG_TYPE": "website",
         "OG_URL": _abs("/"),
+        "ROBOTS": ROBOTS_INDEX,
         "SITE_MODE": "landing",
         "TITLE": html_lib.escape(title),
         "AUTHOR": html_lib.escape(author),
@@ -2256,15 +2359,20 @@ def render_read(template: str, *, title: str, subtitle: str, author: str,
     substitutions = {
         "PAGE_TITLE": html_lib.escape(CFG.read_title),
         "PAGE_DESCRIPTION": html_lib.escape(CFG.read_description),
-        "PAGE_URL": _abs("/"),  # alternate format of /
+        # Self-canonical: /read/ is the all-in-one duplicate of the per-section
+        # pages, kept out of the index via robots noindex (below). Pointing
+        # canonical at itself keeps canonical, og:url and twitter:url consistent;
+        # noindex,follow still passes link equity to the per-section pages.
+        "PAGE_URL": _abs("/read/"),
         "OG_TYPE": "article",
         "OG_URL": _abs("/read/"),
+        "ROBOTS": ROBOTS_NOINDEX,
         "SITE_MODE": "read",
         "TITLE": html_lib.escape(title),
         "AUTHOR": html_lib.escape(author),
         "BYLINE_HREF": "#contact",
         "HEAD_SCHEMA": head_schema,
-        "HEAD_EXTRA": '<meta name="robots" content="noindex, follow">',
+        "HEAD_EXTRA": "",
         "TOC": toc_html_sidebar,
         "ARTICLE_BODY": _read_article_body(content_html, subtitle, author, "#contact"),
         "SEARCH_INDEX": search_index,
@@ -2323,12 +2431,10 @@ def render_404(template: str, *, title: str, author: str, toc_html: str,
     """Render the 404 page reusing the homepage chrome (topbar / TOC / footer).
 
     Crucially, the 404 substitutes its own minimal {{ARTICLE_BODY}}, an empty
-    {{HEAD_SCHEMA}} (no Book / FAQPage JSON-LD), and a noindex robots meta in
-    {{HEAD_EXTRA}} (the only place a later meta in <head> can override the
-    template's default index, follow). PAGE_URL points to the 404 path itself
-    so canonical/og:url/twitter:url don't claim to be the homepage.
+    {{HEAD_SCHEMA}} (no Book / FAQPage JSON-LD), and a single noindex robots
+    directive via {{ROBOTS}}. PAGE_URL points to the 404 path itself so
+    canonical/og:url/twitter:url don't claim to be the homepage.
     """
-    head_extra = '<meta name="robots" content="noindex, follow">'
     article_body = _FOUR_OH_FOUR_ARTICLE_BODY.format(
         TITLE=html_lib.escape(CFG.notfound_title),
         SUBTITLE=html_lib.escape(CFG.notfound_subtitle),
@@ -2343,12 +2449,13 @@ def render_404(template: str, *, title: str, author: str, toc_html: str,
         "PAGE_URL": _abs("/404.html"),
         "OG_TYPE": "website",
         "OG_URL": _abs("/404.html"),
+        "ROBOTS": ROBOTS_NOINDEX,
         "SITE_MODE": "404",
         "TITLE": html_lib.escape(title),
         "AUTHOR": html_lib.escape(author),
         "BYLINE_HREF": _rel("/about-the-author/#contact"),
         "HEAD_SCHEMA": "",
-        "HEAD_EXTRA": head_extra,
+        "HEAD_EXTRA": "",
         "TOC": toc_html,
         "ARTICLE_BODY": article_body,
         "SEARCH_INDEX": search_index,
@@ -2642,8 +2749,121 @@ class Lang:
     llms_author_heading: str
     llms_author_line: str
 
+    # SEO meta (localized). Defaults keep older call-sites valid; both EN and RO
+    # supply real values below.
+    meta_keywords: str = ""
+    og_image_alt: str = ""
+    cover_alt: str = ""
+    # Curated per-section SERP overrides, keyed by URL slug. When a slug is
+    # present here the value wins over the auto-derived title / first-paragraph
+    # snippet; missing slugs fall back to the generated behaviour.
+    section_titles: dict = field(default_factory=dict)
+    section_descriptions: dict = field(default_factory=dict)
+    # Fallback meta description for an empty section, language-native.
+    empty_description: str = ""
+
+
+# ---------------------------------------------------------------------------
+# Curated per-section SERP metadata (titles + meta descriptions), generated
+# and human-reviewed for keyword intent, length, and (RO) corporate-Romanian
+# register. Keyed by URL slug; consumed via Lang.section_titles /
+# .section_descriptions. ASCII hyphens only.
+# ---------------------------------------------------------------------------
+EN_SECTION_TITLES = {
+    "about-the-author": "Mihai Cvasnievschi - Ship It With AI",
+    "acknowledgments": "Acknowledgments - Ship It With AI",
+    "appendix-a-cost-economics": "AI Coding Agent Cost: Pricing Models - Ship It With AI",
+    "appendix-b-templates": "AGENTS.md Template + 5 Copy-Paste Resources",
+    "appendix-c-sources": "Agentic Coding Sources - Ship It With AI",
+    "changelog": "Ship It With AI changelog - updates to the manual",
+    "chapter-1-primitives": "Coding agent primitives: the core building blocks",
+    "chapter-10-adoption-90-days": "AI Agent Adoption Rollout: 90 Days, Three Roles",
+    "chapter-2-anatomy-invariant": "Agentic System Architecture: Perceive, Reason, Act",
+    "chapter-3-governance-in-layers": "AI Agent Governance: Five Layers - Ship It With AI",
+    "chapter-4-from-generating-code-to-shipping-software": "Agentic Delivery Workflow: Generate, Review, Verify, Ship",
+    "chapter-5-six-phase-loop": "Agentic coding loop: the six-phase loop method",
+    "chapter-6-agents-md": "AGENTS.md vs CLAUDE.md: How to Write It",
+    "chapter-7-architecture-review": "Architecture Review for AI Agents: A Diagnosis Workflow",
+    "chapter-8-readiness-kill-signals": "AI Coding Agent Readiness: The Kill Signals",
+    "chapter-9-brownfield-patterns": "Brownfield refactoring with AI agents: 8 patterns",
+    "closing": "Future of Agentic Software Engineering - Ship It",
+    "foreword": "Why Coding Agents Fail - Ship It With AI",
+    "prologue-nine-seconds": "AI coding agent incident: PocketOS lost its database",
+}
+
+EN_SECTION_DESCRIPTIONS = {
+    "about-the-author": "Mihai Cvasnievschi: 40 years of code, from BASIC in 1989 to shipping with Claude Code, Codex and Cursor. The experience behind this agentic coding manual.",
+    "acknowledgments": "Closing thanks from the author of Ship It With AI. Share your agentic coding wins or failures - your experience shapes the next edition of the manual.",
+    "appendix-a-cost-economics": "AI coding agent cost, broken down: map per-seat, token, and usage pricing for Claude Code, Codex, Copilot, and Cursor onto your team's real numbers.",
+    "appendix-b-templates": "AGENTS.md template that doubles as CLAUDE.md, plus 5 copy-paste resources: architecture review prompt, six-phase loop checklist, kill signal worksheet.",
+    "appendix-c-sources": "Agentic coding sources and references, organized by claim: studies, named incidents, CVEs with patch versions, and tool docs you can chase down and verify.",
+    "changelog": "Ship It With AI changelog: meaningful updates to the agentic-coding manual, dated newest first. New sections, reworked chapters, and key fixes.",
+    "chapter-1-primitives": "Coding agent primitives explained: context window, tools, permissions, skills, plugins, MCP, memory, and the harness that wraps them in Claude Code and Codex.",
+    "chapter-10-adoption-90-days": "AI agent adoption rollout in 90 days: the Champion, Lead, and Manager roles plus the grassroots arc that takes a team from one engineer to a real practice.",
+    "chapter-2-anatomy-invariant": "Agentic system architecture explained: every coding agent must perceive, reason, and act. See Claude Code inspect two rival agents side by side.",
+    "chapter-3-governance-in-layers": "AI agent governance, layered: permissions, sandbox, secrets, hooks, and telemetry. The least-privilege controls that would have stopped PocketOS.",
+    "chapter-4-from-generating-code-to-shipping-software": "Agentic delivery workflow: stop treating the agent as a code generator. Generate, review, verify, ship - formulation is the bottleneck, not typing code.",
+    "chapter-5-six-phase-loop": "The agentic coding loop runs in six gated phases: research, plan, execute, review, verify, ship. The execution method for shipping with Claude Code or Codex.",
+    "chapter-6-agents-md": "AGENTS.md is the vendor-neutral team instruction file. Learn how to write one and how it differs from CLAUDE.md across Claude Code, Codex, and Copilot.",
+    "chapter-7-architecture-review": "Architecture review for AI agents: point Claude Code, Codex, or Cursor at a repo, generate a structured review, and save it as a durable diagnosis artifact.",
+    "chapter-8-readiness-kill-signals": "AI coding agent readiness: learn the kill signals and traffic light that tell you when to put Claude Code, Codex or Copilot on a codebase, and when not to.",
+    "chapter-9-brownfield-patterns": "Brownfield refactoring with AI agents on legacy code needs operating patterns: worktrees, champions, hooks, PR review, plus four maturity patterns.",
+    "closing": "The future of agentic software engineering rests on durable principles, not tools. Claude Code, Codex and the rest will churn - the loop endures.",
+    "foreword": "Coding agents like Claude Code and Codex generate code that looks right but isn't. This foreword explains why agentic coding fails and how to fix it.",
+    "prologue-nine-seconds": "An AI coding agent incident, step by step: a Cursor agent on Claude Opus wiped PocketOS's production database trying to fix a credentials mismatch.",
+}
+
+RO_SECTION_TITLES = {
+    "about-the-author": "Mihai Cvasnievschi - Ship It With AI",
+    "acknowledgments": "Mulțumiri - Ship It With AI",
+    "appendix-a-cost-economics": "Costul agenților de cod AI - Ship It With AI",
+    "appendix-b-templates": "Template AGENTS.md + 5 resurse copy-paste",
+    "appendix-c-sources": "Surse și lecturi despre programarea cu agenți",
+    "changelog": "Ship It With AI - jurnal de modificări (changelog)",
+    "chapter-1-primitives": "Componentele principale ale unui coding agent",
+    "chapter-10-adoption-90-days": "Adopția agenților AI în echipă: 90 de zile, 3 roluri",
+    "chapter-2-anatomy-invariant": "Arhitectura unui sistem agentic: percepție-rațiune-acțiune",
+    "chapter-3-governance-in-layers": "Guvernanța agenților AI: 5 straturi - Ship It With AI",
+    "chapter-4-from-generating-code-to-shipping-software": "Livrare software cu agenți AI: generate, review, ship",
+    "chapter-5-six-phase-loop": "Bucla în șase faze a programării cu agenți AI",
+    "chapter-6-agents-md": "AGENTS.md: fișier de configurare agenți AI",
+    "chapter-7-architecture-review": "Review de arhitectură pentru agenți AI - Ship It With AI",
+    "chapter-8-readiness-kill-signals": "Pregătire pentru livrarea cu agenți AI",
+    "chapter-9-brownfield-patterns": "Refactorizare brownfield cu agenți AI: 8 pattern-uri",
+    "closing": "Viitorul ingineriei software cu agenți AI",
+    "foreword": "De ce eșuează coding agents - Ship It With AI",
+    "prologue-nine-seconds": "Incident agent de cod AI: PocketOS pierde baza de date",
+}
+
+RO_SECTION_DESCRIPTIONS = {
+    "about-the-author": "Mihai Cvasnievschi: 40 de ani de cod, de la BASIC în 1989 la shipping cu coding agents ca Claude Code, Codex și Cursor. Experiența din spatele manualului.",
+    "acknowledgments": "Mulțumiri de final de la autorul Ship It With AI. Spune-ți reușitele sau eșecurile din programarea cu agenți AI - experiența ta modelează ediția viitoare.",
+    "appendix-a-cost-economics": "Costul agenților de cod AI: pune numerele echipei tale în grila per-seat, token și usage și compară prețurile la Claude Code, Codex, Copilot, Cursor.",
+    "appendix-b-templates": "Template AGENTS.md care merge și ca CLAUDE.md, plus 5 resurse copy-paste: prompt de architecture review, checklist six-phase loop și worksheet kill signals.",
+    "appendix-c-sources": "Surse și lecturi despre programarea cu agenți, grupate pe afirmație: studii, incidente cunoscute, CVE-uri cu versiuni de patch și documentația tool-urilor.",
+    "changelog": "Jurnal de modificări Ship It With AI: actualizările semnificative ale manualului de programare cu agenți AI, datate, cele mai noi întâi.",
+    "chapter-1-primitives": "Componentele principale ale unui coding agent: context window, tool-uri, permisiuni, skills, plugins, MCP și memory, împachetate de harness în Claude Code.",
+    "chapter-10-adoption-90-days": "Adopția agenților AI în echipă în 90 de zile, cu rolurile Champion, Lead, Manager și arcul grassroots de la primul inginer la o practică reală.",
+    "chapter-2-anatomy-invariant": "Arhitectura unui sistem agentic: orice coding agent percepe, raționează și acționează. Vezi Claude Code inspectând doi agenți rivali în oglindă.",
+    "chapter-3-governance-in-layers": "Guvernanța agenților AI, pe straturi: permisiuni, sandbox, secrete, hooks și telemetrie. Controalele least-privilege care ar fi oprit incidentul PocketOS.",
+    "chapter-4-from-generating-code-to-shipping-software": "Livrare software cu agenți AI: nu tastarea e bottleneck-ul, ci restul livrării - review, verify, ship. Treci de la cod generat la software livrat.",
+    "chapter-5-six-phase-loop": "Bucla în șase faze a programării cu agenți: research, plan, execute, review, verify, ship. Metoda de execuție pentru a livra cu Claude Code sau Codex.",
+    "chapter-6-agents-md": "AGENTS.md e fișierul de configurare agenți neutru față de vendor. Afli cum îl scrii și cum diferă de CLAUDE.md în Claude Code, Codex și Copilot.",
+    "chapter-7-architecture-review": "Review de arhitectură pentru agenți AI: îndrepți Claude Code, Codex sau Cursor spre un repo, generezi un review structurat și îl salvezi ca artefact durabil.",
+    "chapter-8-readiness-kill-signals": "Pregătire pentru livrarea cu agenți AI: kill signals și semaforul care îți arată când să pui un coding agent pe un codebase și când să nu o faci.",
+    "chapter-9-brownfield-patterns": "Refactorizarea brownfield cu agenți AI pe codebase-uri legacy cere pattern-uri operaționale: worktrees, champions, hooks, PR review și patru de maturitate.",
+    "closing": "Viitorul ingineriei software cu agenți AI stă în principii durabile, nu în tool-uri. Claude Code, Codex și restul vor dispărea - bucla rămâne.",
+    "foreword": "De ce eșuează coding agents ca Claude Code și Codex: generează cod care arată corect, dar nu este. Cuvânt înainte despre programarea cu agenți AI.",
+    "prologue-nine-seconds": "Incident agent de cod AI în 9 secunde: un agent Cursor pe Claude Opus a șters baza de date de producție PocketOS în timp ce repară o problemă de credențiale.",
+}
+
 
 EN = Lang(
+    section_titles=EN_SECTION_TITLES, section_descriptions=EN_SECTION_DESCRIPTIONS,
+    meta_keywords="agentic coding, AI coding agents, AGENTS.md, AI software delivery, agentic software engineering, Claude Code, Codex",
+    og_image_alt="Ship It With AI - a field manual for shipping software with AI coding agents",
+    cover_alt="Ship It With AI - a field manual for shipping software with AI coding agents, by {AUTHOR}",
+    empty_description="Ship It With AI - the vendor-neutral field manual for agentic coding.",
     code="en", html_lang="en", og_locale="en_US", prefix="",
     source=SOURCE, out=SITE_DIR,
     switch_label="EN", lang_switch_aria="Language",
@@ -2759,7 +2979,7 @@ RO_FAQ_ENTRIES = [
     {
         "q": "Ce este MCP (Model Context Protocol)?",
         "home_slug": "chapter-1-primitives",
-        "a": "MCP, Model Context Protocol, e o specificație care lasă un coding agent să se conecteze la tool-uri și surse de date externe - issue trackere, baze de date, documentație, servicii interne - printr-o interfață uniformă. E unul dintre primitivele agentului: unde Tools sunt acțiunile built-in ale agentului, MCP e felul în care agentul ajunge la capabilități cu care nu a venit harness-ul.",
+        "a": "MCP, Model Context Protocol, e o specificație care lasă un coding agent să se conecteze la tool-uri și surse de date externe - issue trackere, baze de date, documentație, servicii interne - printr-o interfață uniformă. E una dintre componentele principale ale agentului: unde Tools sunt acțiunile built-in ale agentului, MCP e felul în care agentul ajunge la capabilități cu care nu a venit harness-ul.",
     },
     {
         "q": "Sunt coding agents gata de producție?",
@@ -2770,6 +2990,11 @@ RO_FAQ_ENTRIES = [
 
 
 RO = Lang(
+    section_titles=RO_SECTION_TITLES, section_descriptions=RO_SECTION_DESCRIPTIONS,
+    meta_keywords="programare cu agenti, agenti AI, coding agents, AGENTS.md, livrare software cu AI, manual programare AI, Claude Code, Codex",
+    og_image_alt="Ship It With AI - manual de programare cu agenți AI",
+    cover_alt="Ship It With AI - manual de programare cu agenți AI, de {AUTHOR}",
+    empty_description="Ship It With AI - manualul neutru față de vendor pentru programarea cu agenți.",
     code="ro", html_lang="ro", og_locale="ro_RO", prefix="/ro",
     source=REPO_ROOT / "source" / "Ship_It_With_AI.RO.md", out=SITE_DIR / "ro",
     switch_label="RO", lang_switch_aria="Limbă",
@@ -2809,15 +3034,13 @@ RO = Lang(
     book_name="Ship It With AI: Manual de programare cu agenți",
     book_alt="Manual de programare cu agenți",
     book_desc=("Un manual practic, neutru față de vendor, pentru livrarea de software "
-               "cu coding agents. Acoperă primitivele, bucla în șase faze, AGENTS.md, "
+               "cu coding agents. Acoperă componentele principale, bucla în șase faze, AGENTS.md, "
                "guvernanța în straturi, kill signals, pattern-uri pentru brownfield și "
                "adopția în 90 de zile."),
     landing_title="Programarea cu agenți: un manual practic pentru livrarea de software cu agenți AI",
-    landing_description=("Programarea cu agenți - să lași un agent AI să citească, să scrie, "
-                         "să ruleze și să verifice codul - e o problemă de control, nu de "
-                         "tooling. Un manual practic, neutru față de vendor: primitivele, "
-                         "bucla în șase faze, AGENTS.md, guvernanța, kill signals, pattern-uri "
-                         "pentru brownfield, adopția în 90 de zile."),
+    landing_description=("Programarea cu agenți e o problemă de control, nu de tooling. "
+                         "Manualul practic, neutru față de vendor, pentru livrarea de "
+                         "software cu agenți AI."),
     read_title="Ship It With AI: manual de programare cu agenți (text integral)",
     read_description=("Textul integral din Ship It With AI: un manual practic, neutru față "
                       "de vendor, pentru programarea cu agenți. Arhitectură, metodă și "
@@ -2845,7 +3068,7 @@ RO = Lang(
     llms_read_label="Citește pe o singură pagină",
     llms_title="Ship It With AI - Manual de programare cu agenți",
     llms_blurb=("> Un manual practic, neutru față de vendor, pentru livrarea de software cu coding agents.\n"
-                "> Acoperă primitivele, bucla în șase faze, AGENTS.md ca infrastructură de echipă,\n"
+                "> Acoperă componentele principale, bucla în șase faze, AGENTS.md ca infrastructură de echipă,\n"
                 "> guvernanța în straturi, kill signals, pattern-uri pentru brownfield și adopția în 90 de zile."),
     llms_fulltext_label="Text integral într-un singur fișier markdown",
     llms_author_heading="Autor",
@@ -2948,8 +3171,8 @@ def set_language(lang: Lang) -> None:
             "Vulnerabilități cu versiuni de patch":         ("vuln",     "Vulnerabilitate"),
             "Documentația tool-urilor":                     ("docs",     "Documentație"),
             "Marketplace-uri și ecosisteme de plugin-uri":  ("market",   "Marketplace"),
-            "Surse pentru primitivul Memory":               ("memory",   "Primitivul Memory"),
-            "Surse pentru primitivul Permisiuni / Sandbox": ("perms",    "Primitivul Permisiuni / Sandbox"),
+            "Surse pentru componenta principală Memory":               ("memory",   "Componenta principală Memory"),
+            "Surse pentru componenta principală Permisiuni / Sandbox": ("perms",    "Componenta principală Permisiuni / Sandbox"),
         }
         SOURCE_ENTRY_RE = re.compile(
             r"<p>\s*<strong>Afirmația:</strong>\s*(?P<claim>.*?)\s*"
@@ -3136,7 +3359,9 @@ def build_one(lang: Lang, template: str, deferred_css: str, *, is_default: bool)
 
     (out / "llms.txt").write_text(render_llms_txt(sections))
     (out / "llms-full.txt").write_text(md_text)
-    (out / "sitemap.xml").write_text(render_sitemap(sections))
+    # No per-language sitemap: the single combined /sitemap.xml (written by main()
+    # with hreflang alternates) is the one source robots.txt points at. A
+    # /ro/sitemap.xml here would be an orphan nothing references.
 
     print(f"[{lang.code}] wrote {len(sections)} section pages + landing/read/404 to "
           f"{out.relative_to(REPO_ROOT)}/")
@@ -3173,21 +3398,42 @@ def main() -> int:
     copy_static()
     print(f"Copied static files from {STATIC_DIR.relative_to(REPO_ROOT)}/")
 
-    # Combined sitemap at the root listing every language's URLs.
+    # Combined sitemap at the root. Each URL carries xhtml:link hreflang
+    # alternates so Google consolidates the EN/RO pair into one result set.
     REDIRECTED_OLD_SLUGS = {"chapter-1-six-primitives"}
     today = _content_date().strftime("%Y-%m-%d")
-    urls: list[str] = []
-    for lang, sections in per_lang_sections:
-        urls.append(f"{BASE}{lang.prefix}/")
-        urls += [f"{BASE}{lang.prefix}/{s.slug}/" for s in sections
-                 if s.slug not in REDIRECTED_OLD_SLUGS]
-    body = "\n".join(
-        f'  <url><loc>{u}</loc><lastmod>{today}</lastmod></url>' for u in urls)
+    # Language-independent page paths shared across editions (EN and RO build
+    # from the same slug set); landing + every indexable section.
+    en_sections = next(s for lang, s in per_lang_sections if lang is EN)
+    page_paths = ["/"] + [f"/{s.slug}/" for s in en_sections
+                          if s.slug not in REDIRECTED_OLD_SLUGS]
+
+    def _alt_links(path: str) -> str:
+        links = [
+            f'    <xhtml:link rel="alternate" hreflang="{lang.html_lang}" '
+            f'href="{BASE}{lang.prefix}{path}" />'
+            for lang in LANGS
+        ]
+        links.append(
+            f'    <xhtml:link rel="alternate" hreflang="x-default" '
+            f'href="{BASE}{EN.prefix}{path}" />')
+        return "\n".join(links)
+
+    url_blocks: list[str] = []
+    for path in page_paths:
+        alts = _alt_links(path)
+        for lang in LANGS:
+            loc = f"{BASE}{lang.prefix}{path}"
+            url_blocks.append(
+                f'  <url>\n    <loc>{loc}</loc>\n    <lastmod>{today}</lastmod>\n'
+                f'{alts}\n  </url>')
+    body = "\n".join(url_blocks)
     (SITE_DIR / "sitemap.xml").write_text(
         '<?xml version="1.0" encoding="UTF-8"?>\n'
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" '
+        'xmlns:xhtml="http://www.w3.org/1999/xhtml">\n'
         f'{body}\n</urlset>\n')
-    print(f"Wrote _site/sitemap.xml (combined, {len(urls)} URLs)")
+    print(f"Wrote _site/sitemap.xml (combined, {len(url_blocks)} URLs with hreflang)")
 
     return 0
 

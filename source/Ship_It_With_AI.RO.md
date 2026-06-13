@@ -268,7 +268,7 @@ Asta e anatomia. Orice întrebare interesantă despre un coding agent - ce poate
 
 ---
 
-**Context window-ul** - fereastra de context - e ceea ce agentul știe chiar acum. E mărginit: fiecare model are un număr maxim de tokeni pe care îi poate ține în atenția activă. Două sute de mii la un model de gamă medie. Un milion la unul de top. Cifrele astea cresc de la un trimestru la altul; până ajungi tu să citești rândurile astea, vor fi și mai mari. Dar limita există, și limita contează, pentru că fereastra de context e spațiul de lucru în interiorul căruia agentul ia decizii.
+**Context window-ul** - fereastra de context - e ceea ce agentul știe chiar acum. E mărginită: fiecare model are un număr maxim de tokeni pe care îi poate ține în atenția activă. Două sute de mii la un model de gamă medie. Un milion la unul de top. Cifrele astea cresc de la un trimestru la altul; până ajungi tu să citești rândurile astea, vor fi și mai mari. Dar limita există, și limita contează, pentru că fereastra de context e spațiul de lucru în interiorul căruia agentul ia decizii.
 
 Ce intră în context window? System prompt-ul care definește rolul și constrângerile agentului. Istoricul conversației curente cu utilizatorul. Tool call-urile pe care le-a făcut agentul și rezultatele pe care i le-au întors. Fișierele pe care le-a citit sau bucățile de fișiere pe care le-a încărcat. Orice instrucțiuni injectate de harness (ajungem imediat și la harness). Cam asta umple fereastra.
 
