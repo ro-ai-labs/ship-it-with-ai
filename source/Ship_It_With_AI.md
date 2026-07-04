@@ -1676,11 +1676,11 @@ hookify rules complement AGENTS.md. AGENTS.md tells the agent the team's convent
 
 For yellow projects, I recommend establishing hookify rules for at least the regulatory-sensitive areas and the historically broken modules. Five to ten rules is usually enough. Each rule is one line of configuration plus a one-line justification.
 
-The second kind of hook is not on the agent at all. It is on the repository. Git runs client-side hooks at commit and at push, and they fire for whoever is committing - you, your teammate, the agent. That is the leverage. The agent is just another author with write access, so a commit gate applies to it for free, the same gate that applies to every human on the team, with no agent-specific wiring. You write the check once, against the act of committing, and it covers the agent's code and yours alike.
+The second kind of hook is not on the agent at all. It is on the repository. Git runs client-side hooks at commit and at push, and they fire for whoever is committing - you, your teammate, the agent. That is the leverage. The agent is just another author with write access, so a commit gate applies to it for free, with no agent-specific wiring. You write the check once, against the act of committing, and it covers the agent's code and yours alike.
 
 Split the checks by cost. The pre-commit hook is the fast pass - format, lint, typecheck, a secret scan - the things that run in seconds and should never reach a branch. The pre-push hook is the heavier pass - the fast test suite, the build - which you can afford to wait on because it runs once per push rather than once per commit. Keep the tests in pre-push; a pre-commit hook has to finish in seconds, or people reach for the escape hatch, and every skip trains the habit of skipping. Manage both from a versioned config through a hook manager, so the hooks install for everyone who clones the repository instead of living un-versioned in one machine's `.git/hooks`.
 
-The escape hatch is `--no-verify`, and the agent can reach for it the same as anyone; you close that door with a hookify deny rule on the flag, which is the ladder's other half. The two boundaries cover each other's blind spot: hookify catches the agent mid-session, before the edit lands, and the git gate catches every author, on every path hookify never sees, at the moment the commit is written. Be honest about what the local hooks are, though. They are fast feedback, not enforcement - skippable, configured in a file the agent can itself edit, and not guaranteed to be installed on a given machine. The same checks running in CI are the ones you cannot skip from your laptop, and that hook config together with its CI workflow is pattern eight's gate the agent cannot edit. Either way, deterministic checks do not drift the way probabilistic reviewers can - a secret scanner either finds the key or it does not.
+The escape hatch is `--no-verify`, and the agent can reach for it the same as anyone; you close that door with a hookify deny rule on the flag. The two boundaries cover each other's blind spot: hookify catches the agent mid-session, before the edit lands, and the git gate catches every author, on every path hookify never sees, at the moment the commit is written. Be honest about what the local hooks are, though. They are fast feedback, not enforcement - skippable, configured in a file the agent can itself edit, and not guaranteed to be installed on a given machine. The same checks running in CI are the ones you cannot skip from your laptop, and that hook config together with its CI workflow is pattern eight's gate the agent cannot edit. Either way, deterministic checks do not drift the way probabilistic reviewers can - a secret scanner either finds the key or it does not.
 
 ---
 
@@ -1784,7 +1784,7 @@ Next chapter: the adoption framework - how a team that has read this manual star
 
 ---
 
-**Artifact: Worktree + hook + review pattern.** The three patterns this chapter installs on every brownfield codebase: an isolated worktree for agent work, a pre-tool-use hook for the dangerous-action categories, a git commit/push gate for the mechanical ones, and a PR review checklist tuned to agent-generated diffs.
+**Artifact: Worktree + hook + review pattern.** The three patterns this chapter installs on every brownfield codebase: an isolated worktree for agent work, a pair of hooks - a pre-tool-use rule for the dangerous-action categories and a git commit/push gate for the mechanical ones - and a PR review checklist tuned to agent-generated diffs.
 
 ---
 
