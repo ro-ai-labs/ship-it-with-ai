@@ -2086,6 +2086,10 @@ That trajectory - four decades of writing code, twenty-five of them professional
 
 This page tracks meaningful updates to the manual. Smaller copy-edits and SEO tweaks are not listed; the footer shows the last updated date.
 
+### 2026-07-05 - Two kinds of hooks (Chapter 9 pattern three)
+
+Chapter 9 pattern three expands from hookify rules into two kinds of hooks: the agent's pre-tool-use hook (hookify) and git's pre-commit/pre-push hook. The new material frames the git gate on the agentic spine - the agent is just another author with write access, so a deterministic commit/push gate applies to it for free, and the `--no-verify` escape hatch is closed by a hookify deny rule. It draws the honest line too: local hooks are fast feedback, while the same checks in CI are the gate you cannot skip from your laptop, which is pattern eight's gate the agent cannot edit. Recap, closing, and the artifact box updated to match; the pattern count stays eight.
+
 ### 2026-06-11 - Scripted subagent orchestration (`/workflows`)
 
 Chapter 1's subagents section gains a paragraph on programmatic orchestration: Claude Code's `/workflows`, which has the agent write a deterministic script that dispatches subagents across phases, parallel/pipeline fan-out, and schema-validated handoffs, with a verification gate. Framed on-thesis - not a new primitive but harness convenience over the subagent primitive, where the determinism is the only real difference from model-driven parallel dispatch (e.g. a Superpowers-style plugin). Dated to mid-2026.

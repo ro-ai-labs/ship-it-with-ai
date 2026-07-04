@@ -2088,6 +2088,10 @@ Traiectoria asta - patru decenii de scris cod, douăzeci și cinci dintre ele pr
 
 Pagina asta urmărește actualizările semnificative ale manualului. Corecturile mărunte și ajustările de SEO nu sunt listate; footer-ul arată data ultimei actualizări.
 
+### 2026-07-05 - Două feluri de hook-uri (Capitolul 9, pattern-ul trei)
+
+Pattern-ul trei din Capitolul 9 se extinde de la regulile hookify la două feluri de hook-uri: hook-ul pre-tool-use al agentului (hookify) și hook-ul de git pre-commit/pre-push. Materialul nou leagă gate-ul de git de faptul că agentul e doar încă un autor cu acces de scriere: un gate determinist de commit/push i se aplică gratis, iar portița `--no-verify` e închisă cu o regulă hookify de deny. Trage și linia cinstită - hook-urile locale sunt feedback rapid, în timp ce aceleași verificări în CI sunt gate-ul pe care nu-l poți sări de pe laptop, adică gate-ul din pattern-ul opt pe care agentul nu-l poate edita. Recap-ul, încheierea și caseta de artefact actualizate; numărul de pattern-uri rămâne opt.
+
 ### 2026-06-11 - Orchestrare scriptată a subagenților (`/workflows`)
 
 Secțiunea despre subagenți din Capitolul 1 capătă un paragraf despre orchestrarea programatică: /workflows din Claude Code, care pune agentul să scrie un script determinist ce trimite subagenți pe faze, cu fan-out în paralel sau prin pipeline și predări validate prin schemă, cu un gate de verificare. Încadrat pe linia tezei cărții - nu o componentă principală nouă, ci o comoditate la nivel de harness peste componenta principală subagent, unde determinismul e singura diferență reală față de dispatch-ul condus de model (de pildă, un plugin în stil Superpowers). Datat la mijlocul lui 2026.
