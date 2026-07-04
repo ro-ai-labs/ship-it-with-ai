@@ -1666,15 +1666,21 @@ The champion is not the only person who edits AGENTS.md. Everyone edits it, thro
 
 ---
 
-**Pattern three: hookify rules.**
+**Pattern three: two kinds of hooks.**
 
 hookify (or your agent's equivalent plugin) lets you write hooks that fire before tool execution. The hook reads the proposed action, evaluates it against custom rules, and either allows it, prompts the user, or blocks it.
 
 The use case for hookify in brownfield work is specific. You have areas of the codebase that are dangerous to modify without senior review - cryptography modules, payment processing, data migration scripts, anything regulatory. You write a hookify rule that blocks the agent from modifying files in those directories, or requires explicit user confirmation when it tries. The rule lives in the repository, committed to git, applied automatically every session.
 
-hookify rules complement AGENTS.md. AGENTS.md tells the agent the team's conventions and forbidden patterns; the agent reads them and applies them by default. hookify enforces the rules structurally; if the agent tries to violate them anyway (because LLMs sometimes do), the hook catches it. AGENTS.md is the polite request. hookify is the firm boundary.
+hookify rules complement AGENTS.md. AGENTS.md tells the agent the team's conventions and forbidden patterns; the agent reads them and applies them by default. hookify enforces the rules structurally; if the agent tries to violate them anyway (because LLMs sometimes do), the hook catches it. AGENTS.md is the polite request. hookify is the firm boundary on the agent. But the agent is not the only author with write access, and the boundary that binds every author is a different kind of hook.
 
 For yellow projects, I recommend establishing hookify rules for at least the regulatory-sensitive areas and the historically broken modules. Five to ten rules is usually enough. Each rule is one line of configuration plus a one-line justification.
+
+The second kind of hook is not on the agent at all. It is on the repository. Git runs client-side hooks at commit and at push, and they fire for whoever is committing - you, your teammate, the agent. That is the leverage. The agent is just another author with write access, so a commit gate applies to it for free, the same gate that applies to every human on the team, with no agent-specific wiring. You write the check once, against the act of committing, and it covers the agent's code and yours alike.
+
+Split the checks by cost. The pre-commit hook is the fast pass - format, lint, typecheck, a secret scan - the things that run in seconds and should never reach a branch. The pre-push hook is the heavier pass - the fast test suite, the build - which you can afford to wait on because it runs once per push rather than once per commit. Keep the tests in pre-push; a pre-commit hook has to finish in seconds, or people reach for the escape hatch, and every skip trains the habit of skipping. Manage both from a versioned config through a hook manager, so the hooks install for everyone who clones the repository instead of living un-versioned in one machine's `.git/hooks`.
+
+The escape hatch is `--no-verify`, and the agent can reach for it the same as anyone; you close that door with a hookify deny rule on the flag, which is the ladder's other half. The two boundaries cover each other's blind spot: hookify catches the agent mid-session, before the edit lands, and the git gate catches every author, on every path hookify never sees, at the moment the commit is written. Be honest about what the local hooks are, though. They are fast feedback, not enforcement - skippable, configured in a file the agent can itself edit, and not guaranteed to be installed on a given machine. The same checks running in CI are the ones you cannot skip from your laptop, and that hook config together with its CI workflow is pattern eight's gate the agent cannot edit. Either way, deterministic checks do not drift the way probabilistic reviewers can - a secret scanner either finds the key or it does not.
 
 ---
 
@@ -1698,7 +1704,7 @@ The fix was not removing the review agents. The fix was making the human floor e
 
 ---
 
-Four patterns. Worktrees. Champions. hookify rules. PR review toolkit. None of them require inventing a new process. All of them slot into how engineering teams already ship code, with the small additions that agentic work requires.
+Four patterns. Worktrees. Champions. Hooks. PR review toolkit. None of them require inventing a new process. All of them slot into how engineering teams already ship code, with the small additions that agentic work requires.
 
 ---
 
@@ -1762,7 +1768,7 @@ Between late 2025 and spring 2026, the pattern stopped being a bash trick and be
 
 The trend is real, and it is also where the discipline gets tested hardest, because the outer loop adds attempts, not judgment. It multiplies whatever your inner loop permits. If every iteration ends against a strict gate, the loop compounds progress: a queue of small verified units gets shorter overnight. If the gate is weak, the same patience compounds slop. Huntley's own name for the failure mode is overbaking - leave the loop running past its job and it keeps inventing work nobody asked for. The agent does not get tired. That is the feature, and unattended, it is also the threat.
 
-So the pattern is not the loop; the pattern is the contract you run it under. Five lines, written before the first unattended iteration. **A stop condition a machine can evaluate** - the queue is empty, the suite is green, the budget is spent. A loop without one is not autonomy; it is abandonment. **A budget** - tokens, money, iterations, or hours, whichever hits first; an unattended loop is the per-token pricing model's best customer, and the Appendix A math runs overnight too. **A gate the agent cannot edit** - tests, lint configuration, CI workflow, and hook rules sit behind a deny rule (pattern three). Chapter 5's caveat - a green suite the agent wrote is evidence, not proof - applies twice over when nobody reads the evidence until morning. The cheapest way for a loop to go green is to negotiate with its own grader. **Fresh context per iteration, durable state in the repository** - a queue file and a journal, committed, so each iteration starts clean and reads the loop's history from git instead of dragging a degrading context behind it. Chapter 5 called context contamination the single biggest reason long-running sessions go wrong; the outer loop done right is a context-hygiene instrument - forty short clean sessions instead of one long degrading one. **Isolation sized for absence** - its own worktree (pattern one), sandbox on, no production credentials, network constrained. An unattended session is the one place where prompt injection meets no human skeptic; Chapter 3's layers are load-bearing here, not optional. Appendix B.6 is this contract as a one-pager.
+So the pattern is not the loop; the pattern is the contract you run it under. Five lines, written before the first unattended iteration. **A stop condition a machine can evaluate** - the queue is empty, the suite is green, the budget is spent. A loop without one is not autonomy; it is abandonment. **A budget** - tokens, money, iterations, or hours, whichever hits first; an unattended loop is the per-token pricing model's best customer, and the Appendix A math runs overnight too. **A gate the agent cannot edit** - tests, lint configuration, CI workflow, and the hookify rules sit behind a deny rule (pattern three). Chapter 5's caveat - a green suite the agent wrote is evidence, not proof - applies twice over when nobody reads the evidence until morning. The cheapest way for a loop to go green is to negotiate with its own grader. **Fresh context per iteration, durable state in the repository** - a queue file and a journal, committed, so each iteration starts clean and reads the loop's history from git instead of dragging a degrading context behind it. Chapter 5 called context contamination the single biggest reason long-running sessions go wrong; the outer loop done right is a context-hygiene instrument - forty short clean sessions instead of one long degrading one. **Isolation sized for absence** - its own worktree (pattern one), sandbox on, no production credentials, network constrained. An unattended session is the one place where prompt injection meets no human skeptic; Chapter 3's layers are load-bearing here, not optional. Appendix B.6 is this contract as a one-pager.
 
 What goes in the queue matters as much as the contract. Loop-eligible work has many similar units, each machine-verifiable, each reversible: migrations, lint and typing sweeps, dependency bumps, characterization-test backfill, mechanical refactors. Design-heavy single-artifact work is not eligible; more attempts do not add judgment, and the loop will spend your budget proving it. The traffic light from Chapter 8 applies with extra force, because the outer loop is autonomous agent work in its most concentrated form: GREEN codebases only. YELLOW means human-led, and the outer loop has no human in it by definition.
 
@@ -1772,13 +1778,13 @@ Two poles mark how far teams take this. Huntley runs the loop raw and prices it 
 
 ---
 
-Eight patterns total. They will not all apply to every team. The first four - worktrees, champions, hookify rules, PR review toolkit - apply broadly. The next three - mistake-journal review, demo-day backstop, failure watchlist - are for teams past the first few months. The last one - the outer loop - is for teams past the other seven.
+Eight patterns total. They will not all apply to every team. The first four - worktrees, champions, hooks, PR review toolkit - apply broadly. The next three - mistake-journal review, demo-day backstop, failure watchlist - are for teams past the first few months. The last one - the outer loop - is for teams past the other seven.
 
 Next chapter: the adoption framework - how a team that has read this manual starts. Three roles, ninety days, specific commitments.
 
 ---
 
-**Artifact: Worktree + hook + review pattern.** The three patterns this chapter installs on every brownfield codebase: an isolated worktree for agent work, a pre-tool-use hook for the dangerous-action categories, and a PR review checklist tuned to agent-generated diffs.
+**Artifact: Worktree + hook + review pattern.** The three patterns this chapter installs on every brownfield codebase: an isolated worktree for agent work, a pre-tool-use hook for the dangerous-action categories, a git commit/push gate for the mechanical ones, and a PR review checklist tuned to agent-generated diffs.
 
 ---
 
