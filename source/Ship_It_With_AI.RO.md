@@ -775,6 +775,8 @@ Ce înseamnă „disciplina formulării” în practică?
 
 Trei obiceiuri. Claritate pe domeniu înainte de cod. Descompunere pe fișiere și pe task-uri. Dovezi din teste înainte de „gata”. Toate trei țin de formulare, nu de generare. Toate trei sunt ce desparte o echipă care livrează software cu agenți de o echipă care doar generează cod cu agenți.
 
+Primele două obiceiuri nu sunt scopuri în sine. Claritatea pe domeniu și descompunerea sunt felul în care ajungi la un rezultat așteptat bine definit, iar al treilea obicei e dovadă măsurată față de acel rezultat - fără un rezultat definit, dovada nu mai are ce să dovedească.
+
 ---
 
 Aici e momentul să anticipez obiecția. Probabil te gândești: sună a multă muncă pentru ceva care trebuia să-mi economisească timp.
@@ -877,13 +879,15 @@ Fiecare fază e gândită să aibă un gate la graniță. Implementarea concret�
 
 Voi parcurge fazele în ordine, iar la final îți voi arăta cum arată totul când rulează cap-coadă pe o bucată reală de muncă.
 
+Un principiu străbate toate cele șase faze: un rezultat bun are nevoie de un rezultat așteptat bine definit. Agentul poate construi aproape orice îi descrii, dar nu poate ști la care lucru te-ai referit - a defini asta e treaba primelor faze ale buclei și e exact ce numesc fazele de mai târziu „spec-ul” și „intenția”. Research fixează ce poate și scoate la suprafață ce nu poate; tu tranșezi întrebările deschise pe care le ridică; planul transformă rezultatul stabilit în verificări per task; verify măsoară ce s-a construit față de el. Rezultatul ăsta nu-l ai complet înainte să începi - e un output al research-ului și al planului, șlefuit de fiecare dată când un verify picat se întoarce la Plan, iar pentru munca cu adevărat nouă definești ce poți și lași research-ul să închidă restul. Sari peste definire și restul buclei n-are pe ce se sprijini: review-ul n-are niciun spec cu care să compare diff-ul, verify n-are ce verifica, iar „gata” e orice a decis agentul.
+
 ---
 
 **Faza întâi: Research.**
 
 Agentul citește codebase-ul și produce o notă de research care stabilește starea curentă, numește fișierele relevante, identifică pattern-urile existente și semnalează riscurile. Input: descrierea task-ului. Output: un document markdown de două până la patru pagini.
 
-Ce intră în nota de research? Fișierele care vor fi atinse. Convențiile pe care le urmează acele fișiere. Testele existente care acoperă zona. Concepte înrudite din alte părți ale codebase-ului care ar putea fi relevante. Întrebările deschise ale agentului - locurile în care codebase-ul e ambiguu și unde trebuie să decidă un om.
+Ce intră în nota de research? Fișierele care vor fi atinse. Convențiile pe care le urmează acele fișiere. Testele existente care acoperă zona. Concepte înrudite din alte părți ale codebase-ului care ar putea fi relevante. Întrebările deschise ale agentului - locurile în care codebase-ul e ambiguu și unde trebuie să decidă un om. Astea nu sunt fire rămase în aer. Sunt deciziile care definesc cum va arăta „gata”, scoase la suprafață acum ca să le tranșezi înainte ca planul să se lege de ele.
 
 Research e faza peste care echipele sar cel mai des, pentru că nu produce cod și pare overhead. Research e și faza care, din experiența mea, are cel mai mare levier din toată bucla. O notă de research proastă garantează un plan prost, care garantează o implementare proastă. O notă de research bună face restul buclei mult mai ușor, pentru că planul e ancorat în starea reală a codului, nu în prima ipoteză a agentului despre starea codului.
 
@@ -896,6 +900,8 @@ Artefactul de research e durabil. Ajunge în commit alături de modificare. Șas
 Agentul citește nota de research și produce un plan la nivel de fișier. Fiecare task din plan numește fișierul de modificat, modificarea de făcut și verificarea care dovedește că modificarea a funcționat. Fiecare task e dimensionat la două-cinci minute de muncă - destul de mic încât un eșec să fie recuperabil, destul de mare încât overhead-ul comutării între task-uri să nu domine.
 
 Planul numește și ce teste trebuie adăugate sau actualizate. Dacă planul nu pomenește de teste, planul e incomplet și agentul se întoarce la treabă. Ideea e ca regula asta să fie impusă printr-un hook; instrucțiunile din skill cer rigoarea, iar impunerea strictă e ceva ce cablezi tu, per proiect, pe măsură ce maturitatea echipei o justifică.
+
+Planul spune și ce înseamnă „gata” pentru întreaga modificare - rezultatul față de care va măsura verify - nu doar verificările per task. Un plan care numește fișiere, task-uri și teste, dar nu spune niciodată ce ar trebui să obțină modificarea, a descompus munca fără s-o definească; contractul outer-loop din Anexa B.6 impune o linie „Done când” la nivelul buclei exterioare, iar bucla interioară are nevoie de același lucru la scara unei singure modificări.
 
 Planul e gate-ul unde un reviewer uman contează cel mai mult. Citești planul. Respingi task-urile prea vagi, prea mari sau prost ordonate. Adaugi task-urile pe care planul le-a ratat. Scoți task-urile care ies din scop. Agentul revizuiește. Tu aprobi. Abia apoi începe execute.
 
@@ -939,7 +945,7 @@ Output-ul fazei de review e structurat. Fiecare constatare are o severitate. Con
 
 **Faza a cincea: Verify.**
 
-Faza de Verify e locul unde rulează testele. Mai exact, rulează testele *noi* - testele care exersează modificarea. Suita de teste existentă rulează deja în execute (orice task care modifică cod rulează testele existente relevante, ca să se asigure că nu a stricat nimic). Verify e despre întrebarea dacă modificarea e cu adevărat corectă, nu doar dacă testele existente încă trec.
+Faza de Verify e locul unde rulează testele. Mai exact, rulează testele *noi* - testele care exersează modificarea. Suita de teste existentă rulează deja în execute (orice task care modifică cod rulează testele existente relevante, ca să se asigure că nu a stricat nimic). Verify e despre întrebarea dacă modificarea e cu adevărat corectă - corectă față de rezultatul pe care l-ai definit în research și în plan - nu doar dacă testele existente încă trec.
 
 Pentru logica de backend, verify înseamnă de obicei teste unitare și teste de integrare. Planul a numit ce teste trebuie adăugate; faza de Execute le-a adăugat; verify le rulează și raportează rezultatele.
 
@@ -995,7 +1001,7 @@ Pattern-ul nu era un bug. Era diferența previzibilă dintre o rulare cu cache c
 
 Ca să facem bucla concretă, iată un feature care curge prin toate cele șase faze. Feature-ul e mic: adaugă un câmp `priority` pe recordul `Wire`, într-un serviciu bancar reglementat. Priority e una dintre valorile low / normal / high / urgent, are default normal, iar flag-ul urgent declanșează un queue separat de compliance review.
 
-**Research.** I-am cerut agentului să citească codebase-ul și să producă o notă de research. Nota a numit patru fișiere pe care nu le-aș fi găsit nici într-o oră de grep: recordul `Wire` în sine, directorul de migrații, serviciul queue-ului de compliance review și emitter-ul de audit log. A ridicat și o întrebare deschisă: priority să fie enum sau text liber, dat fiind că spec-ul reglementatorului folosește text liber în unele documente și enum în altele. Am ales enum.
+**Research.** I-am cerut agentului să citească codebase-ul și să producă o notă de research. Nota a numit patru fișiere pe care nu le-aș fi găsit nici într-o oră de grep: recordul `Wire` în sine, directorul de migrații, serviciul queue-ului de compliance review și emitter-ul de audit log. A ridicat și o întrebare deschisă: priority să fie enum sau text liber, dat fiind că spec-ul reglementatorului folosește text liber în unele documente și enum în altele. Am ales enum. Alegerea asta nu era un detaliu - definea ținta față de care fazele de mai târziu aveau să verifice modificarea.
 
 **Plan.** Agentul a produs un plan de șase task-uri, în ordine: adaugă coloana în baza de date, cu default; actualizează clasa recordului `Wire`; actualizează serviciul wire-builder; actualizează contractul de API; actualizează logica de rutare pe compliance ca să citească noul câmp; actualizează emitter-ul de audit log. Fiecare task era constrâns la un fișier sau la o pereche de fișiere. La review am prins o singură chestiune: task-ul cinci depindea de schimbarea de contract de API din task-ul patru, dar ordinea era corectă și agentul marcase dependența în descrierea task-ului. Aprobat.
 
@@ -2242,6 +2248,7 @@ RESEARCH
 PLAN
 - Agentul produce un plan la nivel de fișier, fiecare task de 2-5 minute
 - Planul numește schimbările de teste pentru orice schimbare de cod
+- Planul spune ce înseamnă „gata” pentru întreaga modificare, nu doar per task
 - Review uman: vreun task prea vag, prea mare, ordonat greșit? Ridică obiecții. Aprobă.
 
 EXECUTE
