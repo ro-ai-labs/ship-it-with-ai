@@ -2192,7 +2192,7 @@ The vendor's quote is the easy part. Four categories are not in it and dominate 
 
 Chapter 10's manager sidebar left a 20-engineer financial-services team mid-arc: 41% of merged PRs agent-touched in month two, cycle time on that set 28% below the pre-agent baseline, defects within noise. Run that same team through this appendix's rubric. The cost figures below are round numbers for the arithmetic, not quotes - plug in your own; the appendix's whole point is that the specific ones go stale by next quarter.
 
-Start with the sticker, the easy part. The engagement put 13 engineers on the Team tier and 7 on Pro seats, because those 7 use the agent rarely and the tier matched the usage (Chapter 10's point: bounded spend, not uniform tooling). At an illustrative $30 per Team seat and $20 per Pro seat, that is 13 × $30 plus 7 × $20, or $530 a month, call it $6,400 a year. Write that number down. It is the smallest one on the page.
+Start with the sticker, the easy part. The engagement put 13 engineers on the Team tier and 7 on Pro seats, because those 7 use the agent rarely and the tier matched the usage (Chapter 10's point: bounded spend, not uniform tooling). At an illustrative $30 per Team seat and $20 per Pro seat, that is 13 seats at $30 plus 7 at $20, or $530 a month, call it $6,400 a year. Write that number down. It is the smallest one on the page.
 
 Now the four categories that are not in the sticker, at the magnitudes the book already uses:
 
