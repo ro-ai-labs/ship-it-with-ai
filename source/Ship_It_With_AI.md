@@ -276,7 +276,7 @@ What does not go in the context window by default? The rest of your codebase. Th
 
 This is the first thing that surprises teams new to agentic coding. The agent is brilliant at the things it can see, and oblivious to everything else. Most "the agent made an obviously wrong decision" failures trace back to "the agent did not have the context required to make a correct decision." The agent did not know about the new authentication library because nobody told it. It defaulted to the wrong test framework because nobody put the team's preference in the configuration. The agent made the best decision it could with the context it had, and that decision was wrong because the context was incomplete.
 
-Context window management is therefore one of the central engineering disciplines of agentic coding. You are constantly making decisions about what to load, what to summarize, what to drop, what to ask for at the right moment. Bigger context windows help - a million tokens of context is genuinely more forgiving than two hundred thousand - but bigger windows do not eliminate the constraint. They raise the ceiling.
+Context window management is therefore one of the central engineering disciplines of agentic coding. You are constantly making decisions about what to load, what to summarize, what to drop, what to ask for at the right moment. Bigger context windows help - a million tokens of context is genuinely more forgiving than two hundred thousand - but bigger windows do not eliminate the constraint. They raise the ceiling. The craft of working inside that bound - what to load, what to reference, when to start clean - is taught in Chapter 5 as context hygiene.
 
 ---
 
@@ -1041,6 +1041,22 @@ The test is accounting, not optimism. For each phase you want to skip, name the 
 ---
 
 One piece of vocabulary before we move on, because the word loop is getting overloaded in the field. The six phases here are the inner loop: one unit of work, six functions, gated by you. There is also an outer loop in growing circulation - re-invoking the agent on an interval or against a queue, with nobody between iterations, until a condition holds. That is a different instrument with different preconditions, and it is the final pattern in Chapter 9. The dependency runs one way: an outer loop is only as safe as the mechanization of the functions it re-runs, because it compounds whatever discipline - or whatever absence - it wraps.
+
+---
+
+### Context hygiene {#context-hygiene}
+
+Every phase in this loop runs inside a context window, and the window is the agent's working memory. Everything loaded into it - the system prompt, the files read, the tool results, the conversation so far - competes for the same bounded attention the agent needs to reason. Chapter 1 named the bound and said bigger windows only raise the ceiling; context hygiene is how you work inside it. This chapter has already blamed context contamination for the single biggest failure mode of long sessions. This is the practice that prevents it.
+
+The first discipline is to load what the task needs and reference the rest. Pointers over payloads. The architecture document is linked from AGENTS.md, not pasted into it; the research note names the files that matter and where to find them, instead of inlining their contents. The two-hundred-line AGENTS.md budget from Chapter 6 is this same discipline applied to the always-loaded layer - the lines that load at every session start are the most expensive space in the window, so they earn their place or they go.
+
+The session boundary is the instrument. One unit of work per session. The artifacts this loop commits - the research note, the plan, the per-task reports - exist precisely so the next session can start clean and read the state it needs from the repository, instead of dragging a conversation's worth of history behind it. Fresh context per unit of work is the inner-loop form of what pattern eight does per iteration; the outer-loop argument is Chapter 9's.
+
+Contamination announces itself, if you are watching for it. Four signs. The agent re-answers a question it already settled earlier in the session. It cites a stale version of a file it edited an hour ago. It forgets a constraint it honored twenty minutes back. Its edits get sloppier the longer the session runs. When you see these, do not argue with the session - you cannot debate a context window back into coherence. Commit the durable state, end the session, start clean. The fresh session is not lost progress; it is the progress, read back from the repository without the noise.
+
+Compaction is a handoff, not a continuation. When the harness summarizes a full window to make room it drops detail - that is what summarizing is - so treat a compacted session the way you would treat handing your work to a new engineer at the door: anything that matters and is not written to a file by then is gone. Subagents are the other half of the instrument, isolating each task in its own window so one task's confusion never reaches the next. Their handoff summaries get read with the same skepticism the execute phase already asks of the orchestrator's.
+
+Appendix B.7 is this discipline as a one-pager.
 
 ---
 
@@ -2092,6 +2108,14 @@ That trajectory - four decades of writing code, twenty-five of them professional
 
 This page tracks meaningful updates to the manual. Smaller copy-edits and SEO tweaks are not listed; the footer shows the last updated date.
 
+### 2026-07-05 - Context hygiene (Chapter 5 + Appendix B.7)
+
+Chapter 5 gains a Context hygiene section, inserted after the inner/outer loop vocabulary paragraph, that teaches the daily craft the book had named but never taught - the window is the agent's working memory, and everything loaded into it competes with reasoning. It names the four signs of contamination (the agent re-answers a settled question, cites a stale version of a file it edited, forgets a constraint it honored, or degrades in edit quality late in a long session), the session-boundary discipline of one unit of work per session with durable state read back from the repository, and compaction as a handoff rather than a continuation, where anything not written to a file by then is gone. New Appendix B.7 context-hygiene one-pager (the template count is now seven). Chapter 1's context-window section gains a one-sentence forward pointer to the new section.
+
+### 2026-07-05 - Appendix A worked example
+
+Appendix A gains a worked pass of its own rubric, closing the one gap in a book built on worked examples: the cost section had no numbers. The new subsection runs the Chapter 10 manager sidebar's 20-engineer financial-services engagement through the appendix - 13 Team seats plus 7 Pro seats, the four-category TCO list, and the bounding heuristic - using the engagement's published operational numbers (41% of merged PRs agent-touched, cycle time 28% below baseline, defects flat) as the value anchor. The cost-side rates are labeled as illustrative round numbers, not quotes, consistent with the appendix's stance that specific prices go stale quarterly. The honest headline lands in a small table: the sticker is the smallest line, and the human-time categories dwarf it. The close holds Chapter 10's boundary: the manager defends the operational number, not a projected ROI.
+
 ### 2026-07-05 - Two kinds of hooks (Chapter 9 pattern three)
 
 Chapter 9 pattern three expands from hookify rules into two kinds of hooks: the agent's pre-tool-use hook (hookify) and git's pre-commit/pre-push hook. The new material frames the git gate on the agentic spine - the agent is just another author with write access, so a deterministic commit/push gate applies to it for free, and the `--no-verify` escape hatch is closed by a hookify deny rule. It draws the honest line too: local hooks are fast feedback, while the same checks in CI are the gate you cannot skip from your laptop, which is pattern eight's gate the agent cannot edit. Recap, closing, and the artifact box updated to match; the pattern count stays eight.
@@ -2164,6 +2188,28 @@ The vendor's quote is the easy part. Four categories are not in it and dominate 
 
 **Governance overhead.** Security review through your CISO. Zero Data Retention addendum negotiation. Procurement cycle time. Audit logging infrastructure. Vendor-risk monitoring. Variable by company; ranges from a week to a quarter.
 
+### A worked example {#a-worked-example}
+
+Chapter 10's manager sidebar left a 20-engineer financial-services team mid-arc: 41% of merged PRs agent-touched in month two, cycle time on that set 28% below the pre-agent baseline, defects within noise. Run that same team through this appendix's rubric. The cost figures below are round numbers for the arithmetic, not quotes - plug in your own; the appendix's whole point is that the specific ones go stale by next quarter.
+
+Start with the sticker, the easy part. The engagement put 13 engineers on the Team tier and 7 on Pro seats, because those 7 use the agent rarely and the tier matched the usage (Chapter 10's point: bounded spend, not uniform tooling). At an illustrative $30 per Team seat and $20 per Pro seat, that is 13 × $30 plus 7 × $20, or $530 a month, call it $6,400 a year. Write that number down. It is the smallest one on the page.
+
+Now the four categories that are not in the sticker, at the magnitudes the book already uses:
+
+| Line | Illustrative magnitude | Cadence |
+|---|---|---|
+| Seats (13 Team + 7 Pro) | ~$530/mo (~$6,400/yr) | recurring |
+| Integration | a few engineer-weeks | one-time |
+| Skill-authoring | a few hours per engineer per month, plus the champion's part-time quarter | ongoing + one-time |
+| Review | concentrated on senior reviewers | ongoing |
+| Governance | a week to a quarter, front-loaded in a regulated firm | one-time |
+
+Price the human lines at the same honesty. A few engineer-weeks of integration, at any realistic loaded cost, clears the first year's sticker on its own, once. Skill-authoring - a few hours per engineer per month across 20 engineers, plus the champion's part-time quarter - is a recurring line that can run larger than the seats themselves. Review time lands on the senior reviewers, your most expensive hours. Governance in a regulated shop is a week to a quarter of security, procurement, and audit-logging work before a single seat is billed. The sticker is real, but it is not where the money is.
+
+The value side uses the bounding heuristic in reverse. Take an engineer at an illustrative $100 loaded per hour. A $30 Team seat is covered when the agent saves that engineer roughly twenty minutes across the whole month; a few saved hours a month is not close. The seat clears its own bar early and easily. But that back-of-envelope is not what justified the spend. What did was the operational number the manager already had: 41% of merged PRs agent-touched, cycle time on them 28% below baseline, defect rate flat. Measured hours out, not projected dollars.
+
+That is the discipline. The sticker is the smallest line and the one everybody asks about first. The four TCO categories dominate the real total, and the human ones dwarf all the seat math. And the number the manager defends to the board is the operational one - 28% lower cycle time at no measurable change in defects - not a projected ROI the dashboard cannot yet support (Chapter 10). Pricing changes; this arithmetic does not.
+
 ### Pricing changes; the math does not
 
 Specific prices in any quarter will be wrong the next quarter. The shape of the math will not. Per-seat scales with team size; per-token scales with usage intensity; enterprise plans bundle both with compliance. The bounding heuristic and the four-category TCO list survive every pricing change. Walk into the procurement conversation in Chapter 10's manager section with your own numbers in this rubric.
@@ -2172,7 +2218,7 @@ Specific prices in any quarter will be wrong the next quarter. The shape of the 
 
 ## Appendix B. Templates
 
-Six copy-paste templates referenced throughout the manual. All are starting points; customize for your team.
+Seven copy-paste templates referenced throughout the manual. All are starting points; customize for your team.
 
 ### B.1 Architecture review prompt
 
@@ -2411,6 +2457,40 @@ MORNING REVIEW (the human floor)
 - Kill check before relaunch: oscillating diffs? budget spent but queue not shorter?
   same failure a third time? gate touched?
   Any yes -> do not relaunch. Read the journal, fix the cause first.
+```
+
+### B.7 Context hygiene one-pager
+
+```
+LOAD
+- Task-relevant context only; everything loaded competes with reasoning
+- Pointers over payloads: link the architecture doc, name the files, do not paste them
+- AGENTS.md under 200 lines - the always-loaded layer is the most expensive space
+
+SESSION
+- One unit of work per session
+- Start clean per unit; do not carry a finished task's history into the next
+- Durable state lives in files - research note, plan, journal - committed to the repo
+
+WATCH FOR (contamination signs)
+- Agent re-answers a question already settled this session
+- Agent cites a stale version of a file it edited earlier
+- Agent forgets a constraint it honored earlier
+- Edit quality degrades late in a long session
+
+WHEN CONTAMINATED
+- Do not argue with the session - you cannot debate a window back into coherence
+- Commit the durable state -> end the session -> start fresh
+- The fresh session reads the progress back from the repo, without the noise
+
+COMPACTION
+- A handoff, not a continuation - summarizing drops detail
+- Treat it like handing the work to a new engineer
+- Anything that matters and is not in a file by then is gone
+
+SUBAGENTS
+- Isolate each task in its own context; one task's confusion never reaches the next
+- Read handoff summaries with the skepticism you would give a junior's standup
 ```
 
 ---
