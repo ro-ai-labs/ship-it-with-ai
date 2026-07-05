@@ -899,7 +899,7 @@ The agent reads the research note and produces a file-level plan. Each task in t
 
 The plan also names what tests need to be added or updated. If the plan does not mention tests, the plan is incomplete and the agent goes back. This is intended to be enforced by a hook; the skill instructions request this rigor, and the hard enforcement is something you wire up per project as your team's maturity warrants.
 
-The plan also states what "done" means for the change as a whole - the outcome verify will check against - not only the per-task verifications. A plan that names files, tasks, and tests but never says what the change is supposed to achieve has decomposed the work without defining it; the outer-loop contract in Appendix B.6 forces a "Done when" line for exactly this reason, and the inner loop needs the same thing at the scale of a single change.
+The plan also states what "done" means for the change as a whole - the outcome verify will check against - not only the per-task verifications. A plan that names files, tasks, and tests but never says what the change is supposed to achieve has decomposed the work without defining it; the outer-loop contract in Appendix B.6 forces a "Done when" line one loop out, and the inner loop needs the same thing at the scale of a single change.
 
 The plan is the gate where a human reviewer matters most. You read the plan. You push back on tasks that are too vague, too large, or wrongly ordered. You add tasks the plan missed. You remove tasks that are out of scope. The agent revises. You approve. Only then does execute start.
 
@@ -943,7 +943,7 @@ The output of review is structured. Each finding has a severity. Critical findin
 
 **Phase five: verify.**
 
-The verify phase is where tests run. Specifically, *new* tests run - tests that exercise the change. The existing test suite is run as part of execute (any task that modifies code runs the relevant existing tests to make sure nothing broke). Verify is about whether the change is actually correct - correct against the outcome you defined in research and plan - not just whether the existing tests still pass. That defined outcome is the intent verify measures against.
+The verify phase is where tests run. Specifically, *new* tests run - tests that exercise the change. The existing test suite is run as part of execute (any task that modifies code runs the relevant existing tests to make sure nothing broke). Verify is about whether the change is actually correct - correct against the outcome you defined in research and plan - not just whether the existing tests still pass.
 
 For backend logic, verify usually means unit tests and integration tests. The plan named which tests to add; the execute phase added them; verify runs them and reports the results.
 
