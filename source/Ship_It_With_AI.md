@@ -939,6 +939,8 @@ The reason you split these into two reviewers is that doing both at once produce
 
 The output of review is structured. Each finding has a severity. Critical findings block ship. Important findings get fixed before ship. Suggestions are noted in the PR description. The agent acts on the blocking and important findings automatically (within the constraints of the plan), and surfaces the suggestions for the human reviewer to decide.
 
+---
+
 ### How do you review an agent-written diff? {#reviewing-agent-diffs}
 
 An agent-written diff fails differently than a human-written one, so you read it in a different order. A human diff fails at execution - a typo, an off-by-one, the edge case the author forgot - and you hunt line by line for the mistake, because that is where a tired human leaves them. An agent diff arrives without those. It compiles, it passes lint, it reads like idiomatic code your team would merge without comment. It fails one layer up, at intent and context - a business rule that is plausible and wrong, the right code placed in the wrong layer - and neither of those announces itself on the page. An agent bug looks like the code a good engineer would write for a slightly different task. Fluency is not correctness, and reading for fluency will not catch it.
