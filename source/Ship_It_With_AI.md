@@ -775,6 +775,8 @@ Third, refusing to say "done" without verification. The agent will tell you the 
 
 Three habits. Domain clarity before code. Decomposition by file and by task. Test evidence before "done." All three are formulation, not generation. All three are what separates a team that ships software with agents from a team that generates code with agents.
 
+The first two habits are not ends in themselves. Domain clarity and decomposition are how you arrive at a well-defined expected outcome, and the third habit is evidence measured against that result - with no defined result, there is nothing for the evidence to be evidence of.
+
 ---
 
 Now, here is where I should anticipate the objection. You are probably thinking: this sounds like a lot of work for what was supposed to save me time.
@@ -875,13 +877,15 @@ The six phases are research, plan, execute, review, verify, ship. Each phase is 
 
 I will walk through the phases in order, and at the end I will tell you what the whole thing looks like when it runs end to end on a real piece of work.
 
+One principle runs under all six phases: a good result needs a well-defined expected outcome. The agent can build almost anything you describe, but it cannot know which thing you meant - defining that is the job of the front of the loop, and it is what the later phases mean by "the spec" and by "the intent." Research pins down what it can and surfaces what it cannot; you settle the open questions it raises; the plan turns the settled outcome into per-task checks; verify measures the result against it. You do not hold that outcome complete before you start - it is an output of research and plan, sharpened every time a failed verify routes back to plan, and for genuinely novel work you define what you can and let research close the rest. Skip the definition and the rest of the loop has nothing to stand on: review has no spec to compare the diff against, verify has nothing to check, and "done" is whatever the agent decided.
+
 ---
 
 **Phase one: research.**
 
 The agent reads the codebase and produces a research note that establishes the current state, names the relevant files, identifies the existing patterns, and calls out risks. Input: the task description. Output: a markdown document of two to four pages.
 
-What goes in the research note? The files that will be touched. The conventions those files follow. The existing tests that cover the area. Related concepts elsewhere in the codebase that might be relevant. Open questions the agent has - places where the codebase is ambiguous and a human needs to decide.
+What goes in the research note? The files that will be touched. The conventions those files follow. The existing tests that cover the area. Related concepts elsewhere in the codebase that might be relevant. Open questions the agent has - places where the codebase is ambiguous and a human needs to decide. These are not loose ends. They are the decisions that define what "done" will look like, surfaced now so you settle them before the plan commits to them.
 
 Research is the phase teams skip most often, because it produces no code and feels like overhead. Research is also the phase that, in my experience, has the highest leverage within the loop. A bad research note guarantees a bad plan, which guarantees a bad implementation. A good research note makes the rest of the loop dramatically easier, because the plan is grounded in the real state of the code, not in the agent's first-guess hypothesis about the state of the code.
 
@@ -894,6 +898,8 @@ The research artifact is durable. It gets committed alongside the change. Six mo
 The agent reads the research note and produces a file-level plan. Each task in the plan names the file to be changed, the change to be made, the verification that proves the change worked. Each task is sized to two to five minutes of work - small enough that a failure is recoverable, big enough that the overhead of task switching does not dominate.
 
 The plan also names what tests need to be added or updated. If the plan does not mention tests, the plan is incomplete and the agent goes back. This is intended to be enforced by a hook; the skill instructions request this rigor, and the hard enforcement is something you wire up per project as your team's maturity warrants.
+
+The plan also states what "done" means for the change as a whole - the outcome verify will check against - not only the per-task verifications. A plan that names files, tasks, and tests but never says what the change is supposed to achieve has decomposed the work without defining it; the outer-loop contract in Appendix B.6 forces a "Done when" line for exactly this reason, and the inner loop needs the same thing at the scale of a single change.
 
 The plan is the gate where a human reviewer matters most. You read the plan. You push back on tasks that are too vague, too large, or wrongly ordered. You add tasks the plan missed. You remove tasks that are out of scope. The agent revises. You approve. Only then does execute start.
 
@@ -937,7 +943,7 @@ The output of review is structured. Each finding has a severity. Critical findin
 
 **Phase five: verify.**
 
-The verify phase is where tests run. Specifically, *new* tests run - tests that exercise the change. The existing test suite is run as part of execute (any task that modifies code runs the relevant existing tests to make sure nothing broke). Verify is about whether the change is actually correct, not just whether the existing tests still pass.
+The verify phase is where tests run. Specifically, *new* tests run - tests that exercise the change. The existing test suite is run as part of execute (any task that modifies code runs the relevant existing tests to make sure nothing broke). Verify is about whether the change is actually correct - correct against the outcome you defined in research and plan - not just whether the existing tests still pass. That defined outcome is the intent verify measures against.
 
 For backend logic, verify usually means unit tests and integration tests. The plan named which tests to add; the execute phase added them; verify runs them and reports the results.
 
@@ -993,7 +999,7 @@ The pattern was not a bug. It was the predictable difference between a warm-cach
 
 To make the loop concrete, here is one feature flowing through all six phases. The feature is small: add a `priority` field to the `Wire` record in a regulated banking service. Priority is one of low / normal / high / urgent, defaults to normal, and the urgent flag triggers a separate compliance-review queue.
 
-**Research.** I asked the agent to read the codebase and produce a research note. The note named four files I would not have found in an hour of grepping: the `Wire` record itself, the migration directory, the compliance-review-queue service, and the audit-log emitter. It also raised an open question: whether priority should be enum or free-text, given that the regulator's spec uses free-text in some documents and enum in others. I picked enum.
+**Research.** I asked the agent to read the codebase and produce a research note. The note named four files I would not have found in an hour of grepping: the `Wire` record itself, the migration directory, the compliance-review-queue service, and the audit-log emitter. It also raised an open question: whether priority should be enum or free-text, given that the regulator's spec uses free-text in some documents and enum in others. I picked enum. That choice was not a detail - it defined the target the later phases would be checked against.
 
 **Plan.** The agent produced a six-task plan, in order: add the database column with a default; update the `Wire` record class; update the wire-builder service; update the API contract; update the compliance-routing logic to read the new field; update the audit-log emitter. Each task was constrained to one file or one pair of files. I caught one issue in review: task five depended on task four's API contract change, but the order was right and the agent had flagged the dependency in the task description. Approved.
 
@@ -2238,6 +2244,7 @@ RESEARCH
 PLAN
 - Agent produces file-level plan, each task 2-5 minutes
 - Plan names test changes for any code change
+- Plan states what "done" means for the whole change, not just per task
 - Human review: any task too vague, too large, wrongly ordered? Push back. Approve.
 
 EXECUTE
