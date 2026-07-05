@@ -276,7 +276,7 @@ Ce nu intră în context window by default? Restul codebase-ului tău. Istoricul
 
 Asta e prima surpriză pentru echipele care abia încep să lucreze cu agenți. Agentul e sclipitor la lucrurile pe care le vede și complet orb la tot restul. Cele mai multe eșecuri de tip „agentul a luat o decizie evident greșită” se reduc, la o privire atentă, la „agentul nu a avut contextul necesar ca să ia decizia corectă”. Agentul nu știa de noua bibliotecă de autentificare pentru că nu i-a spus nimeni. A ales by default framework-ul de teste greșit pentru că nimeni nu a pus preferința echipei în configurație. Agentul a luat cea mai bună decizie posibilă cu contextul pe care îl avea, iar decizia a fost greșită pentru că acel context era incomplet.
 
-Gestionarea context window-ului e, prin urmare, una dintre disciplinele inginerești centrale ale programării cu agenți. Decizi în permanență ce încarci, ce rezumi, ce arunci, ce ceri la momentul potrivit. Ferestrele de context mai mari ajută - un milion de tokeni de context e, într-adevăr, mult mai iertător decât două sute de mii - dar ferestrele mai mari nu elimină constrângerea. Doar ridică plafonul.
+Gestionarea context window-ului e, prin urmare, una dintre disciplinele inginerești centrale ale programării cu agenți. Decizi în permanență ce încarci, ce rezumi, ce arunci, ce ceri la momentul potrivit. Ferestrele de context mai mari ajută - un milion de tokeni de context e, într-adevăr, mult mai iertător decât două sute de mii - dar ferestrele mai mari nu elimină constrângerea. Doar ridică plafonul. Meșteșugul de a lucra înăuntrul acelei limite - ce încarci, la ce faci referire, când pornești curat - e predat în Capitolul 5 ca igiena contextului.
 
 ---
 
@@ -1043,6 +1043,22 @@ Testul e contabilitate, nu optimism. Pentru fiecare fază peste care vrei să sa
 ---
 
 O precizare de vocabular înainte să mergem mai departe, pentru că termenul „buclă” începe să fie suprasolicitat în domeniu. Cele șase faze de aici sunt bucla interioară (inner loop): o unitate de muncă, șase funcții, cu gate-uri ținute de tine. Mai există și o buclă exterioară (outer loop), tot mai răspândită - reinvocarea agentului la interval sau pe un queue, fără nimeni între iterații, până când o condiție e îndeplinită. Acela e un instrument diferit, cu precondiții diferite, și e pattern-ul final din Capitolul 9. Dependența curge într-un singur sens: o buclă exterioară e exact atât de sigură cât e mecanizarea funcțiilor pe care le rerulează, pentru că ea compune orice disciplină - sau orice absență - pe care o împachetează.
+
+---
+
+### Igiena contextului {#context-hygiene}
+
+Fiecare fază din bucla asta rulează înăuntrul unui context window, iar fereastra e memoria de lucru a agentului. Tot ce e încărcat în ea - system prompt-ul, fișierele citite, rezultatele tool-urilor, conversația de până acum - concurează pentru aceeași atenție mărginită de care agentul are nevoie ca să raționeze. Capitolul 1 a numit limita și a spus că ferestrele mai mari doar ridică plafonul; igiena contextului e cum lucrezi înăuntrul ei. Capitolul ăsta a numit deja contaminarea contextului drept cel mai mare mod de eșec al sesiunilor lungi. Asta e practica ce o previne.
+
+Prima disciplină e să încarci ce cere task-ul și să faci referire la rest. Pointere, nu payload-uri. Documentul de arhitectură e pus ca link în AGENTS.md, nu lipit în el; nota de research numește fișierele care contează și unde să le găsești, în loc să le pună conținutul inline. Bugetul de două sute de linii pentru AGENTS.md din Capitolul 6 e aceeași disciplină aplicată stratului mereu-încărcat - liniile care se încarcă la începutul fiecărei sesiuni sunt spațiul cel mai scump din fereastră, așa că ori își merită locul, ori dispar.
+
+Granița dintre sesiuni e instrumentul. O unitate de muncă per sesiune. Artefactele pe care bucla asta le trece în commit - nota de research, planul, rapoartele per task - există tocmai ca sesiunea următoare să pornească curată și să citească din repository starea de care are nevoie, în loc să târască după ea istoricul cât o conversație întreagă. Context proaspăt per unitate de muncă e forma din bucla interioară a ceea ce face pattern-ul opt la fiecare iterație; argumentul buclei exterioare e al Capitolului 9.
+
+Contaminarea se anunță singură, dacă stai cu ochii pe ea. Patru semne. Agentul răspunde din nou la o întrebare pe care o rezolvase deja mai devreme în sesiune. Citează o versiune învechită a unui fișier pe care l-a editat acum o oră. Uită o constrângere pe care o respecta acum douăzeci de minute. Editările lui devin tot mai neglijente pe măsură ce sesiunea se lungește. Când vezi asta, nu te certa cu sesiunea - nu poți readuce un context window la coerență prin dispută. Dă commit la starea durabilă, încheie sesiunea, pornește curat. Sesiunea proaspătă nu e progres pierdut; e chiar progresul, recitit din repository, fără zgomot.
+
+Compactarea e o predare, nu o continuare. Când harness-ul rezumă o fereastră plină ca să facă loc, pierde detalii - asta înseamnă să rezumi - așa că tratează o sesiune compactată așa cum ai trata predarea muncii tale unui inginer nou în prag: tot ce contează și nu e scris într-un fișier până atunci s-a pierdut. Subagenții sunt cealaltă jumătate a instrumentului, izolând fiecare task în propria lui fereastră, ca confuzia unui task să nu ajungă niciodată la următorul. Rezumatele lor de predare se citesc cu același scepticism pe care faza de execute îl cere deja pentru cele ale orchestratorului.
+
+Anexa B.7 e disciplina asta într-o singură pagină.
 
 ---
 
@@ -2094,6 +2110,14 @@ Traiectoria asta - patru decenii de scris cod, douăzeci și cinci dintre ele pr
 
 Pagina asta urmărește actualizările semnificative ale manualului. Corecturile mărunte și ajustările de SEO nu sunt listate; footer-ul arată data ultimei actualizări.
 
+### 2026-07-05 - Igiena contextului (Capitolul 5 + Anexa B.7)
+
+Capitolul 5 capătă o secțiune de igienă a contextului, inserată după paragraful de vocabular inner/outer loop, care predă meșteșugul zilnic pe care cartea îl numise, dar nu-l predase niciodată - fereastra e memoria de lucru a agentului, iar tot ce e încărcat în ea concurează cu raționamentul. Numește cele patru semne ale contaminării (agentul răspunde din nou la o întrebare deja rezolvată, citează o versiune învechită a unui fișier pe care l-a editat, uită o constrângere pe care o respecta sau scade în calitatea editărilor târziu într-o sesiune lungă), disciplina graniței dintre sesiuni - o unitate de muncă per sesiune, cu stare durabilă recitită din repository - și compactarea ca predare, nu continuare, unde tot ce nu e scris într-un fișier până atunci s-a pierdut. Anexă nouă: B.7, one-pager-ul igienei contextului (numărul de template-uri ajunge acum la șapte). Secțiunea despre context window din Capitolul 1 capătă o trimitere înainte, de o frază, către noua secțiune.
+
+### 2026-07-05 - Exemplul lucrat din Anexa A
+
+Anexa A capătă o trecere lucrată prin propria ei grilă, închizând singurul gol dintr-o carte construită pe exemple lucrate: secțiunea de costuri nu avea niciun număr. Noua subsecțiune ia proiectul de 20 de ingineri din servicii financiare din sidebar-ul managerului (Capitolul 10) și îl trece prin anexă - 13 seat-uri Team plus 7 seat-uri Pro, lista TCO cu patru categorii și euristica de încadrare - folosind cifrele operaționale publicate ale proiectului (41% dintre PR-urile merged atinse de agent, cycle time cu 28% sub baseline, defecte plate) drept ancoră de valoare. Tarifele de pe partea de cost sunt marcate ca numere rotunde ilustrative, nu cotații, în acord cu poziția anexei că prețurile concrete se învechesc trimestrial. Concluzia cinstită încape într-un tabel mic: prețul de listă e cea mai mică linie, iar categoriile de timp uman o pun în umbră. Încheierea ține granița din Capitolul 10: managerul apără cifra operațională, nu un ROI proiectat.
+
 ### 2026-07-05 - Două feluri de hook-uri (Capitolul 9, pattern-ul trei)
 
 Pattern-ul trei din Capitolul 9 se extinde de la regulile hookify la două feluri de hook-uri: hook-ul pre-tool-use al agentului (hookify) și hook-ul de git pre-commit/pre-push. Materialul nou leagă gate-ul de git de faptul că agentul e doar încă un autor cu acces de scriere: un gate determinist de commit/push i se aplică gratis, iar portița `--no-verify` e închisă cu o regulă hookify de deny. Trage și linia cinstită - hook-urile locale sunt feedback rapid, în timp ce aceleași verificări în CI sunt gate-ul pe care nu-l poți sări de pe laptop, adică gate-ul din pattern-ul opt pe care agentul nu-l poate edita. Recap-ul, încheierea și caseta de artefact actualizate; numărul de pattern-uri rămâne opt.
@@ -2166,6 +2190,28 @@ Oferta vendorului e partea ușoară. Patru categorii nu apar în ea și domină 
 
 **Overhead-ul de guvernanță.** Evaluarea de securitate prin CISO. Negocierea addendum-ului de Zero Data Retention. Durata ciclului de achiziții. Infrastructura de audit logging. Monitorizarea riscului de vendor. Variază de la companie la companie; de la o săptămână la un trimestru.
 
+### Un exemplu lucrat {#a-worked-example}
+
+Sidebar-ul managerului din Capitolul 10 a lăsat o echipă de 20 de ingineri din servicii financiare la mijlocul arcului: 41% dintre PR-urile merged atinse de agent în luna a doua, cycle time pe acel set cu 28% sub baseline-ul dinainte de agent, defecte în marja de zgomot. Trece aceeași echipă prin grila din anexa asta. Cifrele de cost de mai jos sunt numere rotunde pentru aritmetică, nu cotații - pune-le pe ale tale; tot rostul anexei e că cele concrete se învechesc până la trimestrul următor.
+
+Începe cu prețul de listă, partea ușoară. Proiectul a pus 13 ingineri pe nivelul Team și 7 pe seat-uri Pro, pentru că acei 7 folosesc agentul rar, iar nivelul s-a potrivit cu utilizarea (ideea din Capitolul 10: cheltuială ținută în frâu, nu tooling uniform). La un preț ilustrativ de $30 per seat Team și $20 per seat Pro, adică 13 seat-uri a câte $30 plus 7 a câte $20, iese $530 pe lună, să zicem $6.400 pe an. Notează cifra asta. E cea mai mică de pe pagină.
+
+Acum cele patru categorii care nu sunt în prețul de listă, la magnitudinile pe care cartea le folosește deja:
+
+| Linie | Magnitudine ilustrativă | Cadență |
+|---|---|---|
+| Seat-uri (13 Team + 7 Pro) | ~$530/lună (~$6.400/an) | recurent |
+| Integrare | câteva săptămâni de engineering | o singură dată |
+| Scrierea skill-urilor | câteva ore per inginer pe lună, plus trimestrul part-time al championului | continuu + o singură dată |
+| Review | concentrat pe reviewerii seniori | continuu |
+| Guvernanță | o săptămână până la un trimestru, concentrat la început într-o firmă reglementată | o singură dată |
+
+Pune un preț pe liniile umane cu aceeași onestitate. Câteva săptămâni de engineering pentru integrare, la orice cost complet realist, acoperă singure prețul de listă pe primul an, o dată. Scrierea skill-urilor - câteva ore per inginer pe lună pe 20 de ingineri, plus trimestrul part-time al championului - e o linie recurentă care poate ajunge mai mare decât seat-urile însele. Timpul de review cade pe reviewerii seniori, cele mai scumpe ore ale tale. Guvernanța într-o firmă reglementată înseamnă o săptămână până la un trimestru de muncă de securitate, achiziții și audit logging înainte să fie facturat vreun seat. Prețul de listă e real, dar nu acolo sunt banii.
+
+Partea de valoare folosește euristica de încadrare în sens invers. Ia un inginer la un cost complet ilustrativ de $100 pe oră. Un seat Team de $30 e acoperit când agentul îi economisește inginerului cam douăzeci de minute pe toată luna; câteva ore economisite pe lună nici nu se pun. Seat-ul își trece propriul prag devreme și ușor. Dar calculul ăsta pe dosul plicului nu e ce a justificat cheltuiala. Ce a justificat-o a fost cifra operațională pe care managerul o avea deja: 41% dintre PR-urile merged atinse de agent, cycle time pe ele cu 28% sub baseline, rata de defecte plată. Ore măsurate la ieșire, nu dolari proiectați.
+
+Asta e disciplina. Prețul de listă e cea mai mică linie și cea despre care întreabă toată lumea prima dată. Cele patru categorii de TCO domină totalul real, iar cele umane pun în umbră toată matematica seat-urilor. Iar cifra pe care managerul o apără în fața board-ului e cea operațională - cycle time cu 28% mai mic, fără nicio schimbare măsurabilă în defecte - nu un ROI proiectat pe care dashboard-ul încă nu-l poate susține (Capitolul 10). Prețurile se schimbă; aritmetica asta, nu.
+
 ### Prețurile se schimbă; matematica nu
 
 Prețurile concrete din orice trimestru vor fi greșite în trimestrul următor. Forma calculului, nu. Per-seat scalează cu mărimea echipei; per-token scalează cu intensitatea utilizării; planurile enterprise le împachetează pe amândouă, plus conformitatea. Euristica de încadrare și lista TCO cu patru categorii supraviețuiesc oricărei schimbări de preț. Intră în discuția de achiziții din secțiunea managerului din Capitolul 10 cu propriile numere puse în grila asta.
@@ -2174,7 +2220,7 @@ Prețurile concrete din orice trimestru vor fi greșite în trimestrul următor.
 
 ## Anexa B - Template-uri
 
-Șase template-uri de copiat și lipit, la care se face referire pe tot parcursul manualului. Toate sunt puncte de plecare; adaptează-le pentru echipa ta.
+Șapte template-uri de copiat și lipit, la care se face referire pe tot parcursul manualului. Toate sunt puncte de plecare; adaptează-le pentru echipa ta.
 
 Template-urile B.1 și B.2 rămân integral în engleză: sunt artefacte pe care le consumă agentul, iar prompturile se scriu în engleză.
 
@@ -2415,6 +2461,40 @@ REVIEW-UL DE DIMINEAȚĂ (pragul uman minim)
 - Verificarea de kill înainte de relansare: diff-uri care oscilează? buget consumat, dar queue-ul nu e mai scurt?
   același eșec a treia oară? gate-ul a fost atins?
   Orice „da” -> nu relansa. Citește jurnalul, repară întâi cauza.
+```
+
+### B.7 Igiena contextului (one-pager)
+
+```
+ÎNCĂRCARE
+- Doar context relevant pentru task; tot ce e încărcat concurează cu raționamentul
+- Pointere, nu payload-uri: linkuiește documentul de arhitectură, numește fișierele, nu le lipi
+- AGENTS.md sub 200 de linii - stratul mereu-încărcat e spațiul cel mai scump
+
+SESIUNE
+- O unitate de muncă per sesiune
+- Pornește curat la fiecare unitate; nu duce istoricul unui task terminat în următorul
+- Starea durabilă trăiește în fișiere - nota de research, planul, jurnalul - ținute în repo prin commit-uri
+
+DE URMĂRIT (semne de contaminare)
+- Agentul răspunde din nou la o întrebare rezolvată deja în sesiune
+- Agentul citează o versiune învechită a unui fișier pe care l-a editat mai devreme
+- Agentul uită o constrângere pe care o respecta mai devreme
+- Calitatea editărilor scade târziu într-o sesiune lungă
+
+CÂND E CONTAMINAT
+- Nu te certa cu sesiunea - nu poți readuce o fereastră la coerență prin dispută
+- Dă commit la starea durabilă -> încheie sesiunea -> pornește de la zero
+- Sesiunea proaspătă recitește progresul din repo, fără zgomot
+
+COMPACTARE
+- O predare, nu o continuare - rezumarea pierde detalii
+- Tratează-o ca pe predarea muncii unui inginer nou
+- Tot ce contează și nu e într-un fișier până atunci s-a pierdut
+
+SUBAGENȚI
+- Izolează fiecare task în propriul context; confuzia unui task nu ajunge niciodată la următorul
+- Citește rezumatele de predare cu scepticismul cu care ai citi standup-ul unui junior
 ```
 
 ---
