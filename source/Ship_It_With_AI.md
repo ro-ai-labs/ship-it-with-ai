@@ -939,6 +939,20 @@ The reason you split these into two reviewers is that doing both at once produce
 
 The output of review is structured. Each finding has a severity. Critical findings block ship. Important findings get fixed before ship. Suggestions are noted in the PR description. The agent acts on the blocking and important findings automatically (within the constraints of the plan), and surfaces the suggestions for the human reviewer to decide.
 
+### How do you review an agent-written diff? {#reviewing-agent-diffs}
+
+An agent-written diff fails differently than a human-written one, so you read it in a different order. A human diff fails at execution - a typo, an off-by-one, the edge case the author forgot - and you hunt line by line for the mistake, because that is where a tired human leaves them. An agent diff arrives without those. It compiles, it passes lint, it reads like idiomatic code your team would merge without comment. It fails one layer up, at intent and context - a business rule that is plausible and wrong, the right code placed in the wrong layer - and neither of those announces itself on the page. An agent bug looks like the code a good engineer would write for a slightly different task. Fluency is not correctness, and reading for fluency will not catch it.
+
+So spend the first ten minutes above the code, not in it. Start with the diff-stat against the plan, before a single line of implementation: does the shape of the change match the shape of the ask? A file touched that the plan never named is the first flag, not a footnote - an over-scoped diff is the agent deciding something you did not ask it to decide.
+
+Read the tests next, and read what they assert, not whether they pass. Green is the cheapest signal in the diff and the one you already have. A test that asserts what the implementation does instead of what the intent required will pass and still be wrong; the verify phase returns to this, to why the agent's own tests earn a second read.
+
+Then check the boundaries your team has written rules about - the forbidden patterns in AGENTS.md, the layer conventions, the modules that are dangerous to touch. The agent violates a convention confidently and in fluent style, so a boundary crossing does not look wrong; it looks clean, which is exactly what style-reading slides past. And grep every new name the diff introduces - each API, function, or config key you do not recognize - the same cross-check Chapter 6 runs against the confident invention, because the call that does not exist reads as plausibly as the one that does.
+
+Only now, line by line. This is the mechanical layer the two reviewers above already swept - spec compliance, code quality - so you are not repeating their pass; you are spending the minutes they bought you on the two things they cannot judge, business correctness and architectural fit. This is where the plausible-wrong business rule surfaces, and where a stale idiom from the framework version the model knows best reads as a cleanup and ships as a regression. The read does not disappear as the tooling improves. It gets shorter and sharper, aimed at the errors of intent that survive everything upstream - and when it decays instead into a glance at green checkmarks, Chapter 9's pattern four owns what happens next.
+
+Appendix B.8 is this read order as a one-pager.
+
 ---
 
 **Phase five: verify.**
@@ -1722,7 +1736,7 @@ Then a PR shipped that every agent had passed. Tests green, no security findings
 
 The post-mortem was honest: the toolkit had worked precisely as designed. It removed the mechanical findings from human review, and the humans let the judgment work drift away with the mechanical work. Chapter 10 names an archetype called the uncalibrated delegator; this was a whole team becoming one, with good tooling as the alibi.
 
-The fix was not removing the review agents. The fix was making the human floor explicit: a minimum review on business correctness and architectural fit for every agent-touched PR, tracked as a number next to defect rate. The review agents are a filter in front of human judgment. The moment they become a substitute for it, this pattern is making your reviews worse while making them look better.
+The fix was not removing the review agents. The fix was making the human floor explicit: a minimum review on business correctness and architectural fit for every agent-touched PR, tracked as a number next to defect rate; Chapter 5's read order for agent diffs is that floor made concrete. The review agents are a filter in front of human judgment. The moment they become a substitute for it, this pattern is making your reviews worse while making them look better.
 
 ---
 
@@ -2108,6 +2122,10 @@ That trajectory - four decades of writing code, twenty-five of them professional
 
 This page tracks meaningful updates to the manual. Smaller copy-edits and SEO tweaks are not listed; the footer shows the last updated date.
 
+### 2026-07-05 - How to review an agent diff (Chapter 5 + Appendix B.8)
+
+Chapter 5's review phase gains its human half, inserted after the two agent reviewers and before verify - the read only a human can do, which the book had invoked as the human floor without ever teaching. It starts from why an agent diff fails in kind, not in degree: a human diff fails at execution and you hunt the mistake line by line, while an agent diff compiles, passes lint, and reads idiomatic, failing instead at intent and context. So the read order inverts into five steps - the diff-stat against the plan before any code, the tests read for what they assert, the boundaries the team has rules about, a grep of every new name the diff introduces, and only then line by line, where the minutes go to business correctness and architectural fit. The calibration line anchors it: fluency is not correctness, and an agent bug looks like the code a good engineer would write for a slightly different task. New Appendix B.8 agent-diff read order one-pager (the template count is now eight). Chapter 9's pattern four gains a closing back-pointer naming this read order as the human floor made concrete.
+
 ### 2026-07-05 - Context hygiene (Chapter 5 + Appendix B.7)
 
 Chapter 5 gains a Context hygiene section, inserted after the inner/outer loop vocabulary paragraph, that teaches the daily craft the book had named but never taught - the window is the agent's working memory, and everything loaded into it competes with reasoning. It names the four signs of contamination (the agent re-answers a settled question, cites a stale version of a file it edited, forgets a constraint it honored, or degrades in edit quality late in a long session), the session-boundary discipline of one unit of work per session with durable state read back from the repository, and compaction as a handoff rather than a continuation, where anything not written to a file by then is gone. New Appendix B.7 context-hygiene one-pager (the template count is now seven). Chapter 1's context-window section gains a one-sentence forward pointer to the new section.
@@ -2218,7 +2236,7 @@ Specific prices in any quarter will be wrong the next quarter. The shape of the 
 
 ## Appendix B. Templates
 
-Seven copy-paste templates referenced throughout the manual. All are starting points; customize for your team.
+Eight copy-paste templates referenced throughout the manual. All are starting points; customize for your team.
 
 ### B.1 Architecture review prompt
 
@@ -2491,6 +2509,40 @@ COMPACTION
 SUBAGENTS
 - Isolate each task in its own context; one task's confusion never reaches the next
 - Read handoff summaries with the skepticism you would give a junior's standup
+```
+
+### B.8 Agent-diff read order (one-pager)
+
+```
+BEFORE THE CODE
+- Diff-stat against the plan first - read the shape before a line of code
+- Does the change touch what the ask named, and only that?
+- Files the plan never named are the first flag - an over-scoped diff decided something for you
+
+TESTS FIRST
+- Read what they assert, not whether they pass - green is the signal you already have
+- The assertion has to come from the intent, not the implementation
+- A test written from the code will agree with the code
+
+BOUNDARIES
+- Check the rules the team wrote down - AGENTS.md forbidden patterns, layer conventions
+- The agent violates a convention confidently and in fluent style
+- A boundary crossing looks clean on the page - fluent style hides it from style-reading
+
+NEW NAMES
+- Grep every API, function, or config key the diff introduces that you do not recognize
+- No hits in the codebase or the dependencies -> the name may not exist
+- The invented call reads as plausibly as the real one
+
+THEN LINE BY LINE
+- The mechanical layer the review agents already swept - spec compliance, code quality
+- Do not repeat their pass - spend the minutes they bought you
+- The minutes go where the agents cannot: business correctness and architectural fit
+
+CALIBRATION
+- Fluency is not correctness
+- An agent bug looks like the code a good engineer would write for a slightly different task
+- The human read gets shorter and sharper as the tooling improves - never skipped
 ```
 
 ---
