@@ -943,6 +943,22 @@ Output-ul fazei de review e structurat. Fiecare constatare are o severitate. Con
 
 ---
 
+### Cum faci review pe un diff scris de agent? {#reviewing-agent-diffs}
+
+Un diff scris de agent eșuează altfel decât unul scris de om, așa că îl citești în altă ordine. Un diff de om eșuează la execuție - o greșeală de tastare, un off-by-one, edge case-ul pe care autorul l-a uitat - și vânezi greșeala linie cu linie, pentru că acolo o lasă un om obosit. Un diff de agent sosește fără astea. Compilează, trece de lint, se citește ca un cod idiomatic pe care echipa ta l-ar face merge fără niciun comentariu. Eșuează cu un strat mai sus, la intenție și context - o regulă de business plauzibilă și greșită, codul corect pus în stratul greșit - și niciuna dintre astea nu se anunță singură pe pagină. Un bug de agent arată ca acel cod pe care un inginer bun l-ar scrie pentru un task ușor diferit. Fluența nu e corectitudine, iar cititul pe fluență nu-l va prinde.
+
+Așa că petrece primele zece minute deasupra codului, nu în el. Începe cu diff-stat-ul raportat la plan, înainte de o singură linie de implementare: forma schimbării se potrivește cu forma cererii? Un fișier atins pe care planul nu l-a numit niciodată e primul semnal, nu o notă de subsol - un diff care depășește scopul e agentul care decide ceva ce nu i-ai cerut să decidă.
+
+Citește apoi testele, și citește ce afirmă, nu dacă trec. Verdele e cel mai ieftin semnal din diff și cel pe care îl ai deja. Un test care afirmă ce face implementarea în loc de ce cerea intenția va trece și tot va fi greșit; faza de Verify revine la asta, la de ce testele agentului merită o a doua citire.
+
+Apoi verifică granițele despre care echipa ta a scris reguli - pattern-urile interzise din AGENTS.md, convențiile de strat, modulele periculoase de atins. Agentul încalcă o convenție sigur pe el și în stil fluent, așa că o trecere de graniță nu arată greșit; arată curat, exact ce cititul pe stil trece cu vederea. Și dă grep pe fiecare nume nou pe care-l introduce diff-ul - fiecare API, funcție sau cheie de config pe care n-o recunoști - aceeași verificare încrucișată pe care Capitolul 6 o rulează împotriva invenției sigure pe ea, pentru că apelul care nu există se citește la fel de plauzibil ca cel care există.
+
+Abia acum, linie cu linie. Ăsta e stratul mecanic pe care cei doi revieweri de mai sus l-au măturat deja - conformitatea cu spec-ul, calitatea codului - așa că nu le repeți trecerea; cheltuiești minutele pe care ți le-au cumpărat pe cele două lucruri pe care ei nu le pot judeca, corectitudinea de business și potrivirea arhitecturală. Aici iese la suprafață regula de business plauzibilă și greșită, și aici un idiom învechit din versiunea de framework pe care modelul o știe cel mai bine se citește ca un cleanup și ajunge în producție ca o regresie. Citirea nu dispare pe măsură ce tooling-ul se îmbunătățește. Devine mai scurtă și mai ascuțită, țintită pe erorile de intenție care supraviețuiesc tuturor filtrelor din amonte - iar când se degradează în schimb într-o privire fugară la bifele verzi, pattern-ul patru din Capitolul 9 stăpânește ce se întâmplă mai departe.
+
+Anexa B.8 e ordinea asta de citire într-o singură pagină.
+
+---
+
 **Faza a cincea: Verify.**
 
 Faza de Verify e locul unde rulează testele. Mai exact, rulează testele *noi* - testele care exersează modificarea. Suita de teste existentă rulează deja în execute (orice task care modifică cod rulează testele existente relevante, ca să se asigure că nu a stricat nimic). Verify e despre întrebarea dacă modificarea e cu adevărat corectă - corectă față de rezultatul pe care l-ai definit în research și în plan - nu doar dacă testele existente încă trec.
@@ -1724,7 +1740,7 @@ Apoi a intrat în producție un PR pe care toți agenții îl trecuseră. Teste 
 
 Post-mortem-ul a fost cinstit: toolkit-ul funcționase exact cum fusese proiectat. Eliminase constatările mecanice din review-ul uman, iar oamenii lăsaseră munca de judecată să se ducă odată cu munca mecanică. Capitolul 10 numește un arhetip - delegatorul necalibrat; aici, o echipă întreagă devenise unul, cu tooling bun pe post de alibi.
 
-Soluția n-a fost scoaterea agenților de review. Soluția a fost un prag uman făcut explicit: un review minim pe corectitudinea de business și pe potrivirea arhitecturală pentru fiecare PR atins de agent, urmărit ca o cifră, lângă rata de defecte. Agenții de review sunt un filtru pus în fața judecății umane. Din clipa în care devin un substitut pentru ea, pattern-ul ăsta îți face review-urile mai proaste exact în timp ce le face să arate mai bine.
+Soluția n-a fost scoaterea agenților de review. Soluția a fost un prag uman făcut explicit: un review minim pe corectitudinea de business și pe potrivirea arhitecturală pentru fiecare PR atins de agent, urmărit ca o cifră, lângă rata de defecte; ordinea de citire pentru diff-urile de agent din Capitolul 5 e pragul ăsta făcut concret. Agenții de review sunt un filtru pus în fața judecății umane. Din clipa în care devin un substitut pentru ea, pattern-ul ăsta îți face review-urile mai proaste exact în timp ce le face să arate mai bine.
 
 ---
 
@@ -2110,6 +2126,10 @@ Traiectoria asta - patru decenii de scris cod, douăzeci și cinci dintre ele pr
 
 Pagina asta urmărește actualizările semnificative ale manualului. Corecturile mărunte și ajustările de SEO nu sunt listate; footer-ul arată data ultimei actualizări.
 
+### 2026-07-05 - Cum faci review pe un diff de agent (Capitolul 5 + Anexa B.8)
+
+Faza de Review din Capitolul 5 capătă jumătatea ei umană, inserată după cei doi revieweri-agent și înainte de Verify - citirea pe care doar un om o poate face, pe care cartea o invocase drept pragul uman fără s-o predea vreodată. Pornește de la de ce un diff de agent eșuează diferit ca natură, nu ca grad: un diff de om eșuează la execuție și vânezi greșeala linie cu linie, în timp ce un diff de agent compilează, trece de lint și se citește idiomatic, eșuând în schimb la intenție și context. Așa că ordinea de citire se inversează în cinci pași - diff-stat-ul raportat la plan înainte de orice cod, testele citite pentru ce afirmă, granițele despre care echipa are reguli, un grep pe fiecare nume nou pe care diff-ul îl introduce, și abia apoi linie cu linie, unde minutele merg către corectitudinea de business și potrivirea arhitecturală. Linia de calibrare o ancorează: fluența nu e corectitudine, iar un bug de agent arată ca acel cod pe care un inginer bun l-ar scrie pentru un task ușor diferit. Anexă nouă: B.8, one-pager-ul cu ordinea de citire a unui diff de agent (numărul de template-uri ajunge acum la opt). Pattern-ul patru din Capitolul 9 capătă o trimitere înapoi de încheiere, care numește ordinea asta de citire drept pragul uman făcut concret.
+
 ### 2026-07-05 - Igiena contextului (Capitolul 5 + Anexa B.7)
 
 Capitolul 5 capătă o secțiune de igienă a contextului, inserată după paragraful de vocabular inner/outer loop, care predă meșteșugul zilnic pe care cartea îl numise, dar nu-l predase niciodată - fereastra e memoria de lucru a agentului, iar tot ce e încărcat în ea concurează cu raționamentul. Numește cele patru semne ale contaminării (agentul răspunde din nou la o întrebare deja rezolvată, citează o versiune învechită a unui fișier pe care l-a editat, uită o constrângere pe care o respecta sau scade în calitatea editărilor târziu într-o sesiune lungă), disciplina graniței dintre sesiuni - o unitate de muncă per sesiune, cu stare durabilă recitită din repository - și compactarea ca predare, nu continuare, unde tot ce nu e scris într-un fișier până atunci s-a pierdut. Anexă nouă: B.7, one-pager-ul igienei contextului (numărul de template-uri ajunge acum la șapte). Secțiunea despre context window din Capitolul 1 capătă o trimitere înainte, de o frază, către noua secțiune.
@@ -2220,7 +2240,7 @@ Prețurile concrete din orice trimestru vor fi greșite în trimestrul următor.
 
 ## Anexa B - Template-uri
 
-Șapte template-uri de copiat și lipit, la care se face referire pe tot parcursul manualului. Toate sunt puncte de plecare; adaptează-le pentru echipa ta.
+Opt template-uri de copiat și lipit, la care se face referire pe tot parcursul manualului. Toate sunt puncte de plecare; adaptează-le pentru echipa ta.
 
 Template-urile B.1 și B.2 rămân integral în engleză: sunt artefacte pe care le consumă agentul, iar prompturile se scriu în engleză.
 
@@ -2495,6 +2515,40 @@ COMPACTARE
 SUBAGENȚI
 - Izolează fiecare task în propriul context; confuzia unui task nu ajunge niciodată la următorul
 - Citește rezumatele de predare cu scepticismul cu care ai citi standup-ul unui junior
+```
+
+### B.8 Ordinea de citire a unui diff de agent (one-pager)
+
+```
+ÎNAINTE DE COD
+- Diff-stat-ul raportat la plan, întâi - citește forma înainte de o linie de cod
+- Schimbarea atinge ce a numit cererea, și doar atât?
+- Fișierele pe care planul nu le-a numit niciodată sunt primul semnal - un diff care depășește scopul a decis ceva în locul tău
+
+ÎNTÂI TESTELE
+- Citește ce afirmă, nu dacă trec - verdele e semnalul pe care îl ai deja
+- Aserțiunea trebuie să vină din intenție, nu din implementare
+- Un test scris pornind de la cod va fi de acord cu codul
+
+GRANIȚE
+- Verifică regulile pe care echipa le-a scris - pattern-urile interzise din AGENTS.md, convențiile de strat
+- Agentul încalcă o convenție sigur pe el și în stil fluent
+- O trecere de graniță arată curat pe pagină - stilul fluent o ascunde de cititul pe stil
+
+NUME NOI
+- Dă grep pe fiecare API, funcție sau cheie de config pe care diff-ul o introduce și pe care n-o recunoști
+- Zero rezultate în codebase sau în dependențe -> numele s-ar putea să nu existe
+- Apelul inventat se citește la fel de plauzibil ca cel real
+
+ABIA APOI LINIE CU LINIE
+- Stratul mecanic pe care agenții de review l-au măturat deja - conformitatea cu spec-ul, calitatea codului
+- Nu le repeta trecerea - cheltuiește minutele pe care ți le-au cumpărat
+- Minutele merg unde agenții nu pot: corectitudinea de business și potrivirea arhitecturală
+
+CALIBRARE
+- Fluența nu e corectitudine
+- Un bug de agent arată ca acel cod pe care un inginer bun l-ar scrie pentru un task ușor diferit
+- Citirea umană devine mai scurtă și mai ascuțită pe măsură ce tooling-ul se îmbunătățește - niciodată sărită
 ```
 
 ---
