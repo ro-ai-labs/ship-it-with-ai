@@ -657,7 +657,7 @@ def diagram_arc() -> str:
             f'<text class="dsvg-kicker" x="112" y="{y+30}">{period}</text>'
             f'<text class="dsvg-phase" x="112" y="{y+58}">{phase}</text>'
             + f'<rect class="dsvg-chip" x="{508-30-9*len(role)}" y="{y+16}" width="{18+9*len(role)}" height="24" rx="12"/>'
-            + f'<text class="dsvg-chiptext" x="{508-21-9*len(role)//1}" y="{y+32}">{role}</text>'
+            + f'<text class="dsvg-chiptext" x="{508-21-9*len(role)}" y="{y+32}">{role}</text>'
         )
         iy = y + 84
         for item in items:
