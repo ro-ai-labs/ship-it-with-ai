@@ -2124,6 +2124,10 @@ That trajectory - four decades of writing code, twenty-five of them professional
 
 This page tracks meaningful updates to the manual. Smaller copy-edits and SEO tweaks are not listed; the footer shows the last updated date.
 
+### 2026-07-06 - SVG diagrams and localized figure bodies
+
+Three figures graduate from card layouts to theme-aware SVG: the six-phase loop now draws its real topology (six nodes, arrows, and the two failure routes back to Plan), the five governance layers render as a defense-in-depth stack, and the 90-day arc becomes a timeline with role chips. All five figures now render localized bodies in the Romanian edition (previously only captions were translated), and the arc figure's stale CLAUDE.md labels were corrected to AGENTS.md to match the text. Presentation only; the figures' content is unchanged.
+
 ### 2026-07-05 - How to review an agent diff (Chapter 5 + Appendix B.8)
 
 Chapter 5's review phase gains its human half, inserted after the two agent reviewers and before verify - the read only a human can do, which the book had invoked as the human floor without ever teaching. It starts from why an agent diff fails in kind, not in degree: a human diff fails at execution and you hunt the mistake line by line, while an agent diff compiles, passes lint, and reads idiomatic, failing instead at intent and context. So the read order inverts into five steps - the diff-stat against the plan before any code, the tests read for what they assert, the boundaries the team has rules about, a grep of every new name the diff introduces, and only then line by line, where the minutes go to business correctness and architectural fit. The calibration line anchors it: fluency is not correctness, and an agent bug looks like the code a good engineer would write for a slightly different task. New Appendix B.8 agent-diff read order one-pager (the template count is now eight). Chapter 9's pattern four gains a closing back-pointer naming this read order as the human floor made concrete.

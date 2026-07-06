@@ -401,6 +401,131 @@ def copy_static() -> None:
 # ---------------------------------------------------------------------------
 # Diagram HTML generators
 # ---------------------------------------------------------------------------
+# Bodies are localized through DIAGRAM_LABELS, rebound per language in
+# set_language() (same pattern as FIGURE_RENDERERS_BY_CAPTION_KEY). The RO
+# strings are verbatim from the RO edition's ASCII figure bodies. Figcaptions
+# are emitted as a __FIGCAPTION__ placeholder that replace_diagrams() fills
+# with the source caption in the current language.
+
+EN_DIAGRAM_LABELS: dict = {
+    "primitives_foot": "the agent loop binds them together;<br/>subagents spawn constrained child instances of the agent itself",
+    "loop_fb1": ["failed plan?", "replan"],
+    "loop_fb2": ["failed verify?", "back to plan"],
+    "layers": [
+        ("LAYER 5", "Telemetry", "detective"),
+        ("LAYER 4", "Security hooks", "per-action enforcement"),
+        ("LAYER 3", "Secrets", "structural protection"),
+        ("LAYER 2", "Sandbox", "OS-level isolation"),
+        ("LAYER 1", "Permissions", "allow / ask / deny"),
+    ],
+    "traffic_lights": [
+        ("0 - 1", "GREEN", "Agent-led, normal velocity"),
+        ("2 - 3", "YELLOW", "Human-led, agent support"),
+        ("4 +", "RED", "Stop. Fix codebase first."),
+    ],
+    "traffic_title": "Signals (count each present)",
+    "traffic_signals": [
+        "No tests", "No documentation", "Tight coupling", "Scattered rules",
+        "Regulatory constraints", "Team cannot evaluate output",
+        "Model-context fit", "Velocity-of-change",
+    ],
+    "arc": [
+        ("DAYS 1 - 30", "Foundation", "Champion", [
+            "Champion installs",
+            "AGENTS.md drafted",
+            "First green-light project",
+            "Architecture review workflow proven",
+        ]),
+        ("DAYS 31 - 60", "Expansion", "Lead", [
+            "Lead onboards 2 - 3 more engineers",
+            "AGENTS.md hardened",
+            "Hooks configured",
+            "Skills written",
+            "Kill signals applied to portfolio",
+        ]),
+        ("DAYS 61 - 90", "Productionization", "Manager", [
+            "Manager folds metrics into normal velocity tracking",
+            "Vendor governance signed",
+            "Plugin marketplace policy in place",
+        ]),
+    ],
+    "layers_spine": "Least privilege is the spine. Each layer catches what the others miss.",
+    "svg_titles": {
+        "loop": "The six-phase loop with its failure routes back to Plan",
+        "layers": "The five governance layers stacked as defense in depth",
+        "arc": "The 90-day adoption arc across three roles",
+    },
+}
+
+RO_DIAGRAM_LABELS: dict = {
+    # Strings verbatim from the RO edition's ASCII figure bodies. The RO
+    # source deliberately keeps the primitive names and phase names English.
+    "primitives_foot": "bucla agentului le leagă pe toate;<br/>subagenții pornesc instanțe-copil constrânse ale agentului însuși",
+    "loop_fb1": ["plan eșuat?", "replanifici"],
+    "loop_fb2": ["verify picat?", "înapoi la plan"],
+    "layers": [
+        ("STRATUL 5", "Telemetrie", "detectiv"),
+        ("STRATUL 4", "Hook-uri de securitate", "per acțiune"),
+        ("STRATUL 3", "Secrete", "protecție structurală"),
+        ("STRATUL 2", "Sandbox", "izolare la nivel de OS"),
+        ("STRATUL 1", "Permisiuni", "allow / ask / deny"),
+    ],
+    "layers_spine": "Privilegiul minim e coloana vertebrală. Fiecare strat prinde ce scapă celorlalte.",
+    "traffic_lights": [
+        ("0 - 1", "VERDE", "Condus de agent, viteză normală"),
+        ("2 - 3", "GALBEN", "Condus de om, sprijin de agent"),
+        ("4 +", "ROȘU", "Stop. Repară întâi codebase-ul."),
+    ],
+    "traffic_title": "Semnale (numără fiecare semnal prezent)",
+    "traffic_signals": [
+        "Fără teste", "Fără documentație", "Cuplare strânsă", "Reguli împrăștiate",
+        "Constrângeri de reglementare", "Echipa nu poate evalua output-ul",
+        "Potrivirea model-context", "Viteza schimbării",
+    ],
+    "arc": [
+        ("ZILELE 1 - 30", "Fundația", "Champion", [
+            "Championul instalează",
+            "AGENTS.md schițat",
+            "Primul proiect pe verde",
+            "Workflow-ul de architecture review demonstrat",
+        ]),
+        ("ZILELE 31 - 60", "Extinderea", "Lead", [
+            "Lead-ul aduce încă 2 - 3 ingineri",
+            "AGENTS.md consolidat",
+            "Hooks configurate",
+            "Skills scrise",
+            "Kill signals aplicate pe portofoliu",
+        ]),
+        ("ZILELE 61 - 90", "Operaționalizarea", "Manager", [
+            "Managerul integrează metricile în tracking-ul normal de velocity",
+            "Guvernanța de vendor semnată",
+            "Politica de plugin marketplace stabilită",
+        ]),
+    ],
+    "svg_titles": {
+        "loop": "Bucla în șase faze, cu rutele de eșec înapoi la Plan",
+        "layers": "Cele cinci straturi de guvernanță, suprapuse ca apărare în adâncime",
+        "arc": "Arcul de adopție de 90 de zile, pe trei roluri",
+    },
+}
+
+DIAGRAM_LABELS: dict = EN_DIAGRAM_LABELS
+
+
+def _svg_wrap(text: str, limit: int = 44) -> list[str]:
+    """Greedy word-wrap for fixed-viewBox SVG text."""
+    words, lines, cur = text.split(), [], ""
+    for w in words:
+        cand = f"{cur} {w}".strip()
+        if len(cand) > limit and cur:
+            lines.append(cur)
+            cur = w
+        else:
+            cur = cand
+    if cur:
+        lines.append(cur)
+    return lines
+
 
 def diagram_primitives() -> str:
     return """<figure class="diagram diagram-primitives">
@@ -433,114 +558,133 @@ def diagram_primitives() -> str:
     <div class="primitives-recursive">
       <div class="primitive primitive-recursive"><div class="primitive-icon">⟲</div><div class="primitive-name">subagents</div><div class="primitive-note">the agent, recursively</div></div>
     </div>
-    <div class="harness-foot">the agent loop binds them together;<br/>subagents spawn constrained child instances of the agent itself</div>
+    <div class="harness-foot">__PRIMITIVES_FOOT__</div>
   </div>
-  <figcaption>Figure: The primitives and the harness that runs them. Permissions / Sandbox sits in slot 3 as a primitive whose two halves - the agent-level decision layer and OS-level enforcement - converge on presence but diverge on posture across vendors. Memory is the other primitive whose second half is still mid-convergence. Subagents sit below the line because they are the recursive primitive: each subagent is itself an instance of the others.</figcaption>
-</figure>"""
+  <figcaption>__FIGCAPTION__</figcaption>
+</figure>""".replace("__PRIMITIVES_FOOT__", DIAGRAM_LABELS["primitives_foot"])
 
 
 def diagram_layers() -> str:
-    layers = [
-        ("Layer 5", "Telemetry", "detective"),
-        ("Layer 4", "Security hooks", "per-action enforcement"),
-        ("Layer 3", "Secrets", "structural protection"),
-        ("Layer 2", "Sandbox", "OS-level isolation"),
-        ("Layer 1", "Permissions", "allow / ask / deny"),
-    ]
-    rows = "\n".join(
-        f'    <div class="layer layer-{i+1}"><span class="layer-num">{n}</span><span class="layer-name">{name}</span><span class="layer-desc">{desc}</span></div>'
-        for i, (n, name, desc) in enumerate(layers)
-    )
+    bars = []
+    for i, (num, name, desc) in enumerate(DIAGRAM_LABELS["layers"]):
+        y = 10 + i * 58
+        bars.append(
+            f'    <g><rect class="dsvg-box" x="10" y="{y}" width="540" height="50" rx="8"/>'
+            f'<text class="dsvg-kicker" x="30" y="{y+31}">{num}</text>'
+            f'<text class="dsvg-name" x="128" y="{y+32}">{name}</text>'
+            f'<text class="dsvg-desc" x="530" y="{y+31}" text-anchor="end">{desc}</text></g>'
+        )
+    body = "\n".join(bars)
+    title = DIAGRAM_LABELS["svg_titles"]["layers"]
     return f"""<figure class="diagram diagram-layers">
-  <div class="layers-stack">
-{rows}
-  </div>
-  <div class="layers-spine">Least privilege is the spine. Each layer catches what the others miss.</div>
-  <figcaption>Figure: The five governance layers, layered as defense in depth.</figcaption>
-</figure>"""
+  <svg class="dsvg dsvg-layers" viewBox="0 0 560 300" role="img" aria-label="{title}">
+    <title>{title}</title>
+{body}
+  </svg>
+  <div class="layers-spine">__LAYERS_SPINE__</div>
+  <figcaption>__FIGCAPTION__</figcaption>
+</figure>""".replace("__LAYERS_SPINE__", DIAGRAM_LABELS.get("layers_spine", "Least privilege is the spine. Each layer catches what the others miss."))
 
 
 def diagram_loop() -> str:
     phases = ["Research", "Plan", "Execute", "Review", "Verify", "Ship"]
-    nodes = "\n".join(
-        f'    <div class="phase phase-{i+1}"><span class="phase-num">{i+1}</span><span class="phase-name">{name}</span></div>'
-        for i, name in enumerate(phases)
-    )
+    parts = []
+    for i, name in enumerate(phases):
+        y = 20 + i * 98  # node height 64 + gap 34
+        parts.append(
+            f'    <g><rect class="dsvg-box" x="70" y="{y}" width="240" height="64" rx="10"/>'
+            f'<text class="dsvg-num" x="98" y="{y+39}">{i+1}</text>'
+            f'<text class="dsvg-name" x="132" y="{y+39}">{name}</text></g>'
+        )
+        if i < 5:
+            parts.append(
+                f'    <line class="dsvg-arrow" x1="190" y1="{y+64}" x2="190" y2="{y+90}" marker-end="url(#dsvg-ah)"/>'
+            )
+    # Feedback curves: Execute (node 3, cy 280) -> Plan; Verify (node 5, cy 476) -> Plan (cy 182).
+    fb1, fb2 = DIAGRAM_LABELS["loop_fb1"], DIAGRAM_LABELS["loop_fb2"]
+    parts.append('    <path class="dsvg-feedback" d="M310,280 C388,280 388,160 318,160" marker-end="url(#dsvg-ahf)"/>')
+    parts.append('    <path class="dsvg-feedback" d="M310,476 C446,476 446,172 318,172" marker-end="url(#dsvg-ahf)"/>')
+    parts.append(f'    <text class="dsvg-fblabel" x="336" y="246">{fb1[0]}</text>')
+    parts.append(f'    <text class="dsvg-fblabel" x="336" y="262">{fb1[1]}</text>')
+    parts.append(f'    <text class="dsvg-fblabel" x="368" y="336">{fb2[0]}</text>')
+    parts.append(f'    <text class="dsvg-fblabel" x="368" y="352">{fb2[1]}</text>')
+    body = "\n".join(parts)
+    title = DIAGRAM_LABELS["svg_titles"]["loop"]
     return f"""<figure class="diagram diagram-loop">
-  <div class="loop-flow">
-{nodes}
-  </div>
-  <div class="loop-feedback">
-    <span class="feedback-arrow">↻</span>
-    <span class="feedback-text">Most failures route back to Plan, not back to Research</span>
-  </div>
-  <figcaption>Figure: The six-phase loop.</figcaption>
+  <svg class="dsvg dsvg-loop" viewBox="0 0 470 620" role="img" aria-label="{title}">
+    <title>{title}</title>
+    <defs>
+      <marker id="dsvg-ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dsvg-ah" d="M0,0 L10,5 L0,10 z"/></marker>
+      <marker id="dsvg-ahf" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dsvg-ahf" d="M0,0 L10,5 L0,10 z"/></marker>
+    </defs>
+{body}
+  </svg>
+  <figcaption>__FIGCAPTION__</figcaption>
 </figure>"""
 
 
 def diagram_traffic_light() -> str:
-    signals = [
-        "No tests", "No documentation", "Tight coupling", "Scattered rules",
-        "Regulatory constraints", "Team cannot evaluate output",
-        "Model-context fit", "Velocity-of-change",
-    ]
     signal_html = "\n".join(
         f'      <li><span class="sig-num">{i+1}</span>{name}</li>'
-        for i, name in enumerate(signals)
+        for i, name in enumerate(DIAGRAM_LABELS["traffic_signals"])
     )
+    (c1, l1, m1), (c2, l2, m2), (c3, l3, m3) = DIAGRAM_LABELS["traffic_lights"]
     return f"""<figure class="diagram diagram-traffic">
   <div class="traffic-light">
-    <div class="light light-green"><span class="light-count">0 - 1</span><span class="light-label">GREEN</span><span class="light-mode">Agent-led, normal velocity</span></div>
-    <div class="light light-yellow"><span class="light-count">2 - 3</span><span class="light-label">YELLOW</span><span class="light-mode">Human-led, agent support</span></div>
-    <div class="light light-red"><span class="light-count">4 +</span><span class="light-label">RED</span><span class="light-mode">Stop. Fix codebase first.</span></div>
+    <div class="light light-green"><span class="light-count">{c1}</span><span class="light-label">{l1}</span><span class="light-mode">{m1}</span></div>
+    <div class="light light-yellow"><span class="light-count">{c2}</span><span class="light-label">{l2}</span><span class="light-mode">{m2}</span></div>
+    <div class="light light-red"><span class="light-count">{c3}</span><span class="light-label">{l3}</span><span class="light-mode">{m3}</span></div>
   </div>
   <div class="signal-list">
-    <div class="signal-list-title">Signals (count each present)</div>
+    <div class="signal-list-title">{DIAGRAM_LABELS["traffic_title"]}</div>
     <ol class="signal-grid">
 {signal_html}
     </ol>
   </div>
-  <figcaption>Figure: The kill signals and the traffic light decision rule. Signal 6 weighs more heavily than the others.</figcaption>
+  <figcaption>__FIGCAPTION__</figcaption>
 </figure>"""
 
 
 def diagram_arc() -> str:
-    phases = [
-        ("Days 1 - 30", "Foundation", "Champion", [
-            "Champion installs",
-            "CLAUDE.md drafted",
-            "First green-light project",
-            "Architecture review workflow proven",
-        ]),
-        ("Days 31 - 60", "Expansion", "Lead", [
-            "Lead onboards 2 - 3 more engineers",
-            "CLAUDE.md hardened",
-            "Hooks configured",
-            "Skills written",
-            "Kill signals applied to portfolio",
-        ]),
-        ("Days 61 - 90", "Productionization", "Manager", [
-            "Manager folds metrics into normal velocity tracking",
-            "Vendor governance signed",
-            "Plugin marketplace policy in place",
-        ]),
-    ]
-    cards = "\n".join(
-        f"""    <div class="arc-card">
-      <div class="arc-period">{period}</div>
-      <div class="arc-phase">{phase}</div>
-      <ul class="arc-items">
-{chr(10).join(f'        <li>{item}</li>' for item in items)}
-      </ul>
-      <div class="arc-role">{role}</div>
-    </div>"""
-        for period, phase, role, items in phases
-    )
+    panels, y = [], 12
+    rail_stops = []
+    for period, phase, role, items in DIAGRAM_LABELS["arc"]:
+        lines = [ln for item in items for ln in _svg_wrap(item)]
+        h = 74 + len(lines) * 22
+        rail_stops.append((y, y + h))
+        panels.append(
+            f'    <g><rect class="dsvg-panel" x="90" y="{y}" width="418" height="{h}" rx="10"/>'
+            f'<text class="dsvg-kicker" x="112" y="{y+30}">{period}</text>'
+            f'<text class="dsvg-phase" x="112" y="{y+58}">{phase}</text>'
+            + f'<rect class="dsvg-chip" x="{508-30-9*len(role)}" y="{y+16}" width="{18+9*len(role)}" height="24" rx="12"/>'
+            + f'<text class="dsvg-chiptext" x="{508-21-9*len(role)//1}" y="{y+32}">{role}</text>'
+        )
+        iy = y + 84
+        for item in items:
+            wrapped = _svg_wrap(item)
+            panels.append(f'<circle class="dsvg-dot" cx="118" cy="{iy-4}" r="2.5"/>')
+            for j, ln in enumerate(wrapped):
+                panels.append(f'<text class="dsvg-item" x="130" y="{iy + j*22}">{ln}</text>')
+            iy += len(wrapped) * 22
+        panels.append("</g>")
+        y += h + 44
+    total_h = y - 44 + 12
+    rail = []
+    for (a_top, a_bot), (b_top, _) in zip(rail_stops, rail_stops[1:]):
+        rail.append(f'    <line class="dsvg-arrow" x1="52" y1="{a_top+20}" x2="52" y2="{b_top+8}" marker-end="url(#dsvg-ah2)"/>')
+    for top, _bot in rail_stops:
+        rail.append(f'    <circle class="dsvg-raildot" cx="52" cy="{top+20}" r="5"/>')
+    body = "\n".join(rail + panels)
+    title = DIAGRAM_LABELS["svg_titles"]["arc"]
     return f"""<figure class="diagram diagram-arc">
-  <div class="arc-timeline">
-{cards}
-  </div>
-  <figcaption>Figure: The 90-day adoption arc. Each phase has a primary role and a primary artifact set.</figcaption>
+  <svg class="dsvg dsvg-arc" viewBox="0 0 520 {total_h}" role="img" aria-label="{title}">
+    <title>{title}</title>
+    <defs>
+      <marker id="dsvg-ah2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="dsvg-ah" d="M0,0 L10,5 L0,10 z"/></marker>
+    </defs>
+{body}
+  </svg>
+  <figcaption>__FIGCAPTION__</figcaption>
 </figure>"""
 
 
@@ -585,18 +729,13 @@ def replace_diagrams(md_text: str, *, strict: bool = True) -> str:
         for key, renderer in FIGURE_RENDERERS_BY_CAPTION_KEY:
             if key in caption:
                 seen.append(key)
-                html = renderer()
-                # Translated builds replace the renderer's hardcoded English
-                # figcaption with the source caption in the target language.
-                # English keeps the renderer's caption verbatim (byte-stable).
-                if CFG.code != "en":
-                    html = re.sub(
-                        r"<figcaption>.*?</figcaption>",
-                        lambda _m: f"<figcaption>{CFG.figure_word}: {html_lib.escape(caption)}</figcaption>",
-                        html,
-                        count=1,
-                        flags=re.DOTALL,
-                    )
+                # Every renderer emits a __FIGCAPTION__ placeholder; fill it
+                # with the source caption in the current language (the bodies
+                # localize through DIAGRAM_LABELS).
+                html = renderer().replace(
+                    "__FIGCAPTION__",
+                    f"{CFG.figure_word}: {html_lib.escape(caption)}",
+                )
                 return f"\n\n<!--RAW_HTML_START-->\n{html}\n<!--RAW_HTML_END-->\n\n"
         # Unknown caption - leave untouched.
         return match.group(0)
@@ -3153,7 +3292,7 @@ def set_language(lang: Lang) -> None:
     global _PART_RE, _PROLOGUE_RE, _CLOSING_RE, _CHAPTER_NUM_RE, _FOREWORD_RE
     global _ACK_RE, _ABOUT_RE, _CHANGELOG_RE, _APPENDIX_RE
     global PART_RE, CHAPTER_PAIR_RE, CLOSING_RE, PROLOGUE_RE, APPENDIX_RE
-    global FOREWORD_TRANSFORM_RE, _NEXT_BOUNDARY_RE, FIGURE_RENDERERS_BY_CAPTION_KEY
+    global FOREWORD_TRANSFORM_RE, _NEXT_BOUNDARY_RE, FIGURE_RENDERERS_BY_CAPTION_KEY, DIAGRAM_LABELS
     global SOURCE_GROUPS, SOURCE_ENTRY_RE, SOURCE_NOTE_RE, ARTIFACT_RE
 
     CFG = lang
@@ -3186,6 +3325,7 @@ def set_language(lang: Lang) -> None:
             ("kill signals and the traffic", diagram_traffic_light),
             ("90-day adoption arc", diagram_arc),
         ]
+        DIAGRAM_LABELS = EN_DIAGRAM_LABELS
         SOURCE_GROUPS = {
             "Studies and research":                    ("study",    "Study"),
             "Named incidents":                         ("incident", "Incident"),
@@ -3232,6 +3372,7 @@ def set_language(lang: Lang) -> None:
             ("Kill signals și regula de decizie", diagram_traffic_light),
             ("arcul de adopție de 90 de zile", diagram_arc),
         ]
+        DIAGRAM_LABELS = RO_DIAGRAM_LABELS
         SOURCE_GROUPS = {
             "Studii și cercetare":                          ("study",    "Studiu"),
             "Incidente cunoscute":                          ("incident", "Incident"),
