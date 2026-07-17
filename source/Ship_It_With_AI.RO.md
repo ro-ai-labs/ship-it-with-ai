@@ -150,7 +150,7 @@ Poți oricând să sari înapoi. Fiecare capitol presupune capitolul dinaintea l
 
 ## O notă despre afirmațiile datate {#a-note-on-dated-claims}
 
-Referințele la tool-uri specifice din manual sunt valabile la nivelul lunii iunie 2026. Framework-urile sunt gândite să supraviețuiască tool-urilor concrete. Acolo unde contează o capabilitate anume a unui produs cu nume și prenume, fie datez afirmația, fie o tratez ca exemplu, nu ca proprietate permanentă. Notele de sursă pentru afirmațiile factuale pe care se sprijină argumentul sunt în Anexa C.
+Referințele la tool-uri specifice din manual sunt valabile la nivelul lunii iulie 2026. Framework-urile sunt gândite să supraviețuiască tool-urilor concrete. Acolo unde contează o capabilitate anume a unui produs cu nume și prenume, fie datez afirmația, fie o tratez ca exemplu, nu ca proprietate permanentă. Notele de sursă pentru afirmațiile factuale pe care se sprijină argumentul sunt în Anexa C.
 
 Fac tot ce pot să țin manualul la zi și mențin un [changelog](/changelog/) cu actualizările care contează.
 
@@ -237,7 +237,7 @@ Deschide codul sursă sau documentația aproape oricărui coding agent de nivel 
 
 Context window. Tool-uri. Permisiuni / Sandbox. Skill-uri. Plugin-uri. MCP. Memory. Subagenți.
 
-Subagenții au intrat de curând în vocabularul public - nu pentru că ideea ar fi nouă, ci pentru că au devenit universali la toți agenții majori într-un interval foarte scurt. Claude Code a livrat tool-ul Task, apoi a construit peste el Agent Teams, pentru coordonare la nivel mai înalt. La începutul lui 2026, Codex CLI expunea deja subagenții ca workflow de primă clasă și permitea rularea mai multor subagenți în paralel. Cursor 2.0 a introdus propriul sistem de subagenți. Cline i-a livrat nativ. În circa un an, dispatch-ul unei instanțe-copil constrânse a agentului a trecut de la „workflow avansat” la „o componentă principală pe care harness-ul îl expune by default”. Ăsta e testul pe care îl folosesc pentru statutul de componentă principală, iar subagenții îl trec.
+Subagenții au intrat de curând în vocabularul public - nu pentru că ideea ar fi nouă, ci pentru că au devenit universali la toți agenții majori într-un interval foarte scurt. Claude Code a livrat tool-ul Task, apoi a construit peste el Agent Teams, pentru coordonare la nivel mai înalt. În martie 2026, Codex CLI a dus subagenții la GA ca workflow de primă clasă, cu dispatch în paralel. Cursor a livrat agenți paraleli în 2.0 și un sistem complet de subagenți în 2.4. Cline i-a livrat nativ. În circa un an, dispatch-ul unei instanțe-copil constrânse a agentului a trecut de la „workflow avansat” la „o componentă principală pe care harness-ul îl expune by default”. Ăsta e testul pe care îl folosesc pentru statutul de componentă principală, iar subagenții îl trec.
 
 Asta e anatomia. Orice întrebare interesantă despre un coding agent - ce poate face, ce nu poate face, cum îl controlezi, cu ce îl compari - se reduce la unul sau mai multe dintre aceste componente principale. Când apare un agent nou, prima ta întrebare e: cum tratează acesta fiecare componentă principală? Când decizi dacă lași un agent să se atingă de un anumit codebase, a doua întrebare e: care componentă principală e punctul de control relevant pentru riscul respectiv? Când cumperi tooling, a treia întrebare e: ce componentă principală îmbunătățește tooling-ul ăsta și cu ce cost?
 
@@ -264,11 +264,11 @@ Asta e anatomia. Orice întrebare interesantă despre un coding agent - ce poate
         ale agentului însuși
 ```
 
-*Figura: Componentele principale și harness-ul care le rulează. Permisiuni / Sandbox ocupă poziția 3 ca componentă principală ale cărei două jumătăți - stratul de decizie de la nivelul agentului și enforcement-ul la nivel de OS - converg ca prezență, dar diverg ca postură de la un vendor la altul. Memory e cealaltă componentă principală a cărei a doua jumătate e încă în plină convergență. Subagenții stau sub linie pentru că sunt componenta principală recursivă: fiecare subagent e, la rândul lui, o instanță a celorlalte.*
+*Figura: Componentele principale și harness-ul care le rulează. Permisiuni / Sandbox ocupă poziția 3 ca componentă principală ale cărei două jumătăți - stratul de decizie de la nivelul agentului și enforcement-ul la nivel de OS - converg ca prezență, dar diverg ca postură de la un vendor la altul. A doua jumătate a lui Memory - stratul scris de agent - a convers la agenții majori în primele luni ale lui 2026. Subagenții stau sub linie pentru că sunt componenta principală recursivă: fiecare subagent e, la rândul lui, o instanță a celorlalte.*
 
 ---
 
-**Context window-ul** - fereastra de context - e ceea ce agentul știe chiar acum. E mărginită: fiecare model are un număr maxim de tokeni pe care îi poate ține în atenția activă. Două sute de mii la un model de gamă medie. Un milion la unul de top. Cifrele astea cresc de la un trimestru la altul; până ajungi tu să citești rândurile astea, vor fi și mai mari. Dar limita există, și limita contează, pentru că fereastra de context e spațiul de lucru în interiorul căruia agentul ia decizii.
+**Context window-ul** - fereastra de context - e ceea ce agentul știe chiar acum. E mărginită: fiecare model are un număr maxim de tokeni pe care îi poate ține în atenția activă. Două sute de mii la un model compact. Un milion de la gama medie în sus, acum că fereastra de un milion de tokeni s-a întins de la tier-ul flagship la modelele de zi cu zi. Cifrele astea cresc de la un trimestru la altul; până ajungi tu să citești rândurile astea, vor fi și mai mari. Dar limita există, și limita contează, pentru că fereastra de context e spațiul de lucru în interiorul căruia agentul ia decizii.
 
 Ce intră în context window? System prompt-ul care definește rolul și constrângerile agentului. Istoricul conversației curente cu utilizatorul. Tool call-urile pe care le-a făcut agentul și rezultatele pe care i le-au întors. Fișierele pe care le-a citit sau bucățile de fișiere pe care le-a încărcat. Orice instrucțiuni injectate de harness (ajungem imediat și la harness). Cam asta umple fereastra.
 
@@ -348,15 +348,15 @@ Asta contează pentru achizițiile enterprise. O integrare MCP e portabilă. Inv
 
 ### Memory {#memory}
 
-Memory e componenta principală devenită universală cel mai recent. Acum optsprezece luni era implicit: agentul încărca un prompt, lucra ceva, iar sesiunea următoare pornea de la zero. Astăzi Memory are două jumătăți - una complet convergentă la toți agenții majori, una în care Claude Code deschide drumul, cu ceilalți pe traseu.
+Memory e componenta principală devenită universală cel mai recent. Acum optsprezece luni era implicit: agentul încărca un prompt, lucra ceva, iar sesiunea următoare pornea de la zero. Astăzi Memory are două jumătăți, iar la mijlocul lui 2026 ambele au trecut linia convergenței.
 
 **Memoria definită manual** e stratul pe care îl scrie echipa. Convergența e reală: Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider și restul ecosistemului citesc toți AGENTS.md din rădăcina repository-ului la începutul sesiunii. Claude Code citește CLAUDE.md, care poate importa AGENTS.md pentru a împărți același conținut cu ceilalți agenți. Fișierul e versionat în source control, trecut prin review în pull request-uri, deținut de echipă. Acolo trăiesc pattern-urile interzise, intrările din jurnalul de greșeli, comenzile de build și glosarele de domeniu. Capitolul 6 detaliază ce intră în fișierul ăsta și de ce contează.
 
-**Sistemul de auto-memory** e ceea ce scrie agentul pentru sine. Claude Code e primul venit; ceilalți agenți converg spre mecanisme similare, dar nu livraseră echivalente la data publicării. Are două suprafețe vizibile: Auto Memory e stratul în care Claude salvează pattern-uri învățate de la o sesiune la alta - comenzi de build pe care le-a dedus, concluzii de debugging pe care le-a confirmat, preferințe de stil de cod pe care le-a inferat - fără ca utilizatorul să le fi scris explicit. Auto Dream e stratul de consolidare în fundal pe care Anthropic l-a dezvăluit la Code with Claude SF pe 2026-05-06: un proces programat care trece în revistă sesiunile recente și memoria stocată, identifică greșelile recurente și workflow-urile convergente și scrie note consolidate înapoi în memoria pe termen lung. Agentul devine mai bun pe codebase-ul tău între rulări.
+**Sistemul de auto-memory** e ceea ce scrie agentul pentru sine - pattern-uri învățate, salvate de la o sesiune la alta (comenzi de build pe care le-a dedus, concluzii de debugging pe care le-a confirmat, preferințe de stil de cod pe care le-a inferat), fără ca utilizatorul să le fi scris explicit. Jumătatea asta a convers într-o singură iarnă: GitHub Copilot Memory a ajuns în public preview în ianuarie 2026 și era activat implicit pe tier-urile individuale până în martie; Auto Memory din Claude Code a apărut în februarie; Codex CLI a adăugat memorie automată de fundal în aprilie. Stratul de consolidare al Anthropic merge un pas mai departe: Dreaming, dezvăluit odată cu Claude Managed Agents la Code with Claude SF pe 2026-05-06, e un proces programat de fundal care trece în revistă sesiunile recente și memoria stocată, identifică greșelile recurente și workflow-urile convergente și scrie note consolidate înapoi în memoria pe termen lung. Agentul devine mai bun pe codebase-ul tău între rulări.
 
 O precizare despre ce *nu* e memorie în taxonomia asta: memoria de sesiune (istoricul conversației plus rezultatele tool-urilor din interiorul unei singure sesiuni) e doar context window-ul. E memorie în sensul de zi cu zi, dar nu o componentă principală separată - e componenta principală numită prima.
 
-Memoria definită manual trece testul convergenței încă de azi. Sistemul de auto-memory e pe traseu - Claude Code e primul; ceilalți urmează. Manualul le tratează ca pe o singură componentă principală pentru că rolul structural e identic, cu mențiunea că a doua jumătate e un semnal de pionierat, nu încă o convergență.
+Ambele jumătăți trec testul convergenței încă de azi - stratul definit manual în ani, stratul de auto-memory în câteva luni de la prima livrare. Viteza asta e chiar testul convergenței funcționând: când un mecanism e structural, fiecare agent major și-l crește, repede. Manualul tratează cele două jumătăți ca pe o singură componentă principală pentru că rolul structural e identic.
 
 ---
 
@@ -388,7 +388,7 @@ Spus simplu: harness-ul e tot ce îmbracă bucla agentului. Bucla agentului în 
 
 ---
 
-O notă despre vocabular. Componentele principale numite aici sunt ceea ce folosește agentul ca să știe, să acționeze, să fie ținut în frâu, să se extindă, să se integreze, să-și amintească și să delege. Testul pentru statutul de componentă principală e convergența: un mecanism e componentă principală atunci când fiecare coding agent major îl livrează ca pachet distinct și configurabil, chiar dacă implementările diferă substanțial. Permisiuni / Sandbox trece testul pe jumătatea stratului de decizie la toți agenții majori; jumătatea de enforcement la nivel de OS e convergentă ca prezență, dar divergentă ca postură, cu posturile vendorilor catalogate în secțiunea de mai sus. Componenta principală Memory are aceeași formă pe a doua lui jumătate. Telemetria nu a trecut încă linia convergenței și rămâne un strat de control în jurul componentelor principale. Când va converge următorul mecanism - candidatul de urmărit e event-push-ul de observabilitate - lista va crește din nou. Capitolul ăsta e primul catalog de convergență; Capitolul 3 e al doilea.
+O notă despre vocabular. Componentele principale numite aici sunt ceea ce folosește agentul ca să știe, să acționeze, să fie ținut în frâu, să se extindă, să se integreze, să-și amintească și să delege. Testul pentru statutul de componentă principală e convergența: un mecanism e componentă principală atunci când fiecare coding agent major îl livrează ca pachet distinct și configurabil, chiar dacă implementările diferă substanțial. Permisiuni / Sandbox trece testul pe jumătatea stratului de decizie la toți agenții majori; jumătatea de enforcement la nivel de OS e convergentă ca prezență, dar divergentă ca postură, cu posturile vendorilor catalogate în secțiunea de mai sus. Componenta principală Memory are aceeași formă pe a doua lui jumătate. Telemetria e cel mai aproape de linie: până la mijlocul lui 2026, Claude Code, Codex CLI și CLI-ul Gemini livrau toate export nativ de OpenTelemetry, deci convergența e pe drum - nu ca protocol dedicat de event-push, ci ca OTel pur și simplu. Deocamdată rămâne un strat de control în jurul componentelor principale; încă o tură de roată și lista crește din nou. Capitolul ăsta e primul catalog de convergență; Capitolul 3 e al doilea.
 
 ---
 
@@ -542,6 +542,8 @@ La sfârșitul lui februarie 2026, Alexey Grigorev de la DataTalks.Club a pierdu
 
 Eșecul PocketOS e o poveste despre o credențială pe care agentul n-ar fi trebuit s-o aibă. Eșecul Terraform e o poveste despre o hartă despre care agentul nu știa că îi lipsește. Moduri de eșec diferite; aceeași cauză arhitecturală. Niciunul nu se rezolvă cu un model mai bun. Ambele se rezolvă cu aceeași disciplină de guvernanță: agentul rulează într-un sandbox în care operațiunile distructive cer confirmare explicită, deține doar credențialele necesare pentru task-ul curent și lucrează pe o stare pe care echipa a verificat-o. Straturile din acest capitol există pentru că și PocketOS, și pierderea lui Grigorev s-au întâmplat în 2026, unor echipe convinse că sunt atente.
 
+Ambele incidente arată și cealaltă jumătate a buclei: platformele au învățat. La o săptămână după PocketOS, Railway a mutat fiecare ștergere de volum și de resursă - inclusiv calea de API folosită de agent - pe un soft-delete cu fereastră de recuperare de 48 de ore și a livrat credențiale de agent cu scop limitat, ca o sesiune să nu mai fie nevoită să țină deloc un token brut de platformă. Follow-up-ul lui Grigorev se citește ca un checklist din capitolul ăsta: delete protection activat, starea mutată dincolo de raza laptopului, un review uman înaintea fiecărui plan distructiv. Defense in depth ajunge și la stratul de infrastructură - ceea ce nu îți ia de pe umeri partea ta.
+
 ---
 
 Ce putem învăța din PocketOS? Multe. Să începem cu lecțiile greșite, pentru că le văd citate la tot pasul.
@@ -617,6 +619,8 @@ Sandbox-ul e izolare la nivel de sistem de operare. Kernelul însuși refuză s�
 
 Proprietatea crucială a unui sandbox e că nu face parte din agent. Face parte din sistemul de operare. Prompt injection nu poate ocoli sandbox-ul, pentru că prompt injection funcționează prin manipularea raționamentului agentului, iar kernelul nu ascultă de raționamentul agentului. Kernelul ascultă de apeluri de sistem. Apelul de sistem fie e permis, fie nu e. Raționamentul e irelevant.
 
+O mențiune onestă merge chiar lângă garanția asta: sandbox-ul e și el cod, iar codul are bug-uri. La mijlocul lui 2026, un red team a dezvăluit două escape-uri critice zero-click ale sandbox-ului kernel-backed din Cursor (CVSS 9.8, patch-uite în următoarea versiune majoră) - instrucțiuni injectate prin prompt care abuzau chiar allowlist-ul de scriere al sandbox-ului ca să ajungă la execuție la nivel de OS. Proprietatea arhitecturală a ținut peste tot în rest; implementarea a avut o gaură. Asta nu e un argument împotriva sandbox-ului. E argumentul pentru celelalte patru straturi.
+
 Coding agents moderni suportă sandbox-uri pe Linux (bubblewrap cu Landlock și seccomp), pe macOS (Seatbelt) și pe Windows (restricted tokens cu job objects). Sandbox-ul e opt-in. Configurezi allowlist-ul de căi și allowlist-ul de rețea, fie în fișierul de configurare al agentului, fie în AGENTS.md. Pentru majoritatea echipelor, default-ul corect e: citire pe tot repository-ul, scriere doar în worktree, rețea doar către host-urile permise explicit. Restul, blocat.
 
 Sandbox-ul nu încetinește agentul în mod sesizabil. Doar refuză operațiunile care oricum ar fi trebuit refuzate. Dacă agentul tău se lovește regulat de limitele sandbox-ului în timpul muncii normale, limitele sunt greșite; lărgește-le. Dacă agentul tău nu se lovește niciodată de limitele sandbox-ului, probabil le-ai setat corect.
@@ -652,7 +656,7 @@ Recomandările mele: nu da commit la fișiere `.env` în git. Folosește un vaul
 
 Framing-ul pe care îl folosesc cu echipele: regulile de deny și configurația sunt apărare în adâncime. Sandbox-ul e granița dură. Vault-ul e alegerea structurală. Controale în straturi.
 
-Vectorii de mai sus sunt cei cu nume. Mai există un vector care primește mai puțină atenție și lovește echipele mai des: injecția prin munca în sine. Ticket-ul de Jira ale cărui criterii de acceptare conțin un paragraf care începe cu „ignore all previous instructions and...”. Comentariul de PR de la un contributor extern, care strecoară o instrucțiune în ceva ce arată a notă de code review. Mesajul de eroare al unui test third-party instabil, pe care agentul îl citește și îl interpretează drept directivă. README-ul bibliotecii de la un vendor, adusă de agent în timpul research-ului. Oriunde agentul citește conținut în limbaj natural ca parte din munca lui e o potențială suprafață de injecție. Am văzut cu ochii mei un agent executând conștiincios o instrucțiune îngropată într-un fișier de log copiat și lipit, pentru că operatorul nu se gândise la un fișier de log ca la un input de neîncredere.
+Vectorii de mai sus sunt cei cu nume. Mai există un vector care primește mai puțină atenție și lovește echipele mai des: injecția prin munca în sine. Ticket-ul de Jira ale cărui criterii de acceptare conțin un paragraf care începe cu „ignore all previous instructions and...”. Comentariul de PR de la un contributor extern, care strecoară o instrucțiune în ceva ce arată a notă de code review. Mesajul de eroare al unui test third-party instabil, pe care agentul îl citește și îl interpretează drept directivă. README-ul bibliotecii de la un vendor, adusă de agent în timpul research-ului. Repository-ul cu aspect inofensiv a cărui eroare plantată împinge agentul să ruleze un „fix” care își trage payload-ul real dintr-un DNS TXT record - un proof of concept demonstrat pe un agent major la mijlocul lui 2026, fără ca vreo semnătură să atingă discul. Oriunde agentul citește conținut în limbaj natural ca parte din munca lui e o potențială suprafață de injecție. Am văzut cu ochii mei un agent executând conștiincios o instrucțiune îngropată într-un fișier de log copiat și lipit, pentru că operatorul nu se gândise la un fișier de log ca la un input de neîncredere.
 
 Mitigarea e aceeași postură ca în restul guvernanței: nu te baza pe raționamentul agentului ca să depisteze injecția. Constrânge ce poate face agentul indiferent de ce a citit. Sandbox-ul prinde acțiunea periculoasă chiar și atunci când agentul e convins că acțiunea e legitimă. Hook-ul prinde categoria periculoasă chiar și atunci când agentul e convins că „doar de data asta e în regulă”. Tratează orice input pe care îl citește agentul drept text de neîncredere - aceeași postură pe care un inginer cu experiență o are față de input-ul utilizatorului dintr-un formular web - și straturile tale de guvernanță vor prinde tentativa de injecție pe care designul promptului a ratat-o. Injecția care reușește e cea care găsește o acțiune pe care straturile de dedesubt nu au delimitat-o.
 
@@ -678,7 +682,7 @@ Primele patru straturi sunt preventive. Opresc agentul să facă lucrul greșit 
 
 Ce loghezi: fiecare tool call făcut de agent. Fiecare comandă de Bash. Fiecare scriere de fișier. Fiecare request către un API extern. Argumentele, rezultatele, timpii. Agentul vede că îl citești; agentul nu vede că îl loghezi. Logul e pentru tine.
 
-Unde îl trimiți: într-un store central deținut de echipa de securitate. Splunk, Elasticsearch, SIEM-ul tău existent, un store custom - ce se potrivește stack-ului tău. Miza e durabilitatea și posibilitatea de interogare. Vrei să poți răspunde la „ce sesiuni au atins serviciul de plăți în ultimele treizeci de zile” fără să faci grep prin istoricele locale de agent ale celor optzeci de ingineri.
+Unde îl trimiți: într-un store central deținut de echipa de securitate. Splunk, Elasticsearch, SIEM-ul tău existent, un store custom - ce se potrivește stack-ului tău. Miza e durabilitatea și posibilitatea de interogare. Vrei să poți răspunde la „ce sesiuni au atins serviciul de plăți în ultimele treizeci de zile” fără să faci grep prin istoricele locale de agent ale celor optzeci de ingineri. Partea de plumbing a convers mai repede decât era de așteptat: până la mijlocul lui 2026, agenții majori emit OpenTelemetry nativ, așa că store-ul central poate fi orice vorbește deja stack-ul tău de observabilitate.
 
 Ce urmărești: încălcări de scop (agentul a editat un fișier din afara task-ului asignat), apeluri externe neobișnuite (agentul a contactat un host care nu era pe allowlist-ul lui), refuzuri repetate de permisiuni (agentul a încercat ceva interzis de mai multe ori - fie un bug în setul de reguli, fie o tentativă de prompt injection), credențiale de producție în context (agentul a încărcat un fișier care conține ceva ce arată a secrete).
 
@@ -797,7 +801,7 @@ Studiul randomizat controlat METR, publicat în iulie 2025, a măsurat exact ast
 
 METR nu a testat disciplina formulării ca variabilă separată. Au măsurat asistența AI brută pe cod familiar. Eu tratez rezultatul METR ca pe un avertisment: asistența AI brută nu se transformă automat în viteză de livrare. Variabila lipsă e disciplina de workflow. Echipele care impun proces pot face mai bine de atât. Echipele care nu impun pot rămâne la nivelul METR sau sub el - convinse, între timp, că sunt mai rapide.
 
-*Notă despre surse. Studiul METR a fost publicat în iulie 2025. Interpretarea că disciplina de workflow e variabila lipsă îmi aparține, nu e a studiului. Citarea, în Anexa C.*
+*Notă despre surse. Studiul METR a fost publicat în iulie 2025. Follow-up-ul propriu al METR s-a împotmolit: replicarea a suferit un selection bias destul de sever încât METR a reproiectat experimentul în februarie 2026 și avertizează să nu citești cifra din 2025 ca pe o măsură a tool-urilor actuale. Avertismentul rămâne valabil; cifra e o măsurătoare datată a unui decalaj de percepție persistent. Interpretarea că disciplina de workflow e variabila lipsă îmi aparține, nu e a studiului. Citarea, în Anexa C.*
 
 Cea mai vie versiune a acestui contrast pe care am văzut-o cu ochii mei: două echipe din aceeași companie, lucrând pe zone adiacente ale aceluiași produs. Echipa A a dat drumul agentului din prima zi. Au sărbătorit velocity-ul de început. Prin luna a treia livrau cam la nivelul de dinainte de agent, dar cu rate de defecte mai mari și cu reviewerii seniori vizibil storși.
 
@@ -807,9 +811,9 @@ Aceeași companie. Codebase-uri adiacente. Același agent. Diferența a fost dis
 
 ---
 
-Cel mai dur test al tezei din acest capitol a venit între februarie și aprilie 2026. Anthropic a livrat, în șase săptămâni, trei schimbări de produs care au degradat semnificativ Claude Code pentru munca de inginerie complexă, în anumite workflow-uri. Adaptive thinking activat implicit, pe 9 februarie. Effort-ul implicit coborât de la high la medium, pe 3 martie. Un bug de caching în retenția istoricului de raționament, pe 26 martie. Efectul combinat a fost destul de sever încât un senior director de la AMD a analizat 6.852 de sesiuni de Claude Code și 234.760 de tool call-uri; analiza a arătat modelul trecând de la un comportament research-first la unul edit-first pe măsură ce ascunderea (redaction) thinking-ului a crescut de la 1,5% la 100% din tururi. O analiză externă separată a raportat o scădere substanțială a calității codului în aceeași perioadă. Anthropic a publicat un post-mortem tehnic pe 23 aprilie, în care recunoaște toate cele trei cauze.
+Cel mai dur test al tezei din acest capitol a venit între februarie și aprilie 2026, când o serie de schimbări de produs în Claude Code au degradat semnificativ munca de inginerie complexă, în anumite workflow-uri. Alarma a venit din afară: la începutul lui aprilie, un senior director de la AMD, Stella Laurenzo, a publicat un audit pe 6.852 dintre propriile sesiuni de Claude Code și 234.760 de tool call-uri, care arăta modelul trecând de la un comportament research-first la unul edit-first pe măsură ce ascunderea (redaction) thinking-ului a crescut de la 1,5% la 100% din tururi - și indica drept cauză contributoare rollout-ul din februarie al lui adaptive thinking activat implicit. Post-mortem-ul tehnic al Anthropic, publicat pe 23 aprilie, a recunoscut trei regresii din aceeași fereastră: effort-ul implicit coborât în tăcere de la high la medium pe 4 martie (revenit pe 7 aprilie), un bug de caching din 26 martie care golea istoricul de raționament la fiecare tur în loc de o dată pe oră de inactivitate (reparat pe 10 aprilie) și un plafon de verbozitate în system prompt din 16 aprilie, care a produs o scădere măsurată de 3% a calității (revenit pe 20 aprilie).
 
-*Notă despre surse. Anthropic a publicat pe 23 aprilie 2026 un post-mortem tehnic în care recunoaște cele trei cauze. Analizele independente ale degradării calității codului au fost mai puțin riguroase decât post-mortemul; tratează magnitudinea ca aproximativă. Citările, în Anexa C.*
+*Notă despre surse. Auditul lui Laurenzo precedă post-mortem-ul, iar atribuirea degradării către rollout-ul de adaptive thinking din februarie merge dincolo de ce recunoaște post-mortem-ul Anthropic din 23 aprilie - cele două relatări coincid pe regresiile din martie-aprilie și diverg pe cauza din februarie. Tratează magnitudinea analizelor externe ca aproximativă. Citările, în Anexa C.*
 
 Am urmărit două echipe adiacente în perioada respectivă. Prima își petrecuse trimestrul anterior construind infrastructura descrisă în acest manual: CLAUDE.md cu reguli specifice echipei, plan mode activat implicit, bucla în șase faze pentru orice muncă netrivială, hook-uri care interceptau operațiunile distructive. A doua echipă folosea același Claude Code, aceleași modele, aceleași planuri, dar le rula ca dispatch în freestyle. Velocitatea celei de-a doua echipe s-a înjumătățit peste noapte când modelul a început să taie pe scurtătura edit-first. Velocitatea primei echipe a scăzut poate cu 10% și și-a revenit în clipa în care au strâns gate-urile de plan mode și au trecut câteva skill-uri pe effort mai mare ca setare implicită.
 
@@ -1105,7 +1109,7 @@ Treci un feature prin bucla completă în șase faze. Cronometrează fiecare faz
 
 ---
 
-AGENTS.md este stratul definit manual al componentei principale Memory, numit în Capitolul 1. E suprafața care se partajează în echipă - stratul pe care echipa îl scrie, îl dă la review și îl deține în source control. Sistemul de memorie automată (Auto Memory, Auto Dream) e per developer și în mare parte automat; capitolul ăsta se concentrează pe stratul deținut manual, pentru că acolo trăiește disciplina la nivel de echipă. Urmează cele șase lucruri care intră în AGENTS.md, regula bugetului de 200 de linii și modurile de eșec pe care le vezi în practică.
+AGENTS.md este stratul definit manual al componentei principale Memory, numit în Capitolul 1. E suprafața care se partajează în echipă - stratul pe care echipa îl scrie, îl dă la review și îl deține în source control. Sistemul de memorie automată (Auto Memory, Dreaming) e per developer și în mare parte automat; capitolul ăsta se concentrează pe stratul deținut manual, pentru că acolo trăiește disciplina la nivel de echipă. Urmează cele șase lucruri care intră în AGENTS.md, regula bugetului de 200 de linii și modurile de eșec pe care le vezi în practică.
 
 ---
 
@@ -1804,7 +1808,7 @@ Cele șapte pattern-uri de mai sus presupun un om în cameră. Al optulea e cel 
 
 Ideea are o preistorie, iar diferența dintre cele două epoci e toată lecția. În 2023, AutoGPT și BabyAGI învârteau un model în buclă pe baza propriei lui păreri despre progres. Nimic din exterior nu nota o iterație - modelul își corecta singur tema -, așa că fiecare tură amplifica deriva, iar abordarea s-a prăbușit în câteva luni ca mod de a livra software. Renașterea e structural diferită. La mijlocul lui 2025, Geoff Huntley a legat un coding agent într-un while-loop de bash - îi dai un singur fișier de prompt, îl lași să ruleze, repeți la nesfârșit - iar tehnica s-a răspândit sub numele Ralph Wiggum. Fiecare iterație pornește cu un context window proaspăt, face o unitate de lucru și se termină în fața unor evaluatori pe care modelul nu-i controlează: compilatorul, suita de teste, diff-ul. Starea trăiește în repository, nu în conversație. Tot ce face bucla să conveargă stă în afara modelului.
 
-Între sfârșitul lui 2025 și primăvara lui 2026, pattern-ul a încetat să mai fie un truc de bash și a devenit o suprafață de produs. Copilot coding agent de la GitHub a devenit general disponibil în septembrie 2025: deleghi un task, un agent lucrează într-un mediu izolat, iar rezultatul se întoarce ca draft de pull request. Cursor a lansat Cloud Agents în octombrie 2025 - mulți agenți rulând detașat, cu laptopul tău închis. Jules de la Google a adăugat Scheduled Tasks în decembrie, pentru lucrările de mentenanță recurente. În aceeași lună, un plugin ralph-wiggum a apărut în repository-ul oficial Claude Code, iar până în primăvara lui 2026 bucla ajunsese acolo funcționalitate de prim rang: /loop re-rulează un prompt la un interval dat sau își alege singur ritmul când nu specifici unul, Routines pornesc agenți cloud după un program sau după un eveniment GitHub, /goal ține agentul la lucru până când o condiție de finalizare e îndeplinită, /autofix-pr urmărește CI-ul și împinge fix-uri până când pull request-ul trece pe verde. O singură formă, multe grafii. După testul convergenței din Capitolul 1, capabilitatea a ajuns peste tot - deși ceea ce a ajuns la convergență e un workflow înfășurat în jurul componentelor principale, nu o componentă principală nouă.
+Între sfârșitul lui 2025 și primăvara lui 2026, pattern-ul a încetat să mai fie un truc de bash și a devenit o suprafață de produs. Copilot coding agent de la GitHub a devenit general disponibil în septembrie 2025: deleghi un task, un agent lucrează într-un mediu izolat, iar rezultatul se întoarce ca draft de pull request. Cursor a lansat Cloud Agents în octombrie 2025 - mulți agenți rulând detașat, cu laptopul tău închis. Jules de la Google a adăugat Scheduled Tasks în decembrie, pentru lucrările de mentenanță recurente. Un plugin ralph-wiggum aterizase deja în repository-ul oficial Claude Code în noiembrie, iar până în primăvara lui 2026 bucla ajunsese acolo funcționalitate de prim rang: /loop re-rulează un prompt la un interval dat sau își alege singur ritmul când nu specifici unul, Routines pornesc agenți cloud după un program sau după un eveniment GitHub, /goal ține agentul la lucru până când o condiție de finalizare e îndeplinită, /autofix-pr urmărește CI-ul și împinge fix-uri până când pull request-ul trece pe verde. O singură formă, multe grafii. După testul convergenței din Capitolul 1, capabilitatea a ajuns peste tot - deși ceea ce a ajuns la convergență e un workflow înfășurat în jurul componentelor principale, nu o componentă principală nouă.
 
 Trendul e real, și tot aici disciplina e testată cel mai dur, pentru că bucla exterioară adaugă încercări, nu judecată. Multiplică orice îi permite bucla ta interioară. Dacă fiecare iterație se termină într-un gate strict, bucla acumulează progres: un queue de unități mici și verificate se scurtează peste noapte. Dacă gate-ul e slab, aceeași răbdare acumulează rebut. Numele dat de Huntley acestui mod de eșec e overbaking - ai lăsat-o prea mult „în cuptor”: lași bucla să ruleze după ce și-a terminat treaba și continuă să inventeze muncă pe care n-a cerut-o nimeni. Agentul nu obosește. Ăsta e avantajul - și, nesupravegheat, tot ăsta e pericolul.
 
@@ -1991,7 +1995,7 @@ Ambele arhetipuri sunt previzibile. Numește-le cu voce tare în rollout. Tratea
 
 ### Vendorul va avea o săptămână proastă
 
-O realitate operațională pentru care rollout-ul trebuie să aibă un plan: agentul nu va fi mereu disponibil. Căderile la vendor se întâmplă. Limitările de capacitate se întâmplă. Modelul pe care îl folosești azi e scos din uz, iar înlocuitorul nu e încă stabil. Am văzut velocity-ul unei echipe înjumătățindu-se timp de o săptămână pentru că modelul lor principal era rate-limited în timpul unui incident regional de capacitate, și nu se gândiseră deloc ce fac atunci când bottleneck-ul e chiar agentul.
+O realitate operațională pentru care rollout-ul trebuie să aibă un plan: agentul nu va fi mereu disponibil. Căderile la vendor se întâmplă. Limitările de capacitate se întâmplă. Modelul pe care îl folosești azi e scos din uz, iar înlocuitorul nu e încă stabil. Am văzut velocity-ul unei echipe înjumătățindu-se timp de o săptămână pentru că modelul lor principal era rate-limited în timpul unui incident regional de capacitate, și nu se gândiseră deloc ce fac atunci când bottleneck-ul e chiar agentul. Și căderile nu sunt plafonul: în iunie 2026, cel mai nou tier flagship al celui mai mare vendor a fost retras la nivel mondial la câteva zile după lansare și a rămas indisponibil aproape trei săptămâni. Echipele care își mutaseră deja workflow-urile pe el și-au rulat planurile de fallback pe bune; echipele fără fallback și-au redescoperit setup-ul anterior pe deadline.
 
 Ce pui la punct. Un fallback non-agentic pentru munca cea mai sensibilă la timp. Seniorul care încă poate livra un hotfix la trei dimineața, când modelul e rate-limited. Runbook-ul pentru „ce facem când Claude Code e throttled și clientul așteaptă”. Acceptarea faptului că în unele săptămâni velocity-ul echipei scade pentru că vendorul a avut un incident, la fel cum în unele săptămâni scade pentru că o bază de date a avut un incident.
 
@@ -2125,6 +2129,10 @@ Traiectoria asta - patru decenii de scris cod, douăzeci și cinci dintre ele pr
 ## Changelog {#changelog}
 
 Pagina asta urmărește actualizările semnificative ale manualului. Corecturile mărunte și ajustările de SEO nu sunt listate; footer-ul arată data ultimei actualizări.
+
+### 2026-07-17 - Pasul de actualitate și corecturi din iulie
+
+Un fact-check în profunzime al fiecărei afirmații datate, față de ce arată public în iulie 2026, cu verificare adversarială pe fiecare constatare. Corecturi: povestea post-mortem-ului din 23 aprilie e re-sursată - regresiile recunoscute de Anthropic sunt 4 martie (effort), 26 martie (caching) și 16 aprilie (plafonul de verbozitate), în timp ce atribuirea către adaptive thinking din februarie și auditul pe 6.852 de sesiuni îi aparțin Stellei Laurenzo de la AMD, publicate pe 6 aprilie, înaintea post-mortem-ului; jumătatea scrisă de agent a componentei principale Memory urcă de la semnal de pionierat la convergență deplină (GitHub Copilot Memory a precedat Auto Memory; Codex CLI a urmat în aprilie); Dreaming e corectat ca feature la nivel de platformă, nu o comandă de CLI livrată; subagenții paraleli din Codex, corectați de la opt la cei șase documentați; sistemul de subagenți din Cursor, re-datat la 2.4; repository-ul opencode, actualizat la anomalyco/opencode; adoptarea ralph-wiggum, re-datată în noiembrie 2025; corecturi mai mici de date (patch-ul Adversa, /loop). Actualitate: ferestrele de context (un milion de tokeni e acum gama medie), avertismentul propriu al METR din februarie 2026, telemetria care converge ca OpenTelemetry, tranziția Gemini CLI către Antigravity CLI. Adăugiri: soft-delete-ul de 48 de ore și accesul de agent cu scop limitat introduse de Railway după PocketOS (Capitolul 3), suspendarea tier-ului flagship din iunie 2026 ca exemplu de săptămână proastă a vendorului (Capitolul 10), CVE-urile de sandbox-escape DuneSlide ca mențiune onestă pe stratul doi (Capitolul 3), vectorul de injecție cu payload împărțit prin DNS TXT și mitigarea `sandbox.credentials`. Nota despre afirmațiile datate, actualizată la iulie 2026.
 
 ### 2026-07-06 - Diagrame SVG și corpuri de figuri localizate
 
@@ -2564,9 +2572,9 @@ Anexa asta există pentru că fiecare afirmație din manual merită o sursă ver
 ### Studii și cercetare
 
 **Afirmația:** Dezvoltatorii open-source experimentați care au folosit asistență AI pe repo-uri pe care le cunoșteau bine au fost cu 19% mai lenți decât aceiași dezvoltatori fără ea, deși estimaseră în prealabil că vor fi cu 24% mai rapizi - un decalaj de 43 de puncte între accelerarea așteptată și încetinirea măsurată, care a persistat în auto-evaluările lor chiar și după ce datele i-au contrazis.
-**Sursa:** Becker et al., METR, "Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity," July 10, 2025. arXiv: [arxiv.org/abs/2507.09089](https://arxiv.org/abs/2507.09089). Articol: [metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/](https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/).
+**Sursa:** Becker et al., METR, "Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity," July 10, 2025. arXiv: [arxiv.org/abs/2507.09089](https://arxiv.org/abs/2507.09089). Articol: [metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/](https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/). Schimbarea de design a follow-up-ului: [metr.org/blog/2026-02-24-uplift-update/](https://metr.org/blog/2026-02-24-uplift-update/).
 **Unde e folosită:** Capitolul 4 (De la cod generat la software livrat).
-**Atenție:** Studiul a testat asistența AI brută (Cursor + Claude), fără o variabilă pentru disciplina formulării. Interpretarea că disciplina de workflow e variabila lipsă îmi aparține mie, nu studiului.
+**Atenție:** Studiul a testat asistența AI brută (Cursor + Claude), fără o variabilă pentru disciplina formulării. Interpretarea că disciplina de workflow e variabila lipsă îmi aparține mie, nu studiului. Follow-up-ul METR de la sfârșitul lui 2025 a suferit un selection bias sever (dezvoltatorii refuzau tot mai des randomizarea fără AI) și a produs doar estimări slabe; METR a anunțat un experiment reproiectat pe 24 februarie 2026 și avertizează împotriva extrapolării cifrei de 19% la tool-urile actuale.
 
 ---
 
@@ -2575,21 +2583,21 @@ Anexa asta există pentru că fiecare afirmație din manual merită o sursă ver
 **Afirmația:** Pe 24 aprilie 2026, PocketOS și-a pierdut baza de date de producție în nouă secunde, când un agent Cursor bazat pe Claude Opus 4.6 a invocat Volume Delete de la Railway printr-un API token găsit pe parcurs, în timpul unei încercări de recuperare după o nepotrivire de credențiale. Backup-urile, stocate pe același volum, au fost distruse odată cu datele primare.
 **Sursa:** Reported by DevOps.com ("When AI Goes Really, Really Wrong"), Business Insider (Jer Crane statement), and others. Anthropic's Claude Opus 4.6 system card (February 2026) describes the model that powered the agent.
 **Unde e folosită:** Prolog (Nouă secunde) și Capitolul 3 (Guvernanța în straturi).
-**Atenție:** Cronologia recuperării diferă între relatările publice - restore-ul făcut de Railway ar fi durat ~30 de minute după ce Crane i-a contactat, în timp ce alte relatări vorbesc de ~30 de ore sau două zile până la restaurarea operațională completă. Folosesc incidentul pentru pattern-ul de guvernanță, nu ca reconstituire criminalistică exactă.
+**Atenție:** Cronologia recuperării diferă între relatările publice - restore-ul făcut de Railway ar fi durat ~30 de minute după ce Crane i-a contactat, în timp ce alte relatări vorbesc de ~30 de ore sau două zile până la restaurarea operațională completă. Folosesc incidentul pentru pattern-ul de guvernanță, nu ca reconstituire criminalistică exactă. Urmarea: pe 29 aprilie 2026, Railway a anunțat că toate ștergerile de volume și resurse - până atunci instantanee când erau invocate prin API - fac acum soft-delete cu o fereastră de recuperare de 48 de ore, alături de guardrails la nivel de workspace și acces de agent cu scop limitat ([blog.railway.com/p/your-ai-wants-to-nuke-your-database](https://blog.railway.com/p/your-ai-wants-to-nuke-your-database)).
 
 ---
 
 **Afirmația:** La sfârșitul lui februarie 2026, Alexey Grigorev de la DataTalks.Club a pierdut doi ani și jumătate de infrastructură de cursuri, când Claude Code a lucrat pe un state file Terraform rămas în urmă și a rulat `terraform destroy` peste ce a interpretat el drept resurse orfane.
 **Sursa:** Public account by Alexey Grigorev (DataTalks.Club), late February 2026.
 **Unde e folosită:** Capitolul 3 (Guvernanța în straturi).
-**Atenție:** Pierderea de date a fost parțială; AWS a restaurat aproximativ 1,94 milioane de rânduri dintr-un snapshot, în circa o zi. Incidentul e documentat public, dar cu mai puțină acoperire decât PocketOS.
+**Atenție:** Pierderea de date a fost parțială; AWS a restaurat aproximativ 1,94 milioane de rânduri dintr-un snapshot, în circa o zi. Incidentul e documentat public, dar cu mai puțină acoperire decât PocketOS. Follow-up-ul lui Grigorev documentează întărirea adoptată după: delete protection și în Terraform, și în AWS, starea mutată în S3, review manual al fiecărui plan distructiv și un tier de suport AWS mai ridicat.
 
 ---
 
-**Afirmația:** Anthropic a publicat pe 23 aprilie 2026 un post-mortem tehnic în care recunoaște trei regresii de produs care, cumulat, au stricat Claude Code pentru muncă de inginerie complexă între 9 februarie și 26 martie 2026: adaptive thinking activat implicit (9 februarie), effort-ul implicit coborât de la high la medium (3 martie) și un bug de caching în păstrarea istoricului de reasoning (26 martie). Analiza unui senior director de la AMD pe 6.852 de sesiuni Claude Code și 234.760 de tool call-uri a arătat cum modelul a trecut de la un comportament research-first la unul edit-first pe măsură ce ascunderea thinking-ului a crescut de la 1,5% la 100% dintre tururi.
-**Sursa:** Anthropic technical post-mortem, April 23, 2026. AMD analysis published separately.
+**Afirmația:** Post-mortem-ul tehnic al Anthropic din 23 aprilie 2026 („An update on recent Claude Code quality reports”) a recunoscut trei regresii: effort-ul implicit de reasoning coborât de la high la medium pe 4 martie (revenit pe 7 aprilie), un bug de caching din 26 martie care golea istoricul de raționament la fiecare tur în loc de o dată pe oră de inactivitate (reparat pe 10 aprilie, v2.1.101) și un plafon de verbozitate în system prompt din 16 aprilie, care a produs o scădere măsurată de ~3% a calității (revenit pe 20 aprilie). Separat și mai devreme, Stella Laurenzo, Senior Director la AMD, a publicat un audit independent (6 aprilie, depus ca issue GitHub anthropics/claude-code#42796) pe 6.852 de sesiuni Claude Code și 234.760 de tool call-uri, care arăta trecerea de la un comportament research-first la unul edit-first pe măsură ce ascunderea thinking-ului a crescut de la 1,5% la 100% dintre tururi, atribuind degradarea în parte rollout-ului din februarie al lui adaptive thinking activat implicit.
+**Sursa:** Post-mortem-ul de engineering Anthropic, 23 aprilie 2026: [anthropic.com/engineering/april-23-postmortem](https://www.anthropic.com/engineering/april-23-postmortem). Auditul Laurenzo: issue-ul GitHub anthropics/claude-code#42796; acoperire în The Register, 6 aprilie 2026.
 **Unde e folosită:** Capitolul 4 (De la cod generat la software livrat).
-**Atenție:** Analizele independente despre degradarea calității codului au fost mai puțin riguroase decât post-mortem-ul; tratează magnitudinea ca aproximativă.
+**Atenție:** Atribuirea către rollout-ul de adaptive thinking din februarie îi aparține lui Laurenzo, nu vendorului; cele trei cauze recunoscute de post-mortem încep în martie. Cele două relatări coincid pe regresii și diverg pe cauza cea mai timpurie.
 
 ---
 
@@ -2612,14 +2620,14 @@ Anexa asta există pentru că fiecare afirmație din manual merită o sursă ver
 **Afirmația:** Claude Code încarcă automat fișierele `.env*` din directorul de lucru la începutul sesiunii, fără permisiunea explicită a utilizatorului, expunând secretele în contextul agentului.
 **Sursa:** Knostic, December 2025. Blog: [knostic.ai/blog/claude-loads-secrets-without-permission](https://knostic.ai/blog/claude-loads-secrets-without-permission).
 **Unde e folosită:** Capitolul 3 (Guvernanța în straturi), numită în clasa de vulnerabilități de auto-încărcare a fișierelor dot-env.
-**Atenție:** Mitigarea e un `denyRead` în sandbox pe pattern-urile `.env*`, nu un patch de la vendor. Comportamentul se poate schimba în versiunile viitoare; clasa de probleme (agenți care încarcă config local la începutul sesiunii) rămâne valabilă.
+**Atenție:** Mitigarea e un `denyRead` în sandbox pe pattern-urile `.env*`, nu un patch de la vendor; în iunie 2026, Claude Code a adăugat o setare opt-in `sandbox.credentials`, care blochează comenzile din sandbox de la citirea fișierelor de credențiale și a variabilelor de mediu secrete - un control mai țintit pentru aceeași clasă, tot opt-in, nu implicit. Comportamentul se poate schimba în versiunile viitoare; clasa de probleme (agenți care încarcă config local la începutul sesiunii) rămâne valabilă.
 
 ---
 
 **Afirmația:** Regulile de deny din Claude Code erau ocolite în tăcere atunci când o comandă de shell înlănțuia mai mult de 50 de subcomenzi (plafon dur MAX_SUBCOMMANDS_FOR_SECURITY_CHECK = 50), verificarea de securitate retrogradând la un prompt generic de "ask".
 **Sursa:** Adversa AI Red Team, disclosed April 1, 2026. Articol: [adversa.ai/blog/claude-code-security-bypass-deny-rules-disabled/](https://adversa.ai/blog/claude-code-security-bypass-deny-rules-disabled/).
 **Unde e folosită:** Capitolul 3 (Guvernanța în straturi), ca exemplul de bypass prin plafonul parserului pentru ideea că "orice strat luat individual poate avea un mod de eșec silențios".
-**Atenție:** Patch-uită în Claude Code v2.1.90 pe 6 aprilie 2026 (la mai puțin de o săptămână de la dezvăluire). Clasa - straturi de guvernanță cu plafoane de parser care cedează în tăcere - e ce trebuie să-ți rămână în minte după ce plafonul specific dispare.
+**Atenție:** Patch-uită în Claude Code v2.1.90 în primele zile ale lui aprilie 2026 - writeup-ul Adversa consemnează fix-ul până pe 4 aprilie, la câteva zile de la dezvăluire. Clasa - straturi de guvernanță cu plafoane de parser care cedează în tăcere - e ce trebuie să-ți rămână în minte după ce plafonul specific dispare.
 
 ---
 
@@ -2627,6 +2635,20 @@ Anexa asta există pentru că fiecare afirmație din manual merită o sursă ver
 **Sursa:** Adam Kinney, April 2026. Articol: [Claude Code's Deny Rules Don't Protect You - Here's What Actually Does](https://adamkinney.com/aatt/claude-code/deny-rules-dont-protect-you-sandbox-does/).
 **Unde e folosită:** Capitolul 3 (Guvernanța în straturi), ca o clasă de bypass al parserului de permisiuni.
 **Atenție:** Problemă arhitecturală, nu un CVE punctual. Mitigarea e lista `denyRead` din sandbox-ul de la nivel de OS (la nivel de kernel), nu un patch de la vendor. Clasa persistă de la un patch la altul, pentru că parserul nu poate enumera fiecare binar existent.
+
+---
+
+**Afirmația:** Două vulnerabilități zero-click de prompt injection în sandbox-ul Cursor - CVE-2026-50548 și CVE-2026-50549 (CVSS 9.8, botezate „DuneSlide”) - abuzau allowlist-ul de scriere pe directorul de lucru și un fallback de rezolvare a symlink-urilor ca să evadeze din sandbox și să ajungă la remote code execution la nivel de OS. Toate versiunile dinainte de Cursor 3.0 (2 aprilie 2026) erau afectate; 3.0 le-a reparat pe ambele.
+**Sursa:** Cato Networks (Cato AI Labs), dezvăluite la mijlocul lui 2026. Writeup: [catonetworks.com/blog/duneslide-two-critical-rce-vulnerabilities/](https://www.catonetworks.com/blog/duneslide-two-critical-rce-vulnerabilities/); acoperire: SecurityWeek, The Hacker News, iulie 2026.
+**Unde e folosită:** Capitolul 3 (Guvernanța în straturi, stratul doi).
+**Atenție:** Lecția e clasa, nu vendorul: și cel mai puternic strat poate avea bug-uri - exact de-asta straturile sunt cinci, nu unul.
+
+---
+
+**Afirmația:** Cercetătorii Mozilla 0Din au demonstrat (iunie 2026) un atac de prompt injection indirect în care un repository cu aspect inofensiv determină Claude Code să ruleze un script care își trage un payload codat base64 dintr-un DNS TXT record și deschide un reverse shell - atacul e împărțit între repository, DNS și mașina developerului, așa că nicio semnătură de reverse shell nu apare în clar pe disc sau pe fir.
+**Sursa:** SecurityWeek, 29 iunie 2026: [securityweek.com/new-attack-abuses-claude-code-and-harmless-looking-repositories-to-hijack-developer-machines/](https://www.securityweek.com/new-attack-abuses-claude-code-and-harmless-looking-repositories-to-hijack-developer-machines/).
+**Unde e folosită:** Capitolul 3 (Guvernanța în straturi, injecția prin munca în sine).
+**Atenție:** Proof of concept; niciun patch de vendor raportat la momentul scrierii. Mitigarea e postura stratificată - un allowlist de rețea mărginește calea prin DNS indiferent de ce a fost convins agentul să ruleze.
 
 ---
 
@@ -2639,10 +2661,10 @@ Anexa asta există pentru că fiecare afirmație din manual merită o sursă ver
 
 ---
 
-**Afirmația:** Subagenții din Codex CLI au ajuns la GA la începutul lui 2026 și pot rula până la opt în paralel.
-**Sursa:** OpenAI Codex CLI docs, [developers.openai.com/codex/](https://developers.openai.com/codex/).
+**Afirmația:** Subagenții din Codex CLI au ajuns la GA pe 14 martie 2026 și rulează până la șase în paralel by default (`agents.max_threads`, implicit 6; adâncimea de nesting e implicit un singur nivel).
+**Sursa:** OpenAI Codex CLI docs, [developers.openai.com/codex/subagents](https://developers.openai.com/codex/subagents).
 **Unde e folosită:** Capitolul 1 (Componentele principale) și Capitolul 5 (Bucla în șase faze, faza de Execute).
-**Atenție:** Documentație de vendor; numărul de agenți rulați în paralel se poate schimba în versiunile următoare.
+**Atenție:** Documentație de vendor; default-ul de șase thread-uri e în practică un plafon la mijlocul lui 2026 (openai/codex#11965 urmărește configurabilitatea lui) și se poate schimba în versiunile următoare.
 
 ---
 
@@ -2656,12 +2678,12 @@ Anexa asta există pentru că fiecare afirmație din manual merită o sursă ver
 **Afirmația:** AGENTS.md, în calitate de convenție neutră față de vendor pentru fișierul de instrucțiuni al echipei, are suport nativ în Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, Zed și Windsurf. Formatul e markdown; semantica de încărcare e echivalentă între tool-uri.
 **Sursa:** Cross-vendor documentation: Codex CLI ([developers.openai.com/codex/agents-md](https://developers.openai.com/codex/agents-md)), Cursor ([cursor.sh/docs](https://cursor.sh/docs)), GitHub Copilot ([docs.github.com/copilot](https://docs.github.com/copilot)), Gemini CLI ([cloud.google.com/gemini/docs/codeassist](https://cloud.google.com/gemini/docs/codeassist)), Aider ([aider.chat/docs](https://aider.chat/docs)), Zed ([zed.dev/docs/ai](https://zed.dev/docs/ai)), Windsurf ([codeium.com/windsurf/docs](https://codeium.com/windsurf/docs)).
 **Unde e folosită:** Capitolul 1 (Componentele principale, secțiunea despre skills) și Capitolul 6 (Nume și convenții).
-**Atenție:** Lista tool-urilor care îl suportă crește în timp; afirmația e că AGENTS.md e convenția de facto neutră față de vendor, nu că lista ar fi exhaustivă.
+**Atenție:** Lista tool-urilor care îl suportă crește în timp; afirmația e că AGENTS.md e convenția de facto neutră față de vendor, nu că lista ar fi exhaustivă. Lista se și schimbă: Google a început la mijlocul lui 2026 tranziția utilizatorilor de Gemini CLI către Antigravity CLI (tier-urile gratuite și de consumator au încetat să fie servite în iunie) - iar succesorul citește același AGENTS.md, adică exact convenția care supraviețuiește tool-ului, adică exact poanta acestei intrări.
 
 ---
 
 **Afirmația:** opencode e un coding agent open-source întreținut de o echipă independentă, scris în TypeScript și licențiat sub MIT. Codul sursă e organizat în jurul acelorași componente principale pe care manualul ăsta le identifică în Codex CLI și Claude Code.
-**Sursa:** opencode repository ([github.com/sst/opencode](https://github.com/sst/opencode)); LICENSE and README.
+**Sursa:** opencode repository ([github.com/anomalyco/opencode](https://github.com/anomalyco/opencode); fost sst/opencode - compania care îl întreține s-a redenumit Anomaly în ianuarie 2026); LICENSE and README.
 **Unde e folosită:** Capitolul 1 (Componentele principale, trecerea în revistă a codului sursă) și Capitolul 2 (Anatomia invariantă, demo-ul cu doi agenți).
 **Atenție:** Numele proiectului și componența echipei de mentenanță pot evolua; afirmația despre convergența arhitecturală supraviețuiește redenumirilor.
 
@@ -2681,10 +2703,17 @@ Anexa asta există pentru că fiecare afirmație din manual merită o sursă ver
 
 ---
 
-**Afirmația:** Cursor 2.0 a introdus un sistem de subagenți; Cline a livrat subagenți nativ; Claude Code a adăugat Agent Teams ca strat de coordonare de nivel mai înalt peste tool-ul Task.
-**Sursa:** Vendor announcements and docs for Cursor, Cline, and Claude Code; collated across early-to-mid 2026.
+**Afirmația:** Cursor 2.0 (octombrie 2025) a introdus agenți paraleli independenți și sandboxing activat implicit pe macOS; sistemul de subagenți propriu-zis - un agent părinte care deleagă către subagenți copii - a apărut în Cursor 2.4 (ianuarie 2026) și a devenit asincron în 2.5. Cline a livrat subagenți nativ. Claude Code a adăugat Agent Teams ca strat de coordonare de nivel mai înalt peste tool-ul Task.
+**Sursa:** Changelog-urile Cursor (2.0, 2.4, 2.5); anunțurile și documentația vendorilor pentru Cline și Claude Code; colatate de-a lungul lui 2026.
 **Unde e folosită:** Capitolul 1 (Componentele principale), ca dovadă pentru convergența pe componenta principală de subagent în aproximativ un an.
 **Atenție:** Suprafețele de produs ale vendorilor evoluează; afirmația despre convergență rămâne în picioare chiar și când nume specifice de produs se rebranduiesc.
+
+---
+
+**Afirmația:** Claude Fable 5, lansat pe 9 iunie 2026 ca primul model din clasa Mythos, a avut accesul suspendat la nivel mondial între 12 și 30 iunie 2026, înainte de a fi redistribuit.
+**Sursa:** Anthropic, „Claude Fable 5 and Mythos 5” (9 iunie 2026): [anthropic.com/news/claude-fable-5-mythos-5](https://www.anthropic.com/news/claude-fable-5-mythos-5); „Redeploying Fable 5” (30 iunie 2026): [anthropic.com/news/redeploying-fable-5](https://www.anthropic.com/news/redeploying-fable-5).
+**Unde e folosită:** Capitolul 10 (Vendorul va avea o săptămână proastă).
+**Atenție:** Motivul suspendării e relatarea vendorului; lecția operațională - planifică pentru indisponibilitatea vendorului - nu depinde de cauză.
 
 ---
 
@@ -2709,14 +2738,14 @@ Anexa asta există pentru că fiecare afirmație din manual merită o sursă ver
 **Afirmația:** Claude Code întreține un strat de auto-memory în care Claude își scrie singur notițe de la o sesiune la alta - comenzi de build pe care le-a deslușit, concluzii de debugging pe care le-a confirmat, preferințe de stil de cod pe care le-a dedus - distinct de CLAUDE.md-ul scris de utilizator. Necesită Claude Code v2.1.59+; activat implicit; stocare per repo.
 **Sursa:** [code.claude.com/docs/en/memory](https://code.claude.com/docs/en/memory).
 **Unde e folosită:** Capitolul 1 (Componentele principale, secțiunea Memory).
-**Atenție:** Auto memory e specific Claude Code la momentul scrierii. Ceilalți coding agents converg spre mecanisme similare, dar nu livraseră un echivalent la data publicării.
+**Atenție:** Intrarea documentează implementarea din Claude Code, dar jumătatea asta e o convergență, nu o exclusivitate: GitHub Copilot Memory a ajuns în public preview pe 15 ianuarie 2026 - înainte să apară Auto Memory - și era activat implicit pe tier-urile Pro până pe 4 martie; Codex CLI a adăugat memorie automată de fundal în aprilie 2026.
 
 ---
 
-**Afirmația:** Anthropic a anunțat public Dreaming ca parte din Claude Managed Agents la Code with Claude SF pe 2026-05-06 - un proces de fundal programat, care trece în revistă sesiunile recente și memory store-ul, identifică greșelile recurente și workflow-urile convergente și scrie notițe consolidate înapoi în memoria pe termen lung. Suprafața din Claude Code (`Auto Dream`, accesibilă prin `/dream`) fusese livrată mai devreme ca research preview, condiționată de developer access, și documentată în martie 2026.
+**Afirmația:** Anthropic a anunțat public Dreaming ca parte din Claude Managed Agents la Code with Claude SF pe 2026-05-06 - un proces de fundal programat, care trece în revistă sesiunile recente și memory store-ul, identifică greșelile recurente și workflow-urile convergente și scrie notițe consolidate înapoi în memoria pe termen lung. Se livrează ca feature la nivel de platformă, condiționat de un beta header; o suprafață în CLI-ul Claude Code (`/dream`) era doar sugerată în produs și nu apăruse ca o comandă funcțională până în iulie 2026.
 **Sursa:** Code with Claude SF announcement, 2026-05-06; [code.claude.com/docs/en/memory](https://code.claude.com/docs/en/memory).
 **Unde e folosită:** Capitolul 1 (Componentele principale, secțiunea Memory).
-**Atenție:** Auto Dream e specific Claude Code la data publicării. Manualul ăsta indexează rolul structural, nu vendorul.
+**Atenție:** Dreaming e specific Anthropic și la nivel de API la data publicării, nu încă un feature de CLI. Manualul ăsta indexează rolul structural, nu vendorul.
 
 ---
 
@@ -2745,14 +2774,14 @@ Anexa asta există pentru că fiecare afirmație din manual merită o sursă ver
 
 ### Surse despre bucla exterioară și autonomie
 
-**Afirmația:** Până în primăvara lui 2026, bucla exterioară devine o suprafață de primă clasă în Claude Code: /loop rerulează un prompt la un interval dat sau își alege singur ritmul când intervalul lipsește (aprilie 2026), Routines declanșează cloud agents pe bază de template dintr-un program, dintr-un eveniment GitHub sau dintr-un apel de API (aprilie 2026), /goal ține agentul la lucru de la un tur la altul până când o condiție de finalizare e îndeplinită (mai 2026), iar /autofix-pr urmărește CI-ul și comentariile de review și împinge fix-uri până când pull request-ul e verde (aprilie 2026).
+**Afirmația:** Până în primăvara lui 2026, bucla exterioară devine o suprafață de primă clasă în Claude Code: /loop rerulează un prompt la un interval dat (martie 2026) sau își alege singur ritmul când intervalul lipsește (aprilie 2026), Routines declanșează cloud agents pe bază de template dintr-un program, dintr-un eveniment GitHub sau dintr-un apel de API (aprilie 2026), /goal ține agentul la lucru de la un tur la altul până când o condiție de finalizare e îndeplinită (mai 2026), iar /autofix-pr urmărește CI-ul și comentariile de review și împinge fix-uri până când pull request-ul e verde (aprilie 2026).
 **Sursa:** Claude Code release notes, "What's new": [code.claude.com/docs/en/whats-new](https://code.claude.com/docs/en/whats-new), weekly digests for April-May 2026.
 **Unde e folosită:** Capitolul 9 (pattern-ul opt).
-**Atenție:** Numele de feature și săptămânile de release reflectă stadiul vendorului la iunie 2026; așteaptă-te la schimbări, conform notei despre afirmațiile datate.
+**Atenție:** Numele de feature și săptămânile de release reflectă stadiul vendorului la iulie 2026; așteaptă-te la schimbări, conform notei despre afirmațiile datate.
 
 ---
 
-**Afirmația:** Tehnica Ralph Wiggum - un while-loop de bash care tot trimite un fișier de prompt într-un coding agent, cu context proaspăt la fiecare iterație și starea ținută în repository - pornește de la Geoff Huntley la mijlocul lui 2025 ("In its purest form, Ralph is a Bash loop": `while :; do cat PROMPT.md | claude-code ; done`), devine virală la sfârșitul lui 2025 și e adoptată în repository-ul oficial Claude Code ca plugin-ul ralph-wiggum în decembrie 2025. Huntley estimează costul rulării buclei brute la aproximativ 10 dolari pe oră, spune că multe startup-uri din Y Combinator rulează Ralph și numește modul de eșec central "overbaking".
+**Afirmația:** Tehnica Ralph Wiggum - un while-loop de bash care tot trimite un fișier de prompt într-un coding agent, cu context proaspăt la fiecare iterație și starea ținută în repository - pornește de la Geoff Huntley la mijlocul lui 2025 ("In its purest form, Ralph is a Bash loop": `while :; do cat PROMPT.md | claude-code ; done`), devine virală la sfârșitul lui 2025 și e adoptată în repository-ul oficial Claude Code ca plugin-ul ralph-wiggum în noiembrie 2025 (commit-ul de migrare e datat 16 noiembrie). Huntley estimează costul rulării buclei brute la aproximativ 10 dolari pe oră, spune că multe startup-uri din Y Combinator rulează Ralph și numește modul de eșec central "overbaking".
 **Sursa:** Geoff Huntley, [ghuntley.com/ralph](https://ghuntley.com/ralph/) (July 2025); HumanLayer, "A Brief History of Ralph," January 6, 2026: [humanlayer.dev/blog/brief-history-of-ralph](https://www.humanlayer.dev/blog/brief-history-of-ralph); The Register, January 27, 2026: [theregister.com/2026/01/27/ralph_wiggum_claude_loops/](https://www.theregister.com/2026/01/27/ralph_wiggum_claude_loops/).
 **Unde e folosită:** Capitolul 9 (pattern-ul opt), paragrafele despre filiație și overbaking.
 **Atenție:** Cifra de 10 dolari pe oră și afirmația despre adopția în Y Combinator îi aparțin lui Huntley, preluate de The Register - raportări de practician, nu cifre auditate.

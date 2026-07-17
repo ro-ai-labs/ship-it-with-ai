@@ -150,7 +150,7 @@ You can skip backwards. Each chapter assumes the chapter before it, but the temp
 
 ## A note on dated claims {#a-note-on-dated-claims}
 
-Tool-specific references in this manual are current as of June 2026. The frameworks are intended to outlast the specific tools. When a named product capability matters, I either date the claim or treat it as an example rather than a permanent property. Source notes for the load-bearing factual claims are in Appendix C.
+Tool-specific references in this manual are current as of July 2026. The frameworks are intended to outlast the specific tools. When a named product capability matters, I either date the claim or treat it as an example rather than a permanent property. Source notes for the load-bearing factual claims are in Appendix C.
 
 I do my best to keep the manual current and maintain a [changelog](/changelog/) of meaningful updates.
 
@@ -237,7 +237,7 @@ Open the source code or documentation of most production-grade coding agents - C
 
 Context window. Tools. Permissions / Sandbox. Skills. Plugins. MCP. Memory. Subagents.
 
-Subagents are recent in the public vocabulary, not because the idea is new but because they went universal across the major agents in a tight window. Claude Code shipped the Task tool, then layered Agent Teams on top of it for higher-level coordination. As of early 2026, Codex CLI exposed subagents as a first-class workflow and allowed multiple subagents to run in parallel. Cursor 2.0 introduced its own subagent system. Cline shipped subagents natively. Within roughly a year, dispatching a constrained child instance of the agent went from "advanced workflow" to "a primitive the harness exposes by default." That is the test I use for primitive status, and subagents pass it.
+Subagents are recent in the public vocabulary, not because the idea is new but because they went universal across the major agents in a tight window. Claude Code shipped the Task tool, then layered Agent Teams on top of it for higher-level coordination. In March 2026, Codex CLI took subagents GA as a first-class workflow with parallel dispatch. Cursor shipped parallel agents in 2.0 and a full subagent system in 2.4. Cline shipped subagents natively. Within roughly a year, dispatching a constrained child instance of the agent went from "advanced workflow" to "a primitive the harness exposes by default." That is the test I use for primitive status, and subagents pass it.
 
 That is the anatomy. Every interesting question about a coding agent - what it can do, what it cannot do, how to control it, what to compare it to - reduces to one or more of these primitives. When a new agent arrives, your first question is: how does this one handle each primitive? When you are deciding whether to let an agent touch a particular codebase, your second question is: which primitive is the relevant control point for this risk? When you are buying tooling, your third question is: which primitive does this tooling improve, and at what cost?
 
@@ -264,11 +264,11 @@ That is the anatomy. Every interesting question about a coding agent - what it c
         of the agent itself
 ```
 
-*Figure: The primitives and the harness that runs them. Permissions / Sandbox sits in slot 3 as a primitive whose two halves - the agent-level decision layer and OS-level enforcement - converge on presence but diverge on posture across vendors. Memory is the other primitive whose second half is still mid-convergence. Subagents sit below the line because they are the recursive primitive: each subagent is itself an instance of the others.*
+*Figure: The primitives and the harness that runs them. Permissions / Sandbox sits in slot 3 as a primitive whose two halves - the agent-level decision layer and OS-level enforcement - converge on presence but diverge on posture across vendors. Memory's second half - the agent-written layer - converged across the major agents in the first months of 2026. Subagents sit below the line because they are the recursive primitive: each subagent is itself an instance of the others.*
 
 ---
 
-**The context window** is what the agent knows right now. It is bounded - every model has a maximum number of tokens it can hold in active attention. Two hundred thousand on a mid-range model. One million on a top-tier model. Those numbers are growing every quarter; by the time you read this they will be larger. But the bound exists, and the bound matters, because the context window is the workspace inside which the agent makes decisions.
+**The context window** is what the agent knows right now. It is bounded - every model has a maximum number of tokens it can hold in active attention. Two hundred thousand on a compact model. A million from the mid-range up, now that the million-token window has spread from the flagship tier to the workhorse models. Those numbers are growing every quarter; by the time you read this they will be larger. But the bound exists, and the bound matters, because the context window is the workspace inside which the agent makes decisions.
 
 What goes in the context window? The system prompt that defines the agent's role and constraints. The current conversation history with the user. The tool calls the agent has made and the results those calls returned. Any files the agent has read or chunks of files it has loaded. Any instructions injected by the harness (we will get to the harness in a moment). That is roughly what fills the window.
 
@@ -348,15 +348,15 @@ This matters for enterprise procurement. An MCP integration is portable. The inv
 
 ### Memory {#memory}
 
-Memory is the most recent primitive to go universal. Eighteen months ago it was implicit: the agent loaded a prompt, did some work, and the next session started clean. Today Memory has two halves - one fully converged across the major agents, one led by Claude Code with the others on the path.
+Memory is the most recent primitive to go universal. Eighteen months ago it was implicit: the agent loaded a prompt, did some work, and the next session started clean. Today Memory has two halves, and as of mid-2026 both have crossed the convergence line.
 
 **Manually defined memory** is the layer the team writes. The convergence is real: Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, and the wider ecosystem all read AGENTS.md from the repository root at session start. Claude Code reads CLAUDE.md, which can import AGENTS.md to share the same content with other agents. The file is committed to source control, reviewed in pull requests, owned by the team. It is the place forbidden patterns, mistake-journal entries, build commands, and domain glossaries live. Chapter 6 covers what goes in this file in detail and why it matters.
 
-**The auto-memory system** is what the agent writes for itself. Claude Code is the early-mover; other agents are converging on similar mechanisms but had not shipped equivalents at publication. It has two visible surfaces: Auto Memory is the layer where Claude saves learned patterns across sessions - build commands it figured out, debugging insights it confirmed, code-style preferences it inferred - without the user explicitly writing them down. Auto Dream is the background-consolidation layer Anthropic unveiled at Code with Claude SF on 2026-05-06: a scheduled process that reviews recent sessions and the memory store, identifies recurring mistakes and convergent workflows, and writes consolidated notes back into long-term memory. The agent gets better at your codebase between runs.
+**The auto-memory system** is what the agent writes for itself - learned patterns saved across sessions (build commands it figured out, debugging insights it confirmed, code-style preferences it inferred) without the user explicitly writing them down. This half converged within a single winter: GitHub Copilot Memory reached public preview in January 2026 and was on by default for individual tiers by March; Claude Code's Auto Memory shipped in February; Codex CLI added automatic background memory in April. Anthropic's consolidation layer goes one step further: Dreaming, unveiled with Claude Managed Agents at Code with Claude SF on 2026-05-06, is a scheduled background process that reviews recent sessions and the memory store, identifies recurring mistakes and convergent workflows, and writes consolidated notes back into long-term memory. The agent gets better at your codebase between runs.
 
 A note on what is *not* memory in this taxonomy: session memory (the conversation history plus tool results inside a single session) is just the context window. It is memory in the everyday sense but not a separate primitive - it is the primitive named first.
 
-Manually defined memory passes the convergence test today. The auto-memory system is on the path - Claude Code is first; others are following. This manual treats them as one primitive because the structural role is identical, with the caveat that the second half is an early-mover signal, not yet a convergence.
+Both halves pass the convergence test today - the manually defined layer over years, the auto-memory layer within months of the first ship. That speed is the convergence test doing its job: when a mechanism is structural, every major agent grows it, fast. This manual treats the two halves as one primitive because the structural role is identical.
 
 ---
 
@@ -388,7 +388,7 @@ Said plainly: the harness is the trim around the agent loop. The agent loop is t
 
 ---
 
-A note on vocabulary. The primitives named here are what the agent uses to know, act, gate, extend, integrate, remember, and delegate. The test for primitiveness is convergence: a mechanism is a primitive when every major coding agent ships it as a distinct, configurable bundle, even when the implementations differ substantively. Permissions / Sandbox passes that test on the decision-layer half across all the major agents; the OS-enforcement half is presence-converged but posture-divergent, with the vendor postures catalogued in its section above. The Memory primitive has the same shape on its second half. Telemetry has not yet crossed the convergence line and remains a control layer around the primitives. When the next mechanism converges - observability event-push is the candidate to watch - the list will grow again. This chapter is the first convergence catalogue; Chapter 3 is the second.
+A note on vocabulary. The primitives named here are what the agent uses to know, act, gate, extend, integrate, remember, and delegate. The test for primitiveness is convergence: a mechanism is a primitive when every major coding agent ships it as a distinct, configurable bundle, even when the implementations differ substantively. Permissions / Sandbox passes that test on the decision-layer half across all the major agents; the OS-enforcement half is presence-converged but posture-divergent, with the vendor postures catalogued in its section above. The Memory primitive has the same shape on its second half. Telemetry is the closest to crossing: by mid-2026, Claude Code, Codex CLI, and Gemini's CLI all shipped native OpenTelemetry export, so the convergence is arriving - not as a bespoke event-push protocol but as plain OTel. For now it remains a control layer around the primitives; one more turn of the wheel and the list grows again. This chapter is the first convergence catalogue; Chapter 3 is the second.
 
 ---
 
@@ -542,6 +542,8 @@ In late February 2026, Alexey Grigorev at DataTalks.Club lost two and a half yea
 
 The PocketOS failure is a story about a credential the agent should not have held. The Terraform failure is a story about a map the agent did not know it needed. Different failure modes; same architectural cause. Neither is fixed by a better model. Both are fixed by the same governance discipline: the agent runs in a sandbox where destructive operations require explicit confirmation, holds only the credentials needed for the current task, and operates against state the team has verified. The layers in this chapter exist because both PocketOS and Grigorev's loss happened in 2026, to teams who thought they were being careful.
 
+Both incidents also show the other half of the loop: the platforms learned. Within a week of PocketOS, Railway moved every volume and resource delete - including the API path the agent used - to a soft-delete with a 48-hour recovery window, and shipped scoped agent credentials so a session need not hold a raw platform token at all. Grigorev's own follow-up reads like a checklist from this chapter: delete protection enabled, state moved out of the laptop's reach, a human review before every destructive plan. Defense in depth is arriving at the infrastructure layer too - which does not remove your side of it.
+
 ---
 
 What can we learn from PocketOS? A lot. Start with the wrong lessons, because I see them quoted constantly.
@@ -617,6 +619,8 @@ The sandbox is OS-level isolation. The kernel itself refuses to execute syscalls
 
 The crucial property of a sandbox is that it is not part of the agent. It is part of the operating system. Prompt injection cannot bypass the sandbox, because prompt injection works by manipulating the agent's reasoning, and the agent's reasoning is not what the kernel listens to. The kernel listens to system calls. Either the system call is permitted or it is not. Reasoning is irrelevant.
 
+One honest caveat belongs next to that guarantee: the sandbox is code too, and code has bugs. In mid-2026 a red team disclosed two critical zero-click escapes of Cursor's kernel-backed sandbox (CVSS 9.8, patched in the next major version) - prompt-injected instructions abusing the sandbox's own write allowlist to reach OS-level execution. The architectural property held everywhere else; the implementation had a hole. That is not an argument against the sandbox. It is the argument for the other four layers.
+
 Modern coding agents support sandboxes on Linux (bubblewrap with Landlock and seccomp), on macOS (Seatbelt), and on Windows (restricted tokens with job objects). The sandbox is opt-in. You configure the path allowlist and the network allowlist, either in the agent's configuration file or in the AGENTS.md. For most teams, the right default is: read the entire repository, write only within the worktree, network only to specifically allowed hosts. Block everything else.
 
 The sandbox does not slow the agent down meaningfully. It just refuses the operations that should have been refused anyway. If your agent is hitting the sandbox limits regularly during normal work, the limits are wrong; widen them. If your agent never hits the sandbox limits, you have probably set them correctly.
@@ -652,7 +656,7 @@ My recommendations: do not commit `.env` files to git. Use a secrets vault (Hash
 
 The framing I use with teams: deny rules and configuration are defense in depth. The sandbox is the hard boundary. The vault is the structural choice. Layered controls.
 
-The vectors above are the named ones. There is another vector that gets less attention and hits teams more often: injection through the work itself. The Jira ticket whose acceptance criteria contain a paragraph beginning "ignore all previous instructions and..." The PR comment from an outside contributor that smuggles an instruction inside what looks like a code review note. The error message from a flaky third-party test that the agent reads and interprets as a directive. The README of the vendor library the agent fetched during research. Anywhere the agent reads natural-language content as part of doing its work is a potential injection surface. I have watched an agent helpfully follow an instruction embedded in a copy-pasted log file because the operator did not think of a log file as untrusted input.
+The vectors above are the named ones. There is another vector that gets less attention and hits teams more often: injection through the work itself. The Jira ticket whose acceptance criteria contain a paragraph beginning "ignore all previous instructions and..." The PR comment from an outside contributor that smuggles an instruction inside what looks like a code review note. The error message from a flaky third-party test that the agent reads and interprets as a directive. The README of the vendor library the agent fetched during research. The harmless-looking repository whose planted error nudges the agent to run a "fix" that pulls its real payload from a DNS TXT record - a proof of concept demonstrated against a major agent in mid-2026, with no signature ever touching the disk. Anywhere the agent reads natural-language content as part of doing its work is a potential injection surface. I have watched an agent helpfully follow an instruction embedded in a copy-pasted log file because the operator did not think of a log file as untrusted input.
 
 The mitigation is the same posture as the rest of governance: do not rely on the agent's reasoning to spot the injection. Constrain what the agent can do regardless of what it has read. The sandbox catches the dangerous action even when the agent is convinced the action is legitimate. The hook catches the dangerous category even when the agent is convinced "just this once is fine." Treat every input the agent reads as untrusted text - the same posture an experienced engineer takes with user input on a web form - and your governance layers will catch the injection attempt your prompt design missed. The injection that succeeds is the one that finds an action the layers below it did not bound.
 
@@ -678,7 +682,7 @@ The first four layers are preventive. They stop the agent from doing the wrong t
 
 What you log: every tool call the agent made. Every Bash command. Every file write. Every external API request. The arguments, the results, the timing. The agent sees you read it; the agent does not see you log it. The log is for you.
 
-Where you send it: a central store the security team owns. Splunk, Elasticsearch, your existing SIEM, a custom store - whichever fits your stack. The point is durability and queryability. You want to be able to answer "which sessions touched the payments service in the last thirty days" without grepping through eighty engineers' local agent histories.
+Where you send it: a central store the security team owns. Splunk, Elasticsearch, your existing SIEM, a custom store - whichever fits your stack. The point is durability and queryability. You want to be able to answer "which sessions touched the payments service in the last thirty days" without grepping through eighty engineers' local agent histories. The plumbing has converged faster than expected: by mid-2026 the major agents emit OpenTelemetry natively, so the central store can be whatever your observability stack already speaks.
 
 What you watch for: scope violations (the agent edited a file outside its assigned task), unusual external calls (the agent contacted a host not on its allowlist), repeated permission denials (the agent tried something forbidden multiple times - either a bug in the rule set or a prompt injection attempt), production credentials in context (the agent loaded a file containing what looks like secrets).
 
@@ -797,7 +801,7 @@ The METR randomized controlled trial published in July 2025 measured this direct
 
 METR did not test formulation discipline as a separate variable. They measured raw AI assistance on familiar code. I treat METR's result as a warning: raw AI assistance does not automatically become delivery speed. The missing variable is workflow discipline. Teams that impose process can do better. Teams that do not can stay at or below METR's number, while believing they are faster.
 
-*Source note. METR study published July 2025. The interpretation that workflow discipline is the missing variable is mine, not the study's. Citation in Appendix C.*
+*Source note. METR study published July 2025. METR's own follow-up stalled: the replication suffered selection bias severe enough that METR redesigned the experiment in February 2026 and cautions against reading the 2025 figure as a measure of current tools. The warning stands; the number is a dated measurement of a persistent perception gap. The interpretation that workflow discipline is the missing variable is mine, not the study's. Citation in Appendix C.*
 
 The most vivid version of this contrast I have personally observed involved two teams at the same company, working in adjacent areas of the same product. Team A turned the agent loose immediately. They celebrated the early velocity. By month three they were shipping at roughly the pre-agent baseline but with higher defect rates and visibly drained senior reviewers.
 
@@ -807,9 +811,9 @@ Same company. Adjacent codebases. Same agent. The difference was formulation dis
 
 ---
 
-The strongest test of the thesis in this chapter came in February through April 2026. Anthropic shipped three product changes in six weeks that materially degraded Claude Code for complex engineering work in some workflows. Adaptive thinking by default on February 9. Default effort dropped from high to medium on March 3. A caching bug in reasoning history retention on March 26. The combined effect was severe enough that an AMD senior director analyzed 6,852 Claude Code sessions and 234,760 tool calls; the analysis showed the model shifting from research-first to edit-first behavior as thinking redaction rolled from 1.5% to 100% of turns. A separate external analysis reported a substantial drop in code quality across the same period. Anthropic published a technical post-mortem on April 23 acknowledging all three root causes.
+The strongest test of the thesis in this chapter came in February through April 2026, when a run of Claude Code product changes materially degraded complex engineering work in some workflows. The alarm was raised from outside: in early April, an AMD senior director, Stella Laurenzo, published an audit of 6,852 of her own Claude Code sessions and 234,760 tool calls, showing the model shifting from research-first to edit-first behavior as thinking redaction rolled from 1.5% to 100% of turns, and pointing at the February rollout of adaptive thinking by default as a contributing cause. Anthropic's technical post-mortem, published April 23, acknowledged three regressions in the same window: default effort silently dropped from high to medium on March 4 (reverted April 7), a caching bug from March 26 that cleared reasoning history every turn instead of once per idle hour (fixed April 10), and a system-prompt verbosity cap from April 16 that produced a measured 3% quality drop (reverted April 20).
 
-*Source note. Anthropic published a technical post-mortem on April 23, 2026 acknowledging the three root causes. Independent analyses of code-quality degradation were less rigorous than the post-mortem; treat the magnitude as approximate. Citations in Appendix C.*
+*Source note. Laurenzo's audit predates the post-mortem, and its attribution of the degradation to the February adaptive-thinking rollout goes beyond what Anthropic's April 23 post-mortem acknowledges - the two accounts agree on the March-April regressions and diverge on the February cause. Treat the magnitude of the external analyses as approximate. Citations in Appendix C.*
 
 I watched two adjacent teams during this period. The first team had spent the prior quarter building the infrastructure this manual describes: CLAUDE.md with team-specific rules, plan mode by default, a six-phase loop for non-trivial work, hooks intercepting destructive operations. The second team used the same Claude Code, same models, same plans, but ran them as freestyle dispatch. The second team's velocity halved overnight when the model started taking edit-first shortcuts. The first team's velocity dropped maybe 10% and recovered the moment they tightened plan-mode gates and switched a few skills to higher-effort by default.
 
@@ -1103,7 +1107,7 @@ Run one feature through the full six-phase loop. Time each phase. Note which pha
 
 ---
 
-AGENTS.md is the manually defined layer of the Memory primitive named in Chapter 1. It is the team-shareable surface - the layer the team authors, reviews, and owns in source control. The auto-memory system (Auto Memory, Auto Dream) is per-developer and largely automatic; this chapter focuses on the manually owned layer, because that is where team-level discipline lives. What follows is six things that go in AGENTS.md, the 200-line budget rule, and the failure modes you see in practice.
+AGENTS.md is the manually defined layer of the Memory primitive named in Chapter 1. It is the team-shareable surface - the layer the team authors, reviews, and owns in source control. The auto-memory system (Auto Memory, Dreaming) is per-developer and largely automatic; this chapter focuses on the manually owned layer, because that is where team-level discipline lives. What follows is six things that go in AGENTS.md, the 200-line budget rule, and the failure modes you see in practice.
 
 ---
 
@@ -1802,7 +1806,7 @@ The seven patterns above assume a human in the room. The eighth is the one teams
 
 The idea has a prehistory, and the difference between the two eras is the entire lesson. In 2023, AutoGPT and BabyAGI looped a model against its own opinion of its progress. Nothing external graded an iteration - the model marked its own homework - so every lap compounded drift, and the approach collapsed as a way of shipping software within months. The revival is structurally different. In mid-2025, Geoff Huntley wired a coding agent into a bash while-loop - feed it one prompt file, let it run, repeat forever - and the technique spread under the name Ralph Wiggum. Each iteration starts with a fresh context window, does one unit of work, and ends against graders the model does not control: the compiler, the test suite, the diff. State lives in the repository, not in the conversation. Everything that makes the loop converge sits outside the model.
 
-Between late 2025 and spring 2026, the pattern stopped being a bash trick and became a product surface. GitHub's Copilot coding agent went generally available in September 2025: delegate a task, an agent works in an isolated environment, and the result comes back as a draft pull request. Cursor shipped Cloud Agents in October 2025 - many agents running detached, your laptop closed. Google's Jules added Scheduled Tasks that December for recurring maintenance work. The same month, a ralph-wiggum plugin appeared in the official Claude Code repository, and by spring 2026 the loop was first-class there: /loop re-runs a prompt on an interval or paces itself when you omit one, Routines fire cloud agents from a schedule or a GitHub event, /goal keeps the agent working until a completion condition holds, /autofix-pr watches CI and pushes fixes until the pull request goes green. One shape, many spellings. By Chapter 1's convergence test, the capability has arrived everywhere - though what converged is a workflow wrapped around the primitives, not a new primitive.
+Between late 2025 and spring 2026, the pattern stopped being a bash trick and became a product surface. GitHub's Copilot coding agent went generally available in September 2025: delegate a task, an agent works in an isolated environment, and the result comes back as a draft pull request. Cursor shipped Cloud Agents in October 2025 - many agents running detached, your laptop closed. Google's Jules added Scheduled Tasks that December for recurring maintenance work. A ralph-wiggum plugin had already landed in the official Claude Code repository in November, and by spring 2026 the loop was first-class there: /loop re-runs a prompt on an interval or paces itself when you omit one, Routines fire cloud agents from a schedule or a GitHub event, /goal keeps the agent working until a completion condition holds, /autofix-pr watches CI and pushes fixes until the pull request goes green. One shape, many spellings. By Chapter 1's convergence test, the capability has arrived everywhere - though what converged is a workflow wrapped around the primitives, not a new primitive.
 
 The trend is real, and it is also where the discipline gets tested hardest, because the outer loop adds attempts, not judgment. It multiplies whatever your inner loop permits. If every iteration ends against a strict gate, the loop compounds progress: a queue of small verified units gets shorter overnight. If the gate is weak, the same patience compounds slop. Huntley's own name for the failure mode is overbaking - leave the loop running past its job and it keeps inventing work nobody asked for. The agent does not get tired. That is the feature, and unattended, it is also the threat.
 
@@ -1989,7 +1993,7 @@ Both archetypes are predictable. Name them out loud in the rollout. Treat each a
 
 ### The vendor will have a bad week
 
-One operational reality the rollout has to plan for: the agent will not always be available. Vendor outages happen. Capacity throttles happen. The model you use today gets deprecated and the replacement is not yet stable. I have watched a team's velocity halve for a week because their primary model was rate-limited during a regional capacity event, and they had not thought through what to do when the agent was the bottleneck.
+One operational reality the rollout has to plan for: the agent will not always be available. Vendor outages happen. Capacity throttles happen. The model you use today gets deprecated and the replacement is not yet stable. I have watched a team's velocity halve for a week because their primary model was rate-limited during a regional capacity event, and they had not thought through what to do when the agent was the bottleneck. And outages are not the ceiling: in June 2026, the largest vendor's newest flagship tier was pulled worldwide days after launch and stayed unavailable for nearly three weeks. Teams that had already moved their workflows onto it ran their fallback plans for real; teams without a fallback rediscovered their previous setup under deadline.
 
 What to put in place. A non-agentic fallback for the most time-sensitive work. The senior engineer who can still ship a hotfix at three in the morning when the model is rate-limited. The runbook for "what to do when Claude Code is throttled and the customer is waiting." The acceptance that some weeks the team's velocity drops because the vendor had an incident, the same way some weeks velocity drops because a database had an incident.
 
@@ -2123,6 +2127,10 @@ That trajectory - four decades of writing code, twenty-five of them professional
 ## Changelog {#changelog}
 
 This page tracks meaningful updates to the manual. Smaller copy-edits and SEO tweaks are not listed; the footer shows the last updated date.
+
+### 2026-07-17 - July currency and corrections pass
+
+A deep fact-check of every dated claim against the July 2026 public record, with adversarial verification on each finding. Corrections: the April 23 post-mortem story is re-sourced - Anthropic's acknowledged regressions are March 4 (effort), March 26 (caching), and April 16 (verbosity cap), while the February adaptive-thinking attribution and the 6,852-session audit belong to AMD's Stella Laurenzo, published April 6, ahead of the post-mortem; the Memory primitive's agent-written half is upgraded from early-mover signal to full convergence (GitHub Copilot Memory preceded Auto Memory; Codex CLI followed in April); Dreaming is corrected to a platform-level feature, not a shipped CLI command; Codex parallel subagents corrected from eight to the documented six; Cursor's subagent system re-dated to 2.4; opencode's repository updated to anomalyco/opencode; ralph-wiggum's adoption re-dated to November 2025; smaller date fixes (Adversa patch, /loop). Currency: context windows (a million tokens is now mid-range), METR's own February 2026 follow-up caution, telemetry converging as OpenTelemetry, the Gemini CLI to Antigravity CLI transition. Additions: Railway's post-PocketOS 48-hour soft-delete and scoped agent access (Chapter 3), the June 2026 flagship-tier suspension as the vendor-bad-week example (Chapter 10), the DuneSlide sandbox-escape CVEs as the honest caveat on layer two (Chapter 3), the DNS-TXT split-payload injection vector, and the `sandbox.credentials` mitigation. Dated-claims note bumped to July 2026.
 
 ### 2026-07-06 - SVG diagrams and localized figure bodies
 
@@ -2560,9 +2568,9 @@ This appendix exists because every claim in this manual deserves a verifiable so
 ### Studies and research
 
 **Claim:** Experienced open-source developers using AI assistance on familiar repositories were 19% slower than the same developers without it, while predicting beforehand they would be 24% faster - a 43-point gap between expected speedup and measured slowdown that persisted in their self-reports even after the data contradicted it.
-**Source:** Becker et al., METR, "Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity," July 10, 2025. arXiv: [arxiv.org/abs/2507.09089](https://arxiv.org/abs/2507.09089). Writeup: [metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/](https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/).
+**Source:** Becker et al., METR, "Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity," July 10, 2025. arXiv: [arxiv.org/abs/2507.09089](https://arxiv.org/abs/2507.09089). Writeup: [metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/](https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/). Follow-up design change: [metr.org/blog/2026-02-24-uplift-update/](https://metr.org/blog/2026-02-24-uplift-update/).
 **Where used:** Chapter 4 (From generating code to shipping software).
-**Caveat:** Tested raw AI assistance (Cursor + Claude) without a formulation-discipline variable. My interpretation that workflow discipline is the missing variable is mine, not the study's.
+**Caveat:** Tested raw AI assistance (Cursor + Claude) without a formulation-discipline variable. My interpretation that workflow discipline is the missing variable is mine, not the study's. METR's late-2025 follow-up suffered severe selection bias (developers increasingly refused randomization away from AI) and produced only weak estimates; METR announced a redesigned experiment on February 24, 2026 and cautions against extrapolating the 19% figure to current tools.
 
 ---
 
@@ -2571,21 +2579,21 @@ This appendix exists because every claim in this manual deserves a verifiable so
 **Claim:** On April 24, 2026, PocketOS lost its production database in nine seconds when a Cursor agent powered by Claude Opus 4.6 invoked Railway's Volume Delete via a found API token during a credentials-mismatch recovery attempt. Backups stored on the same volume were destroyed with the primary data.
 **Source:** Reported by DevOps.com ("When AI Goes Really, Really Wrong"), Business Insider (Jer Crane statement), and others. Anthropic's Claude Opus 4.6 system card (February 2026) describes the model that powered the agent.
 **Where used:** Prologue (Nine seconds) and Chapter 3 (Governance in layers).
-**Caveat:** Recovery timeline differs across public accounts - Railway's restore was reportedly ~30 minutes after Crane contacted them, while other accounts describe ~30 hours or two days for full operational restoration. I use the incident for the governance pattern, not as a precise forensic reconstruction.
+**Caveat:** Recovery timeline differs across public accounts - Railway's restore was reportedly ~30 minutes after Crane contacted them, while other accounts describe ~30 hours or two days for full operational restoration. I use the incident for the governance pattern, not as a precise forensic reconstruction. Aftermath: on April 29, 2026 Railway announced that all volume and resource deletes - previously instant when invoked via the API - now soft-delete with a 48-hour recovery window, alongside workspace guardrails and scoped agent access ([blog.railway.com/p/your-ai-wants-to-nuke-your-database](https://blog.railway.com/p/your-ai-wants-to-nuke-your-database)).
 
 ---
 
 **Claim:** In late February 2026, Alexey Grigorev at DataTalks.Club lost two and a half years of course infrastructure when Claude Code worked against a stale Terraform state file and ran `terraform destroy` against what it read as orphaned resources.
 **Source:** Public account by Alexey Grigorev (DataTalks.Club), late February 2026.
 **Where used:** Chapter 3 (Governance in layers).
-**Caveat:** Data loss was partial; AWS restored roughly 1.94M rows from a snapshot within about a day. The incident is documented publicly but with less coverage than PocketOS.
+**Caveat:** Data loss was partial; AWS restored roughly 1.94M rows from a snapshot within about a day. The incident is documented publicly but with less coverage than PocketOS. Grigorev's follow-up documents the hardening adopted afterward: delete protection in both Terraform and AWS, state moved to S3, manual review of every destructive plan, and an upgraded AWS support tier.
 
 ---
 
-**Claim:** Anthropic published a technical post-mortem on April 23, 2026 acknowledging three product regressions that collectively broke Claude Code for complex engineering work between February 9 and March 26, 2026: adaptive thinking by default (Feb 9), default effort dropped from high to medium (March 3), and a caching bug in reasoning history retention (March 26). An AMD senior director's analysis of 6,852 Claude Code sessions and 234,760 tool calls showed the model shifting from research-first to edit-first behavior as thinking redaction rolled from 1.5% to 100% of turns.
-**Source:** Anthropic technical post-mortem, April 23, 2026. AMD analysis published separately.
+**Claim:** Anthropic's technical post-mortem of April 23, 2026 ("An update on recent Claude Code quality reports") acknowledged three regressions: default reasoning effort dropped from high to medium on March 4 (reverted April 7), a caching bug from March 26 that cleared reasoning history every turn instead of once per idle hour (fixed April 10, v2.1.101), and a system-prompt verbosity cap from April 16 that produced a measured ~3% quality drop (reverted April 20). Separately and earlier, AMD Senior Director Stella Laurenzo published an independent audit (April 6, filed as GitHub issue anthropics/claude-code#42796) of 6,852 Claude Code sessions and 234,760 tool calls, showing a shift from research-first to edit-first behavior as thinking redaction rolled from 1.5% to 100% of turns and attributing the degradation in part to the February adaptive-thinking-by-default rollout.
+**Source:** Anthropic engineering post-mortem, April 23, 2026: [anthropic.com/engineering/april-23-postmortem](https://www.anthropic.com/engineering/april-23-postmortem). Laurenzo audit: GitHub issue anthropics/claude-code#42796; coverage in The Register, April 6, 2026.
 **Where used:** Chapter 4 (From generating code to shipping software).
-**Caveat:** Independent analyses of code-quality degradation were less rigorous than the post-mortem; treat the magnitude as approximate.
+**Caveat:** The attribution to the February adaptive-thinking rollout is Laurenzo's, not the vendor's; the post-mortem's own three causes start in March. The two accounts agree on the regressions and diverge on the earliest cause.
 
 ---
 
@@ -2608,14 +2616,14 @@ This appendix exists because every claim in this manual deserves a verifiable so
 **Claim:** Claude Code automatically loads `.env*` files in the working directory at session start without explicit user permission, exposing secrets to the agent's context.
 **Source:** Knostic, December 2025. Blog: [knostic.ai/blog/claude-loads-secrets-without-permission](https://knostic.ai/blog/claude-loads-secrets-without-permission).
 **Where used:** Chapter 3 (Governance in layers), named in the dot-env auto-loading vulnerability class.
-**Caveat:** Mitigation is sandbox `denyRead` of the `.env*` patterns rather than a vendor patch. The behavior may change in future versions; the class (agents loading local config at session start) is enduring.
+**Caveat:** Mitigation is sandbox `denyRead` of the `.env*` patterns rather than a vendor patch; in June 2026 Claude Code added an opt-in `sandbox.credentials` setting that blocks sandboxed commands from reading credential files and secret environment variables - a more targeted control for the same class, still opt-in rather than default. The behavior may change in future versions; the class (agents loading local config at session start) is enduring.
 
 ---
 
 **Claim:** Claude Code's deny rules were silently bypassed when a shell command chained more than 50 subcommands (MAX_SUBCOMMANDS_FOR_SECURITY_CHECK = 50 hard cap), with the security check falling through to a generic "ask" prompt.
 **Source:** Adversa AI Red Team, disclosed April 1, 2026. Writeup: [adversa.ai/blog/claude-code-security-bypass-deny-rules-disabled/](https://adversa.ai/blog/claude-code-security-bypass-deny-rules-disabled/).
 **Where used:** Chapter 3 (Governance in layers), as the parser-cap bypass example for "any single layer can have a quiet-failure mode."
-**Caveat:** Patched in Claude Code v2.1.90 on April 6, 2026 (within a week of disclosure). The class - governance layers with parser caps that silently fail - is what to remember after the specific cap is gone.
+**Caveat:** Patched in Claude Code v2.1.90 in the first days of April 2026 - Adversa's own writeup records the fix by April 4, within days of disclosure. The class - governance layers with parser caps that silently fail - is what to remember after the specific cap is gone.
 
 ---
 
@@ -2623,6 +2631,20 @@ This appendix exists because every claim in this manual deserves a verifiable so
 **Source:** Adam Kinney, April 2026. Writeup: [Claude Code's Deny Rules Don't Protect You - Here's What Actually Does](https://adamkinney.com/aatt/claude-code/deny-rules-dont-protect-you-sandbox-does/).
 **Where used:** Chapter 3 (Governance in layers), as the permission-parser bypass class.
 **Caveat:** Architectural, not a single CVE. Mitigation is the OS sandbox `denyRead` list (kernel-level), not a vendor patch. The class persists across patches because the parser cannot enumerate every binary.
+
+---
+
+**Claim:** Two zero-click prompt-injection vulnerabilities in Cursor's sandbox - CVE-2026-50548 and CVE-2026-50549 (CVSS 9.8, dubbed "DuneSlide") - abused the working-directory write allowlist and a symlink-resolution fallback to escape the sandbox and reach OS-level remote code execution. All versions before Cursor 3.0 (April 2, 2026) were affected; 3.0 fixed both.
+**Source:** Cato Networks (Cato AI Labs), disclosed mid-2026. Writeup: [catonetworks.com/blog/duneslide-two-critical-rce-vulnerabilities/](https://www.catonetworks.com/blog/duneslide-two-critical-rce-vulnerabilities/); coverage: SecurityWeek, The Hacker News, July 2026.
+**Where used:** Chapter 3 (Governance in layers, layer two).
+**Caveat:** The lesson is the class, not the vendor: the strongest layer can itself have bugs, which is why the layers are five and not one.
+
+---
+
+**Claim:** Mozilla 0Din researchers demonstrated (June 2026) an indirect prompt-injection attack in which a harmless-looking repository induces Claude Code to run a script that pulls a base64-encoded payload from a DNS TXT record and spawns a reverse shell - splitting the attack across the repository, DNS, and the developer's machine so no reverse-shell signature appears in plaintext on disk or on the wire.
+**Source:** SecurityWeek, June 29, 2026: [securityweek.com/new-attack-abuses-claude-code-and-harmless-looking-repositories-to-hijack-developer-machines/](https://www.securityweek.com/new-attack-abuses-claude-code-and-harmless-looking-repositories-to-hijack-developer-machines/).
+**Where used:** Chapter 3 (Governance in layers, injection through the work itself).
+**Caveat:** Proof of concept; no vendor patch reported at the time of writing. The mitigation is the layered posture - a network allowlist bounds the DNS path regardless of what the agent was convinced to run.
 
 ---
 
@@ -2635,10 +2657,10 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ---
 
-**Claim:** Codex CLI subagents went GA in early 2026 and can run up to eight in parallel.
-**Source:** OpenAI Codex CLI docs, [developers.openai.com/codex/](https://developers.openai.com/codex/).
+**Claim:** Codex CLI subagents went GA on March 14, 2026 and run up to six in parallel by default (`agents.max_threads`, default 6; nesting depth defaults to one level).
+**Source:** OpenAI Codex CLI docs, [developers.openai.com/codex/subagents](https://developers.openai.com/codex/subagents).
 **Where used:** Chapter 1 (The primitives) and Chapter 5 (the six-phase loop, Execute phase).
-**Caveat:** Vendor documentation; parallel count may change with subsequent versions.
+**Caveat:** Vendor documentation; the six-thread default is effectively a cap as of mid-2026 (openai/codex#11965 tracks making it configurable) and may change with subsequent versions.
 
 ---
 
@@ -2652,12 +2674,12 @@ This appendix exists because every claim in this manual deserves a verifiable so
 **Claim:** AGENTS.md as the vendor-neutral team-instruction-file convention has native support across Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, Zed, and Windsurf. The format is markdown; the loading semantics are equivalent across tools.
 **Source:** Cross-vendor documentation: Codex CLI ([developers.openai.com/codex/agents-md](https://developers.openai.com/codex/agents-md)), Cursor ([cursor.sh/docs](https://cursor.sh/docs)), GitHub Copilot ([docs.github.com/copilot](https://docs.github.com/copilot)), Gemini CLI ([cloud.google.com/gemini/docs/codeassist](https://cloud.google.com/gemini/docs/codeassist)), Aider ([aider.chat/docs](https://aider.chat/docs)), Zed ([zed.dev/docs/ai](https://zed.dev/docs/ai)), Windsurf ([codeium.com/windsurf/docs](https://codeium.com/windsurf/docs)).
 **Where used:** Chapter 1 (The primitives, skills section) and Chapter 6 (Names and conventions).
-**Caveat:** The list of supporting tools grows over time; the claim is that AGENTS.md is the de facto vendor-neutral convention, not that the list is exhaustive.
+**Caveat:** The list of supporting tools grows over time; the claim is that AGENTS.md is the de facto vendor-neutral convention, not that the list is exhaustive. The list also churns: Google began transitioning Gemini CLI users to Antigravity CLI in mid-2026 (free and consumer tiers stopped being served in June) - and the successor reads the same AGENTS.md, which is the convention outliving the tool, i.e. the point of this entry.
 
 ---
 
 **Claim:** opencode is an open-source coding agent maintained by an independent team, written in TypeScript and licensed under MIT. Source-organized around the same primitives this manual identifies in Codex CLI and Claude Code.
-**Source:** opencode repository ([github.com/sst/opencode](https://github.com/sst/opencode)); LICENSE and README.
+**Source:** opencode repository ([github.com/anomalyco/opencode](https://github.com/anomalyco/opencode); formerly sst/opencode - the maintaining company renamed to Anomaly in January 2026); LICENSE and README.
 **Where used:** Chapter 1 (The primitives, source survey) and Chapter 2 (Anatomy invariant, two-agent demo).
 **Caveat:** Project naming and maintainer composition may evolve; the architectural convergence claim survives renames.
 
@@ -2677,10 +2699,17 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ---
 
-**Claim:** Cursor 2.0 introduced a subagent system; Cline shipped subagents natively; Claude Code added Agent Teams as a higher-level coordination layer on top of the Task tool.
-**Source:** Vendor announcements and docs for Cursor, Cline, and Claude Code; collated across early-to-mid 2026.
+**Claim:** Cursor 2.0 (October 2025) introduced parallel independent agents and default-on macOS sandboxing; the subagent system proper - a parent agent delegating to child subagents - shipped in Cursor 2.4 (January 2026) and went async in 2.5. Cline shipped subagents natively. Claude Code added Agent Teams as a higher-level coordination layer on top of the Task tool.
+**Source:** Cursor changelogs (2.0, 2.4, 2.5); vendor announcements and docs for Cline and Claude Code; collated across early-to-mid 2026.
 **Where used:** Chapter 1 (The primitives), as evidence for subagent-primitive convergence within roughly a year.
 **Caveat:** Vendor surface areas evolve; the convergence claim survives even when specific product names rebrand.
+
+---
+
+**Claim:** Claude Fable 5, launched June 9, 2026 as the first Mythos-class model, had access suspended worldwide from June 12 to June 30, 2026 before being redeployed.
+**Source:** Anthropic, "Claude Fable 5 and Mythos 5" (June 9, 2026): [anthropic.com/news/claude-fable-5-mythos-5](https://www.anthropic.com/news/claude-fable-5-mythos-5); "Redeploying Fable 5" (June 30, 2026): [anthropic.com/news/redeploying-fable-5](https://www.anthropic.com/news/redeploying-fable-5).
+**Where used:** Chapter 10 (The vendor will have a bad week).
+**Caveat:** The suspension rationale is the vendor's account; the operational lesson - plan for vendor downtime - is independent of the cause.
 
 ---
 
@@ -2705,14 +2734,14 @@ This appendix exists because every claim in this manual deserves a verifiable so
 **Claim:** Claude Code maintains an auto-memory layer in which Claude writes notes for itself across sessions - build commands it figured out, debugging insights it confirmed, code-style preferences it inferred - distinct from the user-written CLAUDE.md. Requires Claude Code v2.1.59+; on by default; per-repo storage.
 **Source:** [code.claude.com/docs/en/memory](https://code.claude.com/docs/en/memory).
 **Where used:** Chapter 1 (The primitives, Memory section).
-**Caveat:** Auto memory is Claude-Code-specific at the time of writing. Other coding agents are converging on similar mechanisms but had not shipped an equivalent at publication date.
+**Caveat:** The entry documents the Claude Code implementation, but the half is a convergence, not an exclusive: GitHub Copilot Memory reached public preview on January 15, 2026 - before Auto Memory shipped - and was on by default for Pro tiers by March 4; Codex CLI added automatic background memory in April 2026.
 
 ---
 
-**Claim:** Anthropic publicly unveiled Dreaming as part of Claude Managed Agents at Code with Claude SF on 2026-05-06 - a scheduled background process that reviews recent sessions and the memory store, identifies recurring mistakes and convergent workflows, and writes consolidated notes back into long-term memory. The Claude Code surface (`Auto Dream`, accessible via `/dream`) shipped earlier as a research preview gated behind developer access and was documented in March 2026.
+**Claim:** Anthropic publicly unveiled Dreaming as part of Claude Managed Agents at Code with Claude SF on 2026-05-06 - a scheduled background process that reviews recent sessions and the memory store, identifies recurring mistakes and convergent workflows, and writes consolidated notes back into long-term memory. It ships as a platform-level feature gated behind a beta header; a Claude Code CLI surface (`/dream`) was hinted in the product but had not shipped as a working command as of July 2026.
 **Source:** Code with Claude SF announcement, 2026-05-06; [code.claude.com/docs/en/memory](https://code.claude.com/docs/en/memory).
 **Where used:** Chapter 1 (The primitives, Memory section).
-**Caveat:** Auto Dream is Claude-Code-specific at publication date. The structural role is what this manual indexes, not the vendor.
+**Caveat:** Dreaming is Anthropic-specific and API-level at publication date, not yet a CLI feature. The structural role is what this manual indexes, not the vendor.
 
 ---
 
@@ -2741,14 +2770,14 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ### Outer-loop and autonomy sources
 
-**Claim:** By spring 2026 the outer loop is a first-class surface in Claude Code: /loop re-runs a prompt on an interval or paces itself when the interval is omitted (April 2026), Routines fire templated cloud agents from a schedule, a GitHub event, or an API call (April 2026), /goal keeps the agent working across turns until a completion condition holds (May 2026), and /autofix-pr watches CI and review comments and pushes fixes until the pull request is green (April 2026).
+**Claim:** By spring 2026 the outer loop is a first-class surface in Claude Code: /loop re-runs a prompt on an interval (March 2026) or paces itself when the interval is omitted (April 2026), Routines fire templated cloud agents from a schedule, a GitHub event, or an API call (April 2026), /goal keeps the agent working across turns until a completion condition holds (May 2026), and /autofix-pr watches CI and review comments and pushes fixes until the pull request is green (April 2026).
 **Source:** Claude Code release notes, "What's new": [code.claude.com/docs/en/whats-new](https://code.claude.com/docs/en/whats-new), weekly digests for April-May 2026.
 **Where used:** Chapter 9 (pattern eight).
-**Caveat:** Feature names and release weeks are vendor-current as of June 2026; expect drift, per the note on dated claims.
+**Caveat:** Feature names and release weeks are vendor-current as of July 2026; expect drift, per the note on dated claims.
 
 ---
 
-**Claim:** The Ralph Wiggum technique - a bash while-loop re-piping a prompt file into a coding agent, one fresh context per iteration, state in the repository - originates with Geoff Huntley in mid-2025 ("In its purest form, Ralph is a Bash loop": `while :; do cat PROMPT.md | claude-code ; done`), went viral in late 2025, and was adopted into the official Claude Code repository as the ralph-wiggum plugin in December 2025. Huntley prices raw loop operation at roughly $10 per hour, says many Y Combinator startups run Ralph, and names the core failure mode "overbaking."
+**Claim:** The Ralph Wiggum technique - a bash while-loop re-piping a prompt file into a coding agent, one fresh context per iteration, state in the repository - originates with Geoff Huntley in mid-2025 ("In its purest form, Ralph is a Bash loop": `while :; do cat PROMPT.md | claude-code ; done`), went viral in late 2025, and was adopted into the official Claude Code repository as the ralph-wiggum plugin in November 2025 (the migrating commit is dated November 16). Huntley prices raw loop operation at roughly $10 per hour, says many Y Combinator startups run Ralph, and names the core failure mode "overbaking."
 **Source:** Geoff Huntley, [ghuntley.com/ralph](https://ghuntley.com/ralph/) (July 2025); HumanLayer, "A Brief History of Ralph," January 6, 2026: [humanlayer.dev/blog/brief-history-of-ralph](https://www.humanlayer.dev/blog/brief-history-of-ralph); The Register, January 27, 2026: [theregister.com/2026/01/27/ralph_wiggum_claude_loops/](https://www.theregister.com/2026/01/27/ralph_wiggum_claude_loops/).
 **Where used:** Chapter 9 (pattern eight), lineage and overbaking paragraphs.
 **Caveat:** The $10-per-hour figure and the Y Combinator adoption claim are Huntley's own, relayed by The Register - practitioner-reported, not audited.
