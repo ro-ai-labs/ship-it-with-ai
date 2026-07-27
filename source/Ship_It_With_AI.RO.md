@@ -767,6 +767,12 @@ Fraza asta e afirmația metodologică centrală a manualului.
 
 Bottleneck-ul e disciplina formulării. Capabilitatea există. Ce desparte echipele care livrează bine cu agenți de echipele care se zbat e dacă și-au construit obiceiul de a formula munca într-un mod pe care agentul îl poate executa corect. Echipele fără acest obicei ajung la specificații vagi. Specificațiile vagi produc ghicit. Ghicitul produce output care arată corect și nu e. Echipele cu practica formată ajung la specificații tăioase. Specificațiile tăioase produc execuție predictibilă. Execuția predictibilă produce output pe care îl poți livra.
 
+Pe la mijlocul lui 2026, asta a încetat să fie doar afirmația mea de pe teren. În iulie, un inginer de la Anthropic a publicat un ghid de teren pentru lucrul cu propriul model de frontieră al companiei și l-a deschis din partea cealaltă a aceleiași observații: Claude Fable 5 era, în cuvintele lui, „primul model la care calitatea muncii are ca bottleneck capacitatea mea de a-i clarifica necunoscutele”. Inginerii care construiesc modelele descriu acum frontiera exact cum o descrie capitolul ăsta - capabilitatea există, iar ce rămâne e jumătatea umană a formulării.
+
+Cadrul din ghid pentru jumătatea aia merită împrumutat, pentru că el comprimă disciplina formulării în patru întrebări. Known knowns: ce spune efectiv promptul tău. Known unknowns: întrebările despre care știi că nu le-ai tranșat încă. Unknown knowns: contextul atât de evident pentru tine încât nu ți-ar trece prin cap să-l scrii - deși l-ai recunoaște instantaneu dacă agentul l-ar încălca. Unknown unknowns: ce n-a apucat niciunul dintre voi să întrebe. Cadranele se mapează direct pe mașinăria manualului. Fișierul de instrucțiuni de echipă din Capitolul 6 există ca să dreneze unknown knowns - convențiile tale evidente-dar-nespuse. Faza de research din Capitolul 5 transformă known unknowns în întrebări deschise pe care le tranșezi înainte ca planul să se lege de o presupunere. Iar ultimul cadran, cel la care nu ajunge niciun checklist, e exact pentru ce sunt cele trei tehnici adăugate capitolului următor: blind spot pass-ul, notele de implementare, quiz-ul.
+
+*Notă de sursă. Thariq Shihipar, „A field guide to Claude Fable 5: Finding your unknowns”, 6 iulie 2026. Cadrul cu patru cadrane e adaptarea lui după o taxonomie epistemică mult mai veche; maparea pe mașinăria manualului îmi aparține mie, nu lui. Citarea în Anexa C.*
+
 ---
 
 Ce înseamnă „disciplina formulării” în practică?
@@ -895,6 +901,8 @@ Ce intră în nota de research? Fișierele care vor fi atinse. Convențiile pe c
 
 Research e faza peste care echipele sar cel mai des, pentru că nu produce cod și pare overhead. Research e și faza care, din experiența mea, are cel mai mare levier din toată bucla. O notă de research proastă garantează un plan prost, care garantează o implementare proastă. O notă de research bună face restul buclei mult mai ușor, pentru că planul e ancorat în starea reală a codului, nu în prima ipoteză a agentului despre starea codului.
 
+Research-ul, așa cum e descris, scoate la suprafață necunoscutele codebase-ului. Există o mișcare simetrică pentru ale tale, și contează cel mai mult când task-ul e în afara domeniului tău. Înainte de research-ul propriu-zis, cere-i agentului un blind spot pass: „Adaug un provider de autentificare nou și nu știu nimic despre modulele de auth din codebase-ul ăsta - ajută-mă să-mi găsesc unknown unknowns, ca să te pot prompta mai bine.” Rezultatul nu e o notă de research; e o listă cu întrebările pe care nu știai să le pui, și costă un minut. Împerechează mișcarea cu un obicei care li se pare nefiresc inginerilor seniori: spune cu voce tare care ți-e nivelul de experiență. Agentul își calibrează output-ul după expertiza pe care o deduce, și o deduce din vocabularul tău, nu din golurile tale. Declară-te fluent în domeniu și își va lăsa presupunerile implicite - exact acolo unde se ascund cele greșite. Declară ce nu știi de fapt și presupunerile ajung scrise negru pe alb, unde le poți vedea și le poți respinge.
+
 Artefactul de research e durabil. Ajunge în commit alături de modificare. Șase luni mai târziu, când alt developer lucrează pe cod adiacent și vrea să știe „de ce e structurat lucrul ăsta așa”, nota de research e acolo. E memoria instituțională pe care echipa n-o avea înainte.
 
 ---
@@ -931,6 +939,8 @@ Costul de coordonare apare ca mediere de conflicte - rerularea unei ramuri aband
 
 Tot în execute se întâlnește agentul cu guvernanța. Fiecare tool call trece prin gate-ul de permisiuni. Fiecare comandă Bash trece prin hook-urile de securitate. Fiecare scriere de fișier trece prin sandbox. Dacă agentul încearcă ceva ce stratul de guvernanță nu permite, acțiunea e blocată, agentul raportează înapoi orchestratorului, orchestratorul decide cum merge mai departe. Rigoarea trăiește în straturile de sub execute; execute doar rulează munca.
 
+Încă un artefact aparține fazei ăsteia. Research-ul produce o notă; planul produce un plan; execute, așa cum a fost descris până acum, produce doar cod. Adaugă un fișier de note de implementare ținut din mers: fiecare loc în care implementarea a trebuit să devieze de la plan și de ce, fiecare edge case descoperit în mijlocul task-ului și nemenționat de plan, fiecare decizie pe care un subagent a luat-o acolo unde planul a lăsat-o deschisă. Notele nu-l costă pe agent aproape nimic și plătesc de două ori. La review, reviewerul de conformitate cu spec-ul le citește primele - fișierul e o listă de mărturisiri cu exact locurile în care diff-ul și planul nu se pun de acord, adică exact ce există reviewerul ăla să găsească. Și sunt antidotul pentru drift-ul de rezumate al orchestratorului numit mai sus: devierea e consemnată în momentul în care se întâmplă, de subagentul care a făcut-o, în loc să supraviețuiască doar ca o linie comprimată într-un mesaj de hand-off. Planul e harta; notele sunt teritoriul care raportează înapoi.
+
 ---
 
 **Faza a patra: Review.**
@@ -958,6 +968,8 @@ Citește apoi testele, și citește ce afirmă, nu dacă trec. Verdele e cel mai
 Apoi verifică granițele despre care echipa ta a scris reguli - pattern-urile interzise din AGENTS.md, convențiile de strat, modulele periculoase de atins. Agentul încalcă o convenție sigur pe el și în stil fluent, așa că o trecere de graniță nu arată greșit; arată curat, exact ce cititul pe stil trece cu vederea. Și dă grep pe fiecare nume nou pe care-l introduce diff-ul - fiecare API, funcție sau cheie de config pe care n-o recunoști - aceeași verificare încrucișată pe care Capitolul 6 o rulează împotriva invenției sigure pe ea, pentru că apelul care nu există se citește la fel de plauzibil ca cel care există.
 
 Abia acum, linie cu linie. Ăsta e stratul mecanic pe care cei doi revieweri de mai sus l-au măturat deja - conformitatea cu spec-ul, calitatea codului - așa că nu le repeți trecerea; cheltuiești minutele pe care ți le-au cumpărat pe cele două lucruri pe care ei nu le pot judeca, corectitudinea de business și potrivirea arhitecturală. Aici iese la suprafață regula de business plauzibilă și greșită, și aici un idiom învechit din versiunea de framework pe care modelul o știe cel mai bine se citește ca un cleanup și ajunge în producție ca o regresie. Citirea nu dispare pe măsură ce tooling-ul se îmbunătățește. Devine mai scurtă și mai ascuțită, țintită pe erorile de intenție care supraviețuiesc tuturor filtrelor din amonte - iar când se degradează în schimb într-o privire fugară la bifele verzi, pattern-ul patru din Capitolul 9 stăpânește ce se întâmplă mai departe.
+
+Există un test care arată dacă citirea chiar s-a întâmplat, și agentul îl poate administra. Înainte să aprobi, pune-l să-ți dea un quiz despre modificare: ce se întâmplă la margini, ce modul deține comportamentul nou, ce se strică primul dacă presupunerea de sub task-ul trei e greșită. Trei-patru întrebări, un minut. Dacă poți răspunde, aprobarea înseamnă ceva. Dacă nu poți, nu făceai review - dădeai rubber-stamp cu pași în plus, și e mai bine să afli asta la gate decât în producție. Degradarea din pattern-ul patru e invizibilă din interior; quiz-ul o face măsurabilă.
 
 Anexa B.8 e ordinea asta de citire într-o singură pagină.
 
@@ -2130,6 +2142,10 @@ Traiectoria asta - patru decenii de scris cod, douăzeci și cinci dintre ele pr
 
 Pagina asta urmărește actualizările semnificative ale manualului. Corecturile mărunte și ajustările de SEO nu sunt listate; footer-ul arată data ultimei actualizări.
 
+### 2026-07-27 - Găsește-ți necunoscutele (Capitolul 4 + Capitolul 5 + B.8)
+
+Teza bottleneck-ului de formulare din Capitolul 4 primește cea mai puternică confirmare externă de până acum: ghidul de teren al Anthropic din iulie 2026 pentru lucrul cu Fable 5, al cărui autor descrie modelul de frontieră ca având ca bottleneck „capacitatea mea de a-i clarifica necunoscutele” - inginerii vendorului descriu acum frontiera exact cum o descrie Capitolul 4. Cadrul cu patru cadrane de necunoscute din ghid e mapat pe mașinăria manualului (fișierul de instrucțiuni de echipă drenează unknown knowns, nota de research scoate la suprafață known unknowns), iar Capitolul 5 câștigă trei tehnici pentru cadranul la care nu ajunge niciun checklist. În Research: un blind spot pass înaintea research-ului propriu-zis, când task-ul e în afara domeniului tău, împerecheat cu declararea nivelului de experiență, ca presupunerile agentului să iasă la suprafață unde le poți respinge. În Execute: un fișier de note de implementare care consemnează fiecare deviere de la plan în momentul în care se întâmplă - lista de mărturisiri a reviewerului de spec și antidotul pentru drift-ul de rezumate al orchestratorului. La închiderea citirii diff-ului de agent: un quiz înainte de aprobare - dacă nu poți răspunde ce se întâmplă la margini, ăla era rubber-stamping, nu review, iar degradarea din pattern-ul patru tocmai a devenit măsurabilă. One-pager-ul B.8 primește blocul de quiz; intrare nouă în Anexa C pentru ghidul de teren.
+
 ### 2026-07-17 - Pasul de actualitate și corecturi din iulie
 
 Un fact-check în profunzime al fiecărei afirmații datate, față de ce arată public în iulie 2026, cu verificare adversarială pe fiecare constatare. Corecturi: povestea post-mortem-ului din 23 aprilie e re-sursată - regresiile recunoscute de Anthropic sunt 4 martie (effort), 26 martie (caching) și 16 aprilie (plafonul de verbozitate), în timp ce atribuirea către adaptive thinking din februarie și auditul pe 6.852 de sesiuni îi aparțin Stellei Laurenzo de la AMD, publicate pe 6 aprilie, înaintea post-mortem-ului; jumătatea scrisă de agent a componentei principale Memory urcă de la semnal de pionierat la convergență deplină (GitHub Copilot Memory a precedat Auto Memory; Codex CLI a urmat în aprilie); Dreaming e corectat ca feature la nivel de platformă, nu o comandă de CLI livrată; subagenții paraleli din Codex, corectați de la opt la cei șase documentați; sistemul de subagenți din Cursor, re-datat la 2.4; repository-ul opencode, actualizat la anomalyco/opencode; adoptarea ralph-wiggum, re-datată în noiembrie 2025; corecturi mai mici de date (patch-ul Adversa, /loop). Actualitate: ferestrele de context (un milion de tokeni e acum gama medie), avertismentul propriu al METR din februarie 2026, telemetria care converge ca OpenTelemetry, tranziția Gemini CLI către Antigravity CLI. Adăugiri: soft-delete-ul de 48 de ore și accesul de agent cu scop limitat introduse de Railway după PocketOS (Capitolul 3), suspendarea tier-ului flagship din iunie 2026 ca exemplu de săptămână proastă a vendorului (Capitolul 10), CVE-urile de sandbox-escape DuneSlide ca mențiune onestă pe stratul doi (Capitolul 3), vectorul de injecție cu payload împărțit prin DNS TXT și mitigarea `sandbox.credentials`. Nota despre afirmațiile datate, actualizată la iulie 2026.
@@ -2561,6 +2577,11 @@ CALIBRARE
 - Fluența nu e corectitudine
 - Un bug de agent arată ca acel cod pe care un inginer bun l-ar scrie pentru un task ușor diferit
 - Citirea umană devine mai scurtă și mai ascuțită pe măsură ce tooling-ul se îmbunătățește - niciodată sărită
+
+QUIZ-UL
+- Înainte să aprobi, pune agentul să-ți dea un quiz despre modificare - margini, ownership, moduri de eșec
+- Poți răspunde -> aprobarea înseamnă ceva; nu poți -> ăla era rubber-stamping
+- Un minut la gate bate descoperirea degradării în producție
 ```
 
 ---
@@ -2714,6 +2735,13 @@ Anexa asta există pentru că fiecare afirmație din manual merită o sursă ver
 **Sursa:** Anthropic, „Claude Fable 5 and Mythos 5” (9 iunie 2026): [anthropic.com/news/claude-fable-5-mythos-5](https://www.anthropic.com/news/claude-fable-5-mythos-5); „Redeploying Fable 5” (30 iunie 2026): [anthropic.com/news/redeploying-fable-5](https://www.anthropic.com/news/redeploying-fable-5).
 **Unde e folosită:** Capitolul 10 (Vendorul va avea o săptămână proastă).
 **Atenție:** Motivul suspendării e relatarea vendorului; lecția operațională - planifică pentru indisponibilitatea vendorului - nu depinde de cauză.
+
+---
+
+**Afirmația:** Ghidul de teren din iulie 2026 al unui inginer Anthropic descrie Claude Fable 5 ca „primul model la care calitatea muncii are ca bottleneck capacitatea mea de a-i clarifica necunoscutele” și organizează metoda de lucru în jurul a patru tipuri de necunoscute, cu tehnici precum blind spot pass-ul, fișierele de note de implementare și quiz-urile de comprehensiune.
+**Sursa:** Thariq Shihipar, „A field guide to Claude Fable 5: Finding your unknowns”, blogul Anthropic, 6 iulie 2026: [claude.com/blog/a-field-guide-to-claude-fable-finding-your-unknowns](https://claude.com/blog/a-field-guide-to-claude-fable-finding-your-unknowns).
+**Unde e folosită:** Capitolul 4 (bottleneck-ul de formulare, coroborat din interiorul vendorului) și Capitolul 5 (blind spot pass în Research, notele de implementare în Execute, quiz-ul în citirea diff-ului de agent).
+**Atenție:** Relatarea unui singur practician, publicată de vendor despre propriul model. Tehnicile stau în picioare singure; superlativul „primul model” e judecata autorului, nu o măsurătoare.
 
 ---
 

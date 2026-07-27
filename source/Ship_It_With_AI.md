@@ -767,6 +767,12 @@ That sentence is the central methodological claim of this manual.
 
 The bottleneck is formulation discipline. The capability is there. What separates teams that ship well with agents from teams that flail is whether they have built the habit of formulating work in a way the agent can execute correctly. Teams without that habit get vague specifications. Vague specifications produce guessing. Guessing produces output that looks right and isn't. Teams with the practice get sharp specifications. Sharp specifications produce predictable execution. Predictable execution produces output you can ship.
 
+By mid-2026, this stopped being only my claim from the field. In July, an Anthropic engineer published a field guide to working with the company's own frontier model, and opened it from the other side of the same observation: Claude Fable 5 was, in his words, "the first model where I find the quality of the work is bottlenecked by my ability to clarify its unknowns." The engineers building the models now describe the frontier the way this chapter does - the capability is there, and what is left is the human's half of the formulation.
+
+The guide's frame for that half is worth borrowing, because it compresses formulation discipline into four questions. Known knowns: what your prompt actually states. Known unknowns: the questions you know you have not settled yet. Unknown knowns: the context so obvious to you that you would never think to write it down - though you would recognize it instantly if the agent violated it. Unknown unknowns: what neither of you thought to ask at all. The quadrants map straight onto this manual's machinery. The team instruction file of Chapter 6 exists to drain the unknown knowns - your obvious-but-unstated conventions. The research phase of Chapter 5 turns known unknowns into open questions you settle before the plan commits to a guess. And the last quadrant, the one no checklist reaches, is what three techniques added to the next chapter are for: the blind spot pass, the implementation notes, the quiz.
+
+*Source note. Thariq Shihipar, "A field guide to Claude Fable 5: Finding your unknowns," July 6, 2026. The four-quadrant frame is his adaptation of a much older epistemic taxonomy; the mapping onto this manual's machinery is mine, not his. Citation in Appendix C.*
+
 ---
 
 What does "formulation discipline" mean in practice?
@@ -893,6 +899,8 @@ What goes in the research note? The files that will be touched. The conventions 
 
 Research is the phase teams skip most often, because it produces no code and feels like overhead. Research is also the phase that, in my experience, has the highest leverage within the loop. A bad research note guarantees a bad plan, which guarantees a bad implementation. A good research note makes the rest of the loop dramatically easier, because the plan is grounded in the real state of the code, not in the agent's first-guess hypothesis about the state of the code.
 
+Research as described surfaces the codebase's unknowns. There is a symmetric move for yours, and it matters most when the task sits outside your own domain. Before research proper, ask the agent for a blind spot pass: "I am adding a new auth provider and I know nothing about the auth modules in this codebase - help me figure out my unknown unknowns, so I can prompt you better." The output is not a research note; it is a list of the questions you did not know to ask, and it costs a minute. Pair it with a habit that feels unnatural to senior engineers: state your experience level out loud. The agent calibrates its output to the expertise it infers, and it infers from your vocabulary, not from your gaps. Declare yourself fluent in the domain and it will leave its assumptions implicit, which is exactly where the wrong ones hide. Declare what you actually do not know and the assumptions get spelled out, where you can see them and veto them.
+
 The research artifact is durable. It gets committed alongside the change. Six months later, when a different developer is working on adjacent code and wants to know "why is this thing structured this way," the research note is there. It is the institutional memory the team did not have before.
 
 ---
@@ -929,6 +937,8 @@ The coordination cost shows up as conflict mediation - re-running a dropped bran
 
 Execute is also where the agent encounters governance. Every tool call goes through the permission gate. Every Bash command goes through the security hooks. Every file write goes through the sandbox. If the agent tries something the governance layer disallows, the action is blocked, the agent reports back to the orchestrator, the orchestrator decides how to proceed. The rigor lives in the layers below execute; execute just runs the work.
 
+One more artifact belongs to this phase. Research produces a note; plan produces a plan; execute, as described so far, produces only code. Add a running implementation-notes file: every place the implementation had to deviate from the plan and why, every edge case discovered mid-task that the plan never mentioned, every decision a subagent made that the plan left open. The notes cost the agent almost nothing to keep and they pay twice. During review, the spec-compliance reviewer reads them first - the file is a confession list of exactly the places where the diff and the plan disagree, which is exactly what that reviewer exists to find. And they are the antidote to the orchestrator-summary drift named above: the deviation is recorded at the moment it happens, by the subagent that made it, instead of surviving only as a compressed line in a hand-off message. The plan is the map; the notes are the territory reporting back.
+
 ---
 
 **Phase four: review.**
@@ -956,6 +966,8 @@ Read the tests next, and read what they assert, not whether they pass. Green is 
 Then check the boundaries your team has written rules about - the forbidden patterns in AGENTS.md, the layer conventions, the modules that are dangerous to touch. The agent violates a convention confidently and in fluent style, so a boundary crossing does not look wrong; it looks clean, which is exactly what style-reading slides past. And grep every new name the diff introduces - each API, function, or config key you do not recognize - the same cross-check Chapter 6 runs against the confident invention, because the call that does not exist reads as plausibly as the one that does.
 
 Only now, line by line. This is the mechanical layer the two reviewers above already swept - spec compliance, code quality - so you are not repeating their pass; you are spending the minutes they bought you on the two things they cannot judge, business correctness and architectural fit. This is where the plausible-wrong business rule surfaces, and where a stale idiom from the framework version the model knows best reads as a cleanup and ships as a regression. The read does not disappear as the tooling improves. It gets shorter and sharper, aimed at the errors of intent that survive everything upstream - and when it decays instead into a glance at green checkmarks, Chapter 9's pattern four owns what happens next.
+
+There is a test for whether the read happened, and the agent can administer it. Before you approve, have it quiz you on the change: what happens at the edges, which module owns the new behavior, what breaks first if the assumption underneath task three is wrong. Three or four questions, one minute. If you can answer, the approval means something. If you cannot, you were not reviewing - you were rubber-stamping with extra steps, and it is better to find that out at the gate than in production. Pattern four's decay is invisible from the inside; the quiz makes it measurable.
 
 Appendix B.8 is this read order as a one-pager.
 
@@ -2128,6 +2140,10 @@ That trajectory - four decades of writing code, twenty-five of them professional
 
 This page tracks meaningful updates to the manual. Smaller copy-edits and SEO tweaks are not listed; the footer shows the last updated date.
 
+### 2026-07-27 - Finding your unknowns (Chapter 4 + Chapter 5 + B.8)
+
+Chapter 4's formulation-bottleneck thesis gains its strongest external receipt yet: Anthropic's own July 2026 field guide to working with Fable 5, whose author describes the frontier model as "bottlenecked by my ability to clarify its unknowns" - the vendor's engineers now describing the frontier the way Chapter 4 does. The guide's four-quadrant unknowns frame is mapped onto the manual's machinery (the team instruction file drains the unknown knowns, the research note surfaces the known unknowns), and Chapter 5 gains three techniques for the quadrant no checklist reaches. In Research: a blind spot pass before research proper when the task sits outside your domain, paired with stating your experience level so the agent's assumptions get spelled out where you can veto them. In Execute: an implementation-notes file recording every deviation from the plan at the moment it happens - the spec reviewer's confession list, and the antidote to orchestrator-summary drift. Closing the agent-diff read: a pre-approval quiz - if you cannot answer what happens at the edges, that was rubber-stamping, not review, and pattern four's decay just became measurable. The B.8 one-pager gains the quiz block; new Appendix C entry for the field guide.
+
 ### 2026-07-17 - July currency and corrections pass
 
 A deep fact-check of every dated claim against the July 2026 public record, with adversarial verification on each finding. Corrections: the April 23 post-mortem story is re-sourced - Anthropic's acknowledged regressions are March 4 (effort), March 26 (caching), and April 16 (verbosity cap), while the February adaptive-thinking attribution and the 6,852-session audit belong to AMD's Stella Laurenzo, published April 6, ahead of the post-mortem; the Memory primitive's agent-written half is upgraded from early-mover signal to full convergence (GitHub Copilot Memory preceded Auto Memory; Codex CLI followed in April); Dreaming is corrected to a platform-level feature, not a shipped CLI command; Codex parallel subagents corrected from eight to the documented six; Cursor's subagent system re-dated to 2.4; opencode's repository updated to anomalyco/opencode; ralph-wiggum's adoption re-dated to November 2025; smaller date fixes (Adversa patch, /loop). Currency: context windows (a million tokens is now mid-range), METR's own February 2026 follow-up caution, telemetry converging as OpenTelemetry, the Gemini CLI to Antigravity CLI transition. Additions: Railway's post-PocketOS 48-hour soft-delete and scoped agent access (Chapter 3), the June 2026 flagship-tier suspension as the vendor-bad-week example (Chapter 10), the DuneSlide sandbox-escape CVEs as the honest caveat on layer two (Chapter 3), the DNS-TXT split-payload injection vector, and the `sandbox.credentials` mitigation. Dated-claims note bumped to July 2026.
@@ -2557,6 +2573,11 @@ CALIBRATION
 - Fluency is not correctness
 - An agent bug looks like the code a good engineer would write for a slightly different task
 - The human read gets shorter and sharper as the tooling improves - never skipped
+
+THE QUIZ
+- Before approving, have the agent quiz you on the change - edges, ownership, failure modes
+- Can answer -> the approval means something; cannot -> that was rubber-stamping
+- One minute at the gate beats discovering the decay in production
 ```
 
 ---
@@ -2710,6 +2731,13 @@ This appendix exists because every claim in this manual deserves a verifiable so
 **Source:** Anthropic, "Claude Fable 5 and Mythos 5" (June 9, 2026): [anthropic.com/news/claude-fable-5-mythos-5](https://www.anthropic.com/news/claude-fable-5-mythos-5); "Redeploying Fable 5" (June 30, 2026): [anthropic.com/news/redeploying-fable-5](https://www.anthropic.com/news/redeploying-fable-5).
 **Where used:** Chapter 10 (The vendor will have a bad week).
 **Caveat:** The suspension rationale is the vendor's account; the operational lesson - plan for vendor downtime - is independent of the cause.
+
+---
+
+**Claim:** An Anthropic engineer's July 2026 field guide describes Claude Fable 5 as "the first model where I find the quality of the work is bottlenecked by my ability to clarify its unknowns," and organizes the working method around four kinds of unknowns, with techniques including the blind spot pass, implementation-notes files, and comprehension quizzes.
+**Source:** Thariq Shihipar, "A field guide to Claude Fable 5: Finding your unknowns," Anthropic blog, July 6, 2026: [claude.com/blog/a-field-guide-to-claude-fable-finding-your-unknowns](https://claude.com/blog/a-field-guide-to-claude-fable-finding-your-unknowns).
+**Where used:** Chapter 4 (the formulation bottleneck, corroborated from inside the vendor) and Chapter 5 (blind spot pass in Research, implementation notes in Execute, the quiz in the agent-diff read).
+**Caveat:** One practitioner's account, published by the vendor about its own model. The techniques stand on their own; the "first model" superlative is the author's judgment, not a measurement.
 
 ---
 
