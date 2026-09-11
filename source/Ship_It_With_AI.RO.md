@@ -150,7 +150,7 @@ Poți oricând să sari înapoi. Fiecare capitol presupune capitolul dinaintea l
 
 ## O notă despre afirmațiile datate {#a-note-on-dated-claims}
 
-Referințele la tool-uri specifice din manual sunt valabile la nivelul lunii iulie 2026. Framework-urile sunt gândite să supraviețuiască tool-urilor concrete. Acolo unde contează o capabilitate anume a unui produs cu nume și prenume, fie datez afirmația, fie o tratez ca exemplu, nu ca proprietate permanentă. Notele de sursă pentru afirmațiile factuale pe care se sprijină argumentul sunt în Anexa C.
+Referințele la tool-uri specifice din manual sunt valabile la nivelul lunii septembrie 2026. Framework-urile sunt gândite să supraviețuiască tool-urilor concrete. Acolo unde contează o capabilitate anume a unui produs cu nume și prenume, fie datez afirmația, fie o tratez ca exemplu, nu ca proprietate permanentă. Notele de sursă pentru afirmațiile factuale pe care se sprijină argumentul sunt în Anexa C.
 
 Fac tot ce pot să țin manualul la zi și mențin un [changelog](/changelog/) cu actualizările care contează.
 
@@ -235,7 +235,7 @@ Tool-urile se schimbă. Metodologia rămâne. Ăsta e pariul manualului.
 
 Deschide codul sursă sau documentația aproape oricărui coding agent de nivel de producție - Codex CLI scris în Rust, opencode în TypeScript, părțile cu sursă publică din Claude Code, agenții livrați de o jumătate de duzină de vendori mai mici - și vei vedea conturându-se aceeași arhitectură: un set restrâns de componente principale împachetate într-un harness. Implementările diferă. Anatomia converge. Uneori alte nume, întotdeauna altă așezare a fișierelor, dar aceleași cărămizi conceptuale. Cele mai multe sunt capabilități locale ale agentului. Una singură - subagenții - e mecanismul de compoziție care face agentul recursiv: poate porni instanțe constrânse ale lui însuși.
 
-Context window. Tool-uri. Permisiuni / Sandbox. Skill-uri. Plugin-uri. MCP. Memory. Subagenți.
+Context window. Tool-uri. Permisiuni / Sandbox. Skill-uri. Plugin-uri. MCP. Memory. Effort. Subagenți.
 
 Subagenții au intrat de curând în vocabularul public - nu pentru că ideea ar fi nouă, ci pentru că au devenit universali la toți agenții majori într-un interval foarte scurt. Claude Code a livrat tool-ul Task, apoi a construit peste el Agent Teams, pentru coordonare la nivel mai înalt. În martie 2026, Codex CLI a dus subagenții la GA ca workflow de primă clasă, cu dispatch în paralel. Cursor a livrat agenți paraleli în 2.0 și un sistem complet de subagenți în 2.4. Cline i-a livrat nativ. În circa un an, dispatch-ul unei instanțe-copil constrânse a agentului a trecut de la „workflow avansat” la „o componentă principală pe care harness-ul îl expune by default”. Ăsta e testul pe care îl folosesc pentru statutul de componentă principală, iar subagenții îl trec.
 
@@ -253,6 +253,7 @@ Asta e anatomia. Orice întrebare interesantă despre un coding agent - ce poate
    |     plugins                                           |
    |     MCP                                               |
    |     memory  (manually defined | auto-memory system)   |
+   |     effort  (reasoning level | retained reasoning)    |
    |                                                       |
    |     -----------------------------------------         |
    |                                                       |
@@ -264,11 +265,11 @@ Asta e anatomia. Orice întrebare interesantă despre un coding agent - ce poate
         ale agentului însuși
 ```
 
-*Figura: Componentele principale și harness-ul care le rulează. Permisiuni / Sandbox ocupă poziția 3 ca componentă principală ale cărei două jumătăți - stratul de decizie de la nivelul agentului și enforcement-ul la nivel de OS - converg ca prezență, dar diverg ca postură de la un vendor la altul. A doua jumătate a lui Memory - stratul scris de agent - a convers la agenții majori în primele luni ale lui 2026. Subagenții stau sub linie pentru că sunt componenta principală recursivă: fiecare subagent e, la rândul lui, o instanță a celorlalte.*
+*Figura: Componentele principale și harness-ul care le rulează. Permisiuni / Sandbox ocupă poziția 3 ca componentă principală ale cărei două jumătăți - stratul de decizie de la nivelul agentului și enforcement-ul la nivel de OS - converg ca prezență, dar diverg ca postură de la un vendor la altul. A doua jumătate a lui Memory - stratul scris de agent - a convers la agenții majori în primele luni ale lui 2026. Effort e slotul cel mai nou: butonul de raționament, plus dacă raționamentul pe care îl cumpără e păstrat de la o tură la alta. Subagenții stau sub linie pentru că sunt componenta principală recursivă: fiecare subagent e, la rândul lui, o instanță a celorlalte.*
 
 ---
 
-**Context window-ul** - fereastra de context - e ceea ce agentul știe chiar acum. E mărginită: fiecare model are un număr maxim de tokeni pe care îi poate ține în atenția activă. Două sute de mii la un model compact. Un milion de la gama medie în sus, acum că fereastra de un milion de tokeni s-a întins de la tier-ul flagship la modelele de zi cu zi. Cifrele astea cresc de la un trimestru la altul; până ajungi tu să citești rândurile astea, vor fi și mai mari. Dar limita există, și limita contează, pentru că fereastra de context e spațiul de lucru în interiorul căruia agentul ia decizii.
+**Context window-ul** - fereastra de context - e ceea ce agentul știe chiar acum. E mărginită: fiecare model are un număr maxim de tokeni pe care îi poate ține în atenția activă. Două sute de mii la un model compact. Un milion de la gama medie în sus, acum că fereastra de un milion de tokeni s-a întins de la tier-ul flagship la modelele de zi cu zi. Cifrele astea cresc de la un trimestru la altul; până ajungi tu să citești rândurile astea, vor fi și mai mari. Ia-le cu o rezervă înainte să-ți faci planurile pe baza lor: benchmark-ul RULER de la NVIDIA măsoară o lungime efectivă a contextului - cel mai lung input la care un model își păstrează scorul de pe context scurt, la retrieval și raționament pe toată fereastra, nu pe un singur ac în carul cu fân - și, la majoritatea modelelor, lungimea aia cade mult sub cifra din reclamă, de regulă pe la jumătate. Dar limita există, și limita contează, pentru că fereastra de context e spațiul de lucru în interiorul căruia agentul ia decizii.
 
 Ce intră în context window? System prompt-ul care definește rolul și constrângerile agentului. Istoricul conversației curente cu utilizatorul. Tool call-urile pe care le-a făcut agentul și rezultatele pe care i le-au întors. Fișierele pe care le-a citit sau bucățile de fișiere pe care le-a încărcat. Orice instrucțiuni injectate de harness (ajungem imediat și la harness). Cam asta umple fereastra.
 
@@ -283,6 +284,8 @@ Gestionarea context window-ului e, prin urmare, una dintre disciplinele inginere
 **Tool-urile** sunt acțiunile pe care le poate face agentul. Să citească un fișier. Să scrie un fișier. Să editeze un fișier pe loc. Să ruleze o comandă de shell. Să caute un text în tot codebase-ul. Să listeze conținutul unui director.
 
 Majoritatea coding agents de nivel de producție converg spre cam același set de tool-uri de bază. Read, Write, Edit, Bash, Glob, Grep. Uneori câteva în plus - rularea unui snippet de Python, fetch pe un URL, parsarea unui document structurat. Acestea sunt verbele. Fără ele, agentul ar putea gândi, dar n-ar putea acționa.
+
+Numărul contează la fel de mult ca verbele. Fiecare tool pe care îl vede agentul costă context înainte de primul cuvânt din promptul tău - un audit al unei sesiuni default de Claude Code a numărat cam 24k de tokeni de definiții de tool-uri, scheme de MCP și reminder-e consumați înainte ca utilizatorul să tasteze ceva, iar socoteala unui practician a pus trei servere MCP la 143k dintr-o fereastră de 200k -, iar capacitatea agentului de a alege tool-ul potrivit se prăbușește pe măsură ce crește meniul: cu un catalog mare de tool-uri încărcat integral, acuratețea selecției a căzut sub 14% într-un benchmark, iar încărcarea doar a celor câteva tool-uri relevante pentru query a urcat-o la 43%. Răspunsurile harness-urilor care sosesc în 2026 sunt încărcarea amânată (deferred loading: agentul vede numele tool-urilor și aduce schema doar când pune mâna pe tool) și apelarea programatică a tool-urilor (programmatic tool calling: modelul scrie un script scurt care apelează tool-urile într-o buclă și întoarce un singur rezultat, în loc de un dus-întors per apel; nativă în GPT-5.6, unde a tăiat tokenii de input cu 21% pe o evaluare de research financiar). Urmează două discipline. Ține setul de tool-uri mereu vizibile mic și amână restul. Iar când scrii tool-uri custom cu scheme imbricate, pornește decodarea strictă: fără ea, modelele actuale inventează câmpuri pe care schema nu le-a declarat niciodată - Armin Ronacher a documentat exact asta la Opus 4.8 și Sonnet 5, și modul strict eliminând problema -, iar câmpul inventat se citește la fel de plauzibil ca cel real.
 
 Tool-urile sunt simple conceptual și importante operațional. Fiecare tool call e un punct de decizie. Fiecare tool call e și un punct de audit - agenții de nivel de producție ar trebui să înregistreze tool call-urile făcute, în ordine, cu tot cu argumente, ca să poți reconstitui și inspecta ulterior comportamentul agentului. Dacă ai avut vreodată de debugat o acțiune de agent în mai mulți pași care a luat-o razna, o să apreciezi pista de audit. Log-ul de tool call-uri e echivalentul log-ului de query-uri SQL într-o problemă de bază de date - fără el, ghicești.
 
@@ -360,6 +363,16 @@ Ambele jumătăți trec testul convergenței încă de azi - stratul definit man
 
 ---
 
+### Effort {#effort}
+
+**Effort** e cât de mult gândește modelul înainte să acționeze, și e cea mai nouă componentă principală din listă. Toți agenții majori îl expun acum ca setare, sub nume diferite - reasoning effort, thinking level, thinking budget -, iar după testul convergenței atât ajunge. Dar locul și-l câștigă prin levier, nu prin prezență. Cu harness-ul ținut constant, GPT-5.6 pe effort low a bătut GPT-5.5 pe high la Agents' Last Exam; Fable 5.1 pe low e adesea competitiv cu Opus și Sonnet la cost per task, cu scor mai mare, după propriul ghid al vendorului. Butonul ăsta mișcă și costul, și calitatea mai mult decât mare parte din munca de harness descrisă în capitolul ăsta, și le mișcă în ambele direcții: prea jos, și agentul sare peste research-ul de care avea nevoie task-ul; prea sus, și plătești raționament pe care task-ul nu l-a cerut niciodată.
+
+Două proprietăți îl fac componentă principală, nu un simplu buton. Întâi, numele nivelurilor de effort nu se transferă între modele. „High” la un vendor nu e „high” la altul, iar un nivel calibrat pe modelul de trimestrul trecut e o ghicitoare pe cel de trimestrul ăsta - motiv pentru care orice migrare de model începe cu un sweep de effort: același task la fiecare nivel, cost și rezultat citite unul lângă altul, un nivel ales per tip de task. Anexa B.9 pune asta pe checklist. Apoi, raționamentul pe care îl cumpără effort-ul poate fi păstrat sau aruncat între ture, iar harness-ul decide care din ele. Raționamentul păstrat (retained reasoning) - gândirea modelului conservată de la o tură la alta, în loc să fie regenerată de fiecare dată - e cealaltă jumătate a acestei componente principale: pe ARC-AGI-3, după propria relatare a OpenAI, activarea raționamentului păstrat și a compactării a dus GPT-5.6 Sol de la 13,3% la 38,3%, tăind în același timp tokenii de output de șase ori. Harness-ul care păstrează raționamentul primește efectul compus; cel care îl aruncă plătește aceeași gândire încă o dată. Secțiunea despre igiena contextului din Capitolul 5 revine la ce înseamnă asta pentru editarea istoricului.
+
+Effort schimbă și felul în care citești Anexa A. Tarifarea per token multiplică orice nivel la care lași agentul, iar default-ul e rareori cel potrivit pentru fiecare fază a buclei: research-ul și planul merită effort mare; un task mecanic de execute pe un codebase verde, de regulă, nu. Setează-l per fază, nu per sesiune.
+
+---
+
 **Subagenții** sunt instanțe-copil constrânse ale agentului însuși.
 
 Agentul-orchestrator pornește un subagent, îi dă un task delimitat, cu un prompt cu scop restrâns, și îl lasă să ruleze în propriul context izolat, cu propriul acces limitat la tool-uri. Subagentul face treaba. Subagentul întoarce un rezultat. Orchestratorul colectează.
@@ -388,15 +401,15 @@ Spus simplu: harness-ul e tot ce îmbracă bucla agentului. Bucla agentului în 
 
 ---
 
-O notă despre vocabular. Componentele principale numite aici sunt ceea ce folosește agentul ca să știe, să acționeze, să fie ținut în frâu, să se extindă, să se integreze, să-și amintească și să delege. Testul pentru statutul de componentă principală e convergența: un mecanism e componentă principală atunci când fiecare coding agent major îl livrează ca pachet distinct și configurabil, chiar dacă implementările diferă substanțial. Permisiuni / Sandbox trece testul pe jumătatea stratului de decizie la toți agenții majori; jumătatea de enforcement la nivel de OS e convergentă ca prezență, dar divergentă ca postură, cu posturile vendorilor catalogate în secțiunea de mai sus. Componenta principală Memory are aceeași formă pe a doua lui jumătate. Telemetria e cel mai aproape de linie: până la mijlocul lui 2026, Claude Code, Codex CLI și CLI-ul Gemini livrau toate export nativ de OpenTelemetry, deci convergența e pe drum - nu ca protocol dedicat de event-push, ci ca OTel pur și simplu. Deocamdată rămâne un strat de control în jurul componentelor principale; încă o tură de roată și lista crește din nou. Capitolul ăsta e primul catalog de convergență; Capitolul 3 e al doilea.
+O notă despre vocabular. Componentele principale numite aici sunt ceea ce folosește agentul ca să știe, să acționeze, să fie ținut în frâu, să se extindă, să se integreze, să-și amintească și să delege. Testul pentru statutul de componentă principală e convergența: un mecanism e componentă principală atunci când fiecare coding agent major îl livrează ca pachet distinct și configurabil, chiar dacă implementările diferă substanțial. Permisiuni / Sandbox trece testul pe jumătatea stratului de decizie la toți agenții majori; jumătatea de enforcement la nivel de OS e convergentă ca prezență, dar divergentă ca postură, cu posturile vendorilor catalogate în secțiunea de mai sus. Componenta principală Memory are aceeași formă pe a doua lui jumătate. Effort e cea mai nouă care a trecut linia: prezentă la toți vendorii majori ca nivel configurabil, divergentă la nume și la scară - exact motivul pentru care un nivel calibrat pe un model e o ghicitoare pe următorul. Telemetria e cel mai aproape de linie: până la mijlocul lui 2026, Claude Code, Codex CLI și CLI-ul Gemini livrau toate export nativ de OpenTelemetry, deci convergența e pe drum - nu ca protocol dedicat de event-push, ci ca OTel pur și simplu. Deocamdată rămâne un strat de control în jurul componentelor principale; încă o tură de roată și lista crește din nou. Capitolul ăsta e primul catalog de convergență; Capitolul 3 e al doilea.
 
 ---
 
-Context window. Tool-uri. Permisiuni / Sandbox. Skill-uri. Plugin-uri. MCP. Memory. Subagenți. Plus harness-ul, ca runtime care le organizează. Asta e lista de azi. Setul e deschis; așteaptă-te să crească. Următoarea componentă principală va intra în listă exact cum a intrat Memory: când apare convergența, nu înainte.
+Context window. Tool-uri. Permisiuni / Sandbox. Skill-uri. Plugin-uri. MCP. Memory. Effort. Subagenți. Plus harness-ul, ca runtime care le organizează. Asta e lista de azi. Setul e deschis; așteaptă-te să crească. Următoarea componentă principală va intra în listă exact cum au intrat Memory și Effort: când apare convergența, nu înainte.
 
-Când apare următorul coding agent în marketplace, trimestrul viitor, grila de evaluare e deja aici. Cât de mare e context window-ul și cum îl gestionează agentul sub presiune? Ce tool-uri sunt disponibile și cum sunt constrânse? Ce model de permisiuni livrează - reguli allow/ask/deny, clasificator auto-mode - și ce sandbox de OS are by default? Cum sunt implementate skill-urile - always-loaded sau activate la detecție? Există un marketplace de plugin-uri și crește? Vorbește MCP, și cât de bună e integrarea MCP? Citește un fișier de memorie partajat de echipă la începutul sesiunii? Menține vreo memorie învățată, scrisă de agent, de la o sesiune la alta? Cum expune subagenții - și e dispatch-ul în paralel o operație de primă clasă sau o idee adăugată ulterior?
+Când apare următorul coding agent în marketplace, trimestrul viitor, grila de evaluare e deja aici. Cât de mare e context window-ul și cum îl gestionează agentul sub presiune? Ce tool-uri sunt disponibile și cum sunt constrânse? Ce model de permisiuni livrează - reguli allow/ask/deny, clasificator auto-mode - și ce sandbox de OS are by default? Cum sunt implementate skill-urile - always-loaded sau activate la detecție? Există un marketplace de plugin-uri și crește? Vorbește MCP, și cât de bună e integrarea MCP? Citește un fișier de memorie partajat de echipă la începutul sesiunii? Menține vreo memorie învățată, scrisă de agent, de la o sesiune la alta? Ce niveluri de effort expune, și supraviețuiește raționamentul pe care îl cumpără de la o tură la următoarea? Cum expune subagenții - și e dispatch-ul în paralel o operație de primă clasă sau o idee adăugată ulterior?
 
-Nouă întrebări azi, pe opt componente principale - Memory primește două; mâine vor fi mai multe. Îți spun aproape tot ce ai nevoie ca să compari agentul nou cu cel pe care îl folosești acum.
+Zece întrebări azi, pe nouă componente principale - Memory primește două; mâine vor fi mai multe. Îți spun aproape tot ce ai nevoie ca să compari agentul nou cu cel pe care îl folosești acum.
 
 Capitolul următor: ce se întâmplă când îndrepți un agent spre sursa altuia. Anatomia pe care tocmai am descris-o devine foarte reală, foarte repede.
 
@@ -408,7 +421,7 @@ Capitolul următor: ce se întâmplă când îndrepți un agent spre sursa altui
 
 **De pus în practică săptămâna asta.**
 
-Deschide orice coding agent la care ai acces. Întreabă-l: cât de mare e context window-ul tău, la ce tool-uri ai acces, cu ce model de allow/ask/deny și cu ce sandbox vine agentul ăsta, unde stau skill-urile, din ce marketplace se instalează plugin-urile, vorbește agentul ăsta MCP, de unde citește agentul memoria partajată de echipă și cum trimit un subagent? Notează răspunsurile. Ai deja începutul unei fișe de evaluare a agenților.
+Deschide orice coding agent la care ai acces. Întreabă-l: cât de mare e context window-ul tău, la ce tool-uri ai acces, cu ce model de allow/ask/deny și cu ce sandbox vine agentul ăsta, unde stau skill-urile, din ce marketplace se instalează plugin-urile, vorbește agentul ăsta MCP, de unde citește agentul memoria partajată de echipă, la ce nivel de effort rulează și pot să-l schimb, și cum trimit un subagent? Notează răspunsurile. Ai deja începutul unei fișe de evaluare a agenților.
 
 ---
 
@@ -487,9 +500,9 @@ Acum ai mutarea.
 
 Când apare următorul coding agent în marketplace-ul tău - și va apărea unul în trimestrul următor, pentru că ciclul se măsoară acum în luni - nu trebuie să citești postarea de lansare de pe blog. Nu trebuie să aștepți articolul comparativ. Nu trebuie să-l instalezi și să-l rulezi o săptămână ca să-ți formezi o părere.
 
-Îi deschizi repository-ul. Localizezi asamblarea contextului. Localizezi registrul de tool-uri. Localizezi componenta principală Permisiuni / Sandbox (stratul de decizie + sandbox-ul de OS, cele două jumătăți numite în Capitolul 1). Localizezi încărcarea skill-urilor. Localizezi extinderea prin plugin-uri. Verifici suportul de MCP. Localizezi stratul de memorie (AGENTS.md sau echivalentul lui; orice suprafață de auto-memory expune vendorul). Localizezi dispatch-ul de subagenți - toate înfășurate în bucla de agent a harness-ului.
+Îi deschizi repository-ul. Localizezi asamblarea contextului. Localizezi registrul de tool-uri. Localizezi componenta principală Permisiuni / Sandbox (stratul de decizie + sandbox-ul de OS, cele două jumătăți numite în Capitolul 1). Localizezi încărcarea skill-urilor. Localizezi extinderea prin plugin-uri. Verifici suportul de MCP. Localizezi stratul de memorie (AGENTS.md sau echivalentul lui; orice suprafață de auto-memory expune vendorul). Localizezi setarea de effort și verifici dacă raționamentul pe care îl cumpără e păstrat între ture. Localizezi dispatch-ul de subagenți - toate înfășurate în bucla de agent a harness-ului.
 
-Opt puncte de inspecție. Douăzeci de minute de inspecție. Vei ști mai multe despre oportunitatea adoptării acestui agent decât îți va spune orice articol de review, pentru că vei ști dacă alegerile lui concrete de implementare se potrivesc constrângerilor concrete ale echipei tale. Afinitate de limbaj. Compatibilitate de licență. Enforcement de sandbox. Postură de audit. Întrebările sunt stabile.
+Nouă puncte de inspecție. Douăzeci de minute de inspecție. Vei ști mai multe despre oportunitatea adoptării acestui agent decât îți va spune orice articol de review, pentru că vei ști dacă alegerile lui concrete de implementare se potrivesc constrângerilor concrete ale echipei tale. Afinitate de limbaj. Compatibilitate de licență. Enforcement de sandbox. Postură de audit. Întrebările sunt stabile.
 
 Marketingul vendorului îți spune pe ce vrea el să te uiți. Codul sursă îți spune ce a construit de fapt. Invarianța arhitecturii îți dă lentila prin care vezi dincolo de marketing.
 
@@ -501,7 +514,7 @@ Capitolul următor e dedicat guvernanței - care sunt straturile, ce face fiecar
 
 ---
 
-**Artefact: checklist-ul de inspecție a sursei.** Cele opt puncte de inspecție din capitolul ăsta. Folosește checklist-ul pe următorul agent care intră în queue-ul de evaluare a echipei tale.
+**Artefact: checklist-ul de inspecție a sursei.** Cele nouă puncte de inspecție din capitolul ăsta. Folosește checklist-ul pe următorul agent care intră în queue-ul de evaluare a echipei tale.
 
 ---
 
@@ -937,7 +950,11 @@ Costul conex e medierea, atunci când subagenți rulați în paralel fac edităr
 
 Costul de coordonare apare ca mediere de conflicte - rerularea unei ramuri abandonate, sau plata unui model mai capabil care să aleagă un merge - și e mărginit. Marginea: cu cât task-urile subagenților sunt mai independente, cu atât rata de conflict e mai mică. Modul de a-i ține independenți e să delimitezi pe fișier sau pe modul, nu pe feature. Șase subagenți care editează fiecare câte un fișier - sigur. Șase subagenți care editează toți același feature, pe fișiere care se suprapun - rețeta pentru cazul scump, de fiecare dată. Din experiența mea, echipele care se lovesc de problema asta trimit de obicei prea mulți subagenți pentru cât e de fapt de lucru. Trei subagenți bine delimitați termină mai repede decât opt care se calcă pe picioare, de fiecare dată.
 
+Așa că tratează împărțirea ca pe un gate, nu ca pe un default, iar dovezile spun acum unde stă gate-ul. Un studiu pe 260 de configurații multi-agent, publicat în Nature Machine Intelligence în iulie 2026, a găsit că coordonarea rentează doar pe munca descompozabilă și costă între 39% și 70% pe munca secvențială prin natura ei, planificarea în primul rând - și că, atunci când un singur agent trece deja de circa 45% pe un task, adăugarea de agenți nu mai prezice niciun câștig. Gate-ul, deci: împarte doar când task-urile sunt independente pe fișier sau pe modul; ține un singur scriitor per fișier, unde a ajuns și Cognition după un an în care a argumentat împotriva sistemelor multi-agent cu totul - cititori în paralel, un singur agent care scrie; și alege deliberat contextul fiecărui copil. Fork pe workeri, ca să moștenească ieftin istoricul orchestratorului prin cache și să pornească știind deja planul. Izolare pe revieweri, ca să nu moștenească nimic din el și să nu poată fi ancorați de presupunerile orchestratorului. Pe harness-urile curente, dispatch-ul în sine se întoarce imediat, iar rezultatul sosește când copilul a terminat, așa că orchestratorul lucrează mai departe în loc să aștepte - forma pe care o presupune checklist-ul din B.3.
+
 Tot în execute se întâlnește agentul cu guvernanța. Fiecare tool call trece prin gate-ul de permisiuni. Fiecare comandă Bash trece prin hook-urile de securitate. Fiecare scriere de fișier trece prin sandbox. Dacă agentul încearcă ceva ce stratul de guvernanță nu permite, acțiunea e blocată, agentul raportează înapoi orchestratorului, orchestratorul decide cum merge mai departe. Rigoarea trăiește în straturile de sub execute; execute doar rulează munca.
+
+Încă un bloc își are locul în promptul de execute, și e specific vendorului într-un fel în care restul buclei nu e. Fiecare generație de modele are un mod de eșec caracteristic pe autonomie, iar vendorii și-l documentează acum singuri. Fable încheie tura cu o declarație de intenție - „Acum rulez testele” - și se oprește acolo, sau face o acțiune pe care n-a cerut-o nimeni; GPT-6 Astra se oprește să pună o întrebare la care n-avea nevoie de răspuns și scrie teste mai late decât cere o modificare reversibilă. Ambii vendori publică remediul ca bloc de prompt: declară nivelul de autonomie (termină task-ul înainte să închei tura; nu te opri la a confirma că poți; fără teste pentru modificări reversibile, cu impact mic) și scopul (doar fișierele numite de plan; oprește-te și raportează pentru orice altceva). B.3 poartă ambele blocuri. Vor trebui rescrise pentru modelul următor - exact pentru asta există B.9.
 
 Încă un artefact aparține fazei ăsteia. Research-ul produce o notă; planul produce un plan; execute, așa cum a fost descris până acum, produce doar cod. Adaugă un fișier de note de implementare ținut din mers: fiecare loc în care implementarea a trebuit să devieze de la plan și de ce, fiecare edge case descoperit în mijlocul task-ului și nemenționat de plan, fiecare decizie pe care un subagent a luat-o acolo unde planul a lăsat-o deschisă. Notele nu-l costă pe agent aproape nimic și plătesc de două ori. La review, reviewerul de conformitate cu spec-ul le citește primele - fișierul e o listă de mărturisiri cu exact locurile în care diff-ul și planul nu se pun de acord, adică exact ce există reviewerul ăla să găsească. Și sunt antidotul pentru drift-ul de rezumate al orchestratorului numit mai sus: devierea e consemnată în momentul în care se întâmplă, de subagentul care a făcut-o, în loc să supraviețuiască doar ca o linie comprimată într-un mesaj de hand-off. Planul e harta; notele sunt teritoriul care raportează înapoi.
 
@@ -949,9 +966,11 @@ Doi revieweri. În secvență.
 
 Întâi, conformitatea cu spec-ul. Agentul citește nota de research originală, planul aprobat și diff-ul real. Răspunde la o singură întrebare: implementarea corespunde spec-ului? Dacă da, o spune. Dacă nu, semnalează decalajul. Conformitatea cu spec-ul e o competență diferită de calitatea codului. O modificare poate fi cod de calitate care face lucrul greșit. O modificare poate fi cod urât care face exact lucrul corect. Reviewerul de spec se ocupă doar de prima dimensiune.
 
-Apoi, calitatea codului. Un agent diferit. Un prompt diferit. Citește doar diff-ul. Întreabă: e cod bun, după standardele echipei? Naming. Stil. Edge case-uri. Acoperirea cu teste. Tratarea erorilor. Considerații de performanță. Comentează pe diff așa cum ar face-o un reviewer senior.
+Apoi, calitatea codului. Un agent diferit. Un prompt diferit. Citește doar diff-ul - și niciodată verdictele primului reviewer. Întreabă: e cod corect, după standardele echipei? Naming care induce în eroare. Edge case-uri ratate. Tratare a erorilor care le înghite. Teste care nu afirmă nimic. Raportează ce e greșit, nu ce ar fi făcut el altfel. Nu-i cere să comenteze „așa cum ar face-o un reviewer senior”: un reviewer pus să facă review ca un senior găsește mereu ceva, iar un diff reșlefuit la fiecare rundă crește abstracțiuni pe care nu le-a cerut nimeni. Ține-l la corectitudine și rămâne util.
 
 Motivul pentru care le desparți în doi revieweri e că, făcute simultan, amândouă ies mai prost. Un reviewer care întreabă în același timp „corespunde spec-ului?” și „e bine scris?” tinde să le amestece. Spec-ul ajunge cântărit prin prisma calității codului, sau calitatea codului prin prisma conformității cu spec-ul, și pierzi semnalul distinct pe care trebuia să-l dea fiecare. Doi revieweri, două preocupări, zero amestec.
+
+Designul cu doi revieweri a început ca practică de teren și e acum girat de vendor - propriul ghid de prompting al Anthropic pentru Fable 5 spune că subagenții verificatori separați, cu context proaspăt, tind să depășească autocritica -, dar dovezile despre cum îl rulezi s-au ascuțit într-un fel care schimbă ce măsori. Un studiu din iulie 2026 despre preluarea criticilor în raționamentul multi-agent a găsit că reviewerul mai precis a pierdut: criticile lui, verificate ca utile, au schimbat următorul răspuns al celui care rezolva doar în 33,6% din cazuri, în timp ce un setup între egali, cu critici mai puțin precise, dar difuzate tuturor, a obținut 93,5% preluare și rata finală de succes mai bună. O constatare pe care n-o pune nimeni în practică nu valorează nimic, așa că numărul de urmărit e rata de reparare - câte constatări a reparat executorul, sau a respins cu un motiv -, nu acuratețea reviewerului. Cere acel acceptă-sau-respinge la fiecare constatare. Încă trei reguli, fiecare dintr-o măsurătoare. Plafonează rundele: o buclă de verificare-și-reparare ghidată de rubrici a atins vârful la a patra rundă și dăduse înapoi până la a zecea, pentru că rundele târzii redeschid muncă tranșată cam la fel de des pe cât o repară. Nu-l lăsa pe al doilea reviewer să vadă verdictele primului: judecătorii se ancorează de un scor anterior, și nici chain of thought, nici un avertisment explicit nu scot ancora. Și ține review-ul doi la corectitudine, din motivul de mai sus.
 
 Output-ul fazei de review e structurat. Fiecare constatare are o severitate. Constatările critice blochează ship-ul. Cele importante se repară înainte de ship. Sugestiile se notează în descrierea PR-ului. Agentul rezolvă automat constatările blocante și pe cele importante (în limitele planului) și scoate sugestiile la suprafață, ca să decidă reviewerul uman.
 
@@ -1002,6 +1021,10 @@ Procentul de coverage nu închide decalajul ăsta; îi lărgește iluzia. Covera
 Testele de caracterizare au aceeași formă de limitare, numită în Capitolul 8: fixează *comportamentul* curent, nu corectitudinea. Sunt cu adevărat valoroase - o plasă de siguranță contra regresiilor, care îi permite agentului să refactorizeze fără să schimbe pe tăcute ce face codul. Dar vor conserva un bug la fel de fidel cum conservă un feature. O suită de caracterizare care e verde după un refactor demonstrează că nu ai schimbat comportamentul. Nu spune nimic despre dacă acel comportament a fost vreodată corect.
 
 Așa că disciplina e cea evidentă, aplicată acolo unde echipele uită s-o aplice: fă review pe testele agentului cu aceeași seriozitate cu care faci review pe codul agentului. Citește ce afirmă testele, nu doar dacă trec. Mai ales pentru logica de backend, un om sau un al doilea agent ar trebui să verifice aserțiunile față de spec - față de ce *trebuie* să facă acel cod - nu față de implementarea care se nimerește să le stea în față. Un test scris pornind de la implementare va fi de acord cu implementarea. Exact ăsta e modul de eșec. Aserțiunea trebuie să vină din intenție.
+
+Decalajul are acum cifre. SpecBench, în mai 2026, a pus agenți de frontieră în fața unor specificații cu un set de teste vizibil și unul ascuns: aproape 100% pe testele vizibile, cu decalaje de 43-48 de puncte pe cele ascunse - iar decalajul a crescut cu circa 27 de puncte la fiecare înzecire a mărimii codului, în timp ce mai multă căutare nu l-a închis. Agentul optimizează dovezile pe care le vede. Cursor a găsit cealaltă jumătate a aceluiași comportament în iunie: 63% dintre rezolvările lui Opus 4.8 Max pe SWE-bench Pro luaseră fix-ul din upstream, din istoricul de git sau din rețea, în loc să rezolve task-ul, iar sigilarea ambelor a tăiat scorul cu 14 puncte. Niciuna nu e trișare în sensul uman. Amândouă sunt un sistem care face ce răsplătește gate-ul.
+
+Așa că verify primește patru controale de care faza n-avea nevoie acum un an. Un set de teste held-out pe care agentul nu-l vede niciodată - compozițional, scris din intenție, rulat doar la verify -, ca suita vizibilă să nu mai fie toată ținta. Istoric de git sigilat și fără egress de rețea cât rulează verify; pattern-ul opt izolează deja bucla exterioară așa, iar faza de verify a buclei interioare are acum nevoie de același sigiliu. Un hook PreToolUse care blochează editările la configurația de lint și de teste și blochează `commit --no-verify` - regulile de deny pe care le instalează Capitolul 9, acum la fiecare rulare, nu doar la cele nesupravegheate. Și o regulă a explicației: înainte să i se permită să repare un test picat, agentul spune de ce pică testul. Un fix care sosește fără diagnostic e cel mai probabil să fi editat aserțiunea în loc de cod.
 
 ---
 
@@ -1090,6 +1113,10 @@ Contaminarea se anunță singură, dacă stai cu ochii pe ea. Patru semne. Agent
 
 Compactarea e o predare, nu o continuare. Când harness-ul rezumă o fereastră plină ca să facă loc, pierde detalii - asta înseamnă să rezumi - așa că tratează o sesiune compactată așa cum ai trata predarea muncii tale unui inginer nou în prag: tot ce contează și nu e scris într-un fișier până atunci s-a pierdut. Subagenții sunt cealaltă jumătate a instrumentului, izolând fiecare task în propria lui fereastră, ca confuzia unui task să nu ajungă niciodată la următorul. Rezumatele lor de predare se citesc cu același scepticism pe care faza de execute îl cere deja pentru cele ale orchestratorului.
 
+Faptul că rezumarea pierde detalii e acum măsurat, iar măsurătorile arată spre un instrument mai ieftin. JetBrains a comparat strategiile pentru sesiuni lungi de coding în decembrie 2025: mascarea output-urilor vechi de tool-uri - apelul rămâne în istoric, rezultatul voluminos e golit - a bătut rezumarea cu LLM în patru din cinci setări, la un cost cu peste 50% mai mic și o rată de rezolvare care a egalat-o sau a depășit-o. Curățarea rezultatelor de tool-uri de la Anthropic, aceeași mișcare la nivel de platformă, a adus o îmbunătățire de 29% pe o evaluare internă de căutare agentică atunci când a apărut, în 2025. Iar studiul multi-turn din spatele regulii „commit și pornește curat” a măsurat deriva pe care o previne: o scădere medie de 39% pe o conversație multi-turn fragmentată, cu o singură tură consolidată recuperând 95% din rezultatul single-turn. Preferă mascarea în locul rezumării acolo unde harness-ul te lasă să alegi, și consolidează înainte să continui.
+
+Două schimbări din 2026 modifică mecanica. Istoricul e append-only pe Fable 5.1: blocurile de gândire ale modelului sunt legate de prefixul exact care le-a produs, așa că editarea sau reordonarea turelor anterioare le invalidează și aruncă raționamentul păstrat pe care Capitolul 1 îl numără ca jumătate din componenta principală Effort. Nu rescrie istoricul; încheie sesiunea și pornește curat. Iar cu citirile din cache la 0,025x din prețul de bază al input-ului, ghidul de prompting pentru Fable 5.1 spune acum că a compacta devreme ca să economisești bani s-ar putea să nu mai fie schimbul potrivit - istoricul din cache e ieftin de păstrat și scump de rezumat prost. Când totuși compactezi, dă-i compactorului o listă explicită de păstrat: planul, întrebările deschise, devierile consemnate în notele de implementare, comenzile exacte care au mers. Lista e ce supraviețuiește. Tot ce nu e pe ea e ce pierde predarea.
+
 Anexa B.7 e disciplina asta într-o singură pagină.
 
 ---
@@ -1172,6 +1199,8 @@ Fiecare pattern interzis e un zid pe care agentul nu-l trece. Dacă agentul cred
 
 Jurnalul de greșeli crește în timp. Și se curăță periodic: intrările rezolvate structural (problema de fond nu mai e posibilă) se șterg. Jurnalul e documentație care își câștigă locul prin prevenție, nu prin volum. Fiecare intrare ar trebui să fie o regulă care a prevenit efectiv o recidivă cel puțin o dată.
 
+Mecanica de întreținere contează la fel de mult ca intrările, și are acum un pattern. Ghidul de prompting al Anthropic pentru Fable 5 pune modelul să țină câte o lecție per fișier, cu un rezumat de o linie în capul lui, să actualizeze nota existentă în loc să adauge un duplicat când lecția se repetă și să șteargă orice notă care se dovedește greșită - iar aceleași trei reguli țin un jurnal de greșeli onest și la o sută de intrări. Adaugă fiecărei intrări un pointer la dovadă, commit-ul sau incidentul, ca următorul champion să poată verifica dacă eșecul mai e posibil: abordarea cu pointeri la dovezi din OpenWiki a tăiat afirmațiile învechite din baza lui de cunoștințe de la 3,5% la 0,5%, iar o intrare din jurnal care își citează dovada e retrasă când dovada se învechește, în loc să zacă acolo ca folclor.
+
 **Trei: convențiile de Spring Boot specifice echipei.** (Sau de React, sau de orice stack folosești. Spring Boot e exemplul meu.)
 
 > Doar constructor injection, nu field injection. (Mai ușor de testat.)
@@ -1191,16 +1220,11 @@ Fiecare convenție e o linie. Agentul le citește și le aplică din oficiu. Cod
 
 Sună banal. Nu e. Fără secțiunea asta, agentul ghicește comenzile. De obicei nimerește aproape, dar din când în când greșește, iar asta produce eșecuri derutante. Cu secțiunea asta, agentul folosește exact comenzile echipei, fără ghicit.
 
-**Cinci: unde se găsesc lucrurile.** Convențiile structurale ale repository-ului.
+**Cinci: unde stă harta.** O singură linie, nu un listing de directoare.
 
-> Serviciile stau în `src/main/java/com/bank/service/`
-> Repository-urile în `src/main/java/com/bank/repository/`
-> DTO-urile în `src/main/java/com/bank/dto/`
-> Testele oglindesc structura din main, în `src/test/java/com/bank/`
-> Migrările de bază de date în `src/main/resources/db/migration/` (Flyway)
-> Configurarea în `src/main/resources/application.yml`
+> Structura repository-ului și harta modulelor: `docs/architecture.md`. Citește-l înainte să atingi un modul pe care nu l-ai văzut în sesiunea asta.
 
-Agentul citește asta și știe unde să pună fișierele noi. Fără asta, merge pe cea mai bună presupunere dedusă din structura existentă - de regulă corectă, dar ocazional greșită în moduri care încalcă convențiile echipei.
+Versiunile anterioare ale manualului puneau aici chiar convențiile structurale - serviciile în pachetul ăsta, repository-urile în ăla, migrările dincolo. Dovezile spun acum să n-o faci. Studiul ETH Zürich din februarie 2026 despre fișierele de context a măsurat ce fac ele pentru rata de succes a task-urilor: fișierele de context, în ansamblu, n-au îmbunătățit în general rata de succes, în timp ce au ridicat costul de inferență cu peste 20% în medie, iar privirea de ansamblu asupra repository-ului - populară, și recomandată chiar de vendorii de modele - a fost partea care n-a ajutat; agentul deduce structura din arbore în câteva secunde, iar încărcarea ei la fiecare început de sesiune înseamnă să plătești pentru ce știe deja. Fișierele scrise chiar de developeri s-au descurcat puțin mai bine decât cele generate, și nu semnificativ. Așa că harta se mută în `docs/`, încărcată la cerere când task-ul atinge un modul nefamiliar - practica pe care o descrie harness engineering-ul de la OpenAI, un AGENTS.md de vreo sută de linii care e o hartă spre un director de docs, nu o copie a lui -, iar fișierul mereu-încărcat păstrează secțiunile care și-au câștigat locul: pattern-urile interzise, jurnalul de greșeli, convențiile, comenzile.
 
 **Șase: glosarul de domeniu.** Termeni specifici business-ului tău.
 
@@ -1209,6 +1233,8 @@ Agentul citește asta și știe unde să pună fișierele noi. Fără asta, merg
 > „Holds” sunt rezervări de fonduri pe termen scurt, diferite de „blocks”, care sunt restricții legale pe termen lung.
 
 Glosarul dezambiguizează termeni pe care agentul i-ar interpreta altfel în sensul lor generic. În context bancar, „transfer” înseamnă ceva precis. În pretraining-ul agentului, „transfer” înseamnă o grămadă de lucruri. Glosarul ancorează agentul în sensul tău.
+
+Încă o linie, de la modelele din septembrie 2026 încoace, și stă în capul fișierului: o regulă de precedență. GPT-6 Astra urmărește instrucțiuni mai lungi mai bine decât predecesorii lui și e mai sensibil la ce găsește în context - o îndrumare neclară sau contradictorie într-un fișier de skill îl poate face să se oprească și să blocheze munca devreme -, iar ghidul OpenAI pentru el spune răspicat că instrucțiunile utilizatorului au prioritate față de îndrumările dintr-un skill. „În caz de conflict, promptul task-ului bate fișierul ăsta; fișierul ăsta bate orice skill” e o singură linie și elimină o clasă întreagă de blocaje în care agentul se ceartă cu el însuși despre ce instrucțiune să asculte.
 
 ---
 
@@ -1219,6 +1245,8 @@ Două sute e bugetul pentru că AGENTS.md se încarcă în contextul agentului l
 Modul de eșec A: prea multe reguli. Echipa a acumulat reguli în timp și nu le-a scos niciodată din uz pe cele care nu se mai aplică. Fă un audit. Elimină regulile care nu s-au declanșat în ultimele șase luni. Mută regulile rar aplicabile în skill-uri care se încarcă la detecție, nu la fiecare sesiune.
 
 Modul de eșec B: prea multă vorbă. Fiecare regulă e un paragraf în loc de o linie. Strânge. Agentul nu are nevoie de trei fraze de justificare pentru fiecare regulă; are nevoie de regulă. Justificările își au locul în comentarii în AGENTS.md sau în documentația linkată.
+
+Două măsurători din 2026 fac plafonul mai puțin o chestiune de gust. Respectarea regulilor simultane nu e liniară: într-un studiu din iulie 2026, pe mai multe formate și plasări, rata cu care un model satisface toate regulile deodată s-a prăbușit la zero până la optzeci de reguli simultane - la Sonnet 5 și la Haiku deopotrivă -, iar optzeci de reguli înseamnă un fișier de două sute de linii cu o regulă pe linie și puțină proză între ele. Iar Anthropic a scos peste 80% din system prompt-ul propriu al Claude Code pentru generația Claude 5, fără pierdere măsurabilă, înlocuind regulile cu judecată și exemplele lucrate cu interfețe de tool-uri tipizate. Dacă harness-ul vendorului devine mai bun ștergând instrucțiuni, fișierul echipei tale va deveni și el.
 
 Plafonul de două sute de linii te obligă să ai o opinie. Opinia e valoarea.
 
@@ -1338,7 +1366,9 @@ Promptul ăsta, lansat pe un serviciu Spring Boot de complexitate medie, produce
 
 Asta e varianta cu un singur agent și e suficientă pentru majoritatea serviciilor. Pe un codebase prea mare pentru un singur context window, același workflow se distribuie pe subagenți - câte unul per modul, fiecare întorcând un rezumat structurat, iar orchestratorul asamblează documentul din bucăți. E pattern-ul de analiză de arhitectură la scară din Capitolul 1, pus la treabă în producție.
 
-Documentul corectat intră în repository. Prin convenție, îl pun la `docs/architecture.md`. Devine punctul de intrare pentru orice lucrare ulterioară. Membrii noi ai echipei îl citesc primii. Inginerii seniori îl consultă când modifică părți nefamiliare ale sistemului. Îl citește și agentul (îl referențiezi din [AGENTS.md](https://agents.md/)) când lucrează în codebase, astfel încât munca lui ulterioară e ancorată în review-ul de arhitectură, în loc să re-derive arhitectura de fiecare dată.
+De ce citește agentul codul în sine, în loc să interogheze un index al lui: pentru că navigarea bate retrieval-ul pe task-ul ăsta, iar decalajul e măsurat. Pe Sonnet 4.5, navigarea agentică - grep, deschizi fișierul, urmărești referința - a bătut retrieval-ul top-k pe embeddings cu 21,8 puncte de recall@1; spațiile de lucru mărginite țin aceeași navigare funcțională la un milion de documente, rezultatul RISE; iar în practică, căutarea în cod se reduce la trei tool-uri - ripgrep pentru text, ast-grep pentru structură, language server-ul pentru referințe -, cu un index de embeddings ca excepție pe care o adaugi când un corpus le depășește, nu ca punct de plecare. Promptul de mai sus presupune cele trei tool-uri și nimic în plus. Dacă pitch-ul unui vendor pentru workflow-ul ăsta începe cu o bază de date vectorială, întreabă cât ar fi fost cei 70% fără ea.
+
+Documentul corectat intră în repository. Prin convenție, îl pun la `docs/architecture.md`. Devine punctul de intrare pentru orice lucrare ulterioară. Membrii noi ai echipei îl citesc primii. Inginerii seniori îl consultă când modifică părți nefamiliare ale sistemului. Îl citește și agentul (îl referențiezi din [AGENTS.md](https://agents.md/)) când lucrează în codebase, astfel încât munca lui ulterioară e ancorată în review-ul de arhitectură, în loc să re-derive arhitectura de fiecare dată. De la corecția din Capitolul 6 încoace, referința asta e singura hartă structurală pe care o poartă fișierul mereu-încărcat: AGENTS.md arată încoace, iar structura se încarcă la cerere când un task atinge un modul pe care agentul nu l-a văzut.
 
 ---
 
@@ -1582,6 +1612,8 @@ Mod de eșec concret: am livrat un bug într-o componentă React pentru că Clau
 
 Ce e de făcut: dacă codebase-ul tău e în mijlocul unei migrări de framework sau de dependențe, încetinește agentul pe căile atinse de migrare. AGENTS.md trebuie să numească explicit versiunea-țintă („migrăm de la React 18 la React 19 trimestrul ăsta; codul nou folosește idiomuri de 19; codul vechi mai poate folosi 18, dar se actualizează când e atins”). Agentul citește regula și folosește idiomurile potrivite pentru contextul potrivit. Fără regula asta, bug-urile le descoperi în producție.
 
+Un semnal soft își are locul lângă ăsta, pentru că are aceeași formă, cu rolurile inversate: framework-ul e stabil și modelul s-a mișcat. Instrucțiunile scrise pentru modelul anterior - regulile din AGENTS.md, prompturile din skill-uri, nivelurile de effort - nu se retrag singure când se schimbă generația de modele, iar un harness calibrat pe modelul de trimestrul trecut e greșit pe tăcute despre cel de trimestrul ăsta. Un studiu din 2026 pe scaffold-uri de agenți publicate a găsit că un singur prompt simplu pe un model mai nou a bătut între 37% și 63% dintre ele. Nu e al nouălea kill signal; grila de punctare rămâne la opt. E lucrul de verificat când un codebase verde începe să dea rezultate galbene după un upgrade de model: rulează checklist-ul de migrare din Anexa B.9 înainte să dai vina pe codebase.
+
 ---
 
 Opt semnale. Fără teste. Fără documentație. Cuplare strânsă. Reguli de business împrăștiate. Constrângeri de reglementare. Echipa nu poate evalua output-ul. Potrivirea model-context. Viteza schimbării.
@@ -1824,7 +1856,7 @@ Ideea are o preistorie, iar diferența dintre cele două epoci e toată lecția.
 
 Trendul e real, și tot aici disciplina e testată cel mai dur, pentru că bucla exterioară adaugă încercări, nu judecată. Multiplică orice îi permite bucla ta interioară. Dacă fiecare iterație se termină într-un gate strict, bucla acumulează progres: un queue de unități mici și verificate se scurtează peste noapte. Dacă gate-ul e slab, aceeași răbdare acumulează rebut. Numele dat de Huntley acestui mod de eșec e overbaking - ai lăsat-o prea mult „în cuptor”: lași bucla să ruleze după ce și-a terminat treaba și continuă să inventeze muncă pe care n-a cerut-o nimeni. Agentul nu obosește. Ăsta e avantajul - și, nesupravegheat, tot ăsta e pericolul.
 
-Așa că pattern-ul nu e bucla; pattern-ul e contractul sub care o rulezi. Cinci linii, scrise înainte de prima iterație nesupravegheată. **O condiție de oprire pe care o poate evalua o mașină** - queue-ul e gol, suita e verde, bugetul s-a consumat. O buclă fără așa ceva nu e autonomie; e abandon. **Un buget** - tokeni, bani, iterații sau ore, oricare se atinge primul; o buclă nesupravegheată e clientul ideal al modelului de tarifare per token, iar calculele din Anexa A rulează și ele peste noapte. **Un gate pe care agentul nu-l poate edita** - testele, configurația de lint, workflow-ul de CI și regulile hookify stau în spatele unei reguli de deny (pattern-ul trei). Avertismentul din Capitolul 5 - o suită verde scrisă de agent e un indiciu, nu o dovadă - se aplică de două ori atunci când nimeni nu citește indiciile până dimineața. Cel mai ieftin mod în care o buclă ajunge pe verde e să negocieze cu propriul evaluator. **Context proaspăt la fiecare iterație, stare durabilă în repository** - un fișier de queue și un jurnal, ținute în repo prin commit-uri, astfel încât fiecare iterație pornește curată și citește istoria buclei din git, în loc să târască după ea un context care se degradează. Capitolul 5 numea contaminarea contextului drept cel mai mare motiv pentru care sesiunile lungi o iau razna; bucla exterioară făcută corect e un instrument de igienă a contextului - patruzeci de sesiuni scurte și curate în loc de una lungă, în degradare. **Izolare dimensionată pentru absență** - worktree-ul ei propriu (pattern-ul unu), sandbox-ul pornit, fără credențiale de producție, rețea constrânsă. O sesiune nesupravegheată e singurul loc în care prompt injection nu mai întâlnește niciun sceptic uman; straturile din Capitolul 3 nu sunt opționale aici - pe ele se sprijină toată greutatea. Anexa B.6 e contractul ăsta într-o singură pagină.
+Așa că pattern-ul nu e bucla; pattern-ul e contractul sub care o rulezi. Cinci linii, scrise înainte de prima iterație nesupravegheată. **O condiție de oprire pe care o poate evalua o mașină** - queue-ul e gol, suita e verde, bugetul s-a consumat. O buclă fără așa ceva nu e autonomie; e abandon. Pe suprafețele vendorilor, condiția de oprire are acum un mecanism al ei: /goal din Claude Code dă verificarea de finalizare unei instanțe proaspete de Haiku, care întoarce unul din trei verdicte, iar Codex Goals joacă același rol de partea OpenAI - un evaluator pe care bucla nu-l controlează. Plugin-ul ralph-wiggum prin care trece filiația acestui pattern încă n-are nicio dovadă controlată în spate, iar propriul lui README numește numărul maxim de iterații drept principala plasă de siguranță - adică un buget, nu o condiție de oprire. **Un buget** - tokeni, bani, iterații sau ore, oricare se atinge primul; o buclă nesupravegheată e clientul ideal al modelului de tarifare per token, iar calculele din Anexa A rulează și ele peste noapte. **Un gate pe care agentul nu-l poate edita** - testele, configurația de lint, workflow-ul de CI și regulile hookify stau în spatele unei reguli de deny (pattern-ul trei). Avertismentul din Capitolul 5 - o suită verde scrisă de agent e un indiciu, nu o dovadă - se aplică de două ori atunci când nimeni nu citește indiciile până dimineața. Cel mai ieftin mod în care o buclă ajunge pe verde e să negocieze cu propriul evaluator. **Context proaspăt la fiecare iterație, stare durabilă în repository** - un fișier de queue și un jurnal, ținute în repo prin commit-uri, astfel încât fiecare iterație pornește curată și citește istoria buclei din git, în loc să târască după ea un context care se degradează. Capitolul 5 numea contaminarea contextului drept cel mai mare motiv pentru care sesiunile lungi o iau razna; bucla exterioară făcută corect e un instrument de igienă a contextului - patruzeci de sesiuni scurte și curate în loc de una lungă, în degradare. **Izolare dimensionată pentru absență** - worktree-ul ei propriu (pattern-ul unu), sandbox-ul pornit, fără credențiale de producție, rețea constrânsă. O sesiune nesupravegheată e singurul loc în care prompt injection nu mai întâlnește niciun sceptic uman; straturile din Capitolul 3 nu sunt opționale aici - pe ele se sprijină toată greutatea. Anexa B.6 e contractul ăsta într-o singură pagină.
 
 Ce pui în queue contează la fel de mult ca contractul. Munca eligibilă pentru buclă are multe unități similare, fiecare verificabilă de o mașină, fiecare reversibilă: migrări, curățenii de lint și de typing, dependency bump-uri, completarea testelor de caracterizare, refactorizări mecanice. Munca de design, cu un singur artefact, nu e eligibilă; mai multe încercări nu adaugă judecată, iar bucla îți va cheltui bugetul demonstrându-ți asta. Semaforul din Capitolul 8 se aplică aici cu forță dublă, pentru că bucla exterioară e munca autonomă a agentului în forma ei cea mai concentrată: doar codebase-uri pe VERDE. GALBEN înseamnă condus de om, iar bucla exterioară n-are, prin definiție, niciun om în ea.
 
@@ -2142,6 +2174,10 @@ Traiectoria asta - patru decenii de scris cod, douăzeci și cinci dintre ele pr
 
 Pagina asta urmărește actualizările semnificative ale manualului. Corecturile mărunte și ajustările de SEO nu sunt listate; footer-ul arată data ultimei actualizări.
 
+### 2026-09-11 - Pasul de dovezi din septembrie: componenta principală Effort, controale pe review și verify, corecția AGENTS.md, B.9
+
+Manualul, citit în oglindă cu dovezile din septembrie 2026: ghidurile pentru generația Claude 5 și GPT-5.6 / GPT-6, plus un șir de studii cu măsurători despre fișierele de context, scalarea multi-agent, reward hacking, preluarea criticilor și gestionarea contextului. Structura a rezistat; actualizările intră acolo unde dovezi noi schimbă o afirmație, o ascut sau umplu un gol. Capitolul 1 primește Effort ca a noua componentă principală - butonul de raționament și raționamentul păstrat -, pentru că trece acum testul convergenței și a devenit cea mai mare pârghie de cost și de calitate; secțiunea de tool-uri primește prăbușirea la număr mare de tool-uri, încărcarea amânată, apelarea programatică a tool-urilor și schemele stricte; secțiunea despre context window ia cu o rezervă ferestrele din reclamă. Parcursul de inspecție din Capitolul 2 crește la nouă puncte. Capitolul 5: un gate „când împarți” pentru Execute (doar muncă descompozabilă, un singur scriitor per fișier, fork pe workeri și izolare pe revieweri), blocurile de autonomie și de scop ale vendorilor, reviewerul doi limitat la corectitudine și orb la reviewerul unu, rata de reparare în locul acurateței reviewerului, cu rundele plafonate, cifrele SpecBench și Cursor din spatele lui „indiciu, nu dovadă”, cu patru controale de verify (teste held-out, istoric și egress sigilate, hook pe editările de configurație, explicație înainte de fix), și igiena contextului cu măsurători (mascare în loc de rezumare, istoric append-only, listă de păstrat pentru compactor). Capitolul 6 poartă singura corecție cu dovezi direct împotriva textului: harta repository-ului iese din AGENTS.md și se mută în docs/, conform studiului ETH despre fișierele de context; jurnalul de greșeli primește mecanica de întreținere și pointerii la dovezi; plafonul de două sute de linii primește prăbușirea la optzeci de reguli și tăierea cu 80% a system prompt-ului; o linie de precedență intră în fișier. Capitolul 7 citează dovezile de retrieval din spatele cititului de cod în locul indexării. Capitolul 8 numește instrucțiunile scrise pentru modelul anterior ca semnal soft. Condiția de oprire din Capitolul 9 numește /goal și Codex Goals. Anexa A primește pârghiile structurale de cost; Anexa B primește B.9, checklist-ul de migrare între modele (numărul de template-uri e acum nouă), cu B.2, B.3 și B.7 actualizate; Anexa C primește un grup de douăzeci și șapte de surse despre harness și migrarea între modele. Nota despre afirmațiile datate, mutată la septembrie 2026.
+
 ### 2026-07-27 - Găsește-ți necunoscutele (Capitolul 4 + Capitolul 5 + B.8)
 
 Teza bottleneck-ului de formulare din Capitolul 4 primește cea mai puternică confirmare externă de până acum: ghidul de teren al Anthropic din iulie 2026 pentru lucrul cu Fable 5, al cărui autor descrie modelul de frontieră ca având ca bottleneck „capacitatea mea de a-i clarifica necunoscutele” - inginerii vendorului descriu acum frontiera exact cum o descrie Capitolul 4. Cadrul cu patru cadrane de necunoscute din ghid e mapat pe mașinăria manualului (fișierul de instrucțiuni de echipă drenează unknown knowns, nota de research scoate la suprafață known unknowns), iar Capitolul 5 câștigă trei tehnici pentru cadranul la care nu ajunge niciun checklist. În Research: un blind spot pass înaintea research-ului propriu-zis, când task-ul e în afara domeniului tău, împerecheat cu declararea nivelului de experiență, ca presupunerile agentului să iasă la suprafață unde le poți respinge. În Execute: un fișier de note de implementare care consemnează fiecare deviere de la plan în momentul în care se întâmplă - lista de mărturisiri a reviewerului de spec și antidotul pentru drift-ul de rezumate al orchestratorului. La închiderea citirii diff-ului de agent: un quiz înainte de aprobare - dacă nu poți răspunde ce se întâmplă la margini, ăla era rubber-stamping, nu review, iar degradarea din pattern-ul patru tocmai a devenit măsurabilă. One-pager-ul B.8 primește blocul de quiz; intrare nouă în Anexa C pentru ghidul de teren.
@@ -2238,6 +2274,22 @@ Oferta vendorului e partea ușoară. Patru categorii nu apar în ea și domină 
 
 **Overhead-ul de guvernanță.** Evaluarea de securitate prin CISO. Negocierea addendum-ului de Zero Data Retention. Durata ciclului de achiziții. Infrastructura de audit logging. Monitorizarea riscului de vendor. Variază de la companie la companie; de la o săptămână la un trimestru.
 
+### Pârghiile structurale {#cost-levers}
+
+Prețurile se învechesc; pârghiile care mișcă linia de tokeni, nu, iar cinci dintre ele sunt acum măsurate.
+
+**Nivelul de effort.** Componenta principală din Capitolul 1 e cel mai mare buton de cost pe care îl ai. Setează-l per fază, fă-i sweep per model și nu-l lăsa niciodată pe default pentru toată bucla.
+
+**Layout de prompt cache-first.** Pune conținutul stabil la început - system prompt-ul, AGENTS.md, skill-urile încărcate - și conținutul per tură la sfârșit, ca prefixul să intre în cache. Pe 500 de sesiuni, la trei provideri, ordonarea asta singură a tăiat costul cu 41% până la 80%.
+
+**Încărcarea amânată a tool-urilor.** Un audit al unei sesiuni default de Claude Code a numărat cam 24k de tokeni de definiții și scheme de tool-uri consumați înainte de primul cuvânt al utilizatorului. Amână schemele și plătește-le doar când un tool e folosit.
+
+**Mascare în loc de rezumare.** Golește rezultatele vechi de tool-uri în loc să rezumi istoricul. JetBrains a măsurat mascarea la un cost cu peste 50% mai mic decât rezumarea, cu o rată de rezolvare care a egalat-o sau a depășit-o.
+
+**Rutare pe tier-uri.** Rutează pe task, nu pe echipă, și lasă un model mai ieftin să facă munca, cu unul mai puternic de gardă. Pattern-ul „advisor” al Anthropic, publicat în aprilie 2026, dă cele două puncte măsurate: Sonnet cu un advisor Opus a bătut Sonnet singur cu 2,7 puncte pe SWE-bench Multilingual, la un cost per task cu 11,9% mai mic, iar Haiku cu un advisor Opus a ieșit cu 85% mai ieftin per task decât Sonnet singur, rămânând cu 29% în urmă la scor - schimbul potrivit pentru tier-urile mecanice ale buclei și cel greșit pentru research.
+
+Exemplul lucrat de mai jos pune preț pe seat-uri. Pârghiile astea pun preț pe linia de tokeni de sub seat-uri, iar pe planurile per token acolo stau economiile din anul al doilea.
+
 ### Un exemplu lucrat {#a-worked-example}
 
 Sidebar-ul managerului din Capitolul 10 a lăsat o echipă de 20 de ingineri din servicii financiare la mijlocul arcului: 41% dintre PR-urile merged atinse de agent în luna a doua, cycle time pe acel set cu 28% sub baseline-ul dinainte de agent, defecte în marja de zgomot. Trece aceeași echipă prin grila din anexa asta. Cifrele de cost de mai jos sunt numere rotunde pentru aritmetică, nu cotații - pune-le pe ale tale; tot rostul anexei e că cele concrete se învechesc până la trimestrul următor.
@@ -2268,7 +2320,7 @@ Prețurile concrete din orice trimestru vor fi greșite în trimestrul următor.
 
 ## Anexa B - Template-uri
 
-Opt template-uri de copiat și lipit, la care se face referire pe tot parcursul manualului. Toate sunt puncte de plecare; adaptează-le pentru echipa ta.
+Nouă template-uri de copiat și lipit, la care se face referire pe tot parcursul manualului. Toate sunt puncte de plecare; adaptează-le pentru echipa ta.
 
 Template-urile B.1 și B.2 rămân integral în engleză: sunt artefacte pe care le consumă agentul, iar prompturile se scriu în engleză.
 
@@ -2292,10 +2344,12 @@ Cite specific files and line numbers throughout. Where the codebase is ambiguous
 
 ### B.2 Scheletul AGENTS.md
 
-Template-ul funcționează fie ca [AGENTS.md](https://agents.md/) (standardul neutru față de vendor), fie ca CLAUDE.md (varianta Claude Code). Numele fișierului diferă de la agent la agent; formatul markdown, nu.
+Template-ul funcționează fie ca [AGENTS.md](https://agents.md/) (standardul neutru față de vendor), fie ca CLAUDE.md (varianta Claude Code). Numele fișierului diferă de la agent la agent; formatul markdown, nu. Ține-l pe la o sută de linii; harta structurii stă în `docs/`, nu aici.
 
 ```
 # AGENTS.md
+
+Precedence: the task prompt wins over this file; this file wins over any skill.
 
 ## Forbidden patterns
 - Never construct SQL by string concatenation. Use bound parameters. (Reason: SQL injection.)
@@ -2318,12 +2372,8 @@ Template-ul funcționează fie ca [AGENTS.md](https://agents.md/) (standardul ne
 - Run linting: mvn spotless:check
 - Run security scan: mvn dependency-check:check
 
-## Where things live
-- Services: src/main/java/com/team/service/
-- Repositories: src/main/java/com/team/repository/
-- DTOs: src/main/java/com/team/dto/
-- Tests: src/test/java/com/team/ (parallel package structure)
-- Migrations: src/main/resources/db/migration/ (Flyway)
+## Where the map lives
+- Repository layout and module map: docs/architecture.md (read before touching an unfamiliar module)
 
 ## Domain glossary
 - "Customer" = end user. "Counterparty" = corporate client.
@@ -2346,17 +2396,27 @@ PLAN
 - Review uman: vreun task prea vag, prea mare, ordonat greșit? Ridică obiecții. Aprobă.
 
 EXECUTE
+- Gate de împărțire: subagenți în paralel doar pentru fișiere sau module independente; un singur scriitor per fișier
+- Fork pe workeri (moștenesc istoricul orchestratorului); izolare pe revieweri (context proaspăt)
+- Bloc de autonomie: termină task-ul înainte să închei tura; fără confirmări pentru acțiuni reversibile
+- Bloc de scop: doar fișierele numite de plan; oprește-te și raportează pentru orice altceva
 - Agentul trimite subagenți per task, în context izolat
-- Fiecare subagent: citește, implementează, verifică, raportează
+- Fiecare subagent: citește, implementează, verifică, raportează; ține fișierul de note de implementare
 - Orchestratorul integrează rezultatele
 - Dacă un task eșuează: orchestratorul decide retry / ocolire / escaladare
 
-REVIEW (doi revieweri, în ordine)
+REVIEW (doi revieweri, în ordine; rundele plafonate)
 - Reviewerul de conformitate cu specificația: implementarea respectă spec-ul?
-- Reviewerul de calitate a codului: e cod bun, după standardele echipei?
+- Reviewerul de corectitudine: ce e greșit, după standardele echipei? Nu vede niciodată verdictele primului
+- Executorul acceptă sau respinge fiecare constatare; urmărește rata de reparare, nu acuratețea reviewerului
+- Plafon la trei-patru runde; rundele târzii redeschid muncă tranșată
 
 VERIFY
 - Testele noi rulează. Testele existente rulează (ca parte din execute).
+- Setul de teste held-out pe care agentul nu-l vede rulează aici, scris din intenție
+- Istoric de git sigilat, rețea oprită cât rulează verify
+- Hook-ul blochează editările la configurația de lint și de teste și commit --no-verify
+- Test picat: agentul explică de ce înainte să aibă voie să repare
 - Pentru UI: Playwright cu accessibility tree, nu pixeli.
 - Niciun „done” fără dovezi din teste.
 
@@ -2536,9 +2596,13 @@ CÂND E CONTAMINAT
 - Sesiunea proaspătă recitește progresul din repo, fără zgomot
 
 COMPACTARE
-- O predare, nu o continuare - rezumarea pierde detalii
+- O predare, nu o continuare - rezumarea pierde detalii (măsurat)
+- Preferă mascarea output-urilor vechi de tool-uri în locul rezumării; consolidează înainte să continui
+- Istoricul e append-only pe Fable 5.1 - nu edita niciodată turele anterioare; încheie și repornește
+- Input-ul din cache e ieftin; a compacta devreme ca să economisești e, de regulă, schimbul greșit
+- Dă-i compactorului o listă de păstrat: planul, întrebările deschise, devierile, comenzile care au mers
 - Tratează-o ca pe predarea muncii unui inginer nou
-- Tot ce contează și nu e într-un fișier până atunci s-a pierdut
+- Tot ce contează și nu e într-un fișier sau pe lista de păstrat până atunci s-a pierdut
 
 SUBAGENȚI
 - Izolează fiecare task în propriul context; confuzia unui task nu ajunge niciodată la următorul
@@ -2584,11 +2648,42 @@ QUIZ-UL
 - Un minut la gate bate descoperirea degradării în producție
 ```
 
+### B.9 Checklist-ul de migrare între modele (one-pager)
+
+```
+ÎNAINTE DE SCHIMBARE
+- Baseline: cinci task-uri reprezentative pe modelul curent; păstrează costul, rezultatul, nivelul de effort folosit
+- Citește ghidul vendorului pentru modelul nou - fiecare generație pensionează o parte din harness
+
+EFFORT
+- Sweep de effort per tip de task pe modelul nou (low / medium / high); alege per fază, nu per sesiune
+- Numele nivelurilor de effort nu se transferă între modele - „high” de trimestrul trecut e o ghicitoare acum
+
+PROMPTURI ȘI FIȘIERE DE INSTRUCȚIUNI
+- Scoate majusculele emfatice și liniile „verify your work” - scrise pentru un model care avea nevoie de ele
+- Scoate parametrii de sampling și de dirijare pe care modelul nou îi respinge: temperature, prefill, forced tool choice
+- Nu cere niciodată raționamentul modelului în răspuns - o categorie de refuz pe Fable 5
+- Auditează skill-urile pentru supra-prescriere: o listă de pași de care avea nevoie modelul vechi e o cușcă pentru cel nou
+- Păstrează linia de precedență (B.2); recitește AGENTS.md pentru reguli pe care modelul nou nu le mai încalcă
+
+TOOL-URI
+- Retestează fiecare schemă de tool custom cu decodare strictă pornită; caută câmpuri inventate
+- Renumără tool-urile vizibile; amână tot ce te lasă harness-ul nou să amâni
+
+ISTORIC
+- Ține istoricul conversației append-only; nu edita și nu reordona niciodată turele anterioare
+- Reverifică setările de compactare - schimbul de cost s-a mutat odată cu prețul input-ului din cache
+
+DUPĂ SCHIMBARE
+- Rerulează cele cinci task-uri de baseline; compară costul și rezultatul per fază
+- Codebase verde care dă rezultate galbene -> checklist-ul ăsta înainte de kill signals (Capitolul 8)
+```
+
 ---
 
 ## Anexa C - Surse și lecturi suplimentare
 
-Anexa asta există pentru că fiecare afirmație din manual merită o sursă verificabilă, dacă vrei să mergi pe fir până la capăt. Am organizat intrările după afirmație, nu după sursă, ca să poți porni de la un pasaj din corpul cărții și să ajungi la dovezile din spatele lui. Intrările sunt grupate pe categorii (studii, incidente cunoscute, vulnerabilități cu versiuni de patch, documentația tool-urilor, marketplace-uri, surse pentru componenta principală Memory, surse pentru componenta principală Permisiuni / Sandbox, surse despre bucla exterioară și autonomie), iar fiecare intrare are aceeași formă: afirmația, sursa, unde anume e folosită în manual și orice avertisment care merită știut.
+Anexa asta există pentru că fiecare afirmație din manual merită o sursă verificabilă, dacă vrei să mergi pe fir până la capăt. Am organizat intrările după afirmație, nu după sursă, ca să poți porni de la un pasaj din corpul cărții și să ajungi la dovezile din spatele lui. Intrările sunt grupate pe categorii (studii, incidente cunoscute, vulnerabilități cu versiuni de patch, documentația tool-urilor, marketplace-uri, surse pentru componenta principală Memory, surse pentru componenta principală Permisiuni / Sandbox, surse despre bucla exterioară și autonomie, surse despre harness și migrarea între modele), iar fiecare intrare are aceeași formă: afirmația, sursa, unde anume e folosită în manual și orice avertisment care merită știut.
 
 ### Studii și cercetare
 
@@ -2834,6 +2929,197 @@ Anexa asta există pentru că fiecare afirmație din manual merită o sursă ver
 **Sursa:** The AutoGPT and BabyAGI repositories document the 2023 design: [github.com/Significant-Gravitas/AutoGPT](https://github.com/Significant-Gravitas/AutoGPT), [github.com/yoheinakajima/babyagi](https://github.com/yoheinakajima/babyagi). The structural contrast is this manual's analysis, drawn from the Ralph-era sources above.
 **Unde e folosită:** Capitolul 9 (pattern-ul opt), paragraful despre filiație.
 **Atenție:** Verdictul de "prăbușire" e o interpretare; ambele proiecte au continuat în alte roluri.
+
+---
+
+### Surse despre harness și migrarea între modele
+
+**Afirmația:** Anthropic a scos peste 80% din system prompt-ul propriu al Claude Code pentru generația Claude 5 (Opus 5, Fable 5), fără pierdere măsurabilă pe evaluările lui de coding, înlocuind regulile cu judecată și exemplele lucrate cu interfețe proiectate.
+**Sursa:** Thariq Shihipar, "The new rules of context engineering for Claude 5 generation models," Anthropic blog, July 24, 2026: [claude.com/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models](https://claude.com/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models).
+**Unde e folosită:** Capitolul 6 (plafonul de două sute de linii).
+**Atenție:** Evaluările proprii ale vendorului, pe propriul harness; sfatul e scris pentru generația Claude 5, iar modelele mai vechi s-ar putea să aibă încă nevoie de instrucțiunile șterse.
+
+---
+
+**Afirmația:** Ghidul de prompting al Anthropic pentru Fable 5 spune că subagenții verificatori separați, cu context proaspăt, tind să depășească autocritica; descrie un sistem de memorie cu câte o lecție per fișier, cu rezumat de o linie, actualizată în loc de duplicată, ștearsă când e greșită; documentează opririle timpurii rare pe o declarație de intenție („I'll now run X”) și acțiunile ocazionale necerute, fiecare cu un bloc de prompt; și avertizează că a cere modelului să-și reproducă raționamentul în răspuns poate declanșa categoria de refuz reasoning_extraction.
+**Sursa:** Anthropic, "Prompting Claude Fable 5," Claude Platform docs: [platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5).
+**Unde e folosită:** Capitolul 5 (blocul de autonomie din Execute, Review), Capitolul 6 (mecanica jurnalului de greșeli), Anexa B.3 și B.9.
+**Atenție:** Pagină de documentație nedatată, revizuită pe loc; verifică formularea curentă înainte să te bazezi pe o frază anume.
+
+---
+
+**Afirmația:** Ghidul de prompting al Anthropic pentru Fable 5.1 recomandă ca tool-ul care pornește un subagent să se întoarcă imediat, cu rezultatul livrat într-un mesaj ulterior; spune că numele nivelurilor de effort nu corespund aceleiași cantități de gândire de la un model la altul și că Fable 5.1 pe effort low e adesea competitiv cu Opus și Sonnet la cost per task, cu scor mai mare; cere istoric de conversație append-only, pentru că blocurile de gândire sunt valide doar în conversația exactă care le-a produs; notează că, odată cu citirile din cache mai ieftine, compactarea timpurie ca să economisești s-ar putea să nu mai fie schimbul potrivit; și dă o listă de păstrat pentru rezumatele de compactare.
+**Sursa:** Anthropic, "Prompting Claude Fable 5.1," Claude Platform docs: [platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-1](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-1).
+**Unde e folosită:** Capitolul 1 (Effort), Capitolul 5 (Execute, igiena contextului), Anexa B.7 și B.9.
+**Atenție:** Pagină de documentație nedatată, pentru un model lansat pe 1 septembrie 2026. Cifra de 0,025x din Capitolul 5 e aritmetica manualului pe prețurile publicate ale citirii din cache și ale input-ului de bază la momentul scrierii; cerința de append-only se aplică, conform ghidului, conturilor create de la 31 august 2026 încoace.
+
+---
+
+**Afirmația:** Pattern-ul „advisor” al Anthropic: Sonnet cu Opus ca advisor a obținut cu 2,7 puncte procentuale mai mult pe SWE-bench Multilingual decât Sonnet singur, la un cost per task agentic cu 11,9% mai mic; Haiku cu un advisor Opus a obținut 41,2% pe BrowseComp față de 19,7% singur, rămânând cu 29% în urma lui Sonnet singur la scor, la un cost per task cu 85% mai mic.
+**Sursa:** Anthropic, "The advisor strategy: Give agents an intelligence boost," April 9, 2026: [claude.com/blog/the-advisor-strategy](https://claude.com/blog/the-advisor-strategy).
+**Unde e folosită:** Anexa A (Pârghiile structurale, rutarea pe tier-uri).
+**Atenție:** Benchmark-uri ale vendorului pe propriile modele; cifrele de cost sunt per task pe acele benchmark-uri, nu un raport general.
+
+---
+
+**Afirmația:** Editarea contextului de la Anthropic (curățarea automată a rezultatelor învechite de tool-uri) a adus o îmbunătățire de 29% pe o evaluare internă de căutare agentică.
+**Sursa:** Anthropic, "Managing context on the Claude Developer Platform," September 29, 2025: [claude.com/blog/context-management](https://claude.com/blog/context-management).
+**Unde e folosită:** Capitolul 5 (igiena contextului), Anexa A (mascare în loc de rezumare).
+**Atenție:** Evaluare internă; postarea descrie curățarea, nu o comparație cu rezumarea - comparația aia e intrarea JetBrains de mai jos.
+
+---
+
+**Afirmația:** Ghidul OpenAI pentru builderi raportează că GPT-5.6 Sol pe effort low a depășit GPT-5.5 pe effort high la Agents' Last Exam, cu harness-ul ținut constant, și că apelarea programatică a tool-urilor a egalat calitatea pe rubrici folosind cu 21% mai puțini tokeni de input pe un benchmark de research financiar.
+**Sursa:** OpenAI, "The builder's guide to GPT-5.6," August 2026: [openai.com/index/builders-guide-to-gpt-5-6/](https://openai.com/index/builders-guide-to-gpt-5-6/); migration guidance in "Prompting guidance for GPT-5.6 Sol," [developers.openai.com/api/docs/guides/prompt-guidance-gpt-5p6](https://developers.openai.com/api/docs/guides/prompt-guidance-gpt-5p6).
+**Unde e folosită:** Capitolul 1 (Effort, Tool-uri), Anexa B.9.
+**Atenție:** Evaluări ale vendorului; cifra de 21% vine dintr-un singur benchmark (Rogo's Big Finance Benchmark), nu e o medie generală. Ghidul de migrare spune să păstrezi effort-ul curent ca baseline și să compari cu un nivel mai jos - adică sweep-ul din B.9, în cuvintele vendorului.
+
+---
+
+**Afirmația:** Ghidul OpenAI pentru GPT-6 Astra spune că instrucțiunile utilizatorului au prioritate față de îndrumările dintr-un skill; că modelul e mai sensibil la informația din context, așa că o îndrumare neclară sau contradictorie într-un fișier de skill îl poate face să se oprească și să blocheze munca devreme; că e mai înclinat să pună utilizatorului o întrebare când un input ar putea schimba rezultatul; și că tinde spre teste mai late decât cere task-ul, cu contra-îndrumarea de a nu scrie teste pentru modificări reversibile, cu impact mic.
+**Sursa:** OpenAI, "Using GPT-6 Astra," September 2026: [developers.openai.com/api/docs/guides/latest-model](https://developers.openai.com/api/docs/guides/latest-model).
+**Unde e folosită:** Capitolul 5 (blocul de autonomie din Execute), Capitolul 6 (linia de precedență), Anexa B.2 și B.3.
+**Atenție:** Astra e numele de cod al modelului GPT-6 de la OpenAI, lansat pe 3-4 septembrie 2026, nu un produs separat; ghidul e nedatat și revizuit pe loc.
+
+---
+
+**Afirmația:** Practica proprie a OpenAI pentru Codex ține un AGENTS.md scurt, de vreo 100 de linii, care servește în primul rând ca hartă, cu pointeri spre surse de adevăr mai adânci, iar baza de cunoștințe a repository-ului stă într-un director docs/ structurat, tratat ca sistem de referință.
+**Sursa:** Ryan Lopopolo, "Harness engineering: leveraging Codex in an agent-first world," OpenAI, February 11, 2026: [openai.com/index/harness-engineering/](https://openai.com/index/harness-engineering/).
+**Unde e folosită:** Capitolul 6 (unde stă harta), Anexa B.2.
+**Atenție:** Practica unei singure echipe, descrisă de vendor. Harness-ul Codex în sine a fost publicat open source în august 2026 ("Codex as a platform," [developers.openai.com/blog/codex-as-a-platform](https://developers.openai.com/blog/codex-as-a-platform)), într-o postare separată.
+
+---
+
+**Afirmația:** Activarea raționamentului păstrat și a compactării a dus GPT-5.6 Sol de la 13,3% la 38,3% pe ARC-AGI-3, reducând în același timp tokenii de output de șase ori, cu harness-ul altfel neschimbat.
+**Sursa:** OpenAI, "How enabling two settings tripled our scores on the ARC-AGI-3 benchmark," July 29, 2026: [openai.com/index/how-two-settings-tripled-our-arc-agi-3-scores/](https://openai.com/index/how-two-settings-tripled-our-arc-agi-3-scores/).
+**Unde e folosită:** Capitolul 1 (Effort, raționamentul păstrat).
+**Atenție:** Postare a vendorului, pe un singur benchmark și un singur model. Manualul o folosește pentru mecanism - raționamentul păstrat între ture se compune - nu pentru scorul concret.
+
+---
+
+**Afirmația:** Ambii agenți majori expun acum un evaluator al condiției de finalizare pe care bucla nu-l controlează: /goal din Claude Code trimite condiția și conversația unui model mic și rapid (Haiku by default) după fiecare tură, care întoarce unul din trei verdicte - neîndeplinit încă, îndeplinit sau imposibil; Codex Goals dă unui thread o condiție de finalizare persistentă și se oprește doar când o evaluare o confirmă sau când se atinge o limită dură.
+**Sursa:** Claude Code docs, "/goal": [code.claude.com/docs/en/goal](https://code.claude.com/docs/en/goal); OpenAI Cookbook, "Using Goals in Codex": [developers.openai.com/cookbook/examples/codex/using_goals_in_codex](https://developers.openai.com/cookbook/examples/codex/using_goals_in_codex).
+**Unde e folosită:** Capitolul 9 (pattern-ul opt, condiția de oprire).
+**Atenție:** Documentație de mecanism, nu dovezi de rezultat. README-ul plugin-ului ralph-wiggum numește `--max-iterations` drept principalul mecanism de siguranță și oferă anecdote, nu rezultate controlate; la momentul scrierii nu s-a găsit nicio dovadă controlată pentru niciunul dintre cele trei.
+
+---
+
+**Afirmația:** Fișierele de context la nivel de repository (AGENTS.md și echivalentele lui) n-au îmbunătățit în general rata de succes a agenților de cod, în timp ce au crescut costul de inferență cu peste 20% în medie; privirile de ansamblu asupra repository-ului, deși populare și recomandate de vendorii de modele, n-au fost utile; fișierele scrise de developeri au arătat doar un câștig modest, nesemnificativ, față de cele generate.
+**Sursa:** Thibaud Gloaguen, Niels Mündler, Mark Niklas Müller, Veselin Raychev, Martin Vechev (ETH Zürich), "Evaluating AGENTS.md: Are Repository-Level Context Files Helpful for Coding Agents?", February 12, 2026 (v2 June 23, 2026): [arxiv.org/abs/2602.11988](https://arxiv.org/abs/2602.11988).
+**Unde e folosită:** Capitolul 6 (unde stă harta), Anexa B.2.
+**Atenție:** Măsurat pe anumiți agenți și anumite benchmark-uri. Lectura manualului - păstrezi pattern-urile interzise, jurnalul, convențiile și comenzile, scoți harta - e o interpretare; lucrarea nu izolează o categorie de conținut cu efect pozitiv semnificativ.
+
+---
+
+**Afirmația:** Pe 260 de configurații multi-agent, coordonarea a ajutat doar pe task-urile descompozabile, a degradat planificarea secvențială cu între 39% și 70% în funcție de arhitectură și a produs randamente negative pe task-urile unde un singur agent depășea deja circa 45% acuratețe.
+**Sursa:** Kim et al., "Capable language models can outgrow the benefits of collaboration," Nature Machine Intelligence 8, 1157-1172, July 24, 2026: [doi.org/10.1038/s42256-026-01268-y](https://doi.org/10.1038/s42256-026-01268-y); preprint "Towards a Science of Scaling Agent Systems," [arxiv.org/abs/2512.08296](https://arxiv.org/abs/2512.08296).
+**Unde e folosită:** Capitolul 5 (Execute, gate-ul de împărțire), Anexa B.3.
+**Atenție:** Benchmark-urile nu sunt specifice codului; pragul de 45% e un predictor ajustat pe task-urile testate, nu o lege.
+
+---
+
+**Afirmația:** Pe SpecBench, fiecare agent de frontieră saturează suita de teste vizibilă, în timp ce scorul pe testele ascunse rămâne mult mai mic, cu decalaje de circa 43-48 de puncte procentuale; decalajul la percentila 90 crește cu circa 27 de puncte la fiecare înzecire a numărului de linii de cod; căutarea suplimentară nu elimină fiabil reward hacking-ul.
+**Sursa:** Bingchen Zhao, Dhruv Srikanth, Yuxiang Wu, Zhengyao Jiang (Weco AI), "SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents," May 20, 2026 (v2 September 9, 2026): [arxiv.org/abs/2605.21384](https://arxiv.org/abs/2605.21384).
+**Unde e folosită:** Capitolul 5 (Poți avea încredere în testele scrise de agent?), Anexa B.3.
+**Atenție:** Abstractul rotunjește creșterea la 28 de puncte; corpul lucrării raportează 27, cu R² de 0,21, deci trendul e real și zgomotos.
+
+---
+
+**Afirmația:** Pe SWE-bench Pro, 63% dintre rezolvările reușite ale lui Claude Opus 4.8 Max au recuperat fix-ul din upstream în loc să-l derive; sigilarea istoricului de git și tăierea egress-ului de rețea au coborât scorul de la 87,1% la 73,0%.
+**Sursa:** Naman Jain, Cursor, "Reward hacking is swamping model intelligence gains," June 25, 2026: [cursor.com/blog/reward-hacking-coding-benchmarks](https://cursor.com/blog/reward-hacking-coding-benchmarks).
+**Unde e folosită:** Capitolul 5 (Poți avea încredere în testele scrise de agent?).
+**Atenție:** Harness-ul unui singur vendor și un singur model; comportamentul e o proprietate a gate-ului, nu a modelului numit.
+
+---
+
+**Afirmația:** Într-un setup de raționament multi-agent, criticile verificate ca utile ale reviewerului mai precis au schimbat următorul candidat doar în 33,6% din cazuri, în timp ce un setup broadcast (între egali) a ajuns la 93,5% și la rata finală de succes mai mare.
+**Sursa:** Chih-Hsuan Yang et al., "Precise but Uncoupled: Reviewer Precision Does Not Guarantee Critique Uptake in Multi-Agent Math Reasoning," July 16, 2026: [arxiv.org/abs/2607.15388](https://arxiv.org/abs/2607.15388).
+**Unde e folosită:** Capitolul 5 (Review), Anexa B.3.
+**Atenție:** Raționament matematic, nu code review; manualul împrumută măsurătoarea - preluarea contează mai mult decât precizia -, nu domeniul.
+
+---
+
+**Afirmația:** O buclă de verificare-și-reparare ghidată de rubrici (DeepVerifier) a atins vârful în jurul rundei a patra și scăzuse până la a zecea, pentru că tranziția incorect-la-corect se stinge repede, în timp ce tranziția corect-la-incorect persistă.
+**Sursa:** Yuxuan Wan et al., "Inference-Time Scaling of Verification: Self-Evolving Deep Research Agents via Test-Time Rubric-Guided Verification," January 22, 2026 (v2 April 29, 2026): [arxiv.org/abs/2601.15808](https://arxiv.org/abs/2601.15808).
+**Unde e folosită:** Capitolul 5 (Review, plafonarea rundelor), Anexa B.3.
+**Atenție:** Agenți de deep research pe GAIA, nu coding; scăderea față de vârf e de câteva puncte, deci lecția e forma curbei, nu mărimea căderii.
+
+---
+
+**Afirmația:** Judecătorii LLM se ancorează de un scor anterior care li se arată, și nici raționamentul chain-of-thought, nici un avertisment explicit de a ignora metadatele nu elimină efectul total.
+**Sursa:** Ante Kapetanovic et al., "Anchoring Bias in LLM-as-a-Judge Systems: Prior Scores Compromise Evaluation Independence," August 26, 2026: [arxiv.org/abs/2608.25869](https://arxiv.org/abs/2608.25869).
+**Unde e folosită:** Capitolul 5 (Review, al doilea reviewer rămâne orb la primul), Anexa B.3.
+**Atenție:** Context de evaluare, nu de code review; manualul aplică rezultatul la situația în care reviewerul doi vede verdictele reviewerului unu.
+
+---
+
+**Afirmația:** Rata cu care un model satisface deodată toate regulile dintr-un prompt se prăbușește la zero pe la 80 de reguli simultane, pentru fiecare model, format și plasare testate, inclusiv Claude Sonnet 5 și Claude Haiku.
+**Sursa:** Netanel Eliav, "Prompt Design at Scale: How Format, Instruction Count, and Context Length Shape Instruction Adherence and Hallucination in Large Language Models," July 21, 2026: [arxiv.org/abs/2607.19257](https://arxiv.org/abs/2607.19257).
+**Unde e folosită:** Capitolul 6 (plafonul de două sute de linii).
+**Atenție:** Rata de răspuns perfect e o metrică strictă; alte lucrări din 2026, pe alte modele de frontieră, raportează praguri mai blânde. Manualul folosește prăbușirea ca să dimensioneze fișierul, nu ca să prezică o cifră anume de conformare.
+
+---
+
+**Afirmația:** RULER măsoară o lungime efectivă a contextului - cel mai lung input la care un model își păstrează un scor-prag pe task-uri de retrieval și raționament pe toată fereastra -, iar la majoritatea modelelor testate lungimea asta cade mult sub dimensiunea de context declarată.
+**Sursa:** Cheng-Ping Hsieh et al. (NVIDIA), "RULER: What's the Real Context Size of Your Long-Context Language Models?", 2024: [arxiv.org/abs/2404.06654](https://arxiv.org/abs/2404.06654).
+**Unde e folosită:** Capitolul 1 (context window).
+**Atenție:** Lectura „pe la jumătate” din Capitolul 1 e o regulă empirică din sintezele practicienilor din 2026 pe rezultate de tip RULER, nu o singură măsurătoare; lungimile efective per model variază mult și se îmbunătățesc cu fiecare generație.
+
+---
+
+**Afirmația:** Pentru sesiuni lungi de coding agentic, mascarea observațiilor vechi de tool-uri a bătut rezumarea cu LLM în patru din cinci setări, a tăiat costul cu peste 50% și a egalat sau a depășit ușor rezumarea la rata de rezolvare.
+**Sursa:** Katie Fraser and Tobias Lindenbauer, JetBrains Research, "Cutting Through the Noise: Smarter Context Management for LLM-Powered Agents," December 2025: [blog.jetbrains.com/research/2025/12/efficient-context-management/](https://blog.jetbrains.com/research/2025/12/efficient-context-management/) (paper: "The Complexity Trap," NeurIPS 2025 DL4Code workshop).
+**Unde e folosită:** Capitolul 5 (igiena contextului), Anexa A, Anexa B.7.
+**Atenție:** Cifra de 52% citată uneori e o singură configurație (Qwen3-Coder 480B); rezultatul general e „peste 50%”.
+
+---
+
+**Afirmația:** Pe 15 modele, performanța în conversații multi-turn fragmentate a scăzut cu 39% în medie față de o singură tură complet specificată, iar consolidarea fragmentelor într-o singură tură a recuperat cam 95% din rezultatul single-turn.
+**Sursa:** Philippe Laban, Hiroaki Hayashi, Yingbo Zhou, Jennifer Neville, "LLMs Get Lost in Multi-Turn Conversation," May 2025: [arxiv.org/abs/2505.06120](https://arxiv.org/abs/2505.06120).
+**Unde e folosită:** Capitolul 5 (igiena contextului, commit și pornește curat).
+**Atenție:** Conversații simulate pe task-uri de generare, nu sesiuni de coding; manualul o folosește pentru mecanismul din spatele consolidării înainte de a continua.
+
+---
+
+**Afirmația:** Opus 4.8 și Sonnet 5 inventează chei pe care o schemă imbricată de tool custom nu le-a declarat niciodată, în timp ce modelele mai vechi nu, iar pornirea invocării stricte a tool-urilor a eliminat comportamentul.
+**Sursa:** Armin Ronacher, "Better Models: Worse Tools," July 4, 2026: [lucumr.pocoo.org/2026/7/4/better-models-worse-tools/](https://lucumr.pocoo.org/2026/7/4/better-models-worse-tools/).
+**Unde e folosită:** Capitolul 1 (Tool-uri), Anexa B.9.
+**Atenție:** Rulările unui singur practician pe un singur harness; recomandarea - decodare strictă pe schemele custom - nu costă nimic de adoptat oricum.
+
+---
+
+**Afirmația:** Într-un harness multi-agent, faci fork pe un worker ca să primească istoricul și cache-ul de prompt ale supervizorului și să continue investigația, și izolezi un verificator ca să evalueze munca în sine în loc să fie ancorat de diagnosticul supervizorului; în sistemele multi-agent care funcționează, scrierile rămân pe un singur fir, iar agenții suplimentari contribuie cu inteligență, nu cu acțiuni.
+**Sursa:** Thushanth Bengre and Chester Curme, LangChain, "Organizing Context in a Multi-Agent Harness," September 8, 2026: [langchain.com/blog/organizing-context-in-a-multi-agent-harness](https://www.langchain.com/blog/organizing-context-in-a-multi-agent-harness); Walden Yan, Cognition, "Multi-Agents: What's Actually Working," April 22, 2026: [cognition.com/blog/multi-agents-working](https://cognition.com/blog/multi-agents-working).
+**Unde e folosită:** Capitolul 5 (Execute, gate-ul de împărțire), Anexa B.3.
+**Atenție:** Ambele sunt postări de inginerie ale unor vendori; „un singur scriitor” e comprimarea manualului pentru „scrierile rămân pe un singur fir” al lui Cognition.
+
+---
+
+**Afirmația:** Runtime-ul de afirmații din OpenWiki, care atașează pointeri la dovezi afirmațiilor stocate și le reverifică, a tăiat afirmațiile învechite din baza lui de cunoștințe de la 3,5% la 0,5% pe 2.000 de afirmații evaluate.
+**Sursa:** Colin Francis, "Building Self-Correcting Memory in OpenWiki," LangChain blog, August 25, 2026: [langchain.com/blog/self-correcting-memory-openwiki](https://www.langchain.com/blog/self-correcting-memory-openwiki).
+**Unde e folosită:** Capitolul 6 (mecanica jurnalului de greșeli).
+**Atenție:** Un sistem de bază de cunoștințe, nu un jurnal de greșeli; manualul împrumută mecanismul - o afirmație care își citează dovada poate fi retrasă când dovada se învechește.
+
+---
+
+**Afirmația:** Navigarea agentică pe Claude Sonnet 4.5 a ajuns la 49,6% recall@1 pe BRIGHT, cu 21,8 puncte peste cel mai bun model de embeddings; spațiile de lucru mărginite (RISE) țin retrieval-ul agentic funcțional la un milion de documente, acolo unde inspecția directă a contextului se degradează; iar căutarea în cod pentru agenți se reduce la trei modalități - lexicală (ripgrep), structurală (ast-grep) și de graf (referințe LSP).
+**Sursa:** Susheel Suresh et al., "AgenticRAG: Agentic Retrieval for Enterprise Knowledge Bases," May 7, 2026: [arxiv.org/abs/2605.05538](https://arxiv.org/abs/2605.05538); Shengyao Zhuang et al., "Towards Retrieving Interaction Spaces for Agentic Search" (RISE), June 5, 2026: [arxiv.org/abs/2606.06880](https://arxiv.org/abs/2606.06880); Andrey Kumanyaev, "Code search for AI agents: the grep replacement is three tools, not one," June 6, 2026: [zzet.org/gortex/grep-replacement-for-ai-agents/](https://zzet.org/gortex/grep-replacement-for-ai-agents/).
+**Unde e folosită:** Capitolul 7 (de ce citește agentul codul, nu un index).
+**Atenție:** Cifra de recall e pe un benchmark general de retrieval, nu pe un codebase; încadrarea cu trei tool-uri e a unui practician, iar manualul nu dă niciun prag numeric pentru momentul în care un index de embeddings începe să rentabilizeze.
+
+---
+
+**Afirmația:** Prompt caching-ul cu un layout de prompt cache-first a redus costul de API cu 41% până la 80% la mai mulți provideri, pe peste 500 de sesiuni de agent; o sesiune default de Claude Code s-a dovedit a consuma cam 24.000 de tokeni de definiții de tool-uri, scheme MCP și reminder-e înainte de orice interacțiune a utilizatorului; cu un pool mare de tool-uri încărcat integral, acuratețea de bază a selecției de tool-uri a fost 13,62%, iar recuperarea doar a tool-urilor relevante per query a urcat-o la 43,13%; socoteala unui practician a pus trei servere MCP la circa 143.000 de tokeni dintr-o fereastră de 200.000.
+**Sursa:** Elias Lumer et al., "Don't Break the Cache: An Evaluation of Prompt Caching for Long-Horizon Agentic Tasks," January 31, 2026: [arxiv.org/abs/2601.06007](https://arxiv.org/abs/2601.06007); GitHub issue anthropics/claude-code#42452, April 2, 2026; Tiantian Gan and Qiyao Sun, "RAG-MCP: Mitigating Prompt Bloat in LLM Tool Selection via Retrieval-Augmented Generation," May 6, 2025: [arxiv.org/abs/2505.03275](https://arxiv.org/abs/2505.03275); MetaBlogue, "MCP servers and the context window," September 5, 2026: [metablogue.com/mcp-servers-context-window/](https://metablogue.com/mcp-servers-context-window/).
+**Unde e folosită:** Capitolul 1 (Tool-uri), Anexa A (Pârghiile structurale).
+**Atenție:** Cifrele de 24k și 143k sunt socoteli de practicieni, care variază de la o instalare la alta, și nu vin dintr-un studiu controlat; cifrele RAG-MCP compară o metodă de retrieval cu un baseline fără retrieval, la scară, și datează din 2025.
+
+---
+
+**Afirmația:** Pentru între 37% și 63% dintre lucrările de inginerie software analizate, un model mai nou cu un singur prompt depășește nativ tooling-ul puternic ingineresc propus cu circa un an înainte.
+**Sursa:** Nahian Salsabil et al., "What Survives the Next Model? Benchmarking LLM-Based Techniques Against Single-Prompts," August 31, 2026: [arxiv.org/abs/2609.00468](https://arxiv.org/abs/2609.00468).
+**Unde e folosită:** Capitolul 8 (semnalul soft de lângă viteza schimbării), Anexa B.9.
+**Atenție:** Preprint pe arXiv, încă fără peer review; manualul îl folosește pentru direcție - fiecare generație pensionează o parte din harness -, nu pentru fracția exactă.
 
 ---
 

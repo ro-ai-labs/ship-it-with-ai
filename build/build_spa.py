@@ -553,6 +553,14 @@ def diagram_primitives() -> str:
           <span class="primitive-sub">auto-memory system</span>
         </div>
       </div>
+      <div class="primitive">
+        <div class="primitive-icon">◔</div>
+        <div class="primitive-name">effort</div>
+        <div class="primitive-sublist">
+          <span class="primitive-sub">reasoning level</span>
+          <span class="primitive-sub">retained reasoning</span>
+        </div>
+      </div>
     </div>
     <div class="primitives-divider" aria-hidden="true"></div>
     <div class="primitives-recursive">
@@ -907,6 +915,8 @@ SOURCE_GROUPS = {
     "Marketplaces and plugin ecosystems":    ("market",   "Marketplace"),
     "Memory primitive sources":              ("memory",   "Memory primitive"),
     "Permissions / Sandbox primitive sources": ("perms",  "Permissions / Sandbox primitive"),
+    "Outer-loop and autonomy sources":       ("loop",     "Outer loop"),
+    "Harness and model-migration sources":   ("harness",  "Harness"),
 }
 
 SOURCE_ENTRY_RE = re.compile(
@@ -3342,6 +3352,8 @@ def set_language(lang: Lang) -> None:
             "Marketplaces and plugin ecosystems":      ("market",   "Marketplace"),
             "Memory primitive sources":                ("memory",   "Memory primitive"),
             "Permissions / Sandbox primitive sources": ("perms",    "Permissions / Sandbox primitive"),
+            "Outer-loop and autonomy sources":         ("loop",     "Outer loop"),
+            "Harness and model-migration sources":     ("harness",  "Harness"),
         }
         SOURCE_ENTRY_RE = re.compile(
             r"<p>\s*<strong>Claim:</strong>\s*(?P<claim>.*?)\s*"
@@ -3389,6 +3401,8 @@ def set_language(lang: Lang) -> None:
             "Marketplace-uri și ecosisteme de plugin-uri":  ("market",   "Marketplace"),
             "Surse pentru componenta principală Memory":               ("memory",   "Componenta principală Memory"),
             "Surse pentru componenta principală Permisiuni / Sandbox": ("perms",    "Componenta principală Permisiuni / Sandbox"),
+            "Surse despre bucla exterioară și autonomie":              ("loop",     "Bucla exterioară"),
+            "Surse despre harness și migrarea între modele":           ("harness",  "Harness"),
         }
         SOURCE_ENTRY_RE = re.compile(
             r"<p>\s*<strong>Afirmația:</strong>\s*(?P<claim>.*?)\s*"

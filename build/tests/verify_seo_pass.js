@@ -604,7 +604,7 @@ async function main() {
       const forbidden = [
         'six primitives', 'sixth primitive', 'the other five', 'five primitives',
         'five capabilities', 'six conceptual', 'Six questions',
-        'Nine inspection points', 'nine inspection points',
+        'Eight inspection points', 'eight inspection points',
         'Six primitives. Two implementations', 'The sixth one is newer',
         'of the six',
         'are not additional primitives',
@@ -621,15 +621,15 @@ async function main() {
     {
       const readHtml = fs.readFileSync(path.join(repoRoot, '_site', 'read', 'index.html'), 'utf8');
       const required = [
-        'Nine questions today',
-        'Eight inspection points',
+        'Ten questions today',
+        'Nine inspection points',
         'auto-memory system',
         'early-mover signal',
         'which Claude Code reads natively',
         'Manually defined memory',
         'The primitives are an open set',
         'The primitives. Two implementations',
-        'Context window. Tools. Permissions / Sandbox. Skills. Plugins. MCP. Memory. Subagents.',
+        'Context window. Tools. Permissions / Sandbox. Skills. Plugins. MCP. Memory. Effort. Subagents.',
         'Permissions / Sandbox',
         'convergent pairing is the primitive',
       ];
@@ -737,8 +737,8 @@ async function main() {
       const body = (await page.locator('main').textContent()) || '';
       if (!body.includes('Permissions / Sandbox')) fail('chapter-2 missing Permissions / Sandbox');
       else ok('chapter-2 mentions Permissions / Sandbox');
-      if (!body.includes('Eight inspection points')) fail('chapter-2 missing "Eight inspection points"');
-      else ok('chapter-2 has "Eight inspection points"');
+      if (!body.includes('Nine inspection points')) fail('chapter-2 missing "Nine inspection points"');
+      else ok('chapter-2 has "Nine inspection points"');
       await ctx.close();
     }
 

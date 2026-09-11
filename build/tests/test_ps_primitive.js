@@ -55,14 +55,14 @@ async function main() {
       await page.goto(BASE + '/chapter-1-primitives/');
       const names = await page.locator('.primitives-grid > .primitive .primitive-name').allTextContents();
       const trimmed = names.map(n => n.trim().toLowerCase());
-      const expected = ['context window', 'tools', 'permissions / sandbox', 'skills', 'plugins', 'mcp', 'memory'];
+      const expected = ['context window', 'tools', 'permissions / sandbox', 'skills', 'plugins', 'mcp', 'memory', 'effort'];
       const orderOk = JSON.stringify(trimmed) === JSON.stringify(expected);
 
       const recursive = await page.locator('.primitives-recursive .primitive').count();
       const recursiveName = recursive ? (await page.locator('.primitives-recursive .primitive .primitive-name').first().textContent() || '').trim().toLowerCase() : '';
       const recursiveOk = recursive === 1 && /subagent/.test(recursiveName);
 
-      record(2, 'Diagram cell ordering (7 main + 1 recursive subagents)', orderOk && recursiveOk,
+      record(2, 'Diagram cell ordering (8 main + 1 recursive subagents)', orderOk && recursiveOk,
         `grid: [${trimmed.join(', ')}]; recursive count: ${recursive} ("${recursiveName}")`);
     }
 
@@ -76,8 +76,8 @@ async function main() {
       const memTexts = memSublistSpans.map(s => s.trim().toLowerCase());
       const psOk = psTexts.includes('decision layer') && psTexts.includes('os enforcement');
       const memOk = memTexts.includes('manually defined') && memTexts.includes('auto-memory system');
-      const ok = sublistCount === 2 && psOk && memOk;
-      record(3, 'Sublists present on Memory + P/S', ok,
+      const ok = sublistCount === 3 && psOk && memOk;
+      record(3, 'Sublists present on Memory + P/S (+ Effort)', ok,
         `count: ${sublistCount}, P/S: [${psTexts.join(', ')}], Mem: [${memTexts.join(', ')}]`);
     }
 
@@ -91,30 +91,30 @@ async function main() {
         `new phrase present: ${hasNew}, old phrase present: ${hasOld}`);
     }
 
-    // ===== 5. Ch.1 "Nine questions today" =====
+    // ===== 5. Ch.1 "Ten questions today" =====
     {
       const body = await page.locator('body').textContent();
-      const hasNine = body.includes('Nine questions today');
-      const hasEight = /Eight questions today/.test(body);
-      record(5, 'Ch.1 "Nine questions today"', hasNine && !hasEight,
-        `nine present: ${hasNine}, eight present: ${hasEight}`);
+      const hasTen = body.includes('Ten questions today');
+      const hasNine = /Nine questions today/.test(body);
+      record(5, 'Ch.1 "Ten questions today"', hasTen && !hasNine,
+        `ten present: ${hasTen}, nine present: ${hasNine}`);
     }
 
-    // ===== 6. Ch.2 "Eight inspection points" =====
+    // ===== 6. Ch.2 "Nine inspection points" =====
     {
       await page.goto(BASE + '/chapter-2-anatomy-invariant/');
       const body = await page.locator('body').textContent();
-      const hasEight = body.includes('Eight inspection points');
       const hasNine = body.includes('Nine inspection points');
-      record(6, 'Ch.2 "Eight inspection points"', hasEight && !hasNine,
-        `eight present: ${hasEight}, nine present: ${hasNine}`);
+      const hasEight = body.includes('Eight inspection points');
+      record(6, 'Ch.2 "Nine inspection points"', hasNine && !hasEight,
+        `nine present: ${hasNine}, eight present: ${hasEight}`);
     }
 
     // ===== 7. Ch.2 Artifact callout =====
     {
       const body = await page.locator('body').textContent();
-      const hasNew = /the eight inspection points from this chapter/i.test(body);
-      const hasOld = /the nine inspection points from this chapter/i.test(body);
+      const hasNew = /the nine inspection points from this chapter/i.test(body);
+      const hasOld = /the eight inspection points from this chapter/i.test(body);
       record(7, 'Ch.2 Artifact callout', hasNew && !hasOld,
         `new phrase: ${hasNew}, old phrase: ${hasOld}`);
     }
@@ -198,12 +198,12 @@ async function main() {
     {
       const txt = await fetchText(BASE + '/llms-full.txt');
       const hasBold = txt.includes('**Permissions / Sandbox**');
-      const canonical = 'Context window. Tools. Permissions / Sandbox. Skills. Plugins. MCP. Memory. Subagents.';
+      const canonical = 'Context window. Tools. Permissions / Sandbox. Skills. Plugins. MCP. Memory. Effort. Subagents.';
       const hasCanonical = txt.includes(canonical);
-      const hasEight = txt.includes('Eight inspection points');
-      const ok = hasBold && hasCanonical && hasEight;
+      const hasNine = txt.includes('Nine inspection points');
+      const ok = hasBold && hasCanonical && hasNine;
       record(13, 'llms-full.txt content', ok,
-        `bold:${hasBold}, canonical:${hasCanonical}, eight:${hasEight}`);
+        `bold:${hasBold}, canonical:${hasCanonical}, nine:${hasNine}`);
     }
 
     // ===== 14. Cross-section linking =====
@@ -236,11 +236,11 @@ async function main() {
     // ===== 16. Read-mode integration =====
     {
       await page.goto(BASE + '/read/');
-      // Approach: the canonical primitive list "Context window. Tools. Permissions / Sandbox. Skills. Plugins. MCP. Memory. Subagents."
+      // Approach: the canonical primitive list "Context window. Tools. Permissions / Sandbox. Skills. Plugins. MCP. Memory. Effort. Subagents."
       // appears in /read/ - confirms the section is integrated in the right order.
       // Also confirm an h3#permissions-sandbox is present in /read/.
       const html = await page.content();
-      const canonical = 'Context window. Tools. Permissions / Sandbox. Skills. Plugins. MCP. Memory. Subagents.';
+      const canonical = 'Context window. Tools. Permissions / Sandbox. Skills. Plugins. MCP. Memory. Effort. Subagents.';
       const hasCanonical = html.includes(canonical);
       const hasH3 = /<h3[^>]*id="permissions-sandbox"[^>]*>\s*Permissions\s*\/\s*Sandbox/i.test(html);
       // Positional: find where the h3#permissions-sandbox sits and confirm "Skills" content appears after it in the same Ch.1 region.

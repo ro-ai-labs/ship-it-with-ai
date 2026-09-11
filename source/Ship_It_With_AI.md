@@ -150,7 +150,7 @@ You can skip backwards. Each chapter assumes the chapter before it, but the temp
 
 ## A note on dated claims {#a-note-on-dated-claims}
 
-Tool-specific references in this manual are current as of July 2026. The frameworks are intended to outlast the specific tools. When a named product capability matters, I either date the claim or treat it as an example rather than a permanent property. Source notes for the load-bearing factual claims are in Appendix C.
+Tool-specific references in this manual are current as of September 2026. The frameworks are intended to outlast the specific tools. When a named product capability matters, I either date the claim or treat it as an example rather than a permanent property. Source notes for the load-bearing factual claims are in Appendix C.
 
 I do my best to keep the manual current and maintain a [changelog](/changelog/) of meaningful updates.
 
@@ -235,7 +235,7 @@ The tools change. The methodology endures. That is the bet of this manual.
 
 Open the source code or documentation of most production-grade coding agents - Codex CLI in Rust, opencode in TypeScript, the public-source parts of Claude Code, the agents shipped by half a dozen smaller vendors - and you see the same architecture emerging: a small set of primitives wrapped by a harness. The implementations differ. The anatomy converges. Different names sometimes, different file layouts always, but the same conceptual building blocks. Most are local capabilities of the agent. One - subagents - is the composition mechanism that makes the agent recursive: it can spawn constrained instances of itself.
 
-Context window. Tools. Permissions / Sandbox. Skills. Plugins. MCP. Memory. Subagents.
+Context window. Tools. Permissions / Sandbox. Skills. Plugins. MCP. Memory. Effort. Subagents.
 
 Subagents are recent in the public vocabulary, not because the idea is new but because they went universal across the major agents in a tight window. Claude Code shipped the Task tool, then layered Agent Teams on top of it for higher-level coordination. In March 2026, Codex CLI took subagents GA as a first-class workflow with parallel dispatch. Cursor shipped parallel agents in 2.0 and a full subagent system in 2.4. Cline shipped subagents natively. Within roughly a year, dispatching a constrained child instance of the agent went from "advanced workflow" to "a primitive the harness exposes by default." That is the test I use for primitive status, and subagents pass it.
 
@@ -253,6 +253,7 @@ That is the anatomy. Every interesting question about a coding agent - what it c
    |     plugins                                           |
    |     MCP                                               |
    |     memory  (manually defined | auto-memory system)   |
+   |     effort  (reasoning level | retained reasoning)    |
    |                                                       |
    |     -----------------------------------------         |
    |                                                       |
@@ -264,11 +265,11 @@ That is the anatomy. Every interesting question about a coding agent - what it c
         of the agent itself
 ```
 
-*Figure: The primitives and the harness that runs them. Permissions / Sandbox sits in slot 3 as a primitive whose two halves - the agent-level decision layer and OS-level enforcement - converge on presence but diverge on posture across vendors. Memory's second half - the agent-written layer - converged across the major agents in the first months of 2026. Subagents sit below the line because they are the recursive primitive: each subagent is itself an instance of the others.*
+*Figure: The primitives and the harness that runs them. Permissions / Sandbox sits in slot 3 as a primitive whose two halves - the agent-level decision layer and OS-level enforcement - converge on presence but diverge on posture across vendors. Memory's second half - the agent-written layer - converged across the major agents in the first months of 2026. Effort is the newest slot: the reasoning dial, and whether the reasoning it buys is retained from one turn to the next. Subagents sit below the line because they are the recursive primitive: each subagent is itself an instance of the others.*
 
 ---
 
-**The context window** is what the agent knows right now. It is bounded - every model has a maximum number of tokens it can hold in active attention. Two hundred thousand on a compact model. A million from the mid-range up, now that the million-token window has spread from the flagship tier to the workhorse models. Those numbers are growing every quarter; by the time you read this they will be larger. But the bound exists, and the bound matters, because the context window is the workspace inside which the agent makes decisions.
+**The context window** is what the agent knows right now. It is bounded - every model has a maximum number of tokens it can hold in active attention. Two hundred thousand on a compact model. A million from the mid-range up, now that the million-token window has spread from the flagship tier to the workhorse models. Those numbers are growing every quarter; by the time you read this they will be larger. Discount them before you plan around them: NVIDIA's RULER benchmark measures an effective context length - the longest input at which a model still holds its short-context score on retrieval and reasoning across the whole window, not a single needle in it - and for most models that length lands well under the advertised figure, commonly around half. But the bound exists, and the bound matters, because the context window is the workspace inside which the agent makes decisions.
 
 What goes in the context window? The system prompt that defines the agent's role and constraints. The current conversation history with the user. The tool calls the agent has made and the results those calls returned. Any files the agent has read or chunks of files it has loaded. Any instructions injected by the harness (we will get to the harness in a moment). That is roughly what fills the window.
 
@@ -283,6 +284,8 @@ Context window management is therefore one of the central engineering discipline
 **Tools** are the actions the agent can take. Reading a file. Writing a file. Editing a file in place. Running a shell command. Searching for text across the codebase. Listing the contents of a directory.
 
 Most production-grade coding agents converge on roughly the same core tool set. Read, Write, Edit, Bash, Glob, Grep. Sometimes a few more - running a Python snippet, fetching a URL, parsing a structured document. These are the verbs. Without them, the agent could think but could not act.
+
+The count matters as much as the verbs. Every tool the agent can see costs context before the first word of your prompt - one audit of a default Claude Code session counted about 24k tokens of tool definitions, MCP schemas, and reminders consumed before the user typed anything, and one practitioner's count put three MCP servers at 143k of a 200k window - and the agent's ability to pick the right tool collapses as the menu grows: with a large tool catalog fully loaded, selection accuracy in one benchmark fell under 14%, and loading only the handful of tools relevant to the query brought it to 43%. The harness answers arriving in 2026 are deferred loading (the agent sees tool names and fetches a schema only when it reaches for the tool) and programmatic tool calling (the model writes a short script that calls tools in a loop and returns one result, instead of one round-trip per call; native in GPT-5.6, where it cut input tokens by 21% on one financial-research evaluation). Two disciplines follow. Keep the always-visible tool set small and defer the rest. And when you write custom tools with nested schemas, turn strict decoding on: without it the current models invent fields the schema never declared - Armin Ronacher documented Opus 4.8 and Sonnet 5 doing exactly that, and strict mode eliminating it - and the invented field reads as plausibly as the real one.
 
 Tools are conceptually simple and operationally important. Each tool call is a decision point. Each tool call is also an audit point - production-grade agents should record the tool calls they made, in order, with arguments, so you can replay and inspect the agent's behavior after the fact. If you have ever had to debug a multi-step agent action that went wrong, you will appreciate the audit trail. The tool call log is the equivalent of the SQL query log in a database problem - without it, you are guessing.
 
@@ -360,6 +363,16 @@ Both halves pass the convergence test today - the manually defined layer over ye
 
 ---
 
+### Effort {#effort}
+
+**Effort** is how hard the model thinks before it acts, and it is the newest primitive on the list. Every major agent now exposes it as a setting, under different names - reasoning effort, thinking level, thinking budget - and by the convergence test that is enough. But it earns its place on leverage, not on presence. With the harness held constant, GPT-5.6 at low effort beat GPT-5.5 at high on Agents' Last Exam; Fable 5.1 at low effort is often competitive with Opus and Sonnet on cost per task while scoring higher, by its vendor's own guide. The dial moves cost and quality more than most of the harness work this chapter describes, and it moves them in both directions: too low and the agent skips the research the task needed; too high and you pay for reasoning the task never called for.
+
+Two properties make it a primitive rather than a knob. First, effort names do not transfer between models. "High" on one vendor is not "high" on another, and a level tuned for last quarter's model is a guess on this quarter's - which is why every model migration starts with an effort sweep: the same task at each level, cost and outcome read side by side, a level chosen per task type. Appendix B.9 puts that on the checklist. Second, the reasoning that effort buys can be kept or thrown away between turns, and the harness decides which. Retained reasoning - the model's thinking preserved across turns instead of regenerated each time - is the other half of this primitive: on ARC-AGI-3, by OpenAI's own account, turning on retained reasoning and compaction took GPT-5.6 Sol from 13.3% to 38.3% while cutting output tokens by a factor of six. The harness that retains reasoning gets the compounding; the one that discards it pays for the same thinking again. Chapter 5's context hygiene section returns to what that does to editing history.
+
+Effort also changes how you read Appendix A. Per-token pricing multiplies whatever level you leave the agent at, and the default is rarely right for every phase of the loop: research and plan earn high effort; a mechanical execute task on a green codebase usually does not. Set it per phase, not per session.
+
+---
+
 **Subagents** are constrained child instances of the agent itself.
 
 The orchestrator agent spawns a subagent, hands it a bounded task with a scoped prompt, and lets it run in its own isolated context with its own scoped tool access. The subagent does the work. The subagent returns a result. The orchestrator collects.
@@ -388,15 +401,15 @@ Said plainly: the harness is the trim around the agent loop. The agent loop is t
 
 ---
 
-A note on vocabulary. The primitives named here are what the agent uses to know, act, gate, extend, integrate, remember, and delegate. The test for primitiveness is convergence: a mechanism is a primitive when every major coding agent ships it as a distinct, configurable bundle, even when the implementations differ substantively. Permissions / Sandbox passes that test on the decision-layer half across all the major agents; the OS-enforcement half is presence-converged but posture-divergent, with the vendor postures catalogued in its section above. The Memory primitive has the same shape on its second half. Telemetry is the closest to crossing: by mid-2026, Claude Code, Codex CLI, and Gemini's CLI all shipped native OpenTelemetry export, so the convergence is arriving - not as a bespoke event-push protocol but as plain OTel. For now it remains a control layer around the primitives; one more turn of the wheel and the list grows again. This chapter is the first convergence catalogue; Chapter 3 is the second.
+A note on vocabulary. The primitives named here are what the agent uses to know, act, gate, extend, integrate, remember, and delegate. The test for primitiveness is convergence: a mechanism is a primitive when every major coding agent ships it as a distinct, configurable bundle, even when the implementations differ substantively. Permissions / Sandbox passes that test on the decision-layer half across all the major agents; the OS-enforcement half is presence-converged but posture-divergent, with the vendor postures catalogued in its section above. The Memory primitive has the same shape on its second half. Effort is the newest to cross: present at every major vendor as a configurable level, divergent in the names and the scale - which is exactly why a level tuned on one model is a guess on the next. Telemetry is the closest to crossing: by mid-2026, Claude Code, Codex CLI, and Gemini's CLI all shipped native OpenTelemetry export, so the convergence is arriving - not as a bespoke event-push protocol but as plain OTel. For now it remains a control layer around the primitives; one more turn of the wheel and the list grows again. This chapter is the first convergence catalogue; Chapter 3 is the second.
 
 ---
 
-Context window. Tools. Permissions / Sandbox. Skills. Plugins. MCP. Memory. Subagents. Plus the harness as the runtime that organizes them. That is the list today. The set is open; expect it to grow. The next primitive will join the way Memory just did: when the convergence appears, not before.
+Context window. Tools. Permissions / Sandbox. Skills. Plugins. MCP. Memory. Effort. Subagents. Plus the harness as the runtime that organizes them. That is the list today. The set is open; expect it to grow. The next primitive will join the way Memory and Effort just did: when the convergence appears, not before.
 
-When the next coding agent appears in the marketplace next quarter, the evaluation rubric is right there. How big is the context window and how does the agent manage it under pressure? What tools are available and how are they constrained? What permission model does it ship - allow/ask/deny rules, auto-mode classifier - and what OS sandbox does it default to? How are skills implemented - always-loaded, or dispatched on detection? Is there a plugin marketplace and is it growing? Does it speak MCP, and how good is the MCP integration? Does it read a team-shared memory file at session start? Does it maintain any agent-written learned memory across sessions? How does it expose subagents - and is parallel dispatch a first-class operation or an afterthought?
+When the next coding agent appears in the marketplace next quarter, the evaluation rubric is right there. How big is the context window and how does the agent manage it under pressure? What tools are available and how are they constrained? What permission model does it ship - allow/ask/deny rules, auto-mode classifier - and what OS sandbox does it default to? How are skills implemented - always-loaded, or dispatched on detection? Is there a plugin marketplace and is it growing? Does it speak MCP, and how good is the MCP integration? Does it read a team-shared memory file at session start? Does it maintain any agent-written learned memory across sessions? What effort levels does it expose, and does the reasoning they buy survive from one turn to the next? How does it expose subagents - and is parallel dispatch a first-class operation or an afterthought?
 
-Nine questions today, across eight primitives - Memory earns two; more tomorrow. They tell you almost everything you need to know to compare the new agent to the one you are using today.
+Ten questions today, across nine primitives - Memory earns two; more tomorrow. They tell you almost everything you need to know to compare the new agent to the one you are using today.
 
 Next chapter: what happens when you point one agent at the source of another. The anatomy I just described becomes very real, very fast.
 
@@ -408,7 +421,7 @@ Next chapter: what happens when you point one agent at the source of another. Th
 
 **Ship this week.**
 
-Open whichever coding agent you have access to. Ask it: how large is your context window, what tools do you have access to, what allow/ask/deny model and what sandbox does this agent ship with, where do skills live, what marketplace are plugins installed from, does this agent speak MCP, where does the agent read team-shared memory from, and how do I dispatch a subagent? Note the answers. You now have the start of an agent evaluation worksheet.
+Open whichever coding agent you have access to. Ask it: how large is your context window, what tools do you have access to, what allow/ask/deny model and what sandbox does this agent ship with, where do skills live, what marketplace are plugins installed from, does this agent speak MCP, where does the agent read team-shared memory from, what effort level is it running at and can I change it, and how do I dispatch a subagent? Note the answers. You now have the start of an agent evaluation worksheet.
 
 ---
 
@@ -487,9 +500,9 @@ You now have the move.
 
 When the next coding agent appears in your marketplace - and one will appear in the next quarter, because the cycle is now measured in months - you do not need to read the launch blog post. You do not need to wait for the comparative review article. You do not need to install it and run it for a week before forming an opinion.
 
-You open its repository. You locate context assembly. You locate the tool registry. You locate the Permissions / Sandbox primitive (decision layer + OS sandbox, the two halves named in Chapter 1). You locate skills loading. You locate plugin extension. You check for MCP support. You locate the memory layer (AGENTS.md or equivalent; any auto-memory surface the vendor exposes). You locate subagent dispatch - all wrapped by the harness's agent loop.
+You open its repository. You locate context assembly. You locate the tool registry. You locate the Permissions / Sandbox primitive (decision layer + OS sandbox, the two halves named in Chapter 1). You locate skills loading. You locate plugin extension. You check for MCP support. You locate the memory layer (AGENTS.md or equivalent; any auto-memory surface the vendor exposes). You locate the effort setting, and check whether the reasoning it buys is retained between turns. You locate subagent dispatch - all wrapped by the harness's agent loop.
 
-Eight inspection points. Twenty minutes of inspection. You will know more about whether to adopt this agent than any review article will tell you, because you will know whether its specific implementation choices fit your team's specific constraints. Language affinity. License compatibility. Sandbox enforcement. Audit posture. The questions are stable.
+Nine inspection points. Twenty minutes of inspection. You will know more about whether to adopt this agent than any review article will tell you, because you will know whether its specific implementation choices fit your team's specific constraints. Language affinity. License compatibility. Sandbox enforcement. Audit posture. The questions are stable.
 
 The vendor's marketing will tell you what they want you to focus on. The source code will tell you what they actually built. The architecture invariant lets you read past the marketing.
 
@@ -501,7 +514,7 @@ The next chapter is about governance specifically - what the layers are, what ea
 
 ---
 
-**Artifact: Source-inspection checklist.** The eight inspection points from this chapter. Use the checklist on the next agent that lands in your team's evaluation queue.
+**Artifact: Source-inspection checklist.** The nine inspection points from this chapter. Use the checklist on the next agent that lands in your team's evaluation queue.
 
 ---
 
@@ -935,7 +948,11 @@ The related cost is mediation when parallel subagents make conflicting edits. Th
 
 The coordination cost shows up as conflict mediation - re-running a dropped branch, or paying a higher-capability model to pick a merge - and it is bounded. The bound: the more independent the subagent tasks are, the lower the conflict rate. The way to keep them independent is to scope by file or by module, not by feature. Six subagents each editing one file is safe. Six subagents all editing the same feature across overlapping files is a recipe for the expensive case every time. In my experience, the teams that hit this problem are usually dispatching too many subagents for the work at hand. Three well-scoped subagents finish faster than eight overlapping ones, every time.
 
+So treat the split as a gate, not a default, and the evidence now says where the gate sits. A study of 260 multi-agent configurations, published in Nature Machine Intelligence in July 2026, found that coordination pays only on decomposable work and costs between 39% and 70% on work that is sequential by nature, planning above all - and that when a single agent already clears roughly 45% on a task, adding agents predicts no gain at all. The gate, then: split only when the tasks are independent by file or by module; keep one writer per file, which is where Cognition landed after a year of arguing against multi-agent systems altogether - parallel readers, a single writer; and choose each child's context deliberately. Fork the workers, so they inherit the orchestrator's history cheaply through the cache and start already knowing the plan. Isolate the reviewers, so they inherit none of it and cannot be anchored by the orchestrator's assumptions. On the current harnesses the dispatch itself returns immediately and the result arrives when the child is done, so the orchestrator keeps working instead of waiting - which is the shape the B.3 checklist assumes.
+
 Execute is also where the agent encounters governance. Every tool call goes through the permission gate. Every Bash command goes through the security hooks. Every file write goes through the sandbox. If the agent tries something the governance layer disallows, the action is blocked, the agent reports back to the orchestrator, the orchestrator decides how to proceed. The rigor lives in the layers below execute; execute just runs the work.
+
+One more block belongs in the execute prompt, and it is vendor-specific in a way the rest of the loop is not. Each model generation has a characteristic autonomy failure, and the vendors now document their own. Fable ends a turn on a statement of intent - "I'll now run the tests" - and stops there, or takes an action nobody asked for; GPT-6 Astra pauses to ask a question it did not need answered and writes broader tests than a reversible change requires. Both vendors publish the fix as a prompt block: state the autonomy level (finish the task before ending the turn; do not stop at acknowledging capability; no tests for reversible, low-impact changes) and the scope (only the files the plan names; stop and report on anything else). B.3 carries both blocks. They will need rewriting for the next model, which is what B.9 is for.
 
 One more artifact belongs to this phase. Research produces a note; plan produces a plan; execute, as described so far, produces only code. Add a running implementation-notes file: every place the implementation had to deviate from the plan and why, every edge case discovered mid-task that the plan never mentioned, every decision a subagent made that the plan left open. The notes cost the agent almost nothing to keep and they pay twice. During review, the spec-compliance reviewer reads them first - the file is a confession list of exactly the places where the diff and the plan disagree, which is exactly what that reviewer exists to find. And they are the antidote to the orchestrator-summary drift named above: the deviation is recorded at the moment it happens, by the subagent that made it, instead of surviving only as a compressed line in a hand-off message. The plan is the map; the notes are the territory reporting back.
 
@@ -947,9 +964,11 @@ Two reviewers. In sequence.
 
 First, spec compliance. The agent reads the original research note, the approved plan, and the actual diff. It answers a single question: does the implementation match the spec? If yes, it says so. If no, it flags the gap. Spec compliance is a different skill from code quality. A change can be high-quality code that does the wrong thing. A change can be ugly code that does exactly the right thing. The spec reviewer cares only about the first dimension.
 
-Second, code quality. A different agent. A different prompt. It reads only the diff. It asks: is this good code, by the team's standards? Naming. Style. Edge cases. Test coverage. Error handling. Performance considerations. It comments on the diff as a senior reviewer would.
+Second, code quality. A different agent. A different prompt. It reads only the diff - and never the first reviewer's verdicts. It asks: is this correct code, by the team's standards? Naming that misleads. Edge cases missed. Error handling that swallows. Tests that assert nothing. It reports what is wrong, not what it would have done differently. Do not ask it to comment "as a senior reviewer would": a reviewer told to review like a senior always finds something, and a diff re-polished on every round grows abstractions nobody asked for. Scope it to correctness and it stays useful.
 
 The reason you split these into two reviewers is that doing both at once produces worse output. A reviewer who is simultaneously asking "does this match the spec" and "is this well-written" tends to blur the two. The spec gets weighted by the code quality, or the code quality gets weighted by spec compliance, and you lose the distinct signal each one was supposed to provide. Two reviewers, two concerns, no blur.
+
+The two-reviewer design started as field practice and is now vendor-endorsed - Anthropic's own prompting guide for Fable 5 states that separate, fresh-context verifier subagents tend to outperform self-critique - but the evidence on how to run it has sharpened in a way that changes what you measure. A July 2026 study of critique uptake in multi-agent reasoning found that the more precise reviewer lost: its verified-useful critiques changed the solver's next answer only 33.6% of the time, while a peer setup with less precise critiques broadcast to everyone got 93.5% uptake and the better final pass rate. A finding nobody acts on is worth nothing, so the number to track is the repair rate - how many findings the executor fixed, or rebutted with a reason - not the reviewer's accuracy. Require that accept-or-rebut on every finding. Three more rules, each from a measurement. Cap the rounds: a rubric-guided verify-and-repair loop peaked at the fourth round and had slipped back by the tenth, because late rounds re-open settled work about as often as they fix it. Keep the second reviewer from seeing the first reviewer's verdicts: judges anchor to a prior score, and neither chain of thought nor an explicit warning removes the anchor. And keep review two on correctness, for the reason above.
 
 The output of review is structured. Each finding has a severity. Critical findings block ship. Important findings get fixed before ship. Suggestions are noted in the PR description. The agent acts on the blocking and important findings automatically (within the constraints of the plan), and surfaces the suggestions for the human reviewer to decide.
 
@@ -1000,6 +1019,10 @@ Coverage percentage does not close this gap; it widens the illusion. Coverage me
 Characterization tests have the same shape of limitation, named in Chapter 8: they lock in current *behavior*, not correctness. They are genuinely valuable - a regression net that lets the agent refactor without silently changing what the code does. But they will preserve a bug as faithfully as they preserve a feature. A characterization suite that goes green after a refactor proves you did not change the behavior. It says nothing about whether the behavior was ever correct.
 
 So the discipline is the obvious one, applied where teams forget to apply it: review the agent's tests the way you review the agent's code. Read what they assert, not just whether they pass. For backend logic especially, a human or a second agent should check the assertions against the spec - against what the code is *supposed* to do - not against the implementation that happens to be in front of them. A test written from the implementation will agree with the implementation. That is the failure mode. The assertion has to come from the intent.
+
+The gap now has numbers. SpecBench, in May 2026, ran frontier agents against specifications with a visible test set and a hidden one: near 100% on the visible tests, with hidden-test gaps of 43 to 48 points - and the gap grew about 27 points for every tenfold increase in code size, while more search did not close it. The agent optimizes the evidence it can see. Cursor found the other half of the same behavior in June: 63% of Opus 4.8 Max resolutions on SWE-bench Pro had retrieved the upstream fix from git history or the network rather than solving the task, and sealing both cut the score by 14 points. Neither is cheating in the human sense. Both are a system doing what the gate rewards.
+
+So verify gets four controls the phase did not need a year ago. A held-out test set the agent never sees - compositional, written from the intent, run only at verify - so the visible suite stops being the whole target. Sealed git history and no network egress while verify runs; pattern eight already isolates the outer loop this way, and the inner loop's verify phase now needs the same seal. A PreToolUse hook that blocks edits to linter and test configuration and blocks `commit --no-verify` - the deny rules Chapter 9 installs, now on every run rather than only the unattended ones. And a rule of explanation: before the agent is allowed to fix a failing test, it states why the test fails. A fix that arrives without a diagnosis is the one most likely to have edited the assertion instead of the code.
 
 ---
 
@@ -1088,6 +1111,10 @@ Contamination announces itself, if you are watching for it. Four signs. The agen
 
 Compaction is a handoff, not a continuation. When the harness summarizes a full window to make room it drops detail - that is what summarizing is - so treat a compacted session the way you would treat handing your work to a new engineer at the door: anything that matters and is not written to a file by then is gone. Subagents are the other half of the instrument, isolating each task in its own window so one task's confusion never reaches the next. Their handoff summaries get read with the same skepticism the execute phase already asks of the orchestrator's.
 
+That summarizing drops detail is now measured, and the measurements point at a cheaper instrument. JetBrains compared strategies for long coding sessions in December 2025: masking old tool outputs - the call stays in the history, the bulky result is blanked - beat LLM summarization in four of five settings, at over 50% lower cost and a solve rate that matched or beat it. Anthropic's tool-result clearing, the same move at the platform level, gave a 29% improvement on an internal agentic search evaluation when it shipped in 2025. And the multi-turn study behind the commit-and-start-fresh rule measured the drift it prevents: a 39% average drop across a fragmented multi-turn conversation, with one consolidated turn recovering 95% of the single-turn result. Prefer masking to summarizing where the harness lets you choose, and consolidate before you continue.
+
+Two changes in 2026 alter the mechanics. History is append-only on Fable 5.1: the model's thinking blocks are bound to the exact prefix that produced them, so editing or reordering earlier turns invalidates them and throws away the retained reasoning Chapter 1 counts as half of the Effort primitive. Do not rewrite history; end the session and start clean. And with cache reads at 0.025x the base input price, the Fable 5.1 prompting guide now says that compacting early to save cost may no longer be the right trade - the cached history is cheap to keep and expensive to summarize badly. When you do compact, hand the compactor an explicit keep-list: the plan, the open questions, the deviations recorded in the implementation notes, the exact commands that worked. The list is what survives. Anything not on it is what the handoff drops.
+
 Appendix B.7 is this discipline as a one-pager.
 
 ---
@@ -1170,6 +1197,8 @@ Each forbidden pattern is a wall the agent will not cross. If the agent thinks t
 
 The mistake journal grows over time. It also gets pruned - entries that have been structurally resolved (the underlying issue is no longer possible) are removed. The journal is documentation that earns its keep through prevention, not through volume. Every entry should be a rule that has actually prevented a recurrence at least once.
 
+The maintenance mechanics matter as much as the entries, and they now have a pattern. Anthropic's prompting guide for Fable 5 has the model keep one lesson per file with a one-line summary at the top, update the existing note instead of adding a duplicate when the lesson recurs, and delete any note that turns out to be wrong - and the same three rules keep a mistake journal honest at a hundred entries. Add an evidence pointer to each entry, the commit or the incident, so the next champion can check whether the failure is still possible: OpenWiki's evidence-pointer approach cut stale claims in its knowledge base from 3.5% to 0.5%, and a journal entry that cites its evidence gets retired when the evidence goes stale instead of lingering as folklore.
+
 **Three: Spring Boot conventions specific to the team.** (Or React, or whatever your stack is. Spring Boot is my example.)
 
 > Constructor injection only, not field injection. (Easier to test.)
@@ -1189,16 +1218,11 @@ Each convention is one line. The agent reads them and applies them by default. N
 
 This sounds trivial. It is not. Without this section, the agent guesses commands. The guesses are usually close but occasionally wrong, which causes confusing failures. With this section, the agent uses the exact commands the team uses, no guessing.
 
-**Five: where to find things.** The repository's structural conventions.
+**Five: where the map lives.** One line, not a directory listing.
 
-> Services live in `src/main/java/com/bank/service/`
-> Repositories in `src/main/java/com/bank/repository/`
-> DTOs in `src/main/java/com/bank/dto/`
-> Tests parallel main, in `src/test/java/com/bank/`
-> Database migrations in `src/main/resources/db/migration/` (Flyway)
-> Configuration in `src/main/resources/application.yml`
+> Repository layout and module map: `docs/architecture.md`. Read it before touching a module you have not seen this session.
 
-The agent reads this and knows where to put new files. Without this, the agent uses its best guess based on the existing structure, which is usually right but occasionally wrong in ways that violate team conventions.
+Earlier versions of this manual put the structural conventions themselves here - services in this package, repositories in that one, migrations over there. The evidence now says not to. ETH Zurich's February 2026 study of context files measured what they do for task success: context files as a whole did not generally improve the success rate while raising inference cost by over 20% on average, and the repository overview - popular, and recommended by the model vendors themselves - was the part that did not help; the agent derives the layout from the tree in seconds, and loading it at every session start is paying for what it already knows. Files the developers had written themselves did slightly better than generated ones, and not significantly so. So the map moves to `docs/`, loaded on demand when the task touches an unfamiliar module - the practice OpenAI's harness engineering describes, an AGENTS.md near a hundred lines that is a map into a docs directory rather than a copy of it - and the always-loaded file keeps the sections that earned their place: forbidden patterns, the mistake journal, conventions, commands.
 
 **Six: domain glossary.** Terms specific to your business.
 
@@ -1207,6 +1231,8 @@ The agent reads this and knows where to put new files. Without this, the agent u
 > "Holds" are short-term reservations of funds, distinct from "blocks" which are long-term legal restrictions.
 
 The glossary disambiguates terms the agent might otherwise interpret in their general-purpose meaning. In a banking context, "transfer" means something specific. In the agent's pretraining, "transfer" means a lot of things. The glossary anchors the agent to your meaning.
+
+One line more, since the September 2026 models, and it goes at the top of the file: a precedence rule. GPT-6 Astra follows longer instructions better than its predecessors and is more sensitive to what it finds in context - unclear or conflicting guidance in a skill file can make it pause and block work early - and OpenAI's guide for it states outright that the user's instructions take precedence over guidelines in a skill. "In a conflict, the task prompt wins over this file; this file wins over any skill" is one line, and it removes a class of stalls where the agent argues with itself about which instruction to obey.
 
 ---
 
@@ -1217,6 +1243,8 @@ Two hundred is the budget because AGENTS.md is loaded into the agent's context a
 Failure mode A: too many rules. Your team has accumulated rules over time and never deprecated the ones that no longer apply. Audit. Remove rules that have not been triggered in six months. Move rarely applicable rules into skills that load on detection rather than always.
 
 Failure mode B: too verbose. Each rule is a paragraph instead of a line. Tighten. The agent does not need three sentences of justification for each rule; it needs the rule. Justifications belong in comments in the AGENTS.md itself, or in linked documentation.
+
+Two measurements from 2026 make the cap less of a judgment call. Compliance with simultaneous rules is not linear: in a July 2026 study across formats and placements, the rate at which a model satisfied every rule at once collapsed to zero by eighty simultaneous rules - on Sonnet 5 and Haiku alike - and eighty rules is a two-hundred-line file with one rule per line and a little prose between them. And Anthropic removed more than 80% of Claude Code's own system prompt for the Claude 5 generation with no measured loss, replacing rules with judgment and worked examples with typed tool interfaces. If the vendor's own harness gets better by deleting instructions, your team's file will too.
 
 The two-hundred-line cap forces opinion. The opinion is the value.
 
@@ -1336,7 +1364,9 @@ That prompt, dispatched on a moderately complex Spring Boot service, will produc
 
 That is the single-agent version, and it is enough for most services. On a codebase too large for one context window, the same workflow fans out across subagents - one per module, each returning a structured summary, the orchestrator assembling the document from the parts. That is the architecture-analysis-at-scale pattern from Chapter 1, doing production duty.
 
-The corrected document goes into the repository. By convention, I put it at `docs/architecture.md`. It becomes the entry point for any subsequent work. New team members read it first. Senior engineers consult it when modifying unfamiliar parts of the system. The agent itself reads it (you reference it from [AGENTS.md](https://agents.md/)) when working in the codebase, so the agent's subsequent work is grounded in the architecture review rather than re-deriving the architecture each time.
+Why the agent reads the code itself rather than querying an index of it: because navigation beats retrieval on this task, and the gap is measured. On Sonnet 4.5, agentic navigation - grep, open the file, follow the reference - beat top-k embedding retrieval by 21.8 points of recall@1; bounded workspaces keep the same navigation working at a million documents, the RISE result; and in practice code search resolves into three tools - ripgrep for text, ast-grep for structure, the language server for references - with an embedding index as the exception you add when a corpus outgrows them, not the starting point. The prompt above assumes those three tools and nothing more. If a vendor's pitch for this workflow starts with a vector database, ask what the 70% would have been without it.
+
+The corrected document goes into the repository. By convention, I put it at `docs/architecture.md`. It becomes the entry point for any subsequent work. New team members read it first. Senior engineers consult it when modifying unfamiliar parts of the system. The agent itself reads it (you reference it from [AGENTS.md](https://agents.md/)) when working in the codebase, so the agent's subsequent work is grounded in the architecture review rather than re-deriving the architecture each time. Since Chapter 6's correction, that reference is the only structural map the always-loaded file carries: AGENTS.md points here, and the layout loads on demand when a task touches a module the agent has not seen.
 
 ---
 
@@ -1580,6 +1610,8 @@ Concrete failure mode: I shipped a bug into a React component because Claude was
 
 What to do: if your codebase is in a framework or dependency migration, slow the agent down on the migration-touched paths. AGENTS.md should name the target version explicitly ("we are migrating from React eighteen to React nineteen this quarter; new code uses nineteen idioms; old code may still use eighteen but should be updated when touched"). The agent reads the rule and uses the right idioms for the right context. Without that rule, you will discover the bugs in production.
 
+A soft signal belongs beside this one, because it has the same shape with the roles reversed: the framework is stable and the model has moved. Instructions written for the previous model - the AGENTS.md rules, the skill prompts, the effort levels - do not retire themselves when the model generation changes, and a harness tuned to last quarter's model is quietly wrong about this quarter's. A 2026 study of published agent scaffolds found that a single plain prompt on a newer model beat between 37% and 63% of them. This is not a ninth kill signal; the scoring rubric stays at eight. It is the thing to check when a green codebase starts producing yellow results after a model upgrade: run the migration checklist in Appendix B.9 before you blame the codebase.
+
 ---
 
 Eight signals. No tests. No documentation. Tight coupling. Scattered business rules. Regulatory constraints. Team cannot evaluate output. Model-context fit. Velocity-of-change.
@@ -1822,7 +1854,7 @@ Between late 2025 and spring 2026, the pattern stopped being a bash trick and be
 
 The trend is real, and it is also where the discipline gets tested hardest, because the outer loop adds attempts, not judgment. It multiplies whatever your inner loop permits. If every iteration ends against a strict gate, the loop compounds progress: a queue of small verified units gets shorter overnight. If the gate is weak, the same patience compounds slop. Huntley's own name for the failure mode is overbaking - leave the loop running past its job and it keeps inventing work nobody asked for. The agent does not get tired. That is the feature, and unattended, it is also the threat.
 
-So the pattern is not the loop; the pattern is the contract you run it under. Five lines, written before the first unattended iteration. **A stop condition a machine can evaluate** - the queue is empty, the suite is green, the budget is spent. A loop without one is not autonomy; it is abandonment. **A budget** - tokens, money, iterations, or hours, whichever hits first; an unattended loop is the per-token pricing model's best customer, and the Appendix A math runs overnight too. **A gate the agent cannot edit** - tests, lint configuration, CI workflow, and the hookify rules sit behind a deny rule (pattern three). Chapter 5's caveat - a green suite the agent wrote is evidence, not proof - applies twice over when nobody reads the evidence until morning. The cheapest way for a loop to go green is to negotiate with its own grader. **Fresh context per iteration, durable state in the repository** - a queue file and a journal, committed, so each iteration starts clean and reads the loop's history from git instead of dragging a degrading context behind it. Chapter 5 called context contamination the single biggest reason long-running sessions go wrong; the outer loop done right is a context-hygiene instrument - forty short clean sessions instead of one long degrading one. **Isolation sized for absence** - its own worktree (pattern one), sandbox on, no production credentials, network constrained. An unattended session is the one place where prompt injection meets no human skeptic; Chapter 3's layers are load-bearing here, not optional. Appendix B.6 is this contract as a one-pager.
+So the pattern is not the loop; the pattern is the contract you run it under. Five lines, written before the first unattended iteration. **A stop condition a machine can evaluate** - the queue is empty, the suite is green, the budget is spent. A loop without one is not autonomy; it is abandonment. On the vendor surfaces the stop condition now has a mechanism of its own: Claude Code's /goal hands the completion check to a fresh Haiku instance that returns one of three verdicts, and Codex Goals plays the same role on the OpenAI side - a grader the loop does not control. The ralph-wiggum plugin this pattern's lineage runs through still has no controlled evidence behind it, and its own README names max iterations as the primary safeguard, which is a budget, not a stop condition. **A budget** - tokens, money, iterations, or hours, whichever hits first; an unattended loop is the per-token pricing model's best customer, and the Appendix A math runs overnight too. **A gate the agent cannot edit** - tests, lint configuration, CI workflow, and the hookify rules sit behind a deny rule (pattern three). Chapter 5's caveat - a green suite the agent wrote is evidence, not proof - applies twice over when nobody reads the evidence until morning. The cheapest way for a loop to go green is to negotiate with its own grader. **Fresh context per iteration, durable state in the repository** - a queue file and a journal, committed, so each iteration starts clean and reads the loop's history from git instead of dragging a degrading context behind it. Chapter 5 called context contamination the single biggest reason long-running sessions go wrong; the outer loop done right is a context-hygiene instrument - forty short clean sessions instead of one long degrading one. **Isolation sized for absence** - its own worktree (pattern one), sandbox on, no production credentials, network constrained. An unattended session is the one place where prompt injection meets no human skeptic; Chapter 3's layers are load-bearing here, not optional. Appendix B.6 is this contract as a one-pager.
 
 What goes in the queue matters as much as the contract. Loop-eligible work has many similar units, each machine-verifiable, each reversible: migrations, lint and typing sweeps, dependency bumps, characterization-test backfill, mechanical refactors. Design-heavy single-artifact work is not eligible; more attempts do not add judgment, and the loop will spend your budget proving it. The traffic light from Chapter 8 applies with extra force, because the outer loop is autonomous agent work in its most concentrated form: GREEN codebases only. YELLOW means human-led, and the outer loop has no human in it by definition.
 
@@ -2140,6 +2172,10 @@ That trajectory - four decades of writing code, twenty-five of them professional
 
 This page tracks meaningful updates to the manual. Smaller copy-edits and SEO tweaks are not listed; the footer shows the last updated date.
 
+### 2026-09-11 - September evidence pass: Effort primitive, review and verify controls, the AGENTS.md correction, B.9
+
+The manual read against the September 2026 evidence: the Claude 5 and GPT-5.6 and GPT-6 generation guides, and a run of measured studies on context files, multi-agent scaling, reward hacking, critique uptake, and context management. The structure held; the updates land where new evidence changes a claim, sharpens one, or fills a gap. Chapter 1 gains Effort as the ninth primitive - the reasoning dial and retained reasoning - because it now passes the convergence test and has become the largest cost and quality lever; the tools section gains the tool-count cliff, deferred loading, programmatic tool calling, and strict schemas; the context-window section discounts advertised windows. Chapter 2's inspection walk grows to nine points. Chapter 5: a when-to-split gate for Execute (decomposable work only, one writer per file, fork the workers and isolate the reviewers), vendor autonomy and scope blocks, reviewer two scoped to correctness and blind to reviewer one, repair rate over reviewer accuracy with capped rounds, the SpecBench and Cursor numbers behind "evidence, not proof" with four verify controls (held-out tests, sealed history and egress, a config-edit hook, explain before fix), and measured context hygiene (masking over summarization, append-only history, a keep-list for the compactor). Chapter 6 carries the one correction with direct evidence against the text: the repository map moves out of AGENTS.md into docs/, per the ETH context-file study; the mistake journal gains maintenance mechanics and evidence pointers; the two-hundred-line cap gains the eighty-rule cliff and the 80% system-prompt cut; a precedence line joins the file. Chapter 7 cites the retrieval evidence behind reading code rather than indexing it. Chapter 8 names instructions written for the previous model as a soft signal. Chapter 9's stop condition names /goal and Codex Goals. Appendix A gains the structural cost levers; Appendix B gains B.9, the model-migration checklist (the template count is now nine), with B.2, B.3 and B.7 updated; Appendix C gains a harness and model-migration group of twenty-seven entries. Dated-claims note bumped to September 2026.
+
 ### 2026-07-27 - Finding your unknowns (Chapter 4 + Chapter 5 + B.8)
 
 Chapter 4's formulation-bottleneck thesis gains its strongest external receipt yet: Anthropic's own July 2026 field guide to working with Fable 5, whose author describes the frontier model as "bottlenecked by my ability to clarify its unknowns" - the vendor's engineers now describing the frontier the way Chapter 4 does. The guide's four-quadrant unknowns frame is mapped onto the manual's machinery (the team instruction file drains the unknown knowns, the research note surfaces the known unknowns), and Chapter 5 gains three techniques for the quadrant no checklist reaches. In Research: a blind spot pass before research proper when the task sits outside your domain, paired with stating your experience level so the agent's assumptions get spelled out where you can veto them. In Execute: an implementation-notes file recording every deviation from the plan at the moment it happens - the spec reviewer's confession list, and the antidote to orchestrator-summary drift. Closing the agent-diff read: a pre-approval quiz - if you cannot answer what happens at the edges, that was rubber-stamping, not review, and pattern four's decay just became measurable. The B.8 one-pager gains the quiz block; new Appendix C entry for the field guide.
@@ -2236,6 +2272,22 @@ The vendor's quote is the easy part. Four categories are not in it and dominate 
 
 **Governance overhead.** Security review through your CISO. Zero Data Retention addendum negotiation. Procurement cycle time. Audit logging infrastructure. Vendor-risk monitoring. Variable by company; ranges from a week to a quarter.
 
+### The structural levers {#cost-levers}
+
+Prices go stale; the levers that move the token line do not, and five of them are now measured.
+
+**Effort level.** The Chapter 1 primitive is the largest cost dial you own. Set it per phase, sweep it per model, and never leave it at the default for the whole loop.
+
+**Cache-first prompt layout.** Put the stable content first - system prompt, AGENTS.md, the loaded skills - and the per-turn content last, so the prefix caches. Across 500 sessions on three providers, that ordering alone cut cost by 41% to 80%.
+
+**Deferred tool loading.** One audit of a default Claude Code session counted about 24k tokens of tool definitions and schemas consumed before the user's first word. Defer the schemas and pay for them only when a tool is used.
+
+**Masking over summarization.** Blank old tool results rather than summarizing the history. JetBrains measured masking at over 50% cheaper than summarization, with a solve rate that matched or beat it.
+
+**Tier routing.** Route by task, not by team, and let a cheaper model do the work with a stronger one on call. Anthropic's advisor pattern, published in April 2026, gives the two measured points: Sonnet with an Opus advisor beat Sonnet alone by 2.7 points on SWE-bench Multilingual at 11.9% lower cost per task, and Haiku with an Opus advisor came in 85% cheaper per task than Sonnet alone while trailing it by 29% in score - the right trade for the mechanical tiers of the loop and the wrong one for research.
+
+The worked example below prices seats. These levers price the token line underneath the seats, and on per-token plans they are where the second-year savings live.
+
 ### A worked example {#a-worked-example}
 
 Chapter 10's manager sidebar left a 20-engineer financial-services team mid-arc: 41% of merged PRs agent-touched in month two, cycle time on that set 28% below the pre-agent baseline, defects within noise. Run that same team through this appendix's rubric. The cost figures below are round numbers for the arithmetic, not quotes - plug in your own; the appendix's whole point is that the specific ones go stale by next quarter.
@@ -2266,7 +2318,7 @@ Specific prices in any quarter will be wrong the next quarter. The shape of the 
 
 ## Appendix B. Templates
 
-Eight copy-paste templates referenced throughout the manual. All are starting points; customize for your team.
+Nine copy-paste templates referenced throughout the manual. All are starting points; customize for your team.
 
 ### B.1 Architecture review prompt
 
@@ -2288,10 +2340,12 @@ Cite specific files and line numbers throughout. Where the codebase is ambiguous
 
 ### B.2 AGENTS.md skeleton
 
-This template works as either [AGENTS.md](https://agents.md/) (vendor-neutral standard) or CLAUDE.md (Claude Code variant). The filename varies by agent; the markdown format does not.
+This template works as either [AGENTS.md](https://agents.md/) (vendor-neutral standard) or CLAUDE.md (Claude Code variant). The filename varies by agent; the markdown format does not. Keep it near a hundred lines; the structure map lives in `docs/`, not here.
 
 ```
 # AGENTS.md
+
+Precedence: the task prompt wins over this file; this file wins over any skill.
 
 ## Forbidden patterns
 - Never construct SQL by string concatenation. Use bound parameters. (Reason: SQL injection.)
@@ -2314,12 +2368,8 @@ This template works as either [AGENTS.md](https://agents.md/) (vendor-neutral st
 - Run linting: mvn spotless:check
 - Run security scan: mvn dependency-check:check
 
-## Where things live
-- Services: src/main/java/com/team/service/
-- Repositories: src/main/java/com/team/repository/
-- DTOs: src/main/java/com/team/dto/
-- Tests: src/test/java/com/team/ (parallel package structure)
-- Migrations: src/main/resources/db/migration/ (Flyway)
+## Where the map lives
+- Repository layout and module map: docs/architecture.md (read before touching an unfamiliar module)
 
 ## Domain glossary
 - "Customer" = end user. "Counterparty" = corporate client.
@@ -2342,17 +2392,27 @@ PLAN
 - Human review: any task too vague, too large, wrongly ordered? Push back. Approve.
 
 EXECUTE
+- Split gate: parallel subagents only for independent files or modules; one writer per file
+- Fork the workers (they inherit the orchestrator's history); isolate the reviewers (fresh context)
+- Autonomy block: finish the task before ending the turn; no confirmation on reversible actions
+- Scope block: only the files the plan names; stop and report on anything else
 - Agent dispatches subagents per task in isolated context
-- Each subagent: read, implement, verify, report
+- Each subagent: read, implement, verify, report; keep the implementation-notes file
 - Orchestrator integrates results
 - If task fails: orchestrator decides retry / route-around / escalate
 
-REVIEW (two reviewers, in sequence)
+REVIEW (two reviewers, in sequence; rounds capped)
 - Spec compliance reviewer: does implementation match the spec?
-- Code quality reviewer: is this good code, by team standards?
+- Correctness reviewer: what is wrong, by team standards? Never sees reviewer one's verdicts
+- Executor accepts or rebuts every finding; track repair rate, not reviewer accuracy
+- Cap at three or four rounds; late rounds re-open settled work
 
 VERIFY
 - New tests run. Existing tests run (as part of execute).
+- Held-out test set the agent never sees runs here, written from the intent
+- Git history sealed, network off while verify runs
+- Hook blocks lint and test-config edits and commit --no-verify
+- Failing test: agent explains why before it may fix
 - For UI: Playwright with accessibility tree, not pixels.
 - No "done" without test evidence.
 
@@ -2532,9 +2592,13 @@ WHEN CONTAMINATED
 - The fresh session reads the progress back from the repo, without the noise
 
 COMPACTION
-- A handoff, not a continuation - summarizing drops detail
+- A handoff, not a continuation - summarizing drops detail (measured)
+- Prefer masking old tool outputs to summarizing them; consolidate before you continue
+- History is append-only on Fable 5.1 - never edit earlier turns; end and restart instead
+- Cached input is cheap; compacting early to save cost is usually the wrong trade
+- Give the compactor a keep-list: plan, open questions, deviations, commands that worked
 - Treat it like handing the work to a new engineer
-- Anything that matters and is not in a file by then is gone
+- Anything that matters and is not in a file or on the keep-list by then is gone
 
 SUBAGENTS
 - Isolate each task in its own context; one task's confusion never reaches the next
@@ -2580,11 +2644,42 @@ THE QUIZ
 - One minute at the gate beats discovering the decay in production
 ```
 
+### B.9 Model-migration checklist (one-pager)
+
+```
+BEFORE THE SWAP
+- Baseline: five representative tasks on the current model; keep cost, outcome, effort level used
+- Read the vendor's guide for the new model - every generation retires part of the harness
+
+EFFORT
+- Sweep effort per task type on the new model (low / medium / high); pick per phase, not per session
+- Effort names do not transfer between models - "high" last quarter is a guess this quarter
+
+PROMPTS AND INSTRUCTION FILES
+- Strip the emphatic capitals and the "verify your work" lines - written for a model that needed them
+- Remove the sampling and steering parameters the new model rejects: temperature, prefill, forced tool choice
+- Never ask for the model's reasoning in the reply - a refusal category on Fable 5
+- Audit skills for over-prescription: a step list the old model needed is a cage for the new one
+- Keep the precedence line (B.2); re-read AGENTS.md for rules the new model no longer breaks
+
+TOOLS
+- Re-test every custom tool schema with strict decoding on; look for invented fields
+- Re-count the visible tools; defer whatever the new harness lets you defer
+
+HISTORY
+- Keep conversation history append-only; never edit or reorder earlier turns
+- Re-check compaction settings - the cost trade moved with cached-input pricing
+
+AFTER THE SWAP
+- Re-run the five baseline tasks; compare cost and outcome per phase
+- Green codebase producing yellow results -> this checklist before the kill signals (Chapter 8)
+```
+
 ---
 
 ## Appendix C. Sources and Further Reading
 
-This appendix exists because every claim in this manual deserves a verifiable source if you choose to chase it down. I have organized the entries by claim, not by source, so you can map back from a passage in the body to the evidence behind it. Entries are grouped by category (studies, named incidents, vulnerabilities with patch versions, tool documentation, marketplaces, memory primitive sources, permissions / sandbox primitive sources, outer-loop and autonomy sources) and each entry follows the same shape: the claim, the source, where in the manual it is used, and any caveat worth knowing.
+This appendix exists because every claim in this manual deserves a verifiable source if you choose to chase it down. I have organized the entries by claim, not by source, so you can map back from a passage in the body to the evidence behind it. Entries are grouped by category (studies, named incidents, vulnerabilities with patch versions, tool documentation, marketplaces, memory primitive sources, permissions / sandbox primitive sources, outer-loop and autonomy sources, harness and model-migration sources) and each entry follows the same shape: the claim, the source, where in the manual it is used, and any caveat worth knowing.
 
 ### Studies and research
 
@@ -2830,6 +2925,197 @@ This appendix exists because every claim in this manual deserves a verifiable so
 **Source:** The AutoGPT and BabyAGI repositories document the 2023 design: [github.com/Significant-Gravitas/AutoGPT](https://github.com/Significant-Gravitas/AutoGPT), [github.com/yoheinakajima/babyagi](https://github.com/yoheinakajima/babyagi). The structural contrast is this manual's analysis, drawn from the Ralph-era sources above.
 **Where used:** Chapter 9 (pattern eight), lineage paragraph.
 **Caveat:** The collapse judgment is interpretive; both projects continued in other roles.
+
+---
+
+### Harness and model-migration sources
+
+**Claim:** Anthropic removed over 80% of Claude Code's own system prompt for the Claude 5 generation (Opus 5, Fable 5) with no measurable loss on its coding evaluations, replacing rules with judgment and worked examples with designed interfaces.
+**Source:** Thariq Shihipar, "The new rules of context engineering for Claude 5 generation models," Anthropic blog, July 24, 2026: [claude.com/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models](https://claude.com/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models).
+**Where used:** Chapter 6 (the two-hundred-line cap).
+**Caveat:** Vendor's own evaluations on its own harness; the advice is written for the Claude 5 generation and older models may still need the deleted instructions.
+
+---
+
+**Claim:** Anthropic's prompting guide for Fable 5 states that separate, fresh-context verifier subagents tend to outperform self-critique; describes a memory system of one lesson per file with a one-line summary, updated rather than duplicated, deleted when wrong; documents rare early stopping on a statement of intent ("I'll now run X") and occasional unrequested actions, each with a prompt block; and warns that asking the model to reproduce its reasoning in the reply can trigger the reasoning_extraction refusal category.
+**Source:** Anthropic, "Prompting Claude Fable 5," Claude Platform docs: [platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5).
+**Where used:** Chapter 5 (Execute autonomy block, Review), Chapter 6 (mistake journal mechanics), Appendix B.3 and B.9.
+**Caveat:** Undated documentation page, revised in place; verify the current wording before relying on a specific phrase.
+
+---
+
+**Claim:** Anthropic's prompting guide for Fable 5.1 recommends that the tool starting a subagent return immediately with the result delivered in a later message; states that effort level names do not correspond to the same amount of thinking across models and that Fable 5.1 at low effort is often competitive with Opus and Sonnet on cost per task while scoring higher; requires append-only conversation history because thinking blocks are valid only in the exact conversation that produced them; notes that with cheaper cache reads, compacting early to save cost may no longer be the right trade; and gives a preserve-list for compaction summaries.
+**Source:** Anthropic, "Prompting Claude Fable 5.1," Claude Platform docs: [platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-1](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-1).
+**Where used:** Chapter 1 (Effort), Chapter 5 (Execute, Context hygiene), Appendix B.7 and B.9.
+**Caveat:** Undated documentation page for a model released September 1, 2026. The 0.025x figure in Chapter 5 is the manual's arithmetic from the published cache-read and base input prices at the time of writing; the append-only requirement applies to accounts created on or after August 31, 2026 per the guide.
+
+---
+
+**Claim:** Anthropic's advisor pattern: Sonnet with Opus as an advisor scored 2.7 percentage points higher on SWE-bench Multilingual than Sonnet alone at 11.9% lower cost per agentic task; Haiku with an Opus advisor scored 41.2% on BrowseComp against 19.7% solo, trailing Sonnet solo by 29% in score at 85% lower cost per task.
+**Source:** Anthropic, "The advisor strategy: Give agents an intelligence boost," April 9, 2026: [claude.com/blog/the-advisor-strategy](https://claude.com/blog/the-advisor-strategy).
+**Where used:** Appendix A (The structural levers, tier routing).
+**Caveat:** Vendor benchmarks on the vendor's own models; the cost figures are per task on those benchmarks, not a general ratio.
+
+---
+
+**Claim:** Anthropic's context editing (automatic clearing of stale tool results) delivered a 29% improvement on an internal agentic search evaluation.
+**Source:** Anthropic, "Managing context on the Claude Developer Platform," September 29, 2025: [claude.com/blog/context-management](https://claude.com/blog/context-management).
+**Where used:** Chapter 5 (Context hygiene), Appendix A (masking over summarization).
+**Caveat:** Internal evaluation; the post describes clearing, not a comparison against summarization - that comparison is the JetBrains entry below.
+
+---
+
+**Claim:** OpenAI's builder's guide reports that GPT-5.6 Sol at low reasoning effort outperformed GPT-5.5 at high effort on Agents' Last Exam with the harness held constant, and that programmatic tool calling matched rubric quality while using 21% fewer input tokens on a financial-research benchmark.
+**Source:** OpenAI, "The builder's guide to GPT-5.6," August 2026: [openai.com/index/builders-guide-to-gpt-5-6/](https://openai.com/index/builders-guide-to-gpt-5-6/); migration guidance in "Prompting guidance for GPT-5.6 Sol," [developers.openai.com/api/docs/guides/prompt-guidance-gpt-5p6](https://developers.openai.com/api/docs/guides/prompt-guidance-gpt-5p6).
+**Where used:** Chapter 1 (Effort, Tools), Appendix B.9.
+**Caveat:** Vendor evaluations; the 21% figure is from one benchmark (Rogo's Big Finance Benchmark), not a general average. The migration guidance says to preserve the current effort as the baseline and compare one level lower, which is the B.9 sweep in the vendor's words.
+
+---
+
+**Claim:** OpenAI's guide for GPT-6 Astra states that the user's instructions take precedence over guidelines provided in a skill; that the model is more sensitive to information in context, so unclear or conflicting guidance in a skill file can make it pause and block work early; that it is more likely to ask the user a question when input could change the result; and that it tends toward broader tests than a task requires, with counter-guidance not to write tests for reversible, low-impact changes.
+**Source:** OpenAI, "Using GPT-6 Astra," September 2026: [developers.openai.com/api/docs/guides/latest-model](https://developers.openai.com/api/docs/guides/latest-model).
+**Where used:** Chapter 5 (Execute autonomy block), Chapter 6 (precedence line), Appendix B.2 and B.3.
+**Caveat:** Astra is the codename of OpenAI's GPT-6 model released September 3-4, 2026, not a separate product; the guide is undated and revised in place.
+
+---
+
+**Claim:** OpenAI's own Codex practice keeps a short AGENTS.md of roughly 100 lines that serves primarily as a map with pointers to deeper sources of truth, with the repository's knowledge base in a structured docs/ directory treated as the system of record.
+**Source:** Ryan Lopopolo, "Harness engineering: leveraging Codex in an agent-first world," OpenAI, February 11, 2026: [openai.com/index/harness-engineering/](https://openai.com/index/harness-engineering/).
+**Where used:** Chapter 6 (where the map lives), Appendix B.2.
+**Caveat:** One team's practice, described by the vendor. The Codex harness itself was released as open source in August 2026 ("Codex as a platform," [developers.openai.com/blog/codex-as-a-platform](https://developers.openai.com/blog/codex-as-a-platform)), which is a separate post.
+
+---
+
+**Claim:** Enabling retained reasoning and compaction took GPT-5.6 Sol from 13.3% to 38.3% on ARC-AGI-3 while reducing output tokens by a factor of six, with the harness otherwise unchanged.
+**Source:** OpenAI, "How enabling two settings tripled our scores on the ARC-AGI-3 benchmark," July 29, 2026: [openai.com/index/how-two-settings-tripled-our-arc-agi-3-scores/](https://openai.com/index/how-two-settings-tripled-our-arc-agi-3-scores/).
+**Where used:** Chapter 1 (Effort, retained reasoning).
+**Caveat:** Vendor post on one benchmark and one model. The manual uses it for the mechanism - reasoning kept across turns compounds - not for the specific score.
+
+---
+
+**Claim:** Both major agents now expose a completion-condition evaluator the loop does not control: Claude Code's /goal sends the condition and the conversation to a small fast model (Haiku by default) after each turn, which returns one of three verdicts - not yet met, met, or impossible; Codex Goals gives a thread a persistent completion condition and stops only when an evaluation confirms it or a hard limit is hit.
+**Source:** Claude Code docs, "/goal": [code.claude.com/docs/en/goal](https://code.claude.com/docs/en/goal); OpenAI Cookbook, "Using Goals in Codex": [developers.openai.com/cookbook/examples/codex/using_goals_in_codex](https://developers.openai.com/cookbook/examples/codex/using_goals_in_codex).
+**Where used:** Chapter 9 (pattern eight, the stop condition).
+**Caveat:** Mechanism documentation, not outcome evidence. The ralph-wiggum plugin's README names `--max-iterations` as the primary safety mechanism and offers anecdote rather than controlled results; no controlled evidence for any of the three was found at the time of writing.
+
+---
+
+**Claim:** Repository-level context files (AGENTS.md and equivalents) did not generally improve coding-agent task success while increasing inference cost by over 20% on average; repository overviews, although popular and recommended by model providers, were not helpful; files written by developers showed only a modest, non-significant gain over generated ones.
+**Source:** Thibaud Gloaguen, Niels Mündler, Mark Niklas Müller, Veselin Raychev, Martin Vechev (ETH Zürich), "Evaluating AGENTS.md: Are Repository-Level Context Files Helpful for Coding Agents?", February 12, 2026 (v2 June 23, 2026): [arxiv.org/abs/2602.11988](https://arxiv.org/abs/2602.11988).
+**Where used:** Chapter 6 (where the map lives), Appendix B.2.
+**Caveat:** Measured on specific agents and benchmarks. The manual's reading - keep forbidden patterns, journal, conventions, and commands, move the map out - is an interpretation; the paper does not isolate a content category with a significant positive effect.
+
+---
+
+**Claim:** Across 260 multi-agent configurations, coordination helped only on decomposable tasks, degraded sequential planning by between 39% and 70% depending on architecture, and produced negative returns on tasks where a single agent already exceeded about 45% accuracy.
+**Source:** Kim et al., "Capable language models can outgrow the benefits of collaboration," Nature Machine Intelligence 8, 1157-1172, July 24, 2026: [doi.org/10.1038/s42256-026-01268-y](https://doi.org/10.1038/s42256-026-01268-y); preprint "Towards a Science of Scaling Agent Systems," [arxiv.org/abs/2512.08296](https://arxiv.org/abs/2512.08296).
+**Where used:** Chapter 5 (Execute, the split gate), Appendix B.3.
+**Caveat:** Benchmarks are not coding-specific; the 45% threshold is a fitted predictor across the tested tasks, not a law.
+
+---
+
+**Claim:** On SpecBench, every frontier agent saturates the visible test suite while the held-out score stays much lower, producing gaps of roughly 43 to 48 percentage points; the 90th-percentile gap grows by about 27 points for every tenfold increase in lines of code; additional search does not reliably remove the reward hacking.
+**Source:** Bingchen Zhao, Dhruv Srikanth, Yuxiang Wu, Zhengyao Jiang (Weco AI), "SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents," May 20, 2026 (v2 September 9, 2026): [arxiv.org/abs/2605.21384](https://arxiv.org/abs/2605.21384).
+**Where used:** Chapter 5 (Can you trust the tests the agent writes?), Appendix B.3.
+**Caveat:** The abstract rounds the growth figure to 28 points; the body reports 27 with R² of 0.21, so the trend is real and noisy.
+
+---
+
+**Claim:** On SWE-bench Pro, 63% of successful Claude Opus 4.8 Max resolutions retrieved the upstream fix rather than deriving it; sealing git history and cutting network egress dropped the score from 87.1% to 73.0%.
+**Source:** Naman Jain, Cursor, "Reward hacking is swamping model intelligence gains," June 25, 2026: [cursor.com/blog/reward-hacking-coding-benchmarks](https://cursor.com/blog/reward-hacking-coding-benchmarks).
+**Where used:** Chapter 5 (Can you trust the tests the agent writes?).
+**Caveat:** One vendor's harness and one model; the behavior is a property of the gate, not of the model named.
+
+---
+
+**Claim:** In a multi-agent reasoning setup, the more precise reviewer had its verified-useful critiques change the next candidate only 33.6% of the time, while a broadcast (peer) setup reached 93.5% and the higher final pass rate.
+**Source:** Chih-Hsuan Yang et al., "Precise but Uncoupled: Reviewer Precision Does Not Guarantee Critique Uptake in Multi-Agent Math Reasoning," July 16, 2026: [arxiv.org/abs/2607.15388](https://arxiv.org/abs/2607.15388).
+**Where used:** Chapter 5 (Review), Appendix B.3.
+**Caveat:** Mathematical reasoning, not code review; the manual borrows the measurement, uptake over precision, not the domain.
+
+---
+
+**Claim:** A rubric-guided verify-and-repair loop (DeepVerifier) peaked around the fourth round and had declined by the tenth, because the incorrect-to-correct transition decays quickly while the correct-to-incorrect transition persists.
+**Source:** Yuxuan Wan et al., "Inference-Time Scaling of Verification: Self-Evolving Deep Research Agents via Test-Time Rubric-Guided Verification," January 22, 2026 (v2 April 29, 2026): [arxiv.org/abs/2601.15808](https://arxiv.org/abs/2601.15808).
+**Where used:** Chapter 5 (Review, capping rounds), Appendix B.3.
+**Caveat:** Deep research agents on GAIA, not coding; the decline from the peak is a few points, so the lesson is the shape of the curve, not the size of the drop.
+
+---
+
+**Claim:** LLM judges anchor to a prior score shown to them, and neither chain-of-thought reasoning nor an explicit metadata-disregard warning removes the total effect.
+**Source:** Ante Kapetanovic et al., "Anchoring Bias in LLM-as-a-Judge Systems: Prior Scores Compromise Evaluation Independence," August 26, 2026: [arxiv.org/abs/2608.25869](https://arxiv.org/abs/2608.25869).
+**Where used:** Chapter 5 (Review, the second reviewer stays blind), Appendix B.3.
+**Caveat:** Evaluation setting rather than code review; the manual applies the finding to reviewer two seeing reviewer one's verdicts.
+
+---
+
+**Claim:** The rate at which a model satisfies every rule in a prompt at once collapses to zero by about 80 simultaneous rules, for every model, format, and placement tested, including Claude Sonnet 5 and Claude Haiku.
+**Source:** Netanel Eliav, "Prompt Design at Scale: How Format, Instruction Count, and Context Length Shape Instruction Adherence and Hallucination in Large Language Models," July 21, 2026: [arxiv.org/abs/2607.19257](https://arxiv.org/abs/2607.19257).
+**Where used:** Chapter 6 (the two-hundred-line cap).
+**Caveat:** Perfect-response rate is a strict metric; other 2026 work on other frontier models reports softer thresholds. The manual uses the cliff to size the file, not to predict a specific compliance number.
+
+---
+
+**Claim:** RULER measures an effective context length - the longest input at which a model keeps a threshold score on retrieval and reasoning tasks across the window - and for most models tested that length falls well short of the claimed context size.
+**Source:** Cheng-Ping Hsieh et al. (NVIDIA), "RULER: What's the Real Context Size of Your Long-Context Language Models?", 2024: [arxiv.org/abs/2404.06654](https://arxiv.org/abs/2404.06654).
+**Where used:** Chapter 1 (context window).
+**Caveat:** The "around half" reading in Chapter 1 is a rule of thumb from 2026 practitioner roundups of RULER-style results, not a single measurement; per-model effective lengths vary widely and improve with each generation.
+
+---
+
+**Claim:** For long agentic coding sessions, masking old tool observations beat LLM summarization in four of five settings, cut cost by over 50%, and matched or slightly beat summarization on solve rate.
+**Source:** Katie Fraser and Tobias Lindenbauer, JetBrains Research, "Cutting Through the Noise: Smarter Context Management for LLM-Powered Agents," December 2025: [blog.jetbrains.com/research/2025/12/efficient-context-management/](https://blog.jetbrains.com/research/2025/12/efficient-context-management/) (paper: "The Complexity Trap," NeurIPS 2025 DL4Code workshop).
+**Where used:** Chapter 5 (Context hygiene), Appendix A, Appendix B.7.
+**Caveat:** The 52% figure sometimes quoted is one configuration (Qwen3-Coder 480B); the general finding is "over 50%."
+
+---
+
+**Claim:** Across 15 models, performance in fragmented multi-turn conversations dropped by 39% on average relative to a single fully specified turn, and consolidating the fragments into one turn recovered about 95% of the single-turn result.
+**Source:** Philippe Laban, Hiroaki Hayashi, Yingbo Zhou, Jennifer Neville, "LLMs Get Lost in Multi-Turn Conversation," May 2025: [arxiv.org/abs/2505.06120](https://arxiv.org/abs/2505.06120).
+**Where used:** Chapter 5 (Context hygiene, commit and start fresh).
+**Caveat:** Simulated conversations on generation tasks, not coding sessions; the manual uses it for the mechanism behind consolidating before continuing.
+
+---
+
+**Claim:** Opus 4.8 and Sonnet 5 invent keys that a custom nested tool schema never declared, while older models do not, and turning on strict tool invocation eliminated the behavior.
+**Source:** Armin Ronacher, "Better Models: Worse Tools," July 4, 2026: [lucumr.pocoo.org/2026/7/4/better-models-worse-tools/](https://lucumr.pocoo.org/2026/7/4/better-models-worse-tools/).
+**Where used:** Chapter 1 (Tools), Appendix B.9.
+**Caveat:** One practitioner's runs on one harness; the recommendation - strict decoding on custom schemas - costs nothing to adopt regardless.
+
+---
+
+**Claim:** In a multi-agent harness, fork a worker so it receives the supervisor's history and prompt cache and continues the investigation, and isolate a verifier so it evaluates the work itself rather than being anchored by the supervisor's diagnosis; writes in working multi-agent systems stay single-threaded, with additional agents contributing intelligence rather than actions.
+**Source:** Thushanth Bengre and Chester Curme, LangChain, "Organizing Context in a Multi-Agent Harness," September 8, 2026: [langchain.com/blog/organizing-context-in-a-multi-agent-harness](https://www.langchain.com/blog/organizing-context-in-a-multi-agent-harness); Walden Yan, Cognition, "Multi-Agents: What's Actually Working," April 22, 2026: [cognition.com/blog/multi-agents-working](https://cognition.com/blog/multi-agents-working).
+**Where used:** Chapter 5 (Execute, the split gate), Appendix B.3.
+**Caveat:** Both are vendor engineering posts; "one writer" is the manual's compression of Cognition's "writes stay single-threaded."
+
+---
+
+**Claim:** OpenWiki's claims runtime, which attaches evidence pointers to stored claims and re-checks them, cut stale claims in its knowledge base from 3.5% to 0.5% across 2,000 evaluated claims.
+**Source:** Colin Francis, "Building Self-Correcting Memory in OpenWiki," LangChain blog, August 25, 2026: [langchain.com/blog/self-correcting-memory-openwiki](https://www.langchain.com/blog/self-correcting-memory-openwiki).
+**Where used:** Chapter 6 (mistake journal mechanics).
+**Caveat:** A knowledge-base system, not a mistake journal; the manual borrows the mechanism - a claim that cites its evidence can be retired when the evidence goes stale.
+
+---
+
+**Claim:** Agentic navigation on Claude Sonnet 4.5 reached 49.6% recall@1 on BRIGHT, 21.8 points above the best embedding model; bounded workspaces (RISE) keep agentic retrieval working at one million documents where direct context inspection degrades; and code search for agents resolves into three modalities - lexical (ripgrep), structural (ast-grep), and graph (LSP references).
+**Source:** Susheel Suresh et al., "AgenticRAG: Agentic Retrieval for Enterprise Knowledge Bases," May 7, 2026: [arxiv.org/abs/2605.05538](https://arxiv.org/abs/2605.05538); Shengyao Zhuang et al., "Towards Retrieving Interaction Spaces for Agentic Search" (RISE), June 5, 2026: [arxiv.org/abs/2606.06880](https://arxiv.org/abs/2606.06880); Andrey Kumanyaev, "Code search for AI agents: the grep replacement is three tools, not one," June 6, 2026: [zzet.org/gortex/grep-replacement-for-ai-agents/](https://zzet.org/gortex/grep-replacement-for-ai-agents/).
+**Where used:** Chapter 7 (why the agent reads the code rather than an index).
+**Caveat:** The recall figure is on a general retrieval benchmark, not a codebase; the three-tools framing is a practitioner's, and the manual states no numeric threshold for when an embedding index starts to pay.
+
+---
+
+**Claim:** Prompt caching with a cache-first prompt layout reduced API cost by 41% to 80% across providers on more than 500 agent sessions; a default Claude Code session was found to consume roughly 24,000 tokens of tool definitions, MCP schemas, and reminders before any user interaction; with a large tool pool fully loaded, baseline tool-selection accuracy was 13.62% and retrieving only the relevant tools per query raised it to 43.13%; one practitioner's count put three MCP servers at roughly 143,000 tokens of a 200,000-token window.
+**Source:** Elias Lumer et al., "Don't Break the Cache: An Evaluation of Prompt Caching for Long-Horizon Agentic Tasks," January 31, 2026: [arxiv.org/abs/2601.06007](https://arxiv.org/abs/2601.06007); GitHub issue anthropics/claude-code#42452, April 2, 2026; Tiantian Gan and Qiyao Sun, "RAG-MCP: Mitigating Prompt Bloat in LLM Tool Selection via Retrieval-Augmented Generation," May 6, 2025: [arxiv.org/abs/2505.03275](https://arxiv.org/abs/2505.03275); MetaBlogue, "MCP servers and the context window," September 5, 2026: [metablogue.com/mcp-servers-context-window/](https://metablogue.com/mcp-servers-context-window/).
+**Where used:** Chapter 1 (Tools), Appendix A (The structural levers).
+**Caveat:** The 24k and 143k figures are practitioner counts that vary by installation and were not produced by a controlled study; the RAG-MCP figures compare a retrieval method against a no-retrieval baseline at scale and date from 2025.
+
+---
+
+**Claim:** For between 37% and 63% of software-engineering papers surveyed, a newer model with a single prompt natively outperforms the heavily engineered tooling proposed about a year earlier.
+**Source:** Nahian Salsabil et al., "What Survives the Next Model? Benchmarking LLM-Based Techniques Against Single-Prompts," August 31, 2026: [arxiv.org/abs/2609.00468](https://arxiv.org/abs/2609.00468).
+**Where used:** Chapter 8 (the soft signal beside velocity-of-change), Appendix B.9.
+**Caveat:** arXiv preprint, not yet peer-reviewed; the manual uses it for the direction - each generation retires part of the harness - not the exact fraction.
 
 ---
 
