@@ -1,6 +1,6 @@
 # Short 12 · Un inginer încăpățânat
 
-- Sursă: Capitolul 10, „Adopția: 90 de zile, trei roluri” · https://ship-it-with.ai/ro/chapter-10-adoption-90-days/
+- Sursă: Capitolul 9, „Cum faci rollout-ul agenților AI de cod într-o echipă?” · https://ship-it-with.ai/ro/chapter-9-rolling-it-out/
 - Ce predă: adopția începe cu un Campion; apoi 90 de zile în trei faze; finalul seriei
 - Durată 28-30s · voce ~90 de cuvinte · 9:16 vertical, subtitrări arse în video
 

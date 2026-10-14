@@ -1,6 +1,6 @@
 # Short 10 · Întrebarea de 530 de dolari
 
-- Sursă: Anexa A, economia costurilor (exemplul lucrat) · https://ship-it-with.ai/ro/appendix-a-cost-economics/
+- Sursă: Anexa A, „Un exemplu lucrat” · https://ship-it-with.ai/ro/appendix-a-for-managers/
 - Ce predă: măsoară orele câștigate, nu ROI-ul promis; seat-urile sunt cel mai mic număr de pe pagină
 - Durată 28-30s · voce ~81 de cuvinte · 9:16 vertical, subtitrări arse în video
 - Notă de onestitate: tarifele de 30 $ / 20 $ / 100 $ sunt explicit ilustrative în manual; numerele 41% / 28% / constant vin din engagement-ul lucrat. Păstrează cuvântul „ilustrativ” în descriere.

@@ -1,6 +1,6 @@
 # Short 11 · Delegatorul necalibrat
 
-- Sursă: Capitolul 10, arhetipurile adopției · https://ship-it-with.ai/ro/chapter-10-adoption-90-days/
+- Sursă: Capitolul 9, „Două arhetipuri care omoară rollout-urile” · https://ship-it-with.ai/ro/chapter-9-rolling-it-out/
 - Ce predă: problema e calibrarea, nu delegarea; fiecare PR de agent primește review uman
 - Durată 28-30s · voce ~89 de cuvinte · 9:16 vertical, subtitrări arse în video
 

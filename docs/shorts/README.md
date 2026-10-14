@@ -52,17 +52,17 @@ Postează 3 pe săptămână, alternând episoadele conduse de poveste cu cele c
 | # | Fișier | Hook | Sursă |
 |---|--------|------|-------|
 | 01 | `01-nine-seconds.md` | Un AI a șters o bază de date de producție în 9 secunde | Prolog |
-| 05 | `05-your-ai-gets-dumber.md` | AI-ul tău devine tot mai prost cu cât vorbești cu el | Cap. 5, igiena contextului |
+| 05 | `05-your-ai-gets-dumber.md` | AI-ul tău devine tot mai prost cu cât vorbești cu el | Cap. 6, igiena contextului |
 | 03 | `03-fluency-is-not-correctness.md` | Bug-urile de AI nu arată ca niște bug-uri | Cap. 5, review pe diff |
-| 02 | `02-define-done.md` | Nimeni n-a definit „gata” | Cap. 5, principiul de bază |
-| 06 | `06-green-checkmarks.md` | A trecut de fiecare review AI, tot a facturat greșit clienții | Cap. 9, pattern-ul patru |
-| 04 | `04-the-six-phase-loop.md` | „Repară” nu e un prompt, e o rugăciune | Cap. 5, bucla |
+| 02 | `02-define-done.md` | Nimeni n-a definit „gata” | Cap. 4, principiul de bază |
+| 06 | `06-green-checkmarks.md` | A trecut de fiecare review AI, tot a facturat greșit clienții | Cap. 5, toolkit-ul de review |
+| 04 | `04-the-six-phase-loop.md` | „Repară” nu e un prompt, e o rugăciune | Cap. 4, bucla |
 | 08 | `08-the-three-hour-tax.md` | Aceeași greșeală de AI, corectată de 11 ori într-o lună | Cap. 6, AGENTS.md |
 | 07 | `07-traffic-light.md` | Codebase-ul tău e verde, galben sau roșu | Cap. 8, semaforul |
 | 09 | `09-fifteen-minutes-vs-eighteen-months.md` | Un AI a omorât un rewrite de 18 luni în 15 minute | Cap. 7, review de arhitectură |
-| 11 | `11-the-uncalibrated-delegator.md` | Cel mai periculos inginer are încredere totală în AI | Cap. 10, arhetipuri |
+| 11 | `11-the-uncalibrated-delegator.md` | Cel mai periculos inginer are încredere totală în AI | Cap. 9, arhetipuri |
 | 10 | `10-the-530-dollar-question.md` | Seat-uri AI pentru 20 de ingineri: 530 $/lună | Anexa A |
-| 12 | `12-one-stubborn-engineer.md` | Adopția începe cu un inginer încăpățânat | Cap. 10, cele 90 de zile |
+| 12 | `12-one-stubborn-engineer.md` | Adopția începe cu un inginer încăpățânat | Cap. 9, rollout-ul |
 
 Episodul 12 e și finala seriei, și video-ul de pinuit pe profil; replica lui de final („tool-urile se schimbă, metodologia rămâne”) e teza cărții și se leagă în loop cu episodul 01.
 

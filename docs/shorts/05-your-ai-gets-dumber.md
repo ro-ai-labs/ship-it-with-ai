@@ -1,6 +1,6 @@
 # Short 05 · AI-ul tău devine tot mai prost
 
-- Sursă: Capitolul 5, „Igiena contextului” · https://ship-it-with.ai/ro/chapter-5-six-phase-loop/
+- Sursă: Capitolul 6, „Igiena contextului” · https://ship-it-with.ai/ro/chapter-6-agents-md/
 - Ce predă: contaminarea contextului are patru semne; dai commit la stare, închizi sesiunea, pornești curat
 - Durată 28-30s · voce ~87 de cuvinte · 9:16 vertical, subtitrări arse în video
 

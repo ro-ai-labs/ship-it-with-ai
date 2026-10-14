@@ -1,6 +1,6 @@
 # Short 03 · Fluența nu e corectitudine
 
-- Sursă: Capitolul 5, „Cum faci review pe un diff scris de agent?” · https://ship-it-with.ai/ro/chapter-5-six-phase-loop/
+- Sursă: Capitolul 5, „Cum faci review pe un diff scris de agent?” · https://ship-it-with.ai/ro/chapter-5-review-and-verify/
 - Ce predă: bug-urile de agent eșuează la intenție, nu la execuție; inversează ordinea de citire
 - Durată 28-30s · voce ~88 de cuvinte · 9:16 vertical, subtitrări arse în video
 

@@ -1,6 +1,6 @@
 # Short 04 · Bucla în șase faze
 
-- Sursă: Capitolul 5, „Bucla în șase faze” · https://ship-it-with.ai/ro/chapter-5-six-phase-loop/
+- Sursă: Capitolul 4, „Ce este bucla în șase faze?” · https://ship-it-with.ai/ro/chapter-4-six-phase-loop/
 - Ce predă: research, plan, execute, review, verify, ship; un verify picat se întoarce la plan
 - Durată 28-30s · voce ~82 de cuvinte · 9:16 vertical, subtitrări arse în video
 

@@ -1,6 +1,6 @@
 # Short 08 · Taxa de trei ore
 
-- Sursă: Capitolul 6, „AGENTS.md ca infrastructură de echipă” · https://ship-it-with.ai/ro/chapter-6-agents-md/
+- Sursă: Capitolul 6, „Povestea: o linie, trei ore pe lună” · https://ship-it-with.ai/ro/chapter-6-agents-md/
 - Ce predă: corecțiile repetate pe agent sunt o taxă permanentă; AGENTS.md o plătește o singură dată
 - Durată 28-30s · voce ~90 de cuvinte · 9:16 vertical, subtitrări arse în video
 

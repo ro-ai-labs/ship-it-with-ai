@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
-"""Build the single-file SPA HTML from Ship_It_With_AI.md.
+"""Build the ship-it-with.ai static site from source/Ship_It_With_AI*.md.
 
-Usage: python3 build_spa.py
-Output: ship_it_with_ai.html (single self-contained file)
+Usage: python3 build_spa.py               # every language (the deployable build)
+       python3 build_spa.py --lang en     # English only (local verification)
+       SITE_LANGS=en python3 build_spa.py # same, via env (the test helpers inherit it)
+Output: _site/ (per-section pages, /read/, the /full/ archive, llms*.txt,
+        sitemap.xml; /ro/ for the Romanian edition)
 """
 
 import os
@@ -99,9 +102,41 @@ def _content_date() -> datetime:
 # ---------------------------------------------------------------------------
 
 # (kind, identifying_text) → URL slug. identifying_text is the chapter title
-# for chapters/about/foreword/etc., or "Appendix X" for appendices, or the
-# heading-detected anchor for prologue.
+# for chapters/about/etc., or "Appendix X" for appendices, or the
+# heading-detected anchor for prologue. Insertion order is document order.
+#
+# Short edition (October 2026). Slug policy: a chapter keeps its old slug when
+# the same chapter number still holds the same topic (1, 6, 7, 8, Appendix B,
+# Appendix C); otherwise it gets a new slug and the old one becomes a redirect
+# stub (RETIRED_SLUG_REDIRECTS below).
 SECTION_SLUGS: dict[tuple[str, str], str] = {
+    ("prologue", "Nine seconds"):                                   "prologue-nine-seconds",
+    ("chapter", "What an agent is"):                                "chapter-1-primitives",
+    ("chapter", "Guardrails in five layers"):                       "chapter-2-guardrails",
+    ("chapter", "The bottleneck moved"):                            "chapter-3-bottleneck-moved",
+    ("chapter", "The six-phase loop"):                              "chapter-4-six-phase-loop",
+    ("chapter", "Review and verify"):                               "chapter-5-review-and-verify",
+    ("chapter", "AGENTS.md and context"):                           "chapter-6-agents-md",
+    ("chapter", "Map it first: architecture review"):               "chapter-7-architecture-review",
+    ("chapter", "Should the agent touch this code?"):               "chapter-8-readiness-kill-signals",
+    ("chapter", "Rolling it out"):                                  "chapter-9-rolling-it-out",
+    ("closing", "Closing"):                                         "closing",
+    ("acknowledgments", "Acknowledgments"):                         "acknowledgments",
+    ("about", "About the author"):                                  "about-the-author",
+    ("changelog", "Changelog"):                                     "changelog",
+    ("appendix", "A"):                                              "appendix-a-for-managers",
+    ("appendix", "B"):                                              "appendix-b-templates",
+    ("appendix", "C"):                                              "appendix-c-sources",
+    ("appendix", "D"):                                              "appendix-d-deep-dives",
+}
+
+# The September 2026 (full) edition's slug table, in its document order. That
+# edition is frozen in source/Ship_It_With_AI.full.md and served whole at
+# /full/; this table is the record of which URLs it published, so every one of
+# them either survives in SECTION_SLUGS or has a redirect stub below (checked
+# at import time). It is also what the landing page's legacy /#chapter-N map
+# is derived from - those bookmarks used the OLD numbering.
+LEGACY_SECTION_SLUGS: dict[tuple[str, str], str] = {
     ("foreword", "Foreword"):                                       "foreword",
     ("prologue", "Nine seconds"):                                   "prologue-nine-seconds",
     ("chapter", "The primitives"):                                  "chapter-1-primitives",
@@ -123,22 +158,60 @@ SECTION_SLUGS: dict[tuple[str, str], str] = {
     ("appendix", "C"):                                              "appendix-c-sources",
 }
 
-# Sanity: no slug collisions.
+# Retired slug -> the current slug that now holds its content. Each one is
+# emitted as a redirect stub (render_redirect_stub) in every language build, so
+# inbound links and bookmarks land on the right page; stubs are not sections,
+# so they never reach the sitemap or llms.txt.
+RETIRED_SLUG_REDIRECTS: dict[str, str] = {
+    "foreword":                                            "prologue-nine-seconds",
+    "chapter-2-anatomy-invariant":                         "chapter-1-primitives",
+    "chapter-3-governance-in-layers":                      "chapter-2-guardrails",
+    "chapter-4-from-generating-code-to-shipping-software": "chapter-3-bottleneck-moved",
+    "chapter-5-six-phase-loop":                            "chapter-4-six-phase-loop",
+    "chapter-9-brownfield-patterns":                       "chapter-9-rolling-it-out",
+    "chapter-10-adoption-90-days":                         "chapter-9-rolling-it-out",
+    "appendix-a-cost-economics":                           "appendix-a-for-managers",
+}
+
+# Renamed before the Romanian edition existed: English-only redirect stub.
+EN_ONLY_SLUG_REDIRECTS: dict[str, str] = {
+    "chapter-1-six-primitives": "chapter-1-primitives",
+}
+
+# Sanity: no slug collisions, every retired slug points at a live slug, and
+# every slug the full edition published is either live or redirected.
 _seen: set[str] = set()
 for _k, _v in SECTION_SLUGS.items():
     if _v in _seen:
         raise RuntimeError(f"duplicate slug in SECTION_SLUGS: {_v}")
     _seen.add(_v)
+for _old, _new in {**RETIRED_SLUG_REDIRECTS, **EN_ONLY_SLUG_REDIRECTS}.items():
+    if _old in _seen:
+        raise RuntimeError(f"redirect stub {_old} collides with a live slug")
+    if _new not in _seen:
+        raise RuntimeError(f"redirect {_old} -> {_new}: target is not a live slug")
+for _v in LEGACY_SECTION_SLUGS.values():
+    if _v not in _seen and _v not in RETIRED_SLUG_REDIRECTS:
+        raise RuntimeError(f"full-edition slug {_v} is neither live nor redirected")
 
 # Single source of truth for how many per-section pages the build must emit.
 # Used by the build's own print + the CI smoke check.
-EXPECTED_PAGE_COUNT = len(SECTION_SLUGS)  # 19 as of this pass
+EXPECTED_PAGE_COUNT = len(SECTION_SLUGS)  # 18 in the short edition (19 before)
 
 # Document-order slug list. Translated builds (whose headings don't match the
 # English SECTION_SLUGS keys) assign slugs positionally from this list - the
 # translation mirrors the English structure section-for-section, so position is
 # a reliable join key and keeps URLs identical across languages.
 CANONICAL_SLUG_ORDER = list(SECTION_SLUGS.values())
+# Section kinds in the same order. A translated source whose kind sequence
+# differs (e.g. it still opens with a Foreword) is a structural mismatch, not a
+# translation - parse_sections refuses it instead of mis-assigning slugs.
+CANONICAL_KIND_ORDER = [k[0] for k in SECTION_SLUGS]
+
+
+def legacy_slug_target(old_slug: str) -> str:
+    """Where a full-edition slug's content lives now (itself if still live)."""
+    return RETIRED_SLUG_REDIRECTS.get(old_slug, old_slug)
 
 
 SectionKind = Literal["foreword", "prologue", "chapter", "closing",
@@ -197,7 +270,17 @@ def parse_sections(md_text: str) -> list[Section]:
             cur_body = []
             return
         if by_order:
-            slug = CANONICAL_SLUG_ORDER[len(sections)]
+            pos = len(sections)
+            if pos >= len(CANONICAL_SLUG_ORDER) or CANONICAL_KIND_ORDER[pos] != cur_meta[0]:
+                want = CANONICAL_KIND_ORDER[pos] if pos < len(CANONICAL_KIND_ORDER) else "(end)"
+                raise RuntimeError(
+                    f"[{CFG.code}] section #{pos + 1} is a {cur_meta[0]!r} "
+                    f"({cur_title!r}) but the English structure has {want!r} there. "
+                    f"Translated sources must mirror the English edition "
+                    f"section-for-section; rewrite {CFG.source.name} to the "
+                    f"current structure (or build English only: --lang en)."
+                )
+            slug = CANONICAL_SLUG_ORDER[pos]
         else:
             slug = SECTION_SLUGS.get(cur_meta)
             if slug is None:
@@ -322,8 +405,8 @@ def parse_sections(md_text: str) -> list[Section]:
 
     if len(sections) != len(SECTION_SLUGS):
         raise RuntimeError(
-            f"parse_sections produced {len(sections)} sections, "
-            f"expected {len(SECTION_SLUGS)} (per SECTION_SLUGS table)"
+            f"[{CFG.code if CFG else '?'}] parse_sections produced {len(sections)} "
+            f"sections, expected {len(SECTION_SLUGS)} (per SECTION_SLUGS table)"
         )
 
     return sections
@@ -1238,7 +1321,7 @@ def build_search_index(md_text, parts, chapters, appendices, foreword, closing,
     """Build the JSON search index.
 
     If `anchor_index` is provided, each entry gets a `url` field set to the
-    owning section's per-chapter URL (e.g., `/chapter-3-governance-in-layers/`).
+    owning section's per-chapter URL (e.g., `/chapter-2-guardrails/`).
     Entries whose `id` isn't in the anchor_index (e.g., Part headings, certain
     front-matter anchors) fall back to `/read/#<id>` so the click handler can
     still resolve them via the all-in-one page.
@@ -1424,10 +1507,40 @@ def render_markdown(md_text: str) -> str:
 # TOC
 # ---------------------------------------------------------------------------
 
+def derive_chapter_to_part(md_text: str) -> dict[str, str]:
+    """Map 'chapter-N' -> 'part-i'/'part-ii'/'part-iii' from the document
+    itself (which Part heading a chapter sits under), so the TOC follows the
+    source rather than a hard-coded table. Works for any edition / language:
+    it uses the language-bound _PART_RE / _CHAPTER_NUM_RE."""
+    out: dict[str, str] = {}
+    part_ordinal = 0
+    current: str | None = None
+    for line in md_text.split("\n"):
+        if _PART_RE.match(line):
+            current = f"part-{['i', 'ii', 'iii', 'iv', 'v'][part_ordinal]}"
+            part_ordinal += 1
+            continue
+        if current and _CHAPTER_NUM_RE.match(line):
+            n = re.search(r"\d+", line).group(0)
+            out[f"chapter-{n}"] = current
+    return out
+
+
+def present_front_matter_items(md_text: str) -> list:
+    """The CFG.front_matter_items whose H2 actually exists in this source.
+    The short edition has none; the frozen full edition has all four."""
+    return [
+        (anchor, label) for anchor, label in CFG.front_matter_items
+        if re.search(rf"^## {re.escape(label)}\b", md_text, re.MULTILINE)
+    ]
+
+
 def build_toc(parts, chapters, appendices, foreword, closing,
               reading_times=None, *, mode: str = "in-page",
               legacy_to_full_slug: dict[str, str] | None = None,
-              current_slug: str | None = None) -> str:
+              current_slug: str | None = None,
+              chapter_to_part: dict[str, str] | None = None,
+              front_matter_items: list | None = None) -> str:
     """Build TOC HTML structured by Part.
 
     mode controls URL style on the anchor hrefs:
@@ -1438,24 +1551,17 @@ def build_toc(parts, chapters, appendices, foreword, closing,
     `legacy_to_full_slug` maps the TOC's anchor-style slugs ("chapter-3",
     "appendix-b", "foreword", "closing", "about-the-author", "nine-seconds",
     front-matter anchors) to the per-chapter URL slug
-    ("chapter-3-governance-in-layers", "appendix-b-templates", ...). Required
+    ("chapter-2-guardrails", "appendix-b-templates", ...). Required
     for mode="chapter-url". current_slug (also legacy-style) gets the
     .toc-current marker on its <li>.
     """
     reading_times = reading_times or {}
     legacy_to_full_slug = legacy_to_full_slug or {}
-    chapter_to_part = {
-        "chapter-1": "part-i",
-        "chapter-2": "part-i",
-        "chapter-3": "part-i",
-        "chapter-4": "part-ii",
-        "chapter-5": "part-ii",
-        "chapter-6": "part-ii",
-        "chapter-7": "part-ii",
-        "chapter-8": "part-iii",
-        "chapter-9": "part-iii",
-        "chapter-10": "part-iii",
-    }
+    # chapter -> part comes from the source (derive_chapter_to_part); the
+    # caller passes it because the short and the full edition differ.
+    chapter_to_part = chapter_to_part or {}
+    front_matter_items = (CFG.front_matter_items if front_matter_items is None
+                          else front_matter_items)
 
     def _href(anchor: str) -> str:
         if mode == "transition":
@@ -1476,22 +1582,25 @@ def build_toc(parts, chapters, appendices, foreword, closing,
     sections = []
 
     # Front matter: Foreword (with its 4 H3 subsections nested) + the other
-    # H2 sections that orient the reader before Part I.
-    sections.append('<div class="toc-section">')
-    sections.append(f'<div class="toc-section-title">{CFG.toc_front_matter}</div>')
-    sections.append('<ul class="toc-list toc-list-flat">')
-    if foreword:
-        sections.append(
-            f'  <li{_li_cls("foreword")}><a href="{_href("foreword")}">{CFG.foreword_label}{dash}{html_lib.escape(foreword[1])}</a>'
-        )
-        sections.append('    <ul class="toc-sublist">')
-        for anchor, label in CFG.foreword_subitems:
-            sections.append(f'      <li><a href="{_href(anchor)}">{label}</a></li>')
-        sections.append('    </ul>')
-        sections.append('  </li>')
-    for anchor, label in CFG.front_matter_items:
-        sections.append(f'  <li><a href="{_href(anchor)}">{label}</a></li>')
-    sections.append("</ul></div>")
+    # H2 sections that orient the reader before Part I. Only the frozen full
+    # edition (/full/) has any; the short edition opens with the Prologue, so
+    # the block is omitted rather than rendered empty.
+    if foreword or front_matter_items:
+        sections.append('<div class="toc-section">')
+        sections.append(f'<div class="toc-section-title">{CFG.toc_front_matter}</div>')
+        sections.append('<ul class="toc-list toc-list-flat">')
+        if foreword:
+            sections.append(
+                f'  <li{_li_cls("foreword")}><a href="{_href("foreword")}">{CFG.foreword_label}{dash}{html_lib.escape(foreword[1])}</a>'
+            )
+            sections.append('    <ul class="toc-sublist">')
+            for anchor, label in CFG.foreword_subitems:
+                sections.append(f'      <li><a href="{_href(anchor)}">{label}</a></li>')
+            sections.append('    </ul>')
+            sections.append('  </li>')
+        for anchor, label in front_matter_items:
+            sections.append(f'  <li><a href="{_href(anchor)}">{label}</a></li>')
+        sections.append("</ul></div>")
 
     # Prologue
     sections.append('<div class="toc-section">')
@@ -1688,17 +1797,17 @@ FAQ_ENTRIES: list[dict] = [
     },
     {
         "q": "How do you safely roll out AI coding agents in an engineering team?",
-        "home_slug": "chapter-10-adoption-90-days",
+        "home_slug": "chapter-9-rolling-it-out",
         "a": "A safe rollout treats agentic delivery as a control problem with five layers of governance: permissions, sandboxing, secrets, security hooks, and telemetry. Pair that with a clear methodology - a six-phase loop covering research, plan, execute, review, verify, ship - and a 90-day adoption arc with three named roles (Champion, Lead, Manager). Skip any of these and adoption produces more harm than benefit.",
     },
     {
         "q": "What is the six-phase agentic loop?",
-        "home_slug": "chapter-5-six-phase-loop",
+        "home_slug": "chapter-4-six-phase-loop",
         "a": "The six-phase loop is a delivery discipline for agentic work: research (the agent maps the codebase into a durable note), plan (a reviewable file-level task list), execute (constrained subagents make the changes), review (separate spec-compliance and code-quality passes), verify (new tests run, including accessibility-tree UI tests), and ship (a normal pull request your existing process reviews). Most failures route back to plan, not back to research.",
     },
     {
         "q": "How much does agentic coding cost?",
-        "home_slug": "appendix-a-cost-economics",
+        "home_slug": "appendix-a-for-managers",
         "a": "Per-seat tool pricing is the small line item; the real cost is total cost of ownership - seats, token and usage spend, the human review time the loop requires, and the governance setup. The durable way to budget is to match seat tier to actual usage rather than buying uniform tooling, and to compare the loaded cost of agent-assisted delivery against the cost of the work it replaces, not against zero.",
     },
     {
@@ -1932,33 +2041,60 @@ def _homepage_head_schema(author: str, number_of_pages: int, date_modified: str)
     )
 
 
-def render_hash_redirect_js(sections: list[Section]) -> str:
+def render_hash_redirect_js(sections: list[Section],
+                            anchor_index: dict[str, str] | None = None) -> str:
     """Landing-only hash-redirect shim. Migrates old /#chapter-N bookmarks
-    that pointed at the SPA's in-page anchors to the new per-chapter URLs.
+    that pointed at the SPA's in-page anchors to the per-section URLs.
 
-    Generated from SECTION_SLUGS so it always stays in sync with the slug
-    table. During Commit 2 the per-chapter URLs don't exist yet - the
-    redirect still rewrites to /<slug>/, which will 404 until Commit 3 ships.
-    That is the desired behaviour: better a 404 (with the chrome and the
-    chapter index) than a silent dead-end on the landing page.
+    Those bookmarks predate per-section URLs (May 2026), so /#chapter-N and
+    /#appendix-x mean the OLD (full-edition) numbering: they are mapped through
+    LEGACY_SECTION_SLUGS + RETIRED_SLUG_REDIRECTS to wherever that content
+    lives now (e.g. /#chapter-10 -> /chapter-9-rolling-it-out/). Explicit
+    {#anchors} (/#what-is-mcp) go to their owning page + hash. Section-level
+    entries are written last so they win over a same-named explicit anchor
+    (/#changelog -> /changelog/, not /changelog/#changelog).
     """
     redirects: dict[str, str] = {}
+    # Explicit {#anchor}s in the current edition -> owning page + hash.
+    explicit: set[str] = set()
+    for s in sections:
+        for m in _ANCHOR_RE.finditer(s.body_md):
+            explicit.add(m.group(1))
+    for anchor in sorted(explicit):
+        owner = (anchor_index or {}).get(anchor)
+        if owner:
+            redirects[f"#{anchor}"] = _rel(f"/{owner}/#{anchor}")
+    # Old SPA anchors (old numbering + removed front matter) -> current page.
+    for (kind, _title), old_slug in LEGACY_SECTION_SLUGS.items():
+        target = _rel(f"/{legacy_slug_target(old_slug)}/")
+        if kind == "chapter":
+            m = re.match(r"^chapter-(\d+)-", old_slug)
+            if m:
+                redirects[f"#chapter-{m.group(1)}"] = target
+        elif kind == "appendix":
+            m = re.match(r"^appendix-([a-z])-", old_slug)
+            if m:
+                redirects[f"#appendix-{m.group(1)}"] = target
+        elif kind == "foreword":
+            redirects["#foreword"] = target
+            # The Foreword's subsections and the front-matter sections were
+            # folded into the Prologue.
+            for anchor, _label in list(CFG.foreword_subitems) + list(CFG.front_matter_items):
+                redirects[f"#{anchor}"] = target
+        redirects[f"#{old_slug}"] = target
+    # Current sections: own slug, plus the anchors the old SPA used for them.
     for s in sections:
         redirects[f"#{s.slug}"] = _rel(f"/{s.slug}/")
-        if s.kind == "chapter":
-            m = re.match(r"^chapter-(\d+)-", s.slug)
-            if m:
-                redirects[f"#chapter-{m.group(1)}"] = _rel(f"/{s.slug}/")
-        if s.kind == "appendix":
-            m = re.match(r"^appendix-([a-z])-", s.slug)
-            if m:
-                redirects[f"#appendix-{m.group(1)}"] = _rel(f"/{s.slug}/")
         if s.slug == "about-the-author":
             redirects["#contact"] = _rel("/about-the-author/#contact")
         if s.slug == "prologue-nine-seconds":
             redirects["#nine-seconds"] = _rel("/prologue-nine-seconds/")
-        if s.slug == "foreword":
-            redirects["#foreword"] = _rel("/foreword/")
+    # Appendix D is new (no legacy meaning), so /#appendix-d is unambiguous.
+    for s in sections:
+        if s.kind == "appendix":
+            m = re.match(r"^appendix-([a-z])-", s.slug)
+            if m and f"#appendix-{m.group(1)}" not in redirects:
+                redirects[f"#appendix-{m.group(1)}"] = _rel(f"/{s.slug}/")
 
     map_json = json.dumps(redirects, indent=2)
     return (
@@ -1977,9 +2113,9 @@ def render_hash_redirect_js(sections: list[Section]) -> str:
 def render_sitemap(sections: list[Section]) -> str:
     """Full sitemap: landing + /read/ + every per-section URL."""
     today = _content_date().strftime("%Y-%m-%d")
-    # Slugs renamed in earlier passes - old URLs serve as redirect stubs,
-    # not as canonical URLs. Exclude from sitemap so Google doesn't index them.
-    REDIRECTED_OLD_SLUGS = {"chapter-1-six-primitives"}
+    # Slugs renamed or retired - old URLs serve as redirect stubs, not as
+    # canonical URLs. Exclude from sitemap so Google doesn't index them.
+    REDIRECTED_OLD_SLUGS = set(RETIRED_SLUG_REDIRECTS) | set(EN_ONLY_SLUG_REDIRECTS)
 
     # /read/ is noindex (duplicate of the per-section pages) - keep it out of the sitemap.
     urls = [_abs("/")]
@@ -2000,7 +2136,7 @@ def render_sitemap(sections: list[Section]) -> str:
 
 def build_legacy_to_full_slug(sections: list[Section]) -> dict[str, str]:
     """Map the TOC's anchor-style slugs ('chapter-3', 'appendix-b', etc.) to
-    the per-chapter URL slug ('chapter-3-governance-in-layers', etc.).
+    the per-chapter URL slug ('chapter-2-guardrails', etc.).
 
     Used by build_toc(mode='chapter-url') so the existing TOC builder can keep
     emitting legacy anchor names and have them routed to the new URLs.
@@ -2598,6 +2734,60 @@ def render_read(template: str, *, title: str, subtitle: str, author: str,
     return render_template_with_placeholders(template, substitutions)
 
 
+def render_full_archive(template: str, *, md_text: str,
+                        date_modified_human: str) -> str:
+    """Render the frozen September 2026 edition as one page at /full/.
+
+    Reuses the /read/ all-in-one pipeline (render_all_in_one_body + the
+    in-page TOC) on the archived source, which still has the OLD structure
+    (Foreword, front matter, ten chapters): the TOC's part mapping and front
+    matter are derived from that source, not from SECTION_SLUGS. The page is
+    noindex,follow with canonical -> the current edition's home, carries no
+    Book/FAQ JSON-LD (the archive is not a second Book entity), and is never
+    listed in the sitemap or the llms files.
+    """
+    (content_html, reading_times, title, subtitle, author,
+     parts, chapters, appendices, foreword, closing) = render_all_in_one_body(md_text)
+    toc = build_toc(parts, chapters, appendices, foreword, closing,
+                    reading_times=reading_times, mode="in-page",
+                    chapter_to_part=derive_chapter_to_part(md_text),
+                    front_matter_items=present_front_matter_items(md_text))
+    body = _read_article_body(content_html, subtitle, author, "#contact")
+    # The /read/ note advertises the landing page's chapter index, which
+    # indexes the current edition, not this one; the banner replaces it.
+    body = re.sub(r'\s*<aside class="read-mode-note">.*?</aside>', "", body,
+                  count=1, flags=re.DOTALL)
+    banner = (
+        '<aside class="edition-banner" role="note">'
+        + CFG.full_banner.format(HOME=_rel("/"))
+        + '</aside>\n      '
+    )
+    substitutions = {
+        "PAGE_TITLE": html_lib.escape(CFG.full_title),
+        "PAGE_DESCRIPTION": html_lib.escape(CFG.full_description),
+        # Canonical -> the current edition's home: the archive consolidates
+        # into the live book rather than competing with it.
+        "PAGE_URL": _abs("/"),
+        "OG_TYPE": "article",
+        "OG_URL": _abs("/full/"),
+        "ROBOTS": ROBOTS_NOINDEX,
+        # Own mode: search results hop to the current edition's pages
+        # (entry.url) instead of scrolling to same-named in-page anchors.
+        "SITE_MODE": "full",
+        "TITLE": html_lib.escape(title),
+        "AUTHOR": html_lib.escape(author),
+        "BYLINE_HREF": "#contact",
+        "HEAD_SCHEMA": "",
+        "HEAD_EXTRA": "",
+        "TOC": toc,
+        "ARTICLE_BODY": banner + body,
+        "SEARCH_INDEX": "[]",
+        "DATE_MODIFIED_HUMAN": html_lib.escape(date_modified_human),
+        **_lang_subs("/full/", hreflang=False),
+    }
+    return render_template_with_placeholders(template, substitutions)
+
+
 # 404 body: one H1, dedicated subtitle, and links back into the live site.
 # No homepage hero, no cover figure, no JSON-LD. Sits inside the template's
 # existing <main class="article" id="top"> so the site chrome is reused.
@@ -2614,28 +2804,39 @@ _FOUR_OH_FOUR_ARTICLE_BODY = '''<header class="article-header">
       </section>'''
 
 
-def render_redirect_stub(old_slug: str, new_slug: str, new_title: str) -> str:
+def render_redirect_stub(old_slug: str, new_slug: str, new_title: str, *,
+                         anchor_map: dict[str, str] | None = None) -> str:
     """Emit a tiny redirect-stub HTML page at the old slug.
 
-    Used when a chapter slug is renamed so inbound bookmarks don't dead-end.
-    Combines meta-refresh (works without JS), location.replace (immediate
-    in modern browsers), and a canonical pointing to the new URL so
-    crawlers consolidate ranking.
+    Used when a chapter slug is renamed or retired so inbound bookmarks don't
+    dead-end. Combines meta-refresh (works without JS), location.replace
+    (immediate in modern browsers), and a canonical pointing to the new URL so
+    crawlers consolidate ranking. Language-aware via URL_PREFIX / CFG.
+
+    The JS path keeps the #fragment. `anchor_map` (anchor -> page path) routes
+    a fragment whose section moved to a different page than the stub's
+    default target, e.g. /chapter-5-six-phase-loop/#reviewing-agent-diffs ->
+    /chapter-5-review-and-verify/#reviewing-agent-diffs.
     """
-    new_url = f"/{new_slug}/"
-    new_url_absolute = f"https://ship-it-with.ai{new_url}"
+    new_url = _rel(f"/{new_slug}/")
+    new_url_absolute = _abs(f"/{new_slug}/")
+    amap = json.dumps(anchor_map or {}, separators=(",", ":"), sort_keys=True)
+    title = html_lib.escape(new_title)
+    lang = CFG.html_lang if CFG else "en"
+    moved = CFG.moved_body if CFG else "This page has moved to"
+    moved_title = CFG.moved_title if CFG else "Moved"
     return f"""<!DOCTYPE html>
-<html lang="en">
+<html lang="{lang}">
 <head>
   <meta charset="UTF-8">
-  <title>Moved - {new_title}</title>
+  <title>{moved_title} - {title}</title>
   <link rel="canonical" href="{new_url_absolute}">
   <meta http-equiv="refresh" content="0; url={new_url}">
   <meta name="robots" content="noindex, follow">
-  <script>location.replace('{new_url}');</script>
+  <script>(function(){{var m={amap};var h=location.hash;var t=(h&&m[h.slice(1)])||'{new_url}';location.replace(t+h);}})();</script>
 </head>
 <body>
-  <p>This page has moved to <a href="{new_url}">{new_url}</a>.</p>
+  <p>{moved} <a href="{new_url}">{new_url}</a>.</p>
 </body>
 </html>
 """
@@ -2692,11 +2893,11 @@ def _llms_label(section: Section) -> str:
     """Friendly link label for llms.txt.
 
     Examples:
-      foreword            → "Foreword"
+      foreword            → "Foreword" (full edition only)
       prologue            → "Prologue - Nine seconds"
-      chapter (slug=ch-1) → "Chapter 1 - The primitives"
+      chapter (slug=ch-1) → "Chapter 1 - What an agent is"
       closing             → "Closing"
-      appendix (letter A) → "Appendix A - Cost economics"
+      appendix (letter A) → "Appendix A - For managers"
       about               → "About the author"
       acknowledgments     → "Acknowledgments"
     """
@@ -2726,7 +2927,7 @@ def render_llms_txt(sections: list[Section]) -> str:
 
     Lists every per-section URL so AI answer engines (ChatGPT, Perplexity, etc.)
     can crawl an authoritative URL index without parsing the SPA. Docs section
-    holds the linear reading path (Foreword → Prologue → Chapters → Closing →
+    holds the linear reading path (Prologue → Chapters → Closing →
     Appendices); Optional holds the meta/back-matter URLs + the /read/ all-in-
     one view.
     """
@@ -2985,6 +3186,14 @@ class Lang:
     section_descriptions: dict = field(default_factory=dict)
     # Fallback meta description for an empty section, language-native.
     empty_description: str = ""
+    # /full/ archive of the frozen September 2026 edition (None = not built).
+    full_source: Path | None = None
+    full_title: str = ""
+    full_description: str = ""
+    full_banner: str = ""        # HTML; {HOME} -> this language's home path
+    # Redirect stubs (retired slugs).
+    moved_title: str = "Moved"
+    moved_body: str = "This page has moved to"
 
 
 # ---------------------------------------------------------------------------
@@ -2996,88 +3205,84 @@ class Lang:
 EN_SECTION_TITLES = {
     "about-the-author": "Mihai Cvasnievschi - Ship It With AI",
     "acknowledgments": "Acknowledgments - Ship It With AI",
-    "appendix-a-cost-economics": "AI Coding Agent Cost: Pricing Models - Ship It With AI",
-    "appendix-b-templates": "AGENTS.md Template + 5 Copy-Paste Resources",
+    "appendix-a-for-managers": "AI Coding Agents for Managers: Cost and Rollout",
+    "appendix-b-templates": "AGENTS.md Template + Copy-Paste Checklists",
     "appendix-c-sources": "Agentic Coding Sources - Ship It With AI",
+    "appendix-d-deep-dives": "Agentic Coding Deep Dives: Studies and Benchmarks",
     "changelog": "Ship It With AI changelog - updates to the manual",
-    "chapter-1-primitives": "Coding agent primitives: the core building blocks",
-    "chapter-10-adoption-90-days": "AI Agent Adoption Rollout: 90 Days, Three Roles",
-    "chapter-2-anatomy-invariant": "Agentic System Architecture: Perceive, Reason, Act",
-    "chapter-3-governance-in-layers": "AI Agent Governance: Five Layers - Ship It With AI",
-    "chapter-4-from-generating-code-to-shipping-software": "Agentic Delivery Workflow: Generate, Review, Verify, Ship",
-    "chapter-5-six-phase-loop": "Agentic coding loop: the six-phase loop method",
+    "chapter-1-primitives": "What a coding agent is: the nine primitives",
+    "chapter-2-guardrails": "AI Agent Guardrails: Five Layers - Ship It With AI",
+    "chapter-3-bottleneck-moved": "Agentic Coding: The Bottleneck Moved to Formulation",
+    "chapter-4-six-phase-loop": "Agentic coding loop: the six-phase loop method",
+    "chapter-5-review-and-verify": "Reviewing AI Agent Code: Review and Verify",
     "chapter-6-agents-md": "AGENTS.md vs CLAUDE.md: How to Write It",
     "chapter-7-architecture-review": "Architecture Review for AI Agents: A Diagnosis Workflow",
     "chapter-8-readiness-kill-signals": "AI Coding Agent Readiness: The Kill Signals",
-    "chapter-9-brownfield-patterns": "Brownfield refactoring with AI agents: 8 patterns",
+    "chapter-9-rolling-it-out": "Rolling Out AI Coding Agents: The 90-Day Arc",
     "closing": "Future of Agentic Software Engineering - Ship It",
-    "foreword": "Why Coding Agents Fail - Ship It With AI",
     "prologue-nine-seconds": "AI coding agent incident: PocketOS lost its database",
 }
 
 EN_SECTION_DESCRIPTIONS = {
     "about-the-author": "Mihai Cvasnievschi: 40 years of code, from BASIC in 1989 to shipping with Claude Code, Codex and Cursor. The experience behind this agentic coding manual.",
     "acknowledgments": "Closing thanks from the author of Ship It With AI. Share your agentic coding wins or failures - your experience shapes the next edition of the manual.",
-    "appendix-a-cost-economics": "AI coding agent cost, broken down: map per-seat, token, and usage pricing for Claude Code, Codex, Copilot, and Cursor onto your team's real numbers.",
-    "appendix-b-templates": "AGENTS.md template that doubles as CLAUDE.md, plus 5 copy-paste resources: architecture review prompt, six-phase loop checklist, kill signal worksheet.",
+    "appendix-a-for-managers": "For managers: your job in the first 90 days, which codebases get agents now, later or never, and AI coding agent cost mapped onto your team's numbers.",
+    "appendix-b-templates": "AGENTS.md template that doubles as CLAUDE.md, plus copy-paste one-pagers: architecture review prompt, six-phase loop checklist, kill signal worksheet.",
     "appendix-c-sources": "Agentic coding sources and references, organized by claim: studies, named incidents, CVEs with patch versions, and tool docs you can chase down and verify.",
+    "appendix-d-deep-dives": "The evidence behind each chapter of Ship It With AI: the studies, benchmarks, vendor-specific details and longer sidebars, organized by chapter.",
     "changelog": "Ship It With AI changelog: meaningful updates to the agentic-coding manual, dated newest first. New sections, reworked chapters, and key fixes.",
-    "chapter-1-primitives": "Coding agent primitives explained: context window, tools, permissions, skills, plugins, MCP, memory, and the harness that wraps them in Claude Code and Codex.",
-    "chapter-10-adoption-90-days": "AI agent adoption rollout in 90 days: the Champion, Lead, and Manager roles plus the grassroots arc that takes a team from one engineer to a real practice.",
-    "chapter-2-anatomy-invariant": "Agentic system architecture explained: every coding agent must perceive, reason, and act. See Claude Code inspect two rival agents side by side.",
-    "chapter-3-governance-in-layers": "AI agent governance, layered: permissions, sandbox, secrets, hooks, and telemetry. The least-privilege controls that would have stopped PocketOS.",
-    "chapter-4-from-generating-code-to-shipping-software": "Agentic delivery workflow: stop treating the agent as a code generator. Generate, review, verify, ship - formulation is the bottleneck, not typing code.",
-    "chapter-5-six-phase-loop": "The agentic coding loop runs in six gated phases: research, plan, execute, review, verify, ship. The execution method for shipping with Claude Code or Codex.",
-    "chapter-6-agents-md": "AGENTS.md is the vendor-neutral team instruction file. Learn how to write one and how it differs from CLAUDE.md across Claude Code, Codex, and Copilot.",
+    "chapter-1-primitives": "A coding agent is a model in a harness built from nine primitives: context, tools, permissions/sandbox, skills, plugins, MCP, memory, effort, subagents.",
+    "chapter-2-guardrails": "AI agent guardrails in five layers: permissions, sandbox, secrets, hooks, and telemetry. The least-privilege controls that would have stopped PocketOS.",
+    "chapter-3-bottleneck-moved": "With AI coding agents the bottleneck moved from typing code to formulating the work. Three habits, the four unknowns, and when to run the full loop.",
+    "chapter-4-six-phase-loop": "The agentic coding loop runs in six gated phases: research, plan, execute, review, verify, ship. The execution method for shipping with Claude Code or Codex.",
+    "chapter-5-review-and-verify": "How to review and verify an agent-written diff: two review agents and then you, the diff read order, and why the agent's own tests are evidence, not proof.",
+    "chapter-6-agents-md": "AGENTS.md is the vendor-neutral team instruction file: six rules for writing one, how it differs from CLAUDE.md, and the context hygiene that keeps sessions sharp.",
     "chapter-7-architecture-review": "Architecture review for AI agents: point Claude Code, Codex, or Cursor at a repo, generate a structured review, and save it as a durable diagnosis artifact.",
     "chapter-8-readiness-kill-signals": "AI coding agent readiness: learn the kill signals and traffic light that tell you when to put Claude Code, Codex or Copilot on a codebase, and when not to.",
-    "chapter-9-brownfield-patterns": "Brownfield refactoring with AI agents on legacy code needs operating patterns: worktrees, champions, hooks, PR review, plus four maturity patterns.",
+    "chapter-9-rolling-it-out": "Rolling out AI coding agents on a team: worktrees, two kinds of hooks, the human review floor, the grassroots path, the 90-day arc, and three roles.",
     "closing": "The future of agentic software engineering rests on durable principles, not tools. Claude Code, Codex and the rest will churn - the loop endures.",
-    "foreword": "Coding agents like Claude Code and Codex generate code that looks right but isn't. This foreword explains why agentic coding fails and how to fix it.",
     "prologue-nine-seconds": "An AI coding agent incident, step by step: a Cursor agent on Claude Opus wiped PocketOS's production database trying to fix a credentials mismatch.",
 }
 
 RO_SECTION_TITLES = {
     "about-the-author": "Mihai Cvasnievschi - Ship It With AI",
     "acknowledgments": "Mulțumiri - Ship It With AI",
-    "appendix-a-cost-economics": "Costul agenților de cod AI - Ship It With AI",
-    "appendix-b-templates": "Template AGENTS.md + 5 resurse copy-paste",
+    "appendix-a-for-managers": "Agenți AI pentru manageri: cost și rollout",
+    "appendix-b-templates": "Template AGENTS.md + checklist-uri copy-paste",
     "appendix-c-sources": "Surse și lecturi despre programarea cu agenți",
+    "appendix-d-deep-dives": "Aprofundări: studiile și benchmark-urile din manual",
     "changelog": "Ship It With AI - jurnal de modificări (changelog)",
-    "chapter-1-primitives": "Componentele principale ale unui coding agent",
-    "chapter-10-adoption-90-days": "Adopția agenților AI în echipă: 90 de zile, 3 roluri",
-    "chapter-2-anatomy-invariant": "Arhitectura unui sistem agentic: percepție-rațiune-acțiune",
-    "chapter-3-governance-in-layers": "Guvernanța agenților AI: 5 straturi - Ship It With AI",
-    "chapter-4-from-generating-code-to-shipping-software": "Livrare software cu agenți AI: generate, review, ship",
-    "chapter-5-six-phase-loop": "Bucla în șase faze a programării cu agenți AI",
+    "chapter-1-primitives": "Ce e un coding agent: cele nouă componente principale",
+    "chapter-2-guardrails": "Guardrails pentru agenți AI: cinci straturi de control",
+    "chapter-3-bottleneck-moved": "Programarea cu agenți: bottleneck-ul s-a mutat",
+    "chapter-4-six-phase-loop": "Bucla în șase faze a programării cu agenți AI",
+    "chapter-5-review-and-verify": "Review și verificare pentru codul scris de agenți AI",
     "chapter-6-agents-md": "AGENTS.md: fișier de configurare agenți AI",
     "chapter-7-architecture-review": "Review de arhitectură pentru agenți AI - Ship It With AI",
     "chapter-8-readiness-kill-signals": "Pregătire pentru livrarea cu agenți AI",
-    "chapter-9-brownfield-patterns": "Refactorizare brownfield cu agenți AI: 8 pattern-uri",
+    "chapter-9-rolling-it-out": "Rollout de agenți AI în echipă: arcul de 90 de zile",
     "closing": "Viitorul ingineriei software cu agenți AI",
-    "foreword": "De ce eșuează coding agents - Ship It With AI",
     "prologue-nine-seconds": "Incident agent de cod AI: PocketOS pierde baza de date",
 }
 
 RO_SECTION_DESCRIPTIONS = {
     "about-the-author": "Mihai Cvasnievschi: 40 de ani de cod, de la BASIC în 1989 la shipping cu coding agents ca Claude Code, Codex și Cursor. Experiența din spatele manualului.",
     "acknowledgments": "Mulțumiri de final de la autorul Ship It With AI. Spune-ți reușitele sau eșecurile din programarea cu agenți AI - experiența ta modelează ediția viitoare.",
-    "appendix-a-cost-economics": "Costul agenților de cod AI: pune numerele echipei tale în grila per-seat, token și usage și compară prețurile la Claude Code, Codex, Copilot, Cursor.",
-    "appendix-b-templates": "Template AGENTS.md care merge și ca CLAUDE.md, plus 5 resurse copy-paste: prompt de architecture review, checklist six-phase loop și worksheet kill signals.",
+    "appendix-a-for-managers": "Pentru manageri: ce ai de făcut în primele 90 de zile, ce codebase-uri primesc agenți acum, mai târziu sau niciodată, și costul pus pe numerele echipei tale.",
+    "appendix-b-templates": "Template AGENTS.md care merge și ca CLAUDE.md, plus one-pagere copy-paste: prompt de architecture review, checklist six-phase loop și worksheet kill signals.",
     "appendix-c-sources": "Surse și lecturi despre programarea cu agenți, grupate pe afirmație: studii, incidente cunoscute, CVE-uri cu versiuni de patch și documentația tool-urilor.",
+    "appendix-d-deep-dives": "Dovezile din spatele fiecărui capitol din Ship It With AI: studii, benchmark-uri, detalii specifice vendorilor și secțiunile lungi, organizate pe capitole.",
     "changelog": "Jurnal de modificări Ship It With AI: actualizările semnificative ale manualului de programare cu agenți AI, datate, cele mai noi întâi.",
-    "chapter-1-primitives": "Componentele principale ale unui coding agent: context window, tool-uri, permisiuni, skills, plugins, MCP și memory, împachetate de harness în Claude Code.",
-    "chapter-10-adoption-90-days": "Adopția agenților AI în echipă în 90 de zile, cu rolurile Champion, Lead, Manager și arcul grassroots de la primul inginer la o practică reală.",
-    "chapter-2-anatomy-invariant": "Arhitectura unui sistem agentic: orice coding agent percepe, raționează și acționează. Vezi Claude Code inspectând doi agenți rivali în oglindă.",
-    "chapter-3-governance-in-layers": "Guvernanța agenților AI, pe straturi: permisiuni, sandbox, secrete, hooks și telemetrie. Controalele least-privilege care ar fi oprit incidentul PocketOS.",
-    "chapter-4-from-generating-code-to-shipping-software": "Livrare software cu agenți AI: nu tastarea e bottleneck-ul, ci restul livrării - review, verify, ship. Treci de la cod generat la software livrat.",
-    "chapter-5-six-phase-loop": "Bucla în șase faze a programării cu agenți: research, plan, execute, review, verify, ship. Metoda de execuție pentru a livra cu Claude Code sau Codex.",
-    "chapter-6-agents-md": "AGENTS.md e fișierul de configurare agenți neutru față de vendor. Afli cum îl scrii și cum diferă de CLAUDE.md în Claude Code, Codex și Copilot.",
+    "chapter-1-primitives": "Un coding agent e un model într-un harness construit din nouă componente principale: context, tools, permisiuni/sandbox, skills, plugins, MCP, memory, effort, subagenți.",
+    "chapter-2-guardrails": "Guardrails pentru agenți AI în cinci straturi: permisiuni, sandbox, secrete, hooks și telemetrie. Controalele least-privilege care ar fi oprit incidentul PocketOS.",
+    "chapter-3-bottleneck-moved": "Cu agenții AI, bottleneck-ul nu mai e scrierea codului, ci formularea muncii. Trei obiceiuri, cele patru necunoscute și când merită să rulezi bucla completă.",
+    "chapter-4-six-phase-loop": "Bucla în șase faze a programării cu agenți: research, plan, execute, review, verify, ship. Metoda de execuție pentru a livra cu Claude Code sau Codex.",
+    "chapter-5-review-and-verify": "Cum faci review și verifici un diff scris de agent: doi agenți de review, apoi tu, ordinea de citire a diff-ului și de ce testele agentului nu sunt o garanție.",
+    "chapter-6-agents-md": "AGENTS.md e fișierul de instrucțiuni al echipei, neutru față de vendor: șase reguli de scriere, diferența față de CLAUDE.md și igiena de context din sesiuni.",
     "chapter-7-architecture-review": "Review de arhitectură pentru agenți AI: îndrepți Claude Code, Codex sau Cursor spre un repo, generezi un review structurat și îl salvezi ca artefact durabil.",
     "chapter-8-readiness-kill-signals": "Pregătire pentru livrarea cu agenți AI: kill signals și semaforul care îți arată când să pui un coding agent pe un codebase și când să nu o faci.",
-    "chapter-9-brownfield-patterns": "Refactorizarea brownfield cu agenți AI pe codebase-uri legacy cere pattern-uri operaționale: worktrees, champions, hooks, PR review și patru de maturitate.",
+    "chapter-9-rolling-it-out": "Rollout-ul agenților AI într-o echipă: worktrees, două tipuri de hooks, pragul de review uman, drumul grassroots, arcul de 90 de zile și cele trei roluri.",
     "closing": "Viitorul ingineriei software cu agenți AI stă în principii durabile, nu în tool-uri. Claude Code, Codex și restul vor dispărea - bucla rămâne.",
-    "foreword": "De ce eșuează coding agents ca Claude Code și Codex: generează cod care arată corect, dar nu este. Cuvânt înainte despre programarea cu agenți AI.",
     "prologue-nine-seconds": "Incident agent de cod AI în 9 secunde: un agent Cursor pe Claude Opus a șters baza de date de producție PocketOS în timp ce repară o problemă de credențiale.",
 }
 
@@ -3127,9 +3332,9 @@ EN = Lang(
     book_name="Ship It With AI: A Field Manual for Agentic Coding",
     book_alt="Agentic Coding Field Manual",
     book_desc=("A vendor-neutral field manual for shipping software with AI coding "
-               "agents. Covers the primitives, the six-phase loop, AGENTS.md, "
-               "governance in layers, kill signals, brownfield patterns, and "
-               "90-day adoption."),
+               "agents. Covers the nine primitives, guardrails in five layers, the "
+               "six-phase loop, review and verify, AGENTS.md, kill signals, and a "
+               "90-day rollout."),
     landing_title="Agentic Coding: A Field Manual for Shipping Software With AI Agents",
     landing_description=LANDING_DESCRIPTION,
     read_title="Ship It With AI: A Field Manual for Agentic Coding (full text)",
@@ -3159,11 +3364,20 @@ EN = Lang(
     llms_read_label="Read as one page",
     llms_title="Ship It With AI - A Field Manual for Agentic Coding",
     llms_blurb=("> A vendor-neutral field manual for shipping software with AI coding agents.\n"
-                "> Covers the primitives, the six-phase loop, AGENTS.md as team infrastructure,\n"
-                "> governance in layers, kill signals, brownfield patterns, and 90-day adoption."),
+                "> Covers the nine primitives, guardrails in five layers, the six-phase loop,\n"
+                "> review and verify, AGENTS.md and context, architecture review, kill signals,\n"
+                "> and a 90-day rollout."),
     llms_fulltext_label="Full text in a single markdown file",
     llms_author_heading="Author",
     llms_author_line="author; 25+ years shipping software, now focused on agentic delivery.",
+    full_source=REPO_ROOT / "source" / "Ship_It_With_AI.full.md",
+    full_title="Ship It With AI - Full edition (September 2026)",
+    full_description=("The complete September 2026 edition of Ship It With AI on one "
+                      "page, kept as an archive. The current, shorter edition is at "
+                      "ship-it-with.ai."),
+    full_banner=('<strong>Full edition (September 2026).</strong> The current, shorter '
+                 'edition is at <a href="{HOME}">ship-it-with.ai</a>.'),
+    moved_title="Moved", moved_body="This page has moved to",
 )
 
 
@@ -3187,17 +3401,17 @@ RO_FAQ_ENTRIES = [
     },
     {
         "q": "Cum faci un rollout sigur de coding agents într-o echipă de engineering?",
-        "home_slug": "chapter-10-adoption-90-days",
+        "home_slug": "chapter-9-rolling-it-out",
         "a": "Un rollout sigur tratează livrarea cu agenți ca pe o problemă de control, cu cinci straturi de guvernanță: permisiuni, sandbox, secrete, hook-uri de securitate și telemetrie. Pune asta lângă o metodă clară - o buclă în șase faze: research, plan, execute, review, verify, ship - și un arc de adopție de 90 de zile cu trei roluri numite (Champion, Lead, Manager). Sari peste oricare dintre ele și adopția produce mai mult rău decât bine.",
     },
     {
         "q": "Ce este bucla agentică în șase faze?",
-        "home_slug": "chapter-5-six-phase-loop",
+        "home_slug": "chapter-4-six-phase-loop",
         "a": "Bucla în șase faze e o disciplină de livrare pentru lucrul cu agenți: Research (agentul mapează codebase-ul într-o notă durabilă), Plan (o listă de task-uri la nivel de fișier, care poate fi revizuită), Execute (subagenți constrânși fac modificările), Review (treceri separate de conformitate cu spec-ul și de calitate a codului), Verify (rulează teste noi, inclusiv teste de UI pe accessibility tree) și Ship (un pull request normal, pe care procesul tău existent îl revizuiește). Cele mai multe eșecuri se întorc la Plan, nu la Research.",
     },
     {
         "q": "Cât costă programarea cu agenți?",
-        "home_slug": "appendix-a-cost-economics",
+        "home_slug": "appendix-a-for-managers",
         "a": "Prețul per-seat al tool-ului e linia mică; costul real e total cost of ownership - seat-uri, cheltuiala pe tokeni și utilizare, timpul de review uman pe care îl cere bucla și setup-ul de guvernanță. Felul durabil de a face bugetul e să potrivești tier-ul de seat cu utilizarea reală, nu să cumperi tooling uniform, și să compari costul complet al livrării cu agenți cu costul muncii pe care o înlocuiește, nu cu zero.",
     },
     {
@@ -3258,9 +3472,9 @@ RO = Lang(
     book_name="Ship It With AI: Manual de programare cu agenți",
     book_alt="Manual de programare cu agenți",
     book_desc=("Un manual practic, neutru față de vendor, pentru livrarea de software "
-               "cu coding agents. Acoperă componentele principale, bucla în șase faze, AGENTS.md, "
-               "guvernanța în straturi, kill signals, pattern-uri pentru brownfield și "
-               "adopția în 90 de zile."),
+               "cu coding agents. Acoperă cele nouă componente principale, guardrails în "
+               "cinci straturi, bucla în șase faze, review și verificare, AGENTS.md, "
+               "kill signals și un rollout în 90 de zile."),
     landing_title="Programarea cu agenți: un manual practic pentru livrarea de software cu agenți AI",
     landing_description=("Programarea cu agenți e o problemă de control, nu de tooling. "
                          "Manualul practic, neutru față de vendor, pentru livrarea de "
@@ -3292,11 +3506,20 @@ RO = Lang(
     llms_read_label="Citește pe o singură pagină",
     llms_title="Ship It With AI - Manual de programare cu agenți",
     llms_blurb=("> Un manual practic, neutru față de vendor, pentru livrarea de software cu coding agents.\n"
-                "> Acoperă componentele principale, bucla în șase faze, AGENTS.md ca infrastructură de echipă,\n"
-                "> guvernanța în straturi, kill signals, pattern-uri pentru brownfield și adopția în 90 de zile."),
+                "> Acoperă cele nouă componente principale, guardrails în cinci straturi, bucla în șase faze,\n"
+                "> review și verificare, AGENTS.md și contextul, review-ul de arhitectură, kill signals\n"
+                "> și un rollout în 90 de zile."),
     llms_fulltext_label="Text integral într-un singur fișier markdown",
     llms_author_heading="Autor",
     llms_author_line="autor; 25+ ani de livrat software, acum concentrat pe delivery cu agenți.",
+    full_source=REPO_ROOT / "source" / "Ship_It_With_AI.RO.full.md",
+    full_title="Ship It With AI - Ediția completă (septembrie 2026)",
+    full_description=("Ediția completă din septembrie 2026 a manualului Ship It With AI, "
+                      "pe o singură pagină, păstrată ca arhivă. Ediția actuală, mai "
+                      "scurtă, e la ship-it-with.ai/ro."),
+    full_banner=('<strong>Ediția completă (septembrie 2026).</strong> Ediția actuală, mai '
+                 'scurtă, e la <a href="{HOME}">ship-it-with.ai/ro</a>.'),
+    moved_title="Mutat", moved_body="Pagina s-a mutat la",
 )
 
 LANGS = [EN, RO]
@@ -3470,6 +3693,8 @@ _CHROME_RO = [
     ('Last updated', 'Ultima actualizare'),
     ('· Bucharest · All rights reserved', '· București · Toate drepturile rezervate'),
     ('href="/changelog/"', 'href="/ro/changelog/"'),
+    ('<a href="/full/" class="footer-full-edition">Full edition (Sep 2026)</a>',
+     '<a href="/ro/full/" class="footer-full-edition">Ediția completă (sep 2026)</a>'),
     # head: per-language markdown mirrors + search index
     ('href="https://ship-it-with.ai/llms-full.txt"', 'href="https://ship-it-with.ai/ro/llms-full.txt"'),
     ('href="https://ship-it-with.ai/llms.txt"', 'href="https://ship-it-with.ai/ro/llms.txt"'),
@@ -3503,6 +3728,24 @@ def localize_chrome(html: str, lang: Lang) -> str:
 # Main
 # ---------------------------------------------------------------------------
 
+def build_full_archive(lang: Lang, template: str) -> None:
+    """Render lang.full_source (the frozen September 2026 edition) to
+    <lang.out>/full/index.html. Independent of the current edition's section
+    table, so it builds even while a translation is mid-rewrite."""
+    set_language(lang)
+    if not lang.full_source:
+        return
+    md_text = lang.full_source.read_text()
+    date_human = lang_date_human(_content_date(), lang)
+    path = lang.out / "full" / "index.html"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(localize_chrome(
+        render_full_archive(template, md_text=md_text, date_modified_human=date_human),
+        lang))
+    print(f"[{lang.code}] wrote full-edition archive to "
+          f"{path.parent.relative_to(REPO_ROOT)}/")
+
+
 def build_one(lang: Lang, template: str, deferred_css: str, *, is_default: bool) -> list:
     """Build one language into lang.out. Returns the parsed sections (used by
     the caller to emit a combined sitemap)."""
@@ -3526,11 +3769,14 @@ def build_one(lang: Lang, template: str, deferred_css: str, *, is_default: bool)
     (out / "search-index.json").write_text(search_json)
     inline_index = "[]"
 
+    toc_shape = dict(chapter_to_part=derive_chapter_to_part(md_text),
+                     front_matter_items=present_front_matter_items(md_text))
     toc_sidebar_read = build_toc(parts, chapters, appendices, foreword, closing,
-                                 reading_times=reading_times, mode="in-page")
+                                 reading_times=reading_times, mode="in-page",
+                                 **toc_shape)
     toc_chapter_url = build_toc(parts, chapters, appendices, foreword, closing,
                                 reading_times=reading_times, mode="chapter-url",
-                                legacy_to_full_slug=legacy_to_full)
+                                legacy_to_full_slug=legacy_to_full, **toc_shape)
 
     number_of_pages = max(1, round(len(md_text.split()) / 250))
     _now_utc = _content_date()
@@ -3540,7 +3786,7 @@ def build_one(lang: Lang, template: str, deferred_css: str, *, is_default: bool)
     head_schema_landing = book_org_schema + "\n  " + faq_jsonld(CFG.faq_entries)
     head_schema_read = book_org_schema
 
-    hash_redirect_js = render_hash_redirect_js(sections)
+    hash_redirect_js = render_hash_redirect_js(sections, anchor_index)
 
     def emit(path: Path, html: str) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -3567,21 +3813,32 @@ def build_one(lang: Lang, template: str, deferred_css: str, *, is_default: bool)
             parts, chapters, appendices, foreword, closing,
             reading_times=reading_times, mode="chapter-url",
             legacy_to_full_slug=legacy_to_full,
-            current_slug=legacy_slug_for_section(section))
+            current_slug=legacy_slug_for_section(section), **toc_shape)
         emit(out / section.slug / "index.html", render_chapter(
             template, section, prev_=prev_, next_=next_,
             author=author, title_meta=title,
             toc_html_sidebar=toc_sidebar_chapter, search_index=inline_index,
             anchor_index=anchor_index, date_modified_human=date_modified_human))
 
-    # Renamed-slug redirect stubs (English history only).
+    # Redirect stubs for retired / renamed slugs. Retired slugs existed in
+    # both editions; the chapter-1-six-primitives rename predates the Romanian
+    # one. Each stub carries the explicit-anchor map so a #fragment whose
+    # section moved to another page still lands on it.
+    titles = {s.slug: s.title for s in sections}
+    explicit_anchors = sorted({m.group(1) for s in sections
+                               for m in _ANCHOR_RE.finditer(s.body_md)})
+    stubs = dict(RETIRED_SLUG_REDIRECTS)
     if is_default:
-        for old_slug, new_slug, new_title in [
-            ("chapter-1-six-primitives", "chapter-1-primitives", "The primitives"),
-        ]:
-            (out / old_slug).mkdir(exist_ok=True)
-            (out / old_slug / "index.html").write_text(
-                render_redirect_stub(old_slug, new_slug, new_title))
+        stubs.update(EN_ONLY_SLUG_REDIRECTS)
+    for old_slug, new_slug in stubs.items():
+        anchor_map = {
+            a: _rel(f"/{anchor_index[a]}/") for a in explicit_anchors
+            if anchor_index.get(a) and anchor_index[a] != new_slug
+        }
+        (out / old_slug).mkdir(exist_ok=True)
+        (out / old_slug / "index.html").write_text(
+            render_redirect_stub(old_slug, new_slug, titles[new_slug],
+                                 anchor_map=anchor_map))
 
     emit(out / "404.html", render_404(
         template, title=title, author=author, toc_html=toc_chapter_url,
@@ -3618,16 +3875,54 @@ def lang_date_human(dt: datetime, lang: Lang) -> str:
     return dt.strftime("%B %d, %Y")
 
 
-def main() -> int:
+def selected_langs(argv: list[str]) -> list[Lang]:
+    """Languages to build. Default: all of LANGS (the deployable build).
+
+    `--lang en` (repeatable, or comma-separated) or the SITE_LANGS env var
+    (e.g. SITE_LANGS=en, which the Playwright helpers inherit) narrows the
+    build, e.g. to verify English while the Romanian source is mid-rewrite.
+    A narrowed build is for local verification only - it is not deployable
+    (the sitemap then lists only the built languages).
+    """
+    import argparse
+    ap = argparse.ArgumentParser(description="Build the ship-it-with.ai static site.")
+    ap.add_argument("--lang", action="append", default=None,
+                    help="language code to build (repeatable or comma-separated; "
+                         "default: all). Env fallback: SITE_LANGS.")
+    args = ap.parse_args(argv)
+    raw = args.lang or ([os.environ["SITE_LANGS"]] if os.environ.get("SITE_LANGS") else None)
+    if not raw:
+        return list(LANGS)
+    codes = {c.strip().lower() for item in raw for c in item.split(",") if c.strip()}
+    if codes & {"all", "*"}:
+        return list(LANGS)
+    known = {lang.code for lang in LANGS}
+    unknown = codes - known
+    if unknown:
+        ap.error(f"unknown language(s): {sorted(unknown)} (known: {sorted(known)})")
+    if EN.code not in codes:
+        # The sitemap's page set and x-default come from the English build.
+        ap.error("the English edition is the canonical structure; include 'en'")
+    return [lang for lang in LANGS if lang.code in codes]
+
+
+def main(argv: list[str] | None = None) -> int:
+    langs = selected_langs(sys.argv[1:] if argv is None else argv)
     template_raw = TEMPLATE_PATH.read_text()
     template, _critical_css, deferred_css = split_template_css(template_raw)
 
     # Reset once, up front, so the Romanian pass (into _site/ro/) does not wipe
     # the English pass.
     reset_site_dir()
+    if len(langs) != len(LANGS):
+        print(f"NOTE: partial build ({', '.join(l.code for l in langs)} only) - "
+              f"for local verification, not for deploy.")
 
     per_lang_sections: list[tuple[Lang, list]] = []
-    for lang in LANGS:
+    for lang in langs:
+        # The archive renders from its own frozen source first, so it is
+        # emitted even if this language's current source fails to parse.
+        build_full_archive(lang, template)
         sections = build_one(lang, template, deferred_css, is_default=(lang is EN))
         per_lang_sections.append((lang, sections))
 
@@ -3640,7 +3935,9 @@ def main() -> int:
 
     # Combined sitemap at the root. Each URL carries xhtml:link hreflang
     # alternates so Google consolidates the EN/RO pair into one result set.
-    REDIRECTED_OLD_SLUGS = {"chapter-1-six-primitives"}
+    # Redirect stubs and the /full/ archive are never sections, so they never
+    # reach page_paths; the explicit exclusion is belt and braces.
+    REDIRECTED_OLD_SLUGS = set(RETIRED_SLUG_REDIRECTS) | set(EN_ONLY_SLUG_REDIRECTS)
     today = _content_date().strftime("%Y-%m-%d")
     # Language-independent page paths shared across editions (EN and RO build
     # from the same slug set); landing + every indexable section.
@@ -3652,7 +3949,7 @@ def main() -> int:
         links = [
             f'    <xhtml:link rel="alternate" hreflang="{lang.html_lang}" '
             f'href="{BASE}{lang.prefix}{path}" />'
-            for lang in LANGS
+            for lang in langs
         ]
         links.append(
             f'    <xhtml:link rel="alternate" hreflang="x-default" '
@@ -3662,7 +3959,7 @@ def main() -> int:
     url_blocks: list[str] = []
     for path in page_paths:
         alts = _alt_links(path)
-        for lang in LANGS:
+        for lang in langs:
             loc = f"{BASE}{lang.prefix}{path}"
             url_blocks.append(
                 f'  <url>\n    <loc>{loc}</loc>\n    <lastmod>{today}</lastmod>\n'

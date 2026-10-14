@@ -1,6 +1,6 @@
 # Short 02 · Definește „gata”
 
-- Sursă: Capitolul 5, principiul de bază al buclei · https://ship-it-with.ai/ro/chapter-5-six-phase-loop/
+- Sursă: Capitolul 4, principiul de bază al buclei · https://ship-it-with.ai/ro/chapter-4-six-phase-loop/
 - Ce predă: un rezultat bun are nevoie de o țintă bine definită; research-ul și planul există ca s-o definească
 - Durată 28-30s · voce ~88 de cuvinte · 9:16 vertical, subtitrări arse în video
 

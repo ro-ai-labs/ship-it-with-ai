@@ -1,4 +1,7 @@
 // Verification for the 2026-05-26 SEO pass. Built up commit-by-commit.
+// Updated for the October 2026 short edition: 18 sections (Prologue, 9
+// chapters, Closing, Acknowledgments, About, Changelog, Appendices A-D),
+// redirect stubs for every retired slug, and the /full/ archive.
 
 const { chromium } = require('playwright');
 const fs = require('fs');
@@ -12,6 +15,24 @@ const VIEWPORTS = [
 ];
 
 const THEMES = ['light', 'dark'];
+
+// Languages this run expects in _site/. Default build = EN + RO. While the
+// Romanian source is being rewritten to the new structure, run English alone
+// with SITE_LANGS=en (build_spa.py reads the same variable).
+const SITE_LANGS = (process.env.SITE_LANGS || '').toLowerCase();
+const EXPECT_RO = !SITE_LANGS || /(^|,)\s*(ro|all|\*)\s*(,|$)/.test(SITE_LANGS);
+const SECTION_COUNT = 18;                 // EXPECTED_PAGE_COUNT in build_spa.py
+const URLS_PER_LANG = SECTION_COUNT + 1;  // + landing; /read/ and /full/ are noindex
+const RETIRED = {
+  'foreword': 'prologue-nine-seconds',
+  'chapter-2-anatomy-invariant': 'chapter-1-primitives',
+  'chapter-3-governance-in-layers': 'chapter-2-guardrails',
+  'chapter-4-from-generating-code-to-shipping-software': 'chapter-3-bottleneck-moved',
+  'chapter-5-six-phase-loop': 'chapter-4-six-phase-loop',
+  'chapter-9-brownfield-patterns': 'chapter-9-rolling-it-out',
+  'chapter-10-adoption-90-days': 'chapter-9-rolling-it-out',
+  'appendix-a-cost-economics': 'appendix-a-for-managers',
+};
 const SHOTS_DIR = path.resolve(__dirname, 'screenshots', 'seo-pass');
 
 async function setTheme(page, theme) {
@@ -228,11 +249,12 @@ async function main() {
         fail(`/read/ canonical = ${canonical}, expected https://ship-it-with.ai/read/`);
       } else ok('/read/ canonical → /read/ (self-canonical)');
 
-      for (let n = 1; n <= 10; n++) {
+      for (let n = 1; n <= 9; n++) {
         const count = await page.locator(`#chapter-${n}`).count();
         if (count === 0) fail(`/read/ missing #chapter-${n}`);
       }
-      ok('/read/ has all chapter anchors');
+      if (await page.locator('#chapter-10').count() !== 0) fail('/read/ still has #chapter-10');
+      ok('/read/ has all 9 chapter anchors (and no #chapter-10)');
       await ctx.close();
     }
 
@@ -279,15 +301,20 @@ async function main() {
       await ctx.close();
     }
 
-    // Landing TOC links to /read/#chapter-N (transition mode for Commit 2).
+    // Landing TOC: the only /read/# links left are the three Part headings
+    // (Parts own no page). The short edition has no front matter, so nothing
+    // else may fall back to /read/#anchor.
     {
       const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
       const page = await ctx.newPage();
       await page.goto(baseUrl + '/');
-      // .landing-toc holds the body TOC (the sidebar TOC keeps #anchors)
-      const links = await page.locator('.landing-toc a[href^="/read/#"]').count();
-      if (links < 10) fail(`landing TOC: only ${links} /read/# links (expected 10+)`);
-      else ok(`landing TOC: ${links} /read/# transition links`);
+      const hrefs = await page.locator('.landing-toc a[href^="/read/#"]').evaluateAll(as => as.map(a => a.getAttribute('href')));
+      const want = ['/read/#part-i', '/read/#part-ii', '/read/#part-iii'];
+      if (JSON.stringify(hrefs) !== JSON.stringify(want)) fail(`landing TOC /read/# links: ${JSON.stringify(hrefs)}, expected ${JSON.stringify(want)}`);
+      else ok('landing TOC: /read/# links are exactly the three Part headings');
+      const frontMatter = await page.locator('.landing-toc .toc-section-title', { hasText: 'Front Matter' }).count();
+      if (frontMatter) fail('landing TOC still renders a Front Matter block');
+      else ok('landing TOC: no Front Matter block');
       await ctx.close();
     }
 
@@ -323,34 +350,38 @@ async function main() {
 
     // ===== Commit 3 assertions =====
 
-    // Combined sitemap: 20 URLs per language (landing + 19 sections; /read/
-    // excluded). EN at the root, RO under /ro/ => 40 total.
+    // Combined sitemap: 19 URLs per language (landing + 18 sections; /read/,
+    // /full/ and redirect stubs excluded). EN at the root, RO under /ro/ => 38
+    // total (19 when building English only).
     {
       const sitemap = fs.readFileSync(path.join(repoRoot, '_site', 'sitemap.xml'), 'utf8');
       const urlCount = (sitemap.match(/<url>/g) || []).length;
-      if (urlCount !== 40) fail(`sitemap has ${urlCount} URLs, expected 40 (20 EN + 20 RO)`);
-      else ok(`sitemap has 40 URLs (20 EN + 20 RO; /read/ excluded)`);
+      const wantRo = EXPECT_RO ? URLS_PER_LANG : 0;
+      const wantTotal = URLS_PER_LANG + wantRo;
+      if (urlCount !== wantTotal) fail(`sitemap has ${urlCount} URLs, expected ${wantTotal} (${URLS_PER_LANG} EN + ${wantRo} RO)`);
+      else ok(`sitemap has ${wantTotal} URLs (${URLS_PER_LANG} EN + ${wantRo} RO; /read/ + /full/ excluded)`);
       const enCount = (sitemap.match(/<loc>https:\/\/ship-it-with\.ai\/(?!ro\/)/g) || []).length;
       const roCount = (sitemap.match(/<loc>https:\/\/ship-it-with\.ai\/ro\//g) || []).length;
-      if (enCount !== 20) fail(`sitemap has ${enCount} EN URLs, expected 20`);
-      else ok(`sitemap has 20 EN URLs`);
-      if (roCount !== 20) fail(`sitemap has ${roCount} RO URLs, expected 20`);
-      else ok(`sitemap has 20 RO URLs`);
+      if (enCount !== URLS_PER_LANG) fail(`sitemap has ${enCount} EN URLs, expected ${URLS_PER_LANG}`);
+      else ok(`sitemap has ${URLS_PER_LANG} EN URLs`);
+      if (roCount !== wantRo) fail(`sitemap has ${roCount} RO URLs, expected ${wantRo}`);
+      else ok(`sitemap has ${wantRo} RO URLs${EXPECT_RO ? '' : ' (English-only run)'}`);
     }
 
     // Every section page returns 200, has one <h1>, unique title, canonical,
     // and a BreadcrumbList + TechArticle JSON-LD pair.
     const SLUGS = [
-      'foreword', 'prologue-nine-seconds',
-      'chapter-1-primitives', 'chapter-2-anatomy-invariant',
-      'chapter-3-governance-in-layers',
-      'chapter-4-from-generating-code-to-shipping-software',
-      'chapter-5-six-phase-loop', 'chapter-6-agents-md',
+      'prologue-nine-seconds',
+      'chapter-1-primitives', 'chapter-2-guardrails',
+      'chapter-3-bottleneck-moved', 'chapter-4-six-phase-loop',
+      'chapter-5-review-and-verify', 'chapter-6-agents-md',
       'chapter-7-architecture-review', 'chapter-8-readiness-kill-signals',
-      'chapter-9-brownfield-patterns', 'chapter-10-adoption-90-days',
-      'closing', 'acknowledgments', 'about-the-author',
-      'appendix-a-cost-economics', 'appendix-b-templates', 'appendix-c-sources',
+      'chapter-9-rolling-it-out',
+      'closing', 'acknowledgments', 'about-the-author', 'changelog',
+      'appendix-a-for-managers', 'appendix-b-templates', 'appendix-c-sources',
+      'appendix-d-deep-dives',
     ];
+    if (SLUGS.length !== SECTION_COUNT) fail(`test SLUGS has ${SLUGS.length} entries, expected ${SECTION_COUNT}`);
     {
       const seenTitles = new Set();
       let sectionsAllGreen = true;
@@ -388,7 +419,7 @@ async function main() {
     // TechArticle.isPartOf points at Book by @id (single source of truth).
     {
       const html = fs.readFileSync(path.join(repoRoot, '_site',
-        'chapter-3-governance-in-layers', 'index.html'), 'utf8');
+        'chapter-3-bottleneck-moved', 'index.html'), 'utf8');
       const ld = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)]
         .map(m => { try { return JSON.parse(m[1]); } catch { return null; } })
         .filter(Boolean);
@@ -400,18 +431,21 @@ async function main() {
       const crumbs = ld.find(o => o['@type'] === 'BreadcrumbList');
       if (!crumbs || crumbs.itemListElement.length !== 3) {
         fail(`chapter-3 BreadcrumbList expected 3 crumbs, got ${crumbs?.itemListElement?.length}`);
-      } else ok('chapter-3 BreadcrumbList: Home → Part I → Chapter');
+      } else ok('chapter-3 BreadcrumbList: Home → Part II → Chapter');
+      const part = crumbs && crumbs.itemListElement[1];
+      if (!part || part.item !== 'https://ship-it-with.ai/read/#part-ii') fail(`chapter-3 breadcrumb part = ${part && part.item}, expected /read/#part-ii`);
+      else ok('chapter-3 breadcrumb points at Part II');
     }
 
     // Prev/next on chapter-3 wire to the right slugs.
     {
       const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
       const page = await ctx.newPage();
-      await page.goto(`${baseUrl}/chapter-3-governance-in-layers/`);
+      await page.goto(`${baseUrl}/chapter-3-bottleneck-moved/`);
       const prev = await page.locator('.chapter-prev').getAttribute('href');
       const next = await page.locator('.chapter-next').getAttribute('href');
-      if (prev !== '/chapter-2-anatomy-invariant/') fail(`chapter-3 prev = ${prev}`);
-      else if (next !== '/chapter-4-from-generating-code-to-shipping-software/') fail(`chapter-3 next = ${next}`);
+      if (prev !== '/chapter-2-guardrails/') fail(`chapter-3 prev = ${prev}`);
+      else if (next !== '/chapter-4-six-phase-loop/') fail(`chapter-3 next = ${next}`);
       else ok('chapter-3 prev/next correct');
       await ctx.close();
     }
@@ -428,17 +462,41 @@ async function main() {
       await ctx.close();
     }
 
-    // Cross-section anchor rewriting: /foreword/ has /about-the-author/#about-the-author link.
+    // Legacy /#anchor bookmarks predate per-section URLs, so they use the OLD
+    // (full-edition) numbering and land where that content lives now.
+    for (const [hash, want] of [
+      ['#chapter-2', '/chapter-1-primitives/'],
+      ['#chapter-3', '/chapter-2-guardrails/'],
+      ['#chapter-5', '/chapter-4-six-phase-loop/'],
+      ['#chapter-10', '/chapter-9-rolling-it-out/'],
+      ['#appendix-a', '/appendix-a-for-managers/'],
+      ['#appendix-d', '/appendix-d-deep-dives/'],
+      ['#foreword', '/prologue-nine-seconds/'],
+      ['#how-to-read-this-book', '/prologue-nine-seconds/'],
+      ['#reviewing-agent-diffs', '/chapter-5-review-and-verify/#reviewing-agent-diffs'],
+    ]) {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      await page.goto(`${baseUrl}/${hash}`);
+      await page.waitForURL(u => u.toString().includes(want), { timeout: 3000 }).catch(() => {});
+      const url = page.url();
+      if (!url.endsWith(want)) fail(`legacy hash-redirect ${hash}: landed at ${url}, expected ${want}`);
+      else ok(`legacy hash-redirect /${hash} → ${want}`);
+      await ctx.close();
+    }
+
+    // Cross-section anchor rewriting: /prologue-nine-seconds/ (which absorbed
+    // the Foreword's author note) has a /about-the-author/#about-the-author link.
     {
       const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
       const page = await ctx.newPage();
-      await page.goto(`${baseUrl}/foreword/`);
+      await page.goto(`${baseUrl}/prologue-nine-seconds/`);
       const count = await page.locator('a[href="/about-the-author/#about-the-author"]').count();
-      if (!count) fail('foreword: cross-section anchor not rewritten');
-      else ok('cross-section anchor rewriting works (foreword → /about-the-author/#about-the-author)');
+      if (!count) fail('prologue: cross-section anchor not rewritten');
+      else ok('cross-section anchor rewriting works (prologue → /about-the-author/#about-the-author)');
       const bare = await page.locator('main a[href="#about-the-author"]').count();
-      if (bare) fail(`foreword: stale bare #about-the-author anchor present (${bare})`);
-      else ok('foreword: no stale bare #about-the-author anchors in body');
+      if (bare) fail(`prologue: stale bare #about-the-author anchor present (${bare})`);
+      else ok('prologue: no stale bare #about-the-author anchors in body');
       await ctx.close();
     }
 
@@ -446,7 +504,7 @@ async function main() {
     {
       const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
       const page = await ctx.newPage();
-      await page.goto(`${baseUrl}/chapter-3-governance-in-layers/`);
+      await page.goto(`${baseUrl}/chapter-3-bottleneck-moved/`);
       const href = await page.locator('.topbar-byline').getAttribute('href');
       if (href !== '/about-the-author/#contact') fail(`byline href = ${href}`);
       else ok('byline → /about-the-author/#contact on chapter page');
@@ -457,7 +515,8 @@ async function main() {
     for (const [p, expected] of [
       ['/', 'landing'],
       ['/read/', 'read'],
-      ['/chapter-3-governance-in-layers/', 'chapter'],
+      ['/chapter-3-bottleneck-moved/', 'chapter'],
+      ['/full/', 'full'],
     ]) {
       const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
       const page = await ctx.newPage();
@@ -474,7 +533,7 @@ async function main() {
       const page = await ctx.newPage();
       await page.goto(baseUrl + '/');
       const chapterUrlLinks = await page.locator('.landing-toc a[href^="/chapter-"]').count();
-      if (chapterUrlLinks < 10) fail(`landing TOC: only ${chapterUrlLinks} /chapter-*/ links (expected >= 10)`);
+      if (chapterUrlLinks !== 9) fail(`landing TOC: ${chapterUrlLinks} /chapter-*/ links (expected 9)`);
       else ok(`landing TOC: ${chapterUrlLinks} per-chapter URL links`);
       await ctx.close();
     }
@@ -497,8 +556,8 @@ async function main() {
     // toc-current marker on the active chapter sidebar entry.
     {
       const html = fs.readFileSync(path.join(repoRoot, '_site',
-        'chapter-3-governance-in-layers', 'index.html'), 'utf8');
-      if (!/class="toc-current"[^>]*>[^<]*<a href="\/chapter-3-governance-in-layers\//.test(html)) {
+        'chapter-3-bottleneck-moved', 'index.html'), 'utf8');
+      if (!/class="toc-current"[^>]*>[^<]*<a href="\/chapter-3-bottleneck-moved\//.test(html)) {
         fail('chapter-3 sidebar: missing toc-current marker on own entry');
       } else ok('chapter-3 sidebar: toc-current marker on own entry');
     }
@@ -520,7 +579,7 @@ async function main() {
     // across the 20 URLs from a one-size-fits-all template description).
     {
       const seen = new Map();
-      const allPaths = ['index.html', 'read/index.html', '404.html']
+      const allPaths = ['index.html', 'read/index.html', 'full/index.html', '404.html']
         .concat(SLUGS.map(s => `${s}/index.html`));
       for (const p of allPaths) {
         const html = fs.readFileSync(path.join(repoRoot, '_site', p), 'utf8');
@@ -560,8 +619,8 @@ async function main() {
       const newResp = await page.goto(`${baseUrl}/chapter-1-primitives/`);
       if (!newResp || newResp.status() !== 200) fail(`new slug status ${newResp && newResp.status()}`);
       const h1 = await page.locator('h1').first().textContent();
-      if (h1.trim() !== 'The primitives') fail(`new slug H1: got "${h1}", expected "The primitives"`);
-      else ok('new slug H1 is "The primitives"');
+      if (h1.trim() !== 'What an agent is') fail(`new slug H1: got "${h1}", expected "What an agent is"`);
+      else ok('new slug H1 is "What an agent is"');
 
       await ctx.close();
     }
@@ -573,6 +632,90 @@ async function main() {
       else ok('sitemap excludes old slug');
       if (!sitemap.includes('chapter-1-primitives')) fail('sitemap missing new slug');
       else ok('sitemap includes new slug');
+      const leaked = Object.keys(RETIRED).filter(old => sitemap.includes(`ship-it-with.ai/${old}/`) || sitemap.includes(`ship-it-with.ai/ro/${old}/`));
+      if (leaked.length) fail(`sitemap lists retired slugs: ${leaked.join(', ')}`);
+      else ok(`sitemap excludes all ${Object.keys(RETIRED).length} retired slugs`);
+      if (/ship-it-with\.ai\/(ro\/)?full\//.test(sitemap)) fail('sitemap lists the /full/ archive');
+      else ok('sitemap excludes /full/');
+    }
+
+    // 2b. Every retired slug serves a redirect stub (meta refresh + canonical
+    // to the new page + noindex) and the browser lands on the new page, with a
+    // moved #fragment routed to the page that now owns it.
+    {
+      let stubsOk = true;
+      for (const [old, now] of Object.entries(RETIRED)) {
+        const f = path.join(repoRoot, '_site', old, 'index.html');
+        if (!fs.existsSync(f)) { fail(`retired slug /${old}/ has no redirect stub`); stubsOk = false; continue; }
+        const stub = fs.readFileSync(f, 'utf8');
+        if (!/meta http-equiv="refresh" content="0; url=\/[a-z0-9-]+\/"/.test(stub) ||
+            !stub.includes(`url=/${now}/"`)) { fail(`/${old}/ stub: meta refresh not to /${now}/`); stubsOk = false; }
+        if (!stub.includes(`<link rel="canonical" href="https://ship-it-with.ai/${now}/">`)) { fail(`/${old}/ stub: canonical not /${now}/`); stubsOk = false; }
+        if (!/<meta name="robots" content="noindex, follow">/.test(stub)) { fail(`/${old}/ stub: missing noindex`); stubsOk = false; }
+      }
+      if (stubsOk) ok(`all ${Object.keys(RETIRED).length} retired slugs serve redirect stubs (refresh + canonical + noindex)`);
+
+      for (const [from, want] of [
+        ['/foreword/', '/prologue-nine-seconds/'],
+        ['/chapter-10-adoption-90-days/', '/chapter-9-rolling-it-out/'],
+        ['/chapter-5-six-phase-loop/', '/chapter-4-six-phase-loop/'],
+        ['/chapter-5-six-phase-loop/#reviewing-agent-diffs', '/chapter-5-review-and-verify/#reviewing-agent-diffs'],
+        ['/chapter-5-six-phase-loop/#what-is-the-six-phase-loop', '/chapter-4-six-phase-loop/#what-is-the-six-phase-loop'],
+        ['/appendix-a-cost-economics/#cost-levers', '/appendix-a-for-managers/#cost-levers'],
+      ]) {
+        const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+        const page = await ctx.newPage();
+        await page.goto(`${baseUrl}${from}`);
+        await page.waitForURL(u => u.toString().endsWith(want), { timeout: 3000 }).catch(() => {});
+        if (!page.url().endsWith(want)) fail(`stub ${from} landed at ${page.url()}, expected ${want}`);
+        else ok(`stub ${from} → ${want}`);
+        await ctx.close();
+      }
+    }
+
+    // 2c. /full/ archive of the September 2026 edition: noindex, canonical to
+    // the current edition's home, banner, out of the sitemap and llms files,
+    // linked from the footer.
+    {
+      const html = fs.readFileSync(path.join(repoRoot, '_site', 'full', 'index.html'), 'utf8');
+      const robots = [...html.matchAll(/<meta name="robots" content="([^"]+)"/g)].map(m => m[1]);
+      if (robots.length !== 1 || robots[0] !== 'noindex, follow') fail(`/full/ robots = ${robots}`);
+      else ok('/full/ is noindex, follow');
+      const canon = (html.match(/<link rel="canonical" href="([^"]+)"/) || [])[1];
+      if (canon !== 'https://ship-it-with.ai/') fail(`/full/ canonical = ${canon}, expected https://ship-it-with.ai/`);
+      else ok('/full/ canonical → https://ship-it-with.ai/');
+      if (!/<aside class="edition-banner"[^>]*><strong>Full edition \(September 2026\)\.<\/strong> The current, shorter edition is at <a href="\/">/.test(html)) fail('/full/ banner missing or wrong');
+      else ok('/full/ banner present with link to /');
+      const ldTypes = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)]
+        .map(m => { try { return JSON.parse(m[1])['@type']; } catch { return null; } });
+      if (ldTypes.includes('Book') || ldTypes.includes('FAQPage')) fail(`/full/ carries ${ldTypes} JSON-LD (should be none)`);
+      else ok('/full/ carries no Book/FAQPage JSON-LD');
+      if ((html.match(/<h1[ >]/g) || []).length !== 1) fail('/full/ should have exactly one <h1>');
+      else ok('/full/ has exactly one <h1>');
+      for (const f of ['llms.txt', 'llms-full.txt']) {
+        const t = fs.readFileSync(path.join(repoRoot, '_site', f), 'utf8');
+        if (/ship-it-with\.ai\/full\//.test(t) || t.includes('Full edition (September 2026)')) fail(`${f} mentions the /full/ archive`);
+        else ok(`${f} excludes /full/`);
+      }
+      const full = fs.readFileSync(path.join(repoRoot, '_site', 'llms-full.txt'), 'utf8');
+      if (/^## Foreword\b/m.test(full) || /^## Chapter 10$/m.test(full)) fail('llms-full.txt contains the old (full-edition) structure');
+      else ok('llms-full.txt is the current edition');
+      for (const p of ['/', '/chapter-1-primitives/']) {
+        const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+        const page = await ctx.newPage();
+        await page.goto(`${baseUrl}${p}`);
+        const t = (await page.locator('.footer-contact a[href="/full/"]').first().textContent().catch(() => '')) || '';
+        if (t.trim() !== 'Full edition (Sep 2026)') fail(`footer at ${p}: /full/ link text "${t}"`);
+        else ok(`footer at ${p} links "Full edition (Sep 2026)" → /full/`);
+        await ctx.close();
+      }
+      if (EXPECT_RO) {
+        const ro = fs.readFileSync(path.join(repoRoot, '_site', 'ro', 'full', 'index.html'), 'utf8');
+        if (!/<link rel="canonical" href="https:\/\/ship-it-with\.ai\/ro\/" \/>/.test(ro)) fail('/ro/full/ canonical not /ro/');
+        else if (!ro.includes('Ediția completă (septembrie 2026).') || !ro.includes('<a href="/ro/">')) fail('/ro/full/ banner missing');
+        else if (!ro.includes('href="/ro/full/" class="footer-full-edition">Ediția completă (sep 2026)</a>')) fail('/ro/full/ footer link missing');
+        else ok('/ro/full/ canonical, banner and footer link');
+      }
     }
 
     // 3. Hash redirect map: /#chapter-1 lands on new URL.
@@ -620,18 +763,21 @@ async function main() {
     // 5. Positive markers in /read/.
     {
       const readHtml = fs.readFileSync(path.join(repoRoot, '_site', 'read', 'index.html'), 'utf8');
+      // Short edition: the primitives are now cards with one question each, and
+      // the anatomy demo is a proof box inside Chapter 1. Markers track the
+      // draft wording; re-pin them if the prose pass rewords these lines.
       const required = [
-        'Ten questions today',
-        'Nine inspection points',
-        'auto-memory system',
-        'early-mover signal',
-        'which Claude Code reads natively',
-        'Manually defined memory',
-        'The primitives are an open set',
-        'The primitives. Two implementations',
-        'Context window. Tools. Permissions / Sandbox. Skills. Plugins. MCP. Memory. Effort. Subagents.',
+        'built from nine primitives',
+        'two controls shipped as a pair',
+        'Neither half is enough alone',
+        'converged across the major agents in the first months of 2026',
+        'Effort is the newest slot',
         'Permissions / Sandbox',
-        'convergent pairing is the primitive',
+        'agent-level decision layer',
+        'OS-level enforcement',
+        'The anatomy is invariant',
+        'Proof: one prompt, two agents',
+        'Sandbox posture is a governance choice',
       ];
       let posGreen = true;
       for (const phrase of required) {
@@ -661,8 +807,8 @@ async function main() {
       const page = await ctx.newPage();
       await page.goto(`${baseUrl}/`);
       const tocText = await page.locator('a[href="/chapter-1-primitives/"]').first().textContent();
-      if (!/The primitives/i.test(tocText || '')) fail(`landing TOC entry: ${tocText}`);
-      else ok('landing TOC entry reads "The primitives"');
+      if (!/What an agent is/i.test(tocText || '')) fail(`landing TOC entry: ${tocText}`);
+      else ok('landing TOC entry reads "What an agent is"');
       await ctx.close();
     }
 
@@ -674,7 +820,7 @@ async function main() {
       const page = await ctx.newPage();
       await page.goto(`${baseUrl}/chapter-6-agents-md/`);
       const body = await page.locator('main').textContent();
-      if (!/manually defined layer of the Memory primitive named in Chapter 1/.test(body || '')) {
+      if (!/the manually owned layer of the Memory primitive from Chapter 1/.test(body || '')) {
         fail('chapter-6 missing Memory framing intro paragraph');
       } else ok('chapter-6 framing intro present');
       await ctx.close();
@@ -719,7 +865,8 @@ async function main() {
         'Permissions / Sandbox',
         'agent-level decision layer',
         'OS-level enforcement',
-        'convergent pairing is the primitive',
+        'two controls shipped as a pair',
+        'Neither half is enough alone',
       ];
       let allOk = true;
       for (const phrase of required) {
@@ -729,31 +876,38 @@ async function main() {
       await ctx.close();
     }
 
-    // 9b. Ch.2 mentions Permissions / Sandbox in the inspection-points list + sandbox-as-primitive passage.
+    // 9b. The old Chapter 2 (anatomy invariant) is folded into Chapter 1 as a
+    // proof box plus the sandbox-posture section.
     {
       const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
       const page = await ctx.newPage();
-      await page.goto(`${baseUrl}/chapter-2-anatomy-invariant/`);
+      await page.goto(`${baseUrl}/chapter-1-primitives/`);
       const body = (await page.locator('main').textContent()) || '';
-      if (!body.includes('Permissions / Sandbox')) fail('chapter-2 missing Permissions / Sandbox');
-      else ok('chapter-2 mentions Permissions / Sandbox');
-      if (!body.includes('Nine inspection points')) fail('chapter-2 missing "Nine inspection points"');
-      else ok('chapter-2 has "Nine inspection points"');
+      let allOk = true;
+      for (const phrase of ['The anatomy is invariant', 'Proof: one prompt, two agents',
+                            'Sandbox posture is a governance choice']) {
+        if (!body.includes(phrase)) { fail(`chapter-1 missing "${phrase}" (old Chapter 2)`); allOk = false; }
+      }
+      if (allOk) ok('chapter-1 carries the anatomy proof + sandbox posture (old Chapter 2)');
       await ctx.close();
     }
 
-    // 9c. Ch.3 framing paragraph binds 3 of 5 layers to the P/S primitive.
+    // 9c. The five layers (old Chapter 3, now Chapter 2): the layer table
+    // scores each layer against PocketOS, and least privilege is the spine.
     {
       const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
       const page = await ctx.newPage();
-      await page.goto(`${baseUrl}/chapter-3-governance-in-layers/`);
+      await page.goto(`${baseUrl}/chapter-2-guardrails/`);
       const body = (await page.locator('main').textContent()) || '';
-      if (!body.includes('configuration surfaces of the Permissions / Sandbox primitive')) {
-        fail('chapter-3 missing P/S framing-paragraph phrase');
-      } else ok('chapter-3 has P/S framing-paragraph phrase');
-      if (!body.includes('Permissions / Sandbox would have caught it twice')) {
-        fail('chapter-3 missing PocketOS P/S follow-up sentence');
-      } else ok('chapter-3 PocketOS callout names P/S primitive');
+      for (const phrase of ['A prompt is a request. A control is something the agent cannot talk its way past.',
+                            'Would it have stopped PocketOS?',
+                            'Underneath all five sits least privilege']) {
+        if (!body.includes(phrase)) fail(`chapter-2 missing "${phrase}"`);
+        else ok(`chapter-2 has "${phrase.slice(0, 40)}..."`);
+      }
+      const layers = await page.locator('figure.diagram-layers, .diagram-layers').count();
+      if (!layers) fail('chapter-2 missing the five-layers diagram');
+      else ok('chapter-2 renders the five-layers diagram');
       await ctx.close();
     }
 
@@ -839,9 +993,9 @@ async function main() {
       const prev = await page.locator('.chapter-prev').first().getAttribute('href');
       const next = await page.locator('.chapter-next').first().getAttribute('href');
       if (prev !== '/about-the-author/') fail(`/changelog/ prev = "${prev}", expected "/about-the-author/"`);
-      if (next !== '/appendix-a-cost-economics/') fail(`/changelog/ next = "${next}", expected "/appendix-a-cost-economics/"`);
-      if (prev === '/about-the-author/' && next === '/appendix-a-cost-economics/') {
-        ok('/changelog/ prev → /about-the-author/, next → /appendix-a-cost-economics/');
+      if (next !== '/appendix-a-for-managers/') fail(`/changelog/ next = "${next}", expected "/appendix-a-for-managers/"`);
+      if (prev === '/about-the-author/' && next === '/appendix-a-for-managers/') {
+        ok('/changelog/ prev → /about-the-author/, next → /appendix-a-for-managers/');
       }
       await ctx.close();
     }
@@ -852,10 +1006,11 @@ async function main() {
       if (!sitemap.includes('<loc>https://ship-it-with.ai/changelog/</loc>')) {
         fail('sitemap missing /changelog/');
       } else ok('sitemap includes /changelog/');
-      // Combined sitemap: 40 URLs total (20 EN + 20 RO; /read/ excluded for noindex)
+      // Combined sitemap: 38 URLs total (19 EN + 19 RO; /read/ + /full/ noindex)
       const urlCount = (sitemap.match(/<url>/g) || []).length;
-      if (urlCount !== 40) fail(`sitemap has ${urlCount} URLs, expected 40`);
-      else ok('sitemap has 40 URLs (20 EN + 20 RO; /read/ excluded for noindex)');
+      const want = URLS_PER_LANG * (EXPECT_RO ? 2 : 1);
+      if (urlCount !== want) fail(`sitemap has ${urlCount} URLs, expected ${want}`);
+      else ok(`sitemap has ${want} URLs (/read/ + /full/ excluded for noindex)`);
     }
 
     // 15. Footer "Last updated" stamp on landing + chapter page
@@ -885,18 +1040,19 @@ async function main() {
       }
     }
 
-    // 17. "A note on dated claims" carries the maintenance promise + link
+    // 17. The dated-claims note (folded from the Foreword into the Prologue)
+    // carries the currency date + a /changelog/ link in the body.
     {
       const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
       const page = await ctx.newPage();
-      await page.goto(`${baseUrl}/foreword/`);
+      await page.goto(`${baseUrl}/prologue-nine-seconds/`);
       const body = (await page.locator('main').textContent() || '');
-      if (!body.includes('I do my best to keep the manual current and maintain a')) {
-        fail('/foreword/ missing maintenance promise sentence');
+      if (!body.includes('Tool-specific references are current as of September 2026')) {
+        fail('/prologue-nine-seconds/ missing the dated-claims note');
       } else {
-        const linkCount = await page.locator('a[href="/changelog/"]').count();
-        if (linkCount < 1) fail('/foreword/ maintenance sentence missing /changelog/ link');
-        else ok('/foreword/ has maintenance promise + /changelog/ link');
+        const linkCount = await page.locator('main p a[href="/changelog/"]').count();
+        if (linkCount < 1) fail('/prologue-nine-seconds/ dated-claims note missing /changelog/ link');
+        else ok('/prologue-nine-seconds/ has dated-claims note + /changelog/ link');
       }
       await ctx.close();
     }
@@ -965,7 +1121,7 @@ async function main() {
       await ctx.close();
     }
     {
-      for (const slug of ['chapter-6-agents-md', 'appendix-a-cost-economics', 'chapter-10-adoption-90-days', 'chapter-1-primitives']) {
+      for (const slug of ['chapter-6-agents-md', 'appendix-a-for-managers', 'chapter-9-rolling-it-out', 'chapter-4-six-phase-loop', 'chapter-1-primitives', 'chapter-8-readiness-kill-signals']) {
         const h = fs.readFileSync(path.join(repoRoot, '_site', slug, 'index.html'), 'utf8');
         const types = [...h.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)]
           .map(m => { try { return JSON.parse(m[1])['@type']; } catch { return null; } });

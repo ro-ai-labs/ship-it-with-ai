@@ -1,4 +1,5 @@
-// Verification for the 2026-05-26 feedback pass.
+// Verification for the 2026-05-26 feedback pass (updated for the October 2026
+// short edition: new chapter format on /read/, old-format renderers on /full/).
 // Runs the build, then opens the generated index.html across viewports + themes,
 // asserts feature presence, and saves screenshots.
 
@@ -46,76 +47,44 @@ async function main() {
       await page.goto(url);
       await setTheme(page, theme);
 
-      // Assertion: Source-note callouts present in body.
+      // Short edition (Oct 2026): each chapter ends with "When it breaks" /
+      // "Do this Monday" / "Go deeper" instead of the Artifact / Ship this week /
+      // Try it boxes, and source notes moved to Appendix D. Those renderers still
+      // run on the archived full edition, so their checks moved to the /full/
+      // block below; here we assert the new chapter format on every chapter.
       if (vp.name === 'desktop' && theme === 'light') {
-        const sourceCount = await page.locator('aside.source-note').count();
-        if (sourceCount < 3) fail(`expected >= 3 .source-note elements, got ${sourceCount}`);
-        else ok(`source-note count: ${sourceCount}`);
-
-        const note = page.locator('aside.source-note').first();
-        if (await note.count()) {
-          await note.scrollIntoViewIfNeeded();
-          await page.waitForTimeout(150);
-          await note.screenshot({ path: path.join(SHOTS_DIR, 'source-note_desktop_light.png') });
-        }
-      }
-      if (vp.name === 'desktop' && theme === 'dark') {
-        const note = page.locator('aside.source-note').first();
-        if (await note.count()) {
-          await note.scrollIntoViewIfNeeded();
-          await page.waitForTimeout(150);
-          await note.screenshot({ path: path.join(SHOTS_DIR, 'source-note_desktop_dark.png') });
-        }
-      }
-
-      // Assertion: Artifact-box wrapping - should match the 10 chapters.
-      if (vp.name === 'desktop' && theme === 'light') {
-        const artifactCount = await page.locator('aside.artifact-box').count();
-        if (artifactCount < 10) fail(`expected >= 10 .artifact-box elements, got ${artifactCount}`);
-        else ok(`artifact-box count: ${artifactCount}`);
-
-        const firstArtifact = page.locator('aside.artifact-box').first();
-        const hasIcon = await firstArtifact.locator('svg.artifact-icon').count();
-        const hasLabel = await firstArtifact.locator('.artifact-label').count();
-        const hasTitle = await firstArtifact.locator('.artifact-title').count();
-        if (!hasIcon)  fail('first artifact-box missing svg.artifact-icon');
-        if (!hasLabel) fail('first artifact-box missing .artifact-label');
-        if (!hasTitle) fail('first artifact-box missing .artifact-title');
-
-        await firstArtifact.scrollIntoViewIfNeeded();
-        await page.waitForTimeout(150);
-        await firstArtifact.screenshot({ path: path.join(SHOTS_DIR, 'artifact_desktop_light.png') });
-      }
-      if (vp.name === 'desktop' && theme === 'dark') {
-        const firstArtifact = page.locator('aside.artifact-box').first();
-        if (await firstArtifact.count()) {
-          await firstArtifact.scrollIntoViewIfNeeded();
-          await page.waitForTimeout(150);
-          await firstArtifact.screenshot({ path: path.join(SHOTS_DIR, 'artifact_desktop_dark.png') });
-        }
-      }
-
-      // Chapter-end stack: no <hr> between artifact-box and the following action/try boxes.
-      if (vp.name === 'desktop' && theme === 'light') {
-        const stackHasHr = await page.evaluate(() => {
-          const artifacts = document.querySelectorAll('aside.artifact-box');
-          for (const a of artifacts) {
-            let n = a.nextElementSibling;
-            while (n && n.tagName === 'HR') return true;
-            if (n && (n.classList.contains('action-box') || n.classList.contains('try-box'))) continue;
+        const fmt = await page.evaluate(() => {
+          const chapters = Array.from(document.querySelectorAll('h2.chapter-heading'));
+          const isBoundary = (el) => el.tagName === 'H2' && (
+            /^chapter-/.test(el.id) || /^part-/.test(el.id) || el.id === 'closing' ||
+            el.id === 'about-the-author' || el.id === 'changelog' || /^appendix-/.test(el.id));
+          const missing = [];
+          for (const h of chapters) {
+            const heads = [];
+            let tldr = false;
+            for (let n = h.nextElementSibling; n && !isBoundary(n); n = n.nextElementSibling) {
+              if (n.tagName === 'H3') heads.push(n.textContent.replace('\u00b6', '').trim());
+              if (n.tagName === 'P' && n.textContent.trim() === 'TL;DR') tldr = true;
+            }
+            for (const want of ['When it breaks', 'Do this Monday', 'Go deeper']) {
+              if (!heads.includes(want)) missing.push(`${h.id}: ${want}`);
+            }
+            if (!tldr) missing.push(`${h.id}: TL;DR`);
           }
-          return false;
+          return { n: chapters.length, missing };
         });
-        if (stackHasHr) fail('found <hr> between artifact-box and next callout');
-        else ok('chapter-end stack has no <hr> between siblings');
+        if (fmt.n !== 9) fail(`expected 9 chapters on /read/, got ${fmt.n}`);
+        else ok('/read/ has 9 chapters');
+        if (fmt.missing.length) fail(`chapter format gaps: ${fmt.missing.join('; ')}`);
+        else ok('every chapter has TL;DR + When it breaks + Do this Monday + Go deeper');
 
-        const ch3End = page.locator('aside.artifact-box').nth(2);
-        await ch3End.scrollIntoViewIfNeeded();
-        await page.waitForTimeout(150);
-        await page.screenshot({
-          path: path.join(SHOTS_DIR, 'ch3-end_desktop_light.png'),
-          fullPage: false,
-        });
+        // Chapter-end screenshot: Chapter 3's "Do this Monday" checklist.
+        const ch3Monday = page.locator('h2#chapter-3 ~ h3', { hasText: 'Do this Monday' }).first();
+        if (await ch3Monday.count()) {
+          await ch3Monday.scrollIntoViewIfNeeded();
+          await page.waitForTimeout(150);
+          await page.screenshot({ path: path.join(SHOTS_DIR, 'ch3-end_desktop_light.png'), fullPage: false });
+        } else fail('chapter 3 "Do this Monday" not found');
       }
 
       // Appendix C source-card visual check on mobile.
@@ -169,9 +138,12 @@ async function main() {
         if (await contact.count() !== 1) fail('#contact anchor missing (should be inside About)');
         else ok('#contact anchor present in About');
 
-        const aboutLink = page.locator('#where-i-am-coming-from ~ p a[href="#about-the-author"]');
-        if (await aboutLink.count() < 1) fail('foreword "About the author" link missing');
-        else ok('foreword links to About');
+        // The Foreword is gone; its author note now sits in the Prologue.
+        const aboutLink = page.locator('#nine-seconds ~ p a[href="#about-the-author"]');
+        if (await aboutLink.count() < 1) fail('prologue "About the author" link missing');
+        else ok('prologue links to About');
+        if (await page.locator('#foreword').count() !== 0) fail('/read/ still has a #foreword section');
+        else ok('/read/ has no Foreword');
       }
 
       // AGENTS.md de-linking: per chapter, at most one link.
@@ -204,15 +176,11 @@ async function main() {
         else ok('AGENTS.md links: <= 1 per chapter');
       }
 
-      // Anchor links: at least one on a chapter h2 and one on an artifact-box.
+      // Anchor links on every chapter h2 (artifact-box anchors: see /full/ below).
       if (theme === 'light' && vp.name === 'desktop') {
         const headingAnchors = await page.locator('h2[id^="chapter-"] a.anchor-link').count();
-        if (headingAnchors < 10) fail(`expected >= 10 anchor links on chapter h2s, got ${headingAnchors}`);
+        if (headingAnchors < 9) fail(`expected >= 9 anchor links on chapter h2s, got ${headingAnchors}`);
         else ok(`anchor links on chapter h2s: ${headingAnchors}`);
-
-        const artifactAnchors = await page.locator('aside.artifact-box a.anchor-link').count();
-        if (artifactAnchors < 10) fail(`expected >= 10 anchor links on artifact-boxes, got ${artifactAnchors}`);
-        else ok(`anchor links on artifact-boxes: ${artifactAnchors}`);
 
         await page.locator('h2[id^="chapter-"] a.anchor-link').first().click();
         await page.waitForTimeout(200);
@@ -255,6 +223,97 @@ async function main() {
 
       await ctx.close();
     }
+  }
+
+  // ===== /full/ archive (frozen September 2026 edition, old structure) =====
+  // The source-note / artifact-box / callout renderers are exercised here now
+  // that the short edition no longer uses them.
+  const fullUrl = url.replace(/\/read\/index\.html$/, '/full/index.html');
+  for (const theme of THEMES) {
+    const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+    const page = await ctx.newPage();
+    await page.goto(fullUrl);
+    await setTheme(page, theme);
+    await page.screenshot({ path: path.join(SHOTS_DIR, `full-banner_desktop_${theme}.png`), fullPage: false });
+
+    if (theme === 'light') {
+      const banner = page.locator('aside.edition-banner');
+      const btxt = (await banner.count()) ? await banner.first().textContent() : '';
+      if (!/Full edition \(September 2026\)\. The current, shorter edition is at/.test(btxt || '')) {
+        fail(`/full/ banner missing or wrong: ${JSON.stringify(btxt)}`);
+      } else ok('/full/ banner present');
+      const bannerLink = await banner.locator('a[href="/"]').count();
+      if (!bannerLink) fail('/full/ banner missing link to the current edition (/)');
+      else ok('/full/ banner links to the current edition');
+      // Banner sits above the hero.
+      const order = await page.evaluate(() => {
+        const b = document.querySelector('aside.edition-banner');
+        const h = document.querySelector('header.article-header');
+        return b && h ? !!(b.compareDocumentPosition(h) & Node.DOCUMENT_POSITION_FOLLOWING) : false;
+      });
+      if (!order) fail('/full/ banner is not above the hero');
+      else ok('/full/ banner is above the hero');
+
+      for (let n = 1; n <= 10; n++) {
+        if (await page.locator(`#chapter-${n}`).count() === 0) fail(`/full/ missing #chapter-${n}`);
+      }
+      if (await page.locator('#foreword').count() !== 1) fail('/full/ missing #foreword');
+      else ok('/full/ has the old structure (Foreword + 10 chapters)');
+
+      const sourceCount = await page.locator('aside.source-note').count();
+      if (sourceCount < 3) fail(`/full/: expected >= 3 .source-note elements, got ${sourceCount}`);
+      else ok(`/full/ source-note count: ${sourceCount}`);
+
+      const artifactCount = await page.locator('aside.artifact-box').count();
+      if (artifactCount < 10) fail(`/full/: expected >= 10 .artifact-box elements, got ${artifactCount}`);
+      else ok(`/full/ artifact-box count: ${artifactCount}`);
+      const firstArtifact = page.locator('aside.artifact-box').first();
+      if (!await firstArtifact.locator('svg.artifact-icon').count()) fail('first artifact-box missing svg.artifact-icon');
+      if (!await firstArtifact.locator('.artifact-label').count()) fail('first artifact-box missing .artifact-label');
+      if (!await firstArtifact.locator('.artifact-title').count()) fail('first artifact-box missing .artifact-title');
+      const artifactAnchors = await page.locator('aside.artifact-box a.anchor-link').count();
+      if (artifactAnchors < 10) fail(`/full/: expected >= 10 anchor links on artifact-boxes, got ${artifactAnchors}`);
+      else ok(`/full/ anchor links on artifact-boxes: ${artifactAnchors}`);
+
+      const stackHasHr = await page.evaluate(() => {
+        for (const a of document.querySelectorAll('aside.artifact-box')) {
+          const n = a.nextElementSibling;
+          if (n && n.tagName === 'HR') return true;
+        }
+        return false;
+      });
+      if (stackHasHr) fail('/full/: found <hr> right after an artifact-box');
+      else ok('/full/: chapter-end stack has no <hr> after artifact-boxes');
+
+      const aboutLink = page.locator('#where-i-am-coming-from ~ p a[href="#about-the-author"]');
+      if (await aboutLink.count() < 1) fail('/full/ foreword "About the author" link missing');
+      else ok('/full/ foreword links to About');
+    }
+
+    const note = page.locator('aside.source-note').first();
+    if (await note.count()) {
+      await note.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(150);
+      await note.screenshot({ path: path.join(SHOTS_DIR, `source-note_desktop_${theme}.png`) });
+    }
+    const art = page.locator('aside.artifact-box').first();
+    if (await art.count()) {
+      await art.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(150);
+      await art.screenshot({ path: path.join(SHOTS_DIR, `artifact_desktop_${theme}.png`) });
+    }
+    await ctx.close();
+  }
+  {
+    const ctx = await browser.newContext({ viewport: { width: 375, height: 812 } });
+    const page = await ctx.newPage();
+    await page.goto(fullUrl);
+    const sw = await page.evaluate(() => document.documentElement.scrollWidth);
+    const cw = await page.evaluate(() => document.documentElement.clientWidth);
+    if (sw > cw + 1) fail(`/full/ mobile: horizontal overflow (${sw} > ${cw})`);
+    else ok('/full/ mobile: no horizontal overflow');
+    await page.screenshot({ path: path.join(SHOTS_DIR, 'full-banner_mobile_light.png'), fullPage: false });
+    await ctx.close();
   }
 
   await browser.close();

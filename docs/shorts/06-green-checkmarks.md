@@ -1,6 +1,6 @@
 # Short 06 · Capcana bifelor verzi
 
-- Sursă: Capitolul 9, pattern-ul patru (toolkit-ul de review pe PR-uri) · https://ship-it-with.ai/ro/chapter-9-brownfield-patterns/
+- Sursă: Capitolul 5, „Când toolkit-ul se uită în locul tău” · https://ship-it-with.ai/ro/chapter-5-review-and-verify/
 - Ce predă: agenții verifică stratul mecanic; corectitudinea de business rămâne la oameni
 - Durată 28-30s · voce ~84 de cuvinte · 9:16 vertical, subtitrări arse în video
 
