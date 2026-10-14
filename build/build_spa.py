@@ -2914,7 +2914,7 @@ def _llms_label(section: Section) -> str:
         return f"{CFG.chapter_word} {num} - {section.title}"
     if k == "appendix":
         # section.title is "<appendix-word> A <sep> Title"; normalize to " - ".
-        m = re.match(rf"^{re.escape(CFG.appendix_word)} ([A-Z]).\s*(.+)$", section.title)
+        m = re.match(rf"^{re.escape(CFG.appendix_word)} ([A-Z])\s*[.-]\s*(.+)$", section.title)
         if m:
             return f"{CFG.appendix_word} {m.group(1)} - {m.group(2)}"
         return section.title
