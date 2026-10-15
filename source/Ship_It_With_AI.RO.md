@@ -1500,7 +1500,7 @@ Cu machine learning m-am apucat prin 2013. La finalul lui 2015 am portat DarkNet
 Nu sunt neutru pe subiectul ăsta. Cred că livrarea de software cu agenți e schimbarea cu cele mai mari consecințe din domeniul nostru de la apariția limbajelor de programare de nivel înalt încoace și că felul în care o adoptă majoritatea echipelor le face mai mult rău decât bine. Asta e a treia sau a patra iterație a framework-urilor astea; iterațiile de dinainte au greșit în feluri interesante.
 
 <a id="contact"></a>
-*Contact: [info@ship-it-with.ai](mailto:info@ship-it-with.ai) pentru discuții tehnice sau workshopuri personalizate, în persoană sau online, croite pe codebase-ul și pe constrângerile echipei tale. Mă găsești pe [LinkedIn](https://www.linkedin.com/in/mihaicvasnievschi/). Pentru audiențe executive și de leadership non-tehnic, practica-soră de la [ai-leaders.ro](https://ai-leaders.ro) acoperă partea de adopție fără profunzimea inginerească.*
+*Contact: [info@ship-it-with.ai](mailto:info@ship-it-with.ai) pentru discuții tehnice sau workshopuri personalizate, în persoană sau online, croite pe codebase-ul și pe constrângerile echipei tale. Mă găsești pe [LinkedIn](https://www.linkedin.com/in/mihaicvasnievschi/).*
 
 ---
 

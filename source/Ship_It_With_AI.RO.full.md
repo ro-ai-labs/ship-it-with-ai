@@ -2166,7 +2166,7 @@ Nu sunt neutru pe subiectul ăsta. Cred că livrarea de software cu agenți e sc
 Traiectoria asta - patru decenii de scris cod, douăzeci și cinci dintre ele profesionist, mai bine de un deceniu de construit sisteme AI, fiecare generație de asistent de cod între ele - e traiectoria din care e scris manualul. Calibrează-ți așteptările în consecință.
 
 <a id="contact"></a>
-*Contact: [info@ship-it-with.ai](mailto:info@ship-it-with.ai) pentru discuții tehnice sau workshopuri personalizate, în persoană sau online, croite pe codebase-ul și pe constrângerile echipei tale. Mă găsești pe [LinkedIn](https://www.linkedin.com/in/mihaicvasnievschi/). Pentru audiențe executive și de leadership non-tehnic, practica-soră de la [ai-leaders.ro](https://ai-leaders.ro) acoperă partea de adopție fără profunzimea inginerească.*
+*Contact: [info@ship-it-with.ai](mailto:info@ship-it-with.ai) pentru discuții tehnice sau workshopuri personalizate, în persoană sau online, croite pe codebase-ul și pe constrângerile echipei tale. Mă găsești pe [LinkedIn](https://www.linkedin.com/in/mihaicvasnievschi/).*
 
 ---
 

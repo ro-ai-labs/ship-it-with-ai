@@ -1500,7 +1500,7 @@ I started on machine learning around 2013. In late 2015 I ported DarkNet and YOL
 I am not neutral. I think agentic software delivery is the most consequential shift in our field since high-level languages, and that the way most teams adopt it is doing them more harm than good. This is the third or fourth iteration of these frames; the earlier ones were wrong in interesting ways.
 
 <a id="contact"></a>
-*Contact: [info@ship-it-with.ai](mailto:info@ship-it-with.ai) for technical conversations or tailored workshops, in-person or online, shaped to your team's codebase and constraints. Find me on [LinkedIn](https://www.linkedin.com/in/mihaicvasnievschi/). For executive and non-technical leadership audiences, the sister practice at [ai-leaders.ro](https://ai-leaders.ro) covers the adoption side without the engineering depth.*
+*Contact: [info@ship-it-with.ai](mailto:info@ship-it-with.ai) for technical conversations or tailored workshops, in-person or online, shaped to your team's codebase and constraints. Find me on [LinkedIn](https://www.linkedin.com/in/mihaicvasnievschi/).*
 
 ---
 
