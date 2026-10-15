@@ -4,7 +4,7 @@
 
 **Goal:** Add a build-time "Last updated" timestamp to the footer of every page; add a new `/changelog/` section with the four most recent releases backfilled; link Changelog from the footer + from the "A note on dated claims" section.
 
-**Architecture:** One feature branch (`changelog`) off `main`, one atomic commit. Reuses the existing `Section` parser + per-chapter rendering pipeline (no new infrastructure). New build-script placeholder `{{DATE_MODIFIED_HUMAN}}` runs in parallel with the existing ISO `{{DATE_MODIFIED}}`. Template footer split: `.footer-copy` gets the date stamp; `.footer-contact` gets the Changelog nav link (parallel to email/LinkedIn/ai-leaders.ro).
+**Architecture:** One feature branch (`changelog`) off `main`, one atomic commit. Reuses the existing `Section` parser + per-chapter rendering pipeline (no new infrastructure). New build-script placeholder `{{DATE_MODIFIED_HUMAN}}` runs in parallel with the existing ISO `{{DATE_MODIFIED}}`. Template footer split: `.footer-copy` gets the date stamp; `.footer-contact` gets the Changelog nav link (parallel to email/LinkedIn).
 
 **Tech Stack:** Python 3.12 + `markdown` for the build. Vanilla HTML/CSS template. Playwright + Python `http.server` for verification (existing `build/tests/verify_seo_pass.js` extended in-place).
 
@@ -155,7 +155,7 @@ Find the closing `</div>` of `.footer-contact`. Immediately before the closing t
         <a href="/changelog/">Changelog</a>
 ```
 
-(The `<span class="footer-sep">` separator matches the existing pattern between email/LinkedIn/ai-leaders.ro entries.)
+(The `<span class="footer-sep">` separator matches the existing pattern between email/LinkedIn entries.)
 
 After the edit, the full `.footer-contact` should read (line breaks preserved for readability):
 
@@ -164,8 +164,6 @@ After the edit, the full `.footer-contact` should read (line breaks preserved fo
           <a href="mailto:info@ship-it-with.ai">info@ship-it-with.ai</a>
           <span class="footer-sep">·</span>
           <a href="https://www.linkedin.com/in/mihaicvasnievschi/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-          <span class="footer-sep">·</span>
-          <a href="https://ai-leaders.ro" target="_blank" rel="noopener noreferrer">ai-leaders.ro</a>
           <span class="footer-sep">·</span>
           <a href="/changelog/">Changelog</a>
         </div>
@@ -761,7 +759,7 @@ git commit -m "feat: changelog page + last-updated footer
 Adds /changelog/ section with the four most recent releases backfilled
 (Memory primitive, SEO pass, Feedback pass, First public version).
 Footer carries a build-time 'Last updated <Month DD, YYYY>' stamp in
-the copyright row; Changelog nav link joins email/LinkedIn/ai-leaders.ro
+the copyright row; Changelog nav link joins email/LinkedIn
 in .footer-contact. 'A note on dated claims' section gains a one-paragraph
 maintenance promise + link. Reading-time badge suppressed on the changelog
 page. Verify script extended with 9 assertions: page existence + content,
@@ -783,7 +781,7 @@ gh pr create --title "Changelog page + last-updated footer" --body "$(cat <<'EOF
 
 - New /changelog/ section with four recent releases backfilled (Memory primitive, SEO pass, Feedback pass, First public version)
 - Footer "Last updated <Month DD, YYYY>" stamp on every page, auto-stamped at build time via new {{DATE_MODIFIED_HUMAN}} placeholder
-- Changelog nav link in .footer-contact (parallel to email/LinkedIn/ai-leaders.ro), not in copyright row
+- Changelog nav link in .footer-contact (parallel to email/LinkedIn), not in copyright row
 - "A note on dated claims" front-matter section gains a maintenance promise + link to /changelog/
 - Reading-time badge suppressed on the changelog page (~150 words; "1 min read" reads as confused)
 - Sitemap now 21 URLs (was 20)

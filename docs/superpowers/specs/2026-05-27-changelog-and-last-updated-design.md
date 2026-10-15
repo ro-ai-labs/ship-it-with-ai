@@ -51,15 +51,13 @@ Becomes (adds the "Last updated" stamp; does NOT add the Changelog link here):
 <p class="footer-copy">© 2026 {{AUTHOR}} · Last updated {{DATE_MODIFIED_HUMAN}} · Bucharest · All rights reserved</p>
 ```
 
-**`.footer-contact` (line 2040-2046)** — current row with email + LinkedIn + ai-leaders.ro. Add `Changelog` as a parallel nav link at the end:
+**`.footer-contact` (line 2040-2046)** — current row with email + LinkedIn. Add `Changelog` as a parallel nav link at the end:
 
 ```html
 <div class="footer-contact">
   <a href="mailto:info@ship-it-with.ai">info@ship-it-with.ai</a>
   <span class="footer-sep">·</span>
   <a href="https://www.linkedin.com/in/mihaicvasnievschi/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-  <span class="footer-sep">·</span>
-  <a href="https://ai-leaders.ro" target="_blank" rel="noopener noreferrer">ai-leaders.ro</a>
   <span class="footer-sep">·</span>
   <a href="/changelog/">Changelog</a>
 </div>
@@ -204,7 +202,7 @@ Extend `build/tests/verify_seo_pass.js` with new assertions:
 6. **TOC placement of changelog**: between About-the-author and Appendix A (housekeeping sequence).
 7. **Breadcrumb shape**: `Home → Changelog` (two-level), matching About/Foreword/Closing.
 8. **No RSS feed in this pass.**
-9. **Changelog link placement**: inside `.footer-contact` (alongside email + LinkedIn + ai-leaders.ro), NOT in `.footer-copy`. Changelog is semantically a navigation link; placing it in the copyright row with the same `·` separator would visually treat it as another data field. Putting it in `.footer-contact` reuses existing link styling — no new CSS rules needed.
+9. **Changelog link placement**: inside `.footer-contact` (alongside email + LinkedIn), NOT in `.footer-copy`. Changelog is semantically a navigation link; placing it in the copyright row with the same `·` separator would visually treat it as another data field. Putting it in `.footer-contact` reuses existing link styling — no new CSS rules needed.
 10. **Reading-time badge suppressed on the changelog page** (`kind="changelog"`). A ~150-word page rendered as "1 min read" feels confused.
 11. **Prev/next nav on changelog**: prev = `/about-the-author/`, next = `/appendix-a-cost-economics/`. No customization needed; follows the section-order default.
 12. **`/read/` page** contains the changelog inline AND a footer link to `/changelog/`. Mild redundancy accepted — the footer link is consistent across pages and serves users who want to deep-link or share the changelog URL.
