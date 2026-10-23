@@ -919,7 +919,7 @@ async function main() {
       const body = (await page.locator('main').textContent()) || '';
       const required = [
         'Permissions / Sandbox primitive sources',
-        'Claude Code ships an Allow/Ask/Deny',
+        'Claude Code resolves explicit permission rules',
         'Codex CLI enforces OS-level sandbox by default',
         'opencode ships an in-agent permission-prompt model',
       ];
@@ -1041,13 +1041,14 @@ async function main() {
     }
 
     // 17. The dated-claims note (folded from the Foreword into the Prologue)
-    // carries the currency date + a /changelog/ link in the body.
+    // carries the workflow review date + a /changelog/ link in the body.
+    // Other dated claims keep their own dates rather than inheriting this review.
     {
       const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
       const page = await ctx.newPage();
       await page.goto(`${baseUrl}/prologue-nine-seconds/`);
       const body = (await page.locator('main').textContent() || '');
-      if (!body.includes('Tool-specific references are current as of September 2026')) {
+      if (!/Workflow advice was reviewed on [A-Za-z]+ \d{1,2}, \d{4}/.test(body)) {
         fail('/prologue-nine-seconds/ missing the dated-claims note');
       } else {
         const linkCount = await page.locator('main p a[href="/changelog/"]').count();
@@ -1136,8 +1137,8 @@ async function main() {
         .filter(o => o && o['@type'] === 'FAQPage');
       const agentsQ = faqLd.flatMap(o => o.mainEntity).find(q => /What is AGENTS\.md/.test(q.name));
       if (!agentsQ || !/CLAUDE\.md/.test(agentsQ.acceptedAnswer.text)) {
-        fail('AGENTS.md FAQ answer must distinguish CLAUDE.md (Claude Code is not AGENTS.md-native)');
-      } else ok('AGENTS.md FAQ answer correctly distinguishes CLAUDE.md');
+        fail('AGENTS.md FAQ answer must explain its relationship to CLAUDE.md');
+      } else ok('AGENTS.md FAQ answer explains its relationship to CLAUDE.md');
     }
 
     // No heading-level skip on standalone section pages (h1->h3 with no h2, etc.).

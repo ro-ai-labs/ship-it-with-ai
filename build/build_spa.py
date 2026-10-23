@@ -492,8 +492,8 @@ def copy_static() -> None:
 
 EN_DIAGRAM_LABELS: dict = {
     "primitives_foot": "the agent loop binds them together;<br/>subagents spawn constrained child instances of the agent itself",
-    "loop_fb1": ["failed plan?", "replan"],
-    "loop_fb2": ["failed verify?", "back to plan"],
+    "loop_fb1": ["approach changed?", "replan"],
+    "loop_fb2": ["failed check?", "targeted repair"],
     "layers": [
         ("LAYER 5", "Telemetry", "detective"),
         ("LAYER 4", "Security hooks", "per-action enforcement"),
@@ -523,7 +523,7 @@ EN_DIAGRAM_LABELS: dict = {
             "Lead onboards 2 - 3 more engineers",
             "AGENTS.md hardened",
             "Hooks configured",
-            "Skills written",
+            "Skills if useful",
             "Kill signals applied to portfolio",
         ]),
         ("DAYS 61 - 90", "Productionization", "Manager", [
@@ -534,9 +534,9 @@ EN_DIAGRAM_LABELS: dict = {
     ],
     "layers_spine": "Least privilege is the spine. Each layer catches what the others miss.",
     "svg_titles": {
-        "loop": "The six-phase loop with its failure routes back to Plan",
+        "loop": "The six-phase loop: repair failed checks in Execute; replan when the approach changes",
         "layers": "The five governance layers stacked as defense in depth",
-        "arc": "The 90-day adoption arc across three roles",
+        "arc": "One possible 90-day adoption schedule across three roles",
     },
 }
 
@@ -544,8 +544,8 @@ RO_DIAGRAM_LABELS: dict = {
     # Strings verbatim from the RO edition's ASCII figure bodies. The RO
     # source deliberately keeps the primitive names and phase names English.
     "primitives_foot": "bucla agentului le leagă pe toate;<br/>subagenții pornesc instanțe-copil constrânse ale agentului însuși",
-    "loop_fb1": ["plan eșuat?", "replanifici"],
-    "loop_fb2": ["verify picat?", "înapoi la plan"],
+    "loop_fb1": ["abordare greșită?", "replanifici"],
+    "loop_fb2": ["verify picat?", "corectezi"],
     "layers": [
         ("STRATUL 5", "Telemetrie", "detectiv"),
         ("STRATUL 4", "Hook-uri de securitate", "per acțiune"),
@@ -576,7 +576,7 @@ RO_DIAGRAM_LABELS: dict = {
             "Lead-ul aduce încă 2 - 3 ingineri",
             "AGENTS.md consolidat",
             "Hooks configurate",
-            "Skills scrise",
+            "Skills la nevoie",
             "Kill signals aplicate pe portofoliu",
         ]),
         ("ZILELE 61 - 90", "Operaționalizarea", "Manager", [
@@ -586,9 +586,9 @@ RO_DIAGRAM_LABELS: dict = {
         ]),
     ],
     "svg_titles": {
-        "loop": "Bucla în șase faze, cu rutele de eșec înapoi la Plan",
+        "loop": "Bucla în șase faze: corectezi în Execute; refaci planul când se schimbă abordarea",
         "layers": "Cele cinci straturi de guvernanță, suprapuse ca apărare în adâncime",
-        "arc": "Arcul de adopție de 90 de zile, pe trei roluri",
+        "arc": "Un exemplu de adopție în 90 de zile, pe trei roluri",
     },
 }
 
@@ -691,10 +691,11 @@ def diagram_loop() -> str:
             parts.append(
                 f'    <line class="dsvg-arrow" x1="190" y1="{y+64}" x2="190" y2="{y+90}" marker-end="url(#dsvg-ah)"/>'
             )
-    # Feedback curves: Execute (node 3, cy 280) -> Plan; Verify (node 5, cy 476) -> Plan (cy 182).
+    # A changed approach returns Execute to Plan. Failed checks return Verify
+    # to Execute for a targeted repair rather than restarting planning by default.
     fb1, fb2 = DIAGRAM_LABELS["loop_fb1"], DIAGRAM_LABELS["loop_fb2"]
     parts.append('    <path class="dsvg-feedback" d="M310,280 C388,280 388,160 318,160" marker-end="url(#dsvg-ahf)"/>')
-    parts.append('    <path class="dsvg-feedback" d="M310,476 C446,476 446,172 318,172" marker-end="url(#dsvg-ahf)"/>')
+    parts.append('    <path class="dsvg-feedback" d="M310,476 C446,476 446,258 318,258" marker-end="url(#dsvg-ahf)"/>')
     parts.append(f'    <text class="dsvg-fblabel" x="336" y="246">{fb1[0]}</text>')
     parts.append(f'    <text class="dsvg-fblabel" x="336" y="262">{fb1[1]}</text>')
     parts.append(f'    <text class="dsvg-fblabel" x="368" y="336">{fb2[0]}</text>')
@@ -1788,22 +1789,22 @@ FAQ_ENTRIES: list[dict] = [
     {
         "q": "How does agentic coding differ from AI autocomplete and from vibe coding?",
         "home_slug": None,
-        "a": "Autocomplete completes the next token under your cursor. Vibe coding accepts whatever the model generates with minimal verification. Agentic coding sits between: the agent plans, edits across files, runs tests, and reports back, but the human controls the context the agent sees, the actions it can take, the verification gates it passes through, and the adoption surface it operates on. The difference is methodological discipline, not model quality.",
+        "a": "Autocomplete suggests code while you drive the edit. Agentic coding delegates a bounded outcome: the agent can inspect files, choose actions, make changes, and check the result. The human sets the constraints and decides what evidence is sufficient before shipping. Vibe coding describes accepting generated output with little verification. Model capability matters, and the amount of planning and review should fit the task; stronger models still need appropriate access controls and acceptance criteria.",
     },
     {
         "q": "What is AGENTS.md and why does it matter?",
         "home_slug": "chapter-6-agents-md",
-        "a": "AGENTS.md is a plain-Markdown file at the root of a repository that tells coding agents how the project actually works - forbidden patterns, conventions, build commands, where things live, and the mistakes the team has already made. It is the vendor-neutral standard read at session start by Codex CLI, Cursor, GitHub Copilot, Gemini CLI, and Aider; Claude Code reads the equivalent CLAUDE.md and can import AGENTS.md to share the same content. It is tracked as an open standard at agents.md.",
+        "a": "AGENTS.md is a Markdown file for project instructions that an agent cannot reliably infer from the code: constraints, nonstandard conventions, build commands, and pointers to relevant documentation. Keep it short and maintain it like code. Codex CLI and other coding agents read it natively. Claude Code v2.1.277+ also supports it natively, by default as a fallback when no CLAUDE.md or CLAUDE.local.md is present on the project path. Check loading and precedence before maintaining both formats. The open standard is documented at agents.md.",
     },
     {
         "q": "How do you safely roll out AI coding agents in an engineering team?",
         "home_slug": "chapter-9-rolling-it-out",
-        "a": "A safe rollout treats agentic delivery as a control problem with five layers of governance: permissions, sandboxing, secrets, security hooks, and telemetry. Pair that with a clear methodology - a six-phase loop covering research, plan, execute, review, verify, ship - and a 90-day adoption arc with three named roles (Champion, Lead, Manager). Skip any of these and adoption produces more harm than benefit.",
+        "a": "Start with a bounded project whose results the team can verify. Apply permissions, sandboxing, secrets controls, security hooks, and telemetry according to its risks. Use the agent's native capabilities first, with clear acceptance criteria, appropriate checks, and normal human review before shipping. Add planning, workflow plugins, and extra agents where uncertainty or risk justifies them. The book's 90-day arc assigns ownership to a Champion, Lead, and Manager; use it as a rollout example and measure defects, cycle time, and review effort against your own baseline.",
     },
     {
         "q": "What is the six-phase agentic loop?",
         "home_slug": "chapter-4-six-phase-loop",
-        "a": "The six-phase loop is a delivery discipline for agentic work: research (the agent maps the codebase into a durable note), plan (a reviewable file-level task list), execute (constrained subagents make the changes), review (separate spec-compliance and code-quality passes), verify (new tests run, including accessibility-tree UI tests), and ship (a normal pull request your existing process reviews). Most failures route back to plan, not back to research.",
+        "a": "The six-phase loop names six delivery functions: research the relevant context, plan the uncertain work, execute the change, review intent and correctness, verify the behavior, and ship through the normal team process. A small clear edit can combine these in one short pass; unfamiliar or risky changes need more explicit plans and review gates. Separate documents, subagents, two reviewers, and new permanent tests are options chosen for the task, not requirements of every run. Superpowers is one optional implementation.",
     },
     {
         "q": "How much does agentic coding cost?",
@@ -3234,8 +3235,8 @@ EN_SECTION_DESCRIPTIONS = {
     "chapter-1-primitives": "A coding agent is a model in a harness built from nine primitives: context, tools, permissions/sandbox, skills, plugins, MCP, memory, effort, subagents.",
     "chapter-2-guardrails": "AI agent guardrails in five layers: permissions, sandbox, secrets, hooks, and telemetry. The least-privilege controls that would have stopped PocketOS.",
     "chapter-3-bottleneck-moved": "With AI coding agents the bottleneck moved from typing code to formulating the work. Three habits, the four unknowns, and when to run the full loop.",
-    "chapter-4-six-phase-loop": "The agentic coding loop runs in six gated phases: research, plan, execute, review, verify, ship. The execution method for shipping with Claude Code or Codex.",
-    "chapter-5-review-and-verify": "How to review and verify an agent-written diff: two review agents and then you, the diff read order, and why the agent's own tests are evidence, not proof.",
+    "chapter-4-six-phase-loop": "Research, plan, execute, review, verify, ship: scale the agentic coding loop to the task's uncertainty and risk, using native capabilities or optional workflow skills.",
+    "chapter-5-review-and-verify": "Review an agent-written diff for intent and correctness, choose review depth and checks for the risk, and understand why green tests are evidence, not proof.",
     "chapter-6-agents-md": "AGENTS.md is the vendor-neutral team instruction file: six rules for writing one, how it differs from CLAUDE.md, and the context hygiene that keeps sessions sharp.",
     "chapter-7-architecture-review": "Architecture review for AI agents: point Claude Code, Codex, or Cursor at a repo, generate a structured review, and save it as a durable diagnosis artifact.",
     "chapter-8-readiness-kill-signals": "AI coding agent readiness: learn the kill signals and traffic light that tell you when to put Claude Code, Codex or Copilot on a codebase, and when not to.",
@@ -3276,8 +3277,8 @@ RO_SECTION_DESCRIPTIONS = {
     "chapter-1-primitives": "Un coding agent e un model într-un harness construit din nouă componente principale: context, tools, permisiuni/sandbox, skills, plugins, MCP, memory, effort, subagenți.",
     "chapter-2-guardrails": "Guardrails pentru agenți AI în cinci straturi: permisiuni, sandbox, secrete, hooks și telemetrie. Controalele least-privilege care ar fi oprit incidentul PocketOS.",
     "chapter-3-bottleneck-moved": "Cu agenții AI, bottleneck-ul nu mai e scrierea codului, ci formularea muncii. Trei obiceiuri, cele patru necunoscute și când merită să rulezi bucla completă.",
-    "chapter-4-six-phase-loop": "Bucla în șase faze a programării cu agenți: research, plan, execute, review, verify, ship. Metoda de execuție pentru a livra cu Claude Code sau Codex.",
-    "chapter-5-review-and-verify": "Cum faci review și verifici un diff scris de agent: doi agenți de review, apoi tu, ordinea de citire a diff-ului și de ce testele agentului nu sunt o garanție.",
+    "chapter-4-six-phase-loop": "Research, Plan, Execute, Review, Verify, Ship: adaptează bucla la incertitudinea și riscul task-ului, cu funcțiile native ale agentului sau skill-uri opționale.",
+    "chapter-5-review-and-verify": "Verifică intenția și corectitudinea unui diff scris de agent, alege review-ul și controalele potrivite riscului și înțelege ce dovedesc testele verzi.",
     "chapter-6-agents-md": "AGENTS.md e fișierul de instrucțiuni al echipei, neutru față de vendor: șase reguli de scriere, diferența față de CLAUDE.md și igiena de context din sesiuni.",
     "chapter-7-architecture-review": "Review de arhitectură pentru agenți AI: îndrepți Claude Code, Codex sau Cursor spre un repo, generezi un review structurat și îl salvezi ca artefact durabil.",
     "chapter-8-readiness-kill-signals": "Pregătire pentru livrarea cu agenți AI: kill signals și semaforul care îți arată când să pui un coding agent pe un codebase și când să nu o faci.",
@@ -3392,22 +3393,22 @@ RO_FAQ_ENTRIES = [
     {
         "q": "Cu ce diferă programarea cu agenți de AI autocomplete și de vibe coding?",
         "home_slug": None,
-        "a": "Autocomplete completează următorul token de sub cursor. Vibe coding acceptă orice generează modelul, cu verificare minimă. Programarea cu agenți stă la mijloc: agentul planifică, editează în mai multe fișiere, rulează teste și raportează, dar omul controlează contextul pe care îl vede agentul, acțiunile pe care le poate face, gate-urile de verificare prin care trece și suprafața de adopție pe care operează. Diferența e disciplina de metodă, nu calitatea modelului.",
+        "a": "Autocomplete sugerează cod în timp ce tu conduci editarea. În programarea cu agenți delegi un rezultat bine delimitat: agentul poate citi fișiere, alege acțiuni, modifica și verifica rezultatul. Omul stabilește constrângerile și decide ce dovezi sunt suficiente înainte de livrare. Vibe coding descrie acceptarea codului generat cu puțină verificare. Capacitatea modelului contează, iar planificarea și review-ul trebuie potrivite task-ului; și modelele mai capabile au nevoie de controlul accesului și criterii de acceptare.",
     },
     {
         "q": "Ce este AGENTS.md și de ce contează?",
         "home_slug": "chapter-6-agents-md",
-        "a": "AGENTS.md e un fișier markdown din rădăcina repository-ului care spune coding agents cum funcționează de fapt proiectul - pattern-uri interzise, convenții, comenzi de build, unde stau lucrurile și greșelile pe care echipa le-a făcut deja. E standardul neutru față de vendor, citit la începutul sesiunii de Codex CLI, Cursor, GitHub Copilot, Gemini CLI și Aider; Claude Code citește echivalentul CLAUDE.md și poate importa AGENTS.md ca să partajeze același conținut. E urmărit ca standard deschis la agents.md.",
+        "a": "AGENTS.md e un fișier Markdown cu instrucțiuni pe care agentul nu le poate deduce sigur din cod: constrângeri, convenții neobișnuite, comenzi de build și trimiteri la documentația relevantă. Ține-l scurt și întreține-l ca pe cod. Codex CLI și alți coding agents îl citesc nativ. Claude Code v2.1.277+ îl suportă și el nativ, implicit ca fallback când pe calea proiectului nu există CLAUDE.md sau CLAUDE.local.md. Verifică regulile de încărcare și precedență înainte să întreții ambele formate. Standardul deschis e documentat la agents.md.",
     },
     {
         "q": "Cum faci un rollout sigur de coding agents într-o echipă de engineering?",
         "home_slug": "chapter-9-rolling-it-out",
-        "a": "Un rollout sigur tratează livrarea cu agenți ca pe o problemă de control, cu cinci straturi de guvernanță: permisiuni, sandbox, secrete, hook-uri de securitate și telemetrie. Pune asta lângă o metodă clară - o buclă în șase faze: research, plan, execute, review, verify, ship - și un arc de adopție de 90 de zile cu trei roluri numite (Champion, Lead, Manager). Sari peste oricare dintre ele și adopția produce mai mult rău decât bine.",
+        "a": "Începe cu un proiect bine delimitat, ale cărui rezultate echipa le poate verifica. Aplică permisiuni, sandbox, controlul secretelor, hook-uri de securitate și telemetrie în funcție de riscuri. Pornește cu funcțiile native ale agentului, criterii clare de acceptare, verificări potrivite și review uman înainte de livrare. Adaugă planificare, plugin-uri de workflow și agenți suplimentari unde incertitudinea sau riscul le justifică. Arcul de 90 de zile din carte atribuie responsabilități unui Champion, unui Lead și unui Manager; folosește-l ca exemplu și compară defectele, cycle time-ul și efortul de review cu propriul baseline.",
     },
     {
         "q": "Ce este bucla agentică în șase faze?",
         "home_slug": "chapter-4-six-phase-loop",
-        "a": "Bucla în șase faze e o disciplină de livrare pentru lucrul cu agenți: Research (agentul mapează codebase-ul într-o notă durabilă), Plan (o listă de task-uri la nivel de fișier, care poate fi revizuită), Execute (subagenți constrânși fac modificările), Review (treceri separate de conformitate cu spec-ul și de calitate a codului), Verify (rulează teste noi, inclusiv teste de UI pe accessibility tree) și Ship (un pull request normal, pe care procesul tău existent îl revizuiește). Cele mai multe eșecuri se întorc la Plan, nu la Research.",
+        "a": "Bucla numește șase funcții ale livrării: Research pentru contextul relevant, Plan pentru munca încă neclară, Execute pentru modificare, Review pentru intenție și corectitudine, Verify pentru comportament și Ship prin procesul normal al echipei. O modificare mică și clară le poate combina într-o singură trecere; schimbările nefamiliare sau riscante cer planuri și gate-uri de review mai explicite. Documentele separate, subagenții, doi revieweri și testele permanente noi sunt opțiuni alese pentru task, nu cerințe pentru fiecare rulare. Superpowers e o implementare opțională.",
     },
     {
         "q": "Cât costă programarea cu agenți?",

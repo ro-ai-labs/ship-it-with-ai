@@ -78,9 +78,9 @@ I will not tell you which agent to pick. The one you pick today will be deprecat
 
 - **The tools will change.** The products I name, the hook formats, the permission syntax and the prices will age. The primitives and the five-layer model are what I expect to hold.
 - **Regulated shops differ.** I assume you can install hooks, configure AGENTS.md, set up sandboxes and run subagents. Where that needs a review board or months of procurement, the manual describes the destination, not the path.
-- **Lighter process can work.** The six-phase loop is the safe bet, not the only path. Chapter 4 shows a team that earned the lighter version, and what it had in place first.
+- **Process has a cost.** Start with the native agent and the team's existing controls. Add planning, skills and reviewers where the task needs them; Chapter 4's six phases name functions, not six compulsory documents or approval stops.
 
-Tool-specific references are current as of September 2026; the frameworks are meant to outlast them, and the load-bearing claims are sourced in Appendix C. Meaningful updates are in the [changelog](/changelog/).
+Workflow advice was reviewed on October 23, 2026; other tool-specific claims retain their stated dates. The load-bearing claims and their limits are in Appendix C. Meaningful updates are in the [changelog](/changelog/).
 
 **How to read it.** It is written for the senior engineer, staff, principal or tech lead, who will run this practice on a real team and defend it upward; anyone who ships software with AI can follow. Read it in order the first time. Managers and directors: Chapters 2, 8 and 9 and Appendix A; facilitating adoption: Chapters 7 to 9 and Appendix B. The studies and numbers behind each chapter are in Appendix D; the chapters keep only what changes a decision.
 
@@ -101,7 +101,7 @@ Tool-specific references are current as of September 2026; the frameworks are me
 
 - A coding agent is a model inside a harness, built from nine primitives you can inspect.
 - The anatomy is the same across vendors. The implementations differ, and the differences, the sandbox above all, are governance choices.
-- Compare harnesses, not models. For any new agent, ask one question per primitive.
+- Inspect the harness and the model's fit for your tasks. For any new agent, ask one question per primitive, then test the combination.
 
 ---
 
@@ -163,7 +163,7 @@ Each tool call is a decision point, an audit point and a control point: log the 
 
 **What it is: two controls shipped as a pair - the agent's own rules and the operating system's enforcement.** This is the primitive PocketOS lacked (see the Prologue).
 
-The decision layer, allow / ask / deny rules plus the newer auto-mode classifier, is consulted before every tool call. Prompt injection can defeat it, because injection manipulates the reasoning that consults the rules. The OS layer sits underneath: the kernel refuses system calls the agent was not authorized to make, and it is not listening to the agent's reasoning. Neither half is enough alone.
+The agent-level decision layer checks the tool requests it covers against allow / ask / deny rules. Some modes add a model classifier for eligible actions after explicit rules are resolved. Injection can mislead that classifier or exploit permitted actions and gaps in coverage; it cannot simply persuade a correctly enforced deny rule to disappear. The OS layer refuses prohibited system calls from the processes it actually isolates, regardless of the agent's reasoning. Check which tools and subprocesses sit inside that boundary. Neither half is enough alone.
 
 *Ask: What permission model does it ship, and what OS sandbox does it default to?*
 
@@ -173,7 +173,7 @@ The decision layer, allow / ask / deny rules plus the newer auto-mode classifier
 
 **What it is: packaged instructions the agent loads only when a task needs them.**
 
-A skill is a chunk of markdown - the team's way of writing a Spring Boot service, say - kept out of context until a task matches its trigger. Skills are the closest thing in the anatomy to the senior engineer's tribal knowledge, written down.
+A skill is a chunk of markdown - the team's way of writing a Spring Boot service, say - loaded when a task needs it. Descriptions can occupy context before invocation; the full instructions load when used, and may remain for the session. Keep triggers specific. Specialized knowledge can help; a general procedure the agent already follows can add cost without improving the result.
 
 *Ask: Are skills loaded on detection, or always?*
 
@@ -183,7 +183,7 @@ A skill is a chunk of markdown - the team's way of writing a Spring Boot service
 
 **What it is: a bundle of skills, tools, hooks and commands, installed with one command.**
 
-The plugin is the unit of distribution: one team's PR-review workflow becomes another team's one-line install. The marketplace that results is also a supply-chain surface, the npm of agentic coding. Vet plugins like dependencies, with the checklist in Appendix B.10.
+The plugin is the unit of distribution: one team's PR-review workflow becomes another team's one-line install. Start with the native agent; add a plugin for a capability or a measured improvement you need. The marketplace is also a supply-chain surface, the npm of agentic coding. Appendix B.10 checks both trust and value.
 
 *Ask: Is there a plugin marketplace, and how do you vet what is in it?*
 
@@ -203,7 +203,7 @@ The same MCP server works with any agent that supports it, so the integration su
 
 **What it is: what carries over from one session to the next, in two halves.**
 
-The team writes the first: AGENTS.md, read at session start by most agents (Claude Code reads CLAUDE.md, which can import it). The agent writes the second for itself: build commands it figured out, debugging insights, inferred preferences. Chapter 6 covers the file.
+The team writes the first: AGENTS.md, read at session start by most agents. Claude Code can now read it natively too, with version and file-precedence conditions covered in Chapter 6. The agent writes the second for itself: build commands it figured out, debugging insights, inferred preferences.
 
 *Ask: Does it read a team memory file at session start, and keep memory of its own?*
 
@@ -223,7 +223,7 @@ Every major agent exposes it as a setting, under different names. It moves cost 
 
 **What it is: constrained child instances of the agent itself.**
 
-The orchestrator hands a subagent a bounded task; it runs in its own isolated context with its own scoped tools and returns a result, and neither side pollutes the other's context. The price is tokens: an eight-subagent dispatch uses about eight times a single run. Chapters 4, 5 and 7 use them to execute, review and map architecture.
+The orchestrator hands a subagent a bounded task with scoped tools and gets a result back. A fresh context isolates the work; a fork can share the parent's history. Each worker adds usage, startup and coordination costs, partly affected by caching. Delegate sizeable, self-contained work when the expected gain exceeds those costs; keep quick or tightly dependent work in the main agent. Chapters 4, 5 and 7 show where it can pay.
 
 *Ask: How does it expose subagents - is parallel dispatch first-class?*
 
@@ -233,7 +233,7 @@ The orchestrator hands a subagent a bounded task; it runs in its own isolated co
 
 **The model sets the ceiling; the harness decides whether you reach it.**
 
-The harness is the runtime around the model: it formats your request, manages the window, dispatches tool calls, feeds results back and decides when the work is done. The loop itself is trivial, roughly an HTTP request handler; the middleware around it is what you are buying. Compare harnesses, not models, on your own constraints: language fit, license, plugin ecosystem, sandbox enforcement, audit posture.
+The harness is the runtime around the model: it formats your request, manages the window, dispatches tool calls, feeds results back and decides when the work is done. The loop itself is simple; the surrounding controls matter. Inspect language fit, license, plugin ecosystem, sandbox enforcement and audit posture, then evaluate the model and harness together on your own work.
 
 ---
 
@@ -261,7 +261,7 @@ A vendor that ships a real sandbox expects untrusted instructions to arrive - th
 
 ### When it breaks
 
-- **A rule the agent consults is not a wall.** Prompt injection can defeat the decision layer; the OS layer is the hard boundary (Chapter 2).
+- **A rule the agent consults is not a wall.** Injection can mislead model judgments and exploit permitted actions or coverage gaps. Enforced deny rules and the OS boundary protect the operations they cover (Chapter 2).
 - **A sandbox in the docs is not a sandbox in the kernel.** Confirm the OS layer is on.
 - **A plugin is code you did not write.** An unvetted install is a supply-chain risk, and a hook that runs outside the sandbox is unbounded.
 
@@ -291,7 +291,7 @@ A vendor that ships a real sandbox expects untrusted instructions to arrive - th
 **TL;DR**
 
 - A prompt is a request, not a control. Destructive actions need layers the agent cannot talk its way past: permissions, sandbox, secrets, hooks and telemetry.
-- Least privilege is the spine and redundancy is the control. The sandbox is the hard boundary against prompt injection - and even it can have bugs.
+- Least privilege is the spine and redundancy is the control. A sandbox bounds the processes it actually covers; other tools need their own controls, and every layer can have bugs.
 - Keep production credentials out of the session, and send the agent's pull requests through the same gates as everyone else's.
 
 ---
@@ -329,10 +329,10 @@ Underneath all five sits least privilege: at every level - the agent, its proces
 
 | Layer | Blocks | Fails when | Would it have stopped PocketOS? |
 |---|---|---|---|
-| 1. Permissions | Actions the rules or classifier deny | Injection talks the agent into requests the gate never sees | Could have, if a rule gated destructive calls |
-| 2. Sandbox | What the kernel refuses: paths, hosts | Never switched on, or has a bug | Could have, whatever the agent decided |
+| 1. Permissions | Covered actions the rules or classifier deny | A path is permitted, missed or misclassified | Could have, if a rule gated destructive calls |
+| 2. Sandbox | Prohibited access by isolated processes | Off, bypassed through an uncovered tool, or defective | Could have, if it covered the destructive call |
 | 3. Secrets | The agent holding a credential | A secret sits within reach | Could have: no production token in the session |
-| 4. Hooks | Dangerous categories, before they run | A category has no rule | Could have: forced human approval |
+| 4. Hooks | Covered actions a blocking policy rejects | A rule is missing, editable or fails open | Could have: forced human approval |
 | 5. Telemetry | Nothing; it detects afterwards | Nobody is alerted | No, but "two days until we notice" becomes "two minutes until the on-call engineer is paged" |
 
 No single layer would have saved PocketOS with certainty; any one enforceable layer could have broken the chain. A second 2026 incident, at DataTalks.Club, was the mirror image: Claude Code ran `terraform destroy` against a stale state file. Same cure: confirmation on destructive operations, only the credentials the task needs, and state the team has verified.
@@ -343,9 +343,9 @@ No single layer would have saved PocketOS with certainty; any one enforceable la
 
 **Permissions answer one question: is this agent allowed to do this, right now?**
 
-I recommend a classifier that makes the allow, ask or deny call on each action, with a small set of explicit rules on top, such as denying writes to `.env` files. Ten to fifteen overrides per repository is a sound ceiling; past that, your AGENTS.md is too thin, not your rule list too short.
+Choose a permission mode for the work's risk, with explicit deny or approval rules for consequential actions. A classifier can reduce prompts for eligible actions; it supplements the runtime's rule checks. Cover each available route, including native file tools, shell commands and connected services. The policy needs as many clear, tested rules as that coverage requires; a shorter list is not inherently safer.
 
-Every team starts here, and a successful prompt injection can defeat it. Necessary, not sufficient.
+AGENTS.md explains the team's intent; it does not replace enforced permissions. Test an allowed and a prohibited action through the relevant tools, and recheck after configuration or version changes.
 
 ---
 
@@ -353,9 +353,9 @@ Every team starts here, and a successful prompt injection can defeat it. Necessa
 
 **The kernel does not listen to the agent's reasoning, so injection cannot talk its way past it.**
 
-For most teams the default is to read the whole repository, write only inside the worktree, reach only allowlisted hosts and block everything else.
+For routine repository work, start by permitting needed reads, limiting writes to the assigned workspace and temporary files, and restricting network access to what the task requires. Verify coverage: Claude Code's built-in sandbox wraps shell commands, while its native file tools, MCP servers and hooks run outside it. Native Windows commands are unsandboxed; WSL2 is a supported sandbox route. Whole-agent isolation may be needed when a tool-level boundary is insufficient.
 
-Calibrate by friction: if the agent hits the limits often in normal work, widen them. It costs an afternoon to configure, and some agents ship it opt-in, so check yours (Chapter 1).
+Investigate legitimate failures before widening access. Grant the smallest justified exception and check it; do not turn repeated denials into a blanket allow. Defaults and supported platforms vary by agent and version (Chapter 1).
 
 ---
 
@@ -363,7 +363,7 @@ Calibrate by friction: if the agent hits the limits often in normal work, widen 
 
 **The safest credential is the one the session never held.**
 
-Do not commit `.env` files, and remember that agents can pick them up from the working directory unasked. Keep secrets in a vault and pull them at runtime through an explicit fetch step the agent can be configured to skip. Put sensitive paths on the sandbox deny-read list: the agent literally cannot read them, whatever the system prompt says.
+Do not commit `.env` files or expose production credentials to the agent process. Keep runtime secrets in a vault with access scoped to the application or task. A shell sandbox's deny-read list protects only the reads it covers: in Claude Code it does not block the native Read tool. Apply file-tool permissions too, and account for inherited environment variables, MCP servers and hooks. Where secrets must be inaccessible to every route, keep them outside the agent's environment or isolate the whole process.
 
 ---
 
@@ -373,6 +373,8 @@ Do not commit `.env` files, and remember that agents can pick them up from the w
 
 A hook is code that runs before the agent executes a given kind of action (pre-tool-use) and, against your rules, allows it, asks for confirmation or blocks it. Off-the-shelf plugins ship a baseline: secret leaks in diffs, SQL injection patterns, hardcoded credentials.
 
+A policy hook needs protected configuration, an explicit blocking response and failure behavior that blocks the action. Test a missing, crashing or timed-out hook. Claude Code command and HTTP hooks can otherwise fail open; current versions support `onFailure: "block"` from v2.1.295 (Appendix C).
+
 Your own rules go on top: any change to currency-conversion logic needs explicit approval; any commit touching the customer table needs a security reviewer. Reach for a hook when permissions are too coarse and the sandbox too blunt.
 
 ---
@@ -381,7 +383,7 @@ Your own rules go on top: any change to currency-conversion logic needs explicit
 
 **The first four layers prevent; telemetry detects, so a failed prevention costs minutes instead of days.**
 
-Log every tool call - each Bash command, file write and external API request, with arguments and results - to a central store the security team owns. Then "which sessions touched the payments service in the last thirty days" is a query, not a grep through eighty engineers' local histories. Watch for:
+Record tool-call metadata and policy outcomes in a central store the security team owns. Capture arguments or results only where needed, with secrets and sensitive payloads redacted, access controlled and retention defined. Check what the harness actually exports; metrics alone are not a complete action log. Then "which sessions touched the payments service in the last thirty days" can be a query rather than a grep through local histories. Watch for:
 
 - an edit outside the assigned task
 - calls to hosts off the allowlist
@@ -396,7 +398,7 @@ Log every tool call - each Bash command, file write and external API request, wi
 
 Anywhere the agent reads natural language is a surface: a Jira ticket whose acceptance criteria say "ignore all previous instructions"; an outside contributor's PR comment with an instruction hidden in a review note; an error message from a flaky third-party test; a harmless-looking repository whose planted error nudges the agent to run a "fix" that pulls in its real payload. I have watched an agent follow an instruction buried in a pasted log file because the operator did not think of a log file as untrusted input.
 
-Constrain what the agent can do regardless of what it has read. The sandbox catches the dangerous action even when the agent is convinced it is legitimate; the hook catches the dangerous category even when "just this once" sounds fine. A poisoned AGENTS.md can change the agent on every session start, one more reason it is reviewed like code (Chapter 6).
+Constrain what the agent can do regardless of what it has read. An enforced sandbox blocks prohibited access on covered paths; a protected, blocking hook can gate the categories it recognizes. Check the routes neither covers. A poisoned AGENTS.md can change the agent on every session start, one more reason it is reviewed like code (Chapter 6).
 
 ---
 
@@ -413,7 +415,7 @@ Constrain what the agent can do regardless of what it has read. The sandbox catc
 
 **The rigor lives in the layers below execute; execute just runs the work.**
 
-In Chapter 4's execute phase every tool call passes the permission gate, every Bash command the hooks, every file write the sandbox. A blocked action goes back to the orchestrator to decide.
+Before Chapter 4's execute phase, establish which permission rules, hooks and sandbox restrictions cover each tool. Do not assume one sandbox protects all file writes or connected services. A blocked action needs diagnosis and, where justified, an authorized policy change; asking the agent to try another route is not the fix.
 
 ---
 
@@ -461,9 +463,9 @@ Architecture answers "what is this thing." Method answers "how do we get work do
 
 **TL;DR**
 
-- Typing code is no longer the constraint; formulating the work is. Three habits carry it: domain clarity, decomposition, test evidence before "done".
-- Run the full loop only when the task touches more than three files, crosses concerns, or is something you would not hand-type. Otherwise type it.
-- The rigor costs a slow first month and pays back over the quarter. Start with fifteen lines, not a perfect setup.
+- Typing code is no longer the constraint; formulating the work is. Three habits carry it: domain clarity, useful decomposition, evidence before "done".
+- Match the workflow to uncertainty and risk: direct work for clear changes, a short plan for dependencies, explicit outcomes and review for consequential work.
+- Setup and review have a cost; measure whether the work improves. Start with a useful constraint, not a perfect setup.
 
 ---
 
@@ -484,8 +486,8 @@ The people building the models agree. In July 2026 an Anthropic engineer opened 
 **All three are formulation, not generation.**
 
 - **Domain clarity before code.** The agent does not know your business, your conventions or why the codebase looks the way it does. Load that context first: AGENTS.md, skills, the research phase.
-- **Decomposition by file and by task.** An agent will attempt a multi-file refactor in one shot, and the result is far harder to review than five coherent steps. Write the plan, execute it, verify each step.
-- **Test evidence before "done".** The agent will say the change is complete, sincerely, and sometimes be wrong: "this looks right" is not "I ran the tests." Use behavioral tests that exercise the change. If you cannot test it that way, it probably should not have been an agent task.
+- **Decomposition where it helps.** Split a large change into coherent steps with clear dependencies. A quick, well-understood edit can stay one task.
+- **Evidence before "done".** The agent can say the change is complete and be wrong. Choose checks that exercise the intended result: a regression test, build, lint, rendered page or a direct content check. The check should fit the change.
 
 The first two habits define the expected outcome; the third measures against it.
 
@@ -508,21 +510,21 @@ The same guide splits the human half of formulation into four questions. The map
 
 ### The loop test
 
-**Run the full loop if any one of three triggers is true. If none is, type it.**
+**Use the least process that makes the outcome clear and the risk reviewable.**
 
-Formulating well is paid before the agent writes a line, and for trivial work it costs more than the agent contributes. The loop pays back when at least one holds:
+Start with the native agent and your normal repository checks. Size the work before adding a workflow:
 
-- **The work touches more than three files.** The blast radius is large enough that an unguided agent will get something wrong.
-- **The change crosses concerns.** Schema plus service layer plus UI, where one misstep cascades.
-- **You would not hand-type it.** It is novel, or large, or in code you do not know well enough to write by hand.
+- **Clear and contained:** ask for the change directly, with a focused check. A typo or familiar rename rarely needs a separate plan.
+- **Unclear or dependent:** inspect the relevant code, settle material questions and write a short plan. Keep coupled steps together; record decisions the next step needs.
+- **Risky or unfamiliar:** define the expected behavior, failure cases, permissions and human decisions explicitly. Add deeper investigation and independent review where a mistake would matter.
 
-A two-line bug fix needs no research note; a one-line config change needs no plan. Use the loop when formulating costs less than the agent getting it wrong.
+File count is a clue, not a threshold. A one-line authorization change can deserve more scrutiny than a mechanical rename across fifty files. Reversibility helps recovery; it does not make a behavioral bug harmless. The six functions in Chapter 4 give you a checklist of what must be covered, not paperwork to generate for every task.
 
 ---
 
 ### Two teams, one quarter
 
-**The cost of rigor is paid in the first month; the benefit keeps paying after it.**
+**One team's investment paid back over a quarter; your timeline needs measurement.**
 
 The clearest case I have seen: two teams at the same company, in adjacent areas of the same product, using the same agent.
 
@@ -538,7 +540,7 @@ Discipline feels slow; the lack of it costs more, and that stays invisible until
 
 **The practice does not need to be perfect to pay.**
 
-A fifteen-line AGENTS.md beats none, and a half-finished research note beats none. Teams that build the perfect workflow before running it get stuck, because there is always one more rule, skill or hook to add.
+A few useful lines in AGENTS.md can prevent a repeated mistake. A short note can settle an unfamiliar task. Teams that build the perfect workflow before running it get stuck, because there is always one more rule, skill or hook to add.
 
 Write fifteen lines on what you know is dangerous, run a few stories through the agent, and add the rules that would have prevented the failures you saw.
 
@@ -546,16 +548,16 @@ Write fifteen lines on what you know is dangerous, run a few stories through the
 
 ### When it breaks
 
-- **Looping everything, or nothing.** Every task through the loop slows you down; none misses the wins. Run the loop test first.
+- **One workflow for every task.** Ceremony can slow a clear edit; missing investigation can sink an unfamiliar one. Run the loop test first.
 - **Judging at week four.** Team B shipped no agent-led work in month one. Measure across the quarter.
 
 ---
 
 ### Do this Monday
 
-- [ ] Put the next task you were about to dispatch through the loop test. If no trigger fires, type it.
-- [ ] If one does, write a 200-word research note before dispatching.
-- [ ] Write one sentence saying what "done" means for the change, and which test will show it. No AGENTS.md yet? Write its fifteen-line skeleton too.
+- [ ] Size the next task with the loop test: direct work, a short plan, or deeper investigation and review.
+- [ ] Write one sentence saying what "done" means and which check will show it. Add only the context the agent is missing.
+- [ ] Run it with the native agent first. Add a rule, skill or plugin for a documented need, missing capability or repeated failure, then check whether it helped.
 
 ---
 
@@ -570,40 +572,43 @@ Write fifteen lines on what you know is dangerous, run a few stories through the
 ## Chapter 4
 ## The six-phase loop
 
-*By the end you can run one feature through research, plan, execute and ship, and you know which gates are yours.*
+*By the end you can cover the six functions of a sound change, choose how much process each needs, and name the gates that remain yours.*
 
 **TL;DR**
 
-- Six phases: research, plan, execute, review, verify, ship. Each one produces an artifact you can read, and each one ends at a gate.
-- The plan is the gate where a human matters most. A few minutes reading it saves an afternoon of unwinding execute.
+- Six functions: research, plan, execute, review, verify, ship. They can share a step or an artifact; the task determines which need an explicit gate.
+- When the approach is uncertain, review the plan before execution. A few minutes reading it can save an afternoon of unwinding the wrong change.
 - Ship is a normal pull request with the evidence attached. There is no AI lane.
 
 ---
 
 ### What is the six-phase loop? {#what-is-the-six-phase-loop}
 
-**Every phase produces an artifact and ends at a gate.**
+**Cover the functions; size the ceremony to the work.**
 
-The six phases are research, plan, execute, review, verify, ship. Each phase is a skill - a packaged set of instructions the agent loads when the phase is active - with a clear input, a clear output and a clear hand-off to the next phase. Superpowers is one implementation; GitHub Spec Kit, BMAD frameworks and team-built skill collections share the same loop.
+The six phases are research, plan, execute, review, verify, ship. On a clear edit, one native-agent turn and the normal PR can cover them. On an unfamiliar banking feature, a note, a reviewed plan and separate checks make the work legible. A phase can be packaged as a skill; it need not be a separate skill, document or approval stop.
+
+Superpowers, GitHub Spec Kit, BMAD and team-built collections package parts of this discipline differently. Superpowers is optional. Compare the installed version with the native agent on your tasks before adopting its extra process; old-version benchmarks do not establish the value of today's version on your model. Appendix B.10 gives the comparison, and Appendix D the evidence reviewed for this edition.
 
 ```
    +--------+    +------+    +---------+    +--------+    +--------+    +------+
    |Research|--->| Plan |--->| Execute |--->| Review |--->| Verify |--->| Ship |
    +--------+    +------+    +---------+    +--------+    +--------+    +------+
-       ^                          |              |
-       |                          v              v
-       +----- failed plan? ---- replan       failed verify? --- back to plan
+       ^             ^            ^
+       |             |            |
+   missing facts   changed     failed check?
+                  approach    repair Execute
 ```
 
-*Figure: The six-phase loop. Most failures route back to Plan, not back to Research.*
+*Figure: The six-phase loop. An implementation defect returns to Execute and the affected checks; a changed approach returns to Plan; missing evidence returns to Research.*
 
-| Phase | Artifact | Human gate | Failure caught |
+| Phase | Evidence when needed | Human decision | Failure caught |
 |---|---|---|---|
-| Research | Research note (2-4 pages) | Domain plausibility check | Missing context |
-| Plan | File-level task plan | Scope and order review | Bad decomposition |
-| Execute | Diff + per-task reports | None or light | Implementation drift |
-| Review | Spec compliance + quality reports | Senior review | Wrong or weak code |
-| Verify | Test evidence (failing -> passing) | QA or owner review | Behavioral failure |
+| Research | Relevant facts and open questions | Resolve material unknowns | Missing context |
+| Plan | Approach, dependencies and checks | Review uncertain or consequential choices | Bad decomposition |
+| Execute | Diff and relevant check results | None or light | Implementation drift |
+| Review | Findings against intent and standards | Normal owner or senior review | Wrong or weak code |
+| Verify | Relevant test, build or behavior evidence | Confirm enough evidence for the risk | Behavioral failure |
 | Ship | PR with evidence trail | Normal PR process | Process violation |
 
 **The loop stands on a well-defined expected outcome.** The agent can build almost anything you describe, but it cannot know which thing you meant. Research surfaces what is undecided, you settle it, the plan turns it into checks, and verify measures the result against it. Skip that and "done" is whatever the agent decided.
@@ -631,7 +636,7 @@ I asked the agent to read the codebase and write a research note. It named four 
 
 It also raised an open question: should priority be an enum or free text? The regulator's spec uses free text in some documents and an enum in others. I picked enum. That was not a detail - it defined the target every later phase was checked against.
 
-A research note is two to four pages and covers:
+A research note is as short as the task allows. For unfamiliar work it covers:
 
 - the files that will be touched
 - the conventions those files follow
@@ -639,7 +644,7 @@ A research note is two to four pages and covers:
 - related concepts elsewhere in the codebase
 - open questions where a human has to decide
 
-Teams skip research most often, because it produces no code. In my experience it is the highest-leverage phase: a bad note guarantees a bad plan, and a good one grounds the plan in the real code instead of the agent's first guess.
+Research grounds the approach in the real code instead of the agent's first guess. For a familiar edit, reading the relevant function may be enough; the banking example needed a durable note because the domain decisions had to survive hand-offs.
 
 If the task sits outside your own domain, run a blind spot pass first: ask the agent to help you find your unknown unknowns, and tell it plainly what you do not know. It calibrates to the expertise it infers from your vocabulary, so false fluency hides its assumptions.
 
@@ -664,11 +669,11 @@ Each task touched one file or one pair of files. Task five depended on task four
 
 A plan you can approve has three properties:
 
-- **Every task names the file, the change and the check that proves it worked.** Each is sized to two to five minutes - small enough that a failure is recoverable.
-- **It names the tests to add or update.** A plan without tests is incomplete and goes back.
+- **Every task names the area, the change, its dependencies and the check that will assess it.** Keep steps small enough to review and recover when one fails.
+- **It names the relevant checks and tests to add or update.** A behavioral fix usually needs a regression test where feasible; a prose correction may need only a content or rendering check.
 - **It states what "done" means for the whole change**, not only per task. That is the outcome verify will check.
 
-Then you read it. Push back on tasks that are vague, too large or wrongly ordered. Add what it missed, remove what is out of scope. Only then does execute start.
+Where the task needs plan approval, read it before execute: challenge vague, oversized or wrongly ordered tasks, add what it missed and remove what is out of scope. Clear work already authorized by the request need not stop for a second permission ceremony.
 
 The review takes a few minutes. It saves an afternoon when the plan was wrong and you would have found out during execute, where it is much harder to unwind.
 
@@ -676,22 +681,22 @@ The review takes a few minutes. It saves an afternoon when the plan was wrong an
 
 ### Execute
 
-**One subagent per task, one writer per file.**
+**Delegate independent work when the gain exceeds the coordination cost.**
 
-Six subagents ran in parallel, one per task, each constrained to its file. They returned in under three minutes. Five tasks had passing tests on the first run.
+In this case six subagents ran in parallel, one per scoped task. They returned in under three minutes; five tasks had passing tests on the first run. That is the case's execution shape, not a default agent count: task five's dependency on task four still requires the contract to be settled before the dependent implementation can be trusted.
 
 The sixth, the audit-log emitter, also had a passing test - but the test was wrong. It asserted the old log format. Green, and wrong. Chapter 5 picks up how that got caught.
 
-Each subagent works in its own isolated context: it reads only what it needs, makes its change, runs the plan's check and reports back. Task one's confused reasoning cannot pollute task four.
+Each worker receives the context it needs, makes its scoped change, runs the relevant check and reports back. Fresh workers isolate exploration; forks can reuse established context. Neither removes the need to communicate shared contracts accurately.
 
 Isolation is not a silver bullet. The rules that keep it working:
 
-- **Split only when the tasks are independent by file or by module.** Six subagents each editing one file is safe. Six editing the same feature across overlapping files is a recipe for expensive conflicts, which eat the speed you went parallel for.
-- **Fewer is usually faster.** Three well-scoped subagents finish faster than eight overlapping ones.
+- **Keep one writer per overlapping area.** Run dependent changes in order. Different files can still depend on the same schema, contract or decision.
+- **Make delegation earn its cost.** A sizeable, self-contained investigation or implementation can benefit from another context. A few tool calls or tightly coupled steps usually belong in the main agent; startup and coordination can exceed the time saved.
 - **Read the orchestrator's hand-offs with skepticism.** It still holds a summary of every task, and an imprecise summary of task one can lead task four to contradict it. I have watched six subagents produce mutually inconsistent edits for exactly this reason.
-- **Keep an implementation-notes file.** Every deviation from the plan and why, every edge case the plan never mentioned, every decision a subagent made that the plan left open. Recorded when it happens, not compressed into a hand-off later.
+- **Record material deviations where the next reader will find them.** A note, task report or PR can carry changed assumptions, uncovered edge cases and decisions. Use a separate implementation-notes file when the work and hand-offs justify it.
 
-When a task fails, the orchestrator retries, routes around it, or stops and asks you. Most failures are recoverable on a second attempt. A blocking failure means the plan needs revision, and the loop goes back to plan.
+When a check fails, diagnose it before retrying. Repair a local implementation defect and rerun the affected checks; revise the plan if the approach or a dependency changed, and research again if evidence is missing. Ask the owner when a material domain decision or new authorization is needed. Repeating the same attempt without new evidence is not recovery.
 
 ---
 
@@ -717,23 +722,23 @@ That PR is exactly the artifact the team already knows how to review. The agent 
 
 ### What it costs in time
 
-**On a healthy workflow, the human gates are the rate limiter, not the agent.**
+**Budget agent time, investigation and human review separately.**
 
-On a small feature the full loop takes twenty to thirty minutes of wall clock; on a medium one, an hour; on a large one, a few hours - work that would have taken days without the agent. The agent runs for maybe a third to half of that. The rest is you reading the note, reviewing the plan and approving the diff.
+In my experience with bounded tasks, a small feature can take twenty to thirty minutes through the loop, a medium one around an hour and a large one a few hours. These are planning examples, not delivery promises or a measured comparison with manual work. Unknowns, environment failures, test duration and review availability can dominate the time; measure them on your own tasks.
 
 The wire feature took ninety minutes from "let's add a priority field" to merged code. The difference is the regulated context: a 3,400-test suite, a staging smoke test and a contract diff for the regulator. Small in scope is not small in ceremony.
 
-If a small feature takes three hours, your gates are over-engineered or run as slow back-and-forth instead of a focused pass. The agent will not save you from your own meeting culture.
+If a small feature takes three hours, inspect where the time went and whether each step changed a decision or reduced a material risk. Some checks are necessary; others may be ceremony that no longer earns its cost.
 
 ---
 
 ### When to run less of it
 
-**Skip a phase only if you can name what already does its job.**
+**A function needs coverage, not necessarily a separate phase.**
 
 Chapter 3's test tells you when the loop pays at all; inside the loop the same accounting applies.
 
-One team I watched ran for most of a year on what looked like half the loop: research was a comment thread, the plan was three bullets in the PR. It worked because the functions had moved into the team's walls - a small senior team that built the codebase, a strict CI suite and a serious PR culture. The six phases are functions that have to happen somewhere. If you cannot say where, the phase stays.
+One team I watched ran for most of a year on what looked like half the loop: research was a comment thread, the plan was three bullets in the PR. It worked because the functions had moved into the team's walls - a small senior team that built the codebase, a strict CI suite and a serious PR culture. The lesson is to name what covers the function. Do not produce another document or agent review when the existing step already does the job.
 
 ---
 
@@ -747,11 +752,10 @@ One team I watched ran for most of a year on what looked like half the loop: res
 
 ### Do this Monday
 
-- [ ] Pick one task that passes Chapter 3's test and ask the agent for a research note before any code.
-- [ ] Settle every open question in the note, in writing.
-- [ ] Read the plan: every task names a file, a change and a check; tests are listed; there is a "done when" line. Push back once before approving.
-- [ ] Execute with one subagent per file and an implementation-notes file.
-- [ ] Ship it as a normal PR with the note and plan attached.
+- [ ] Pick an unfamiliar or consequential task and settle its material unknowns before implementation. Keep a note if the decisions need to survive hand-offs.
+- [ ] Read the approach and checks: dependencies are clear, scope is bounded and there is a "done when" line.
+- [ ] Execute directly unless sizeable independent work justifies delegation. Record material deviations.
+- [ ] Ship through the normal PR process with the evidence the reviewer needs.
 - [ ] Time each phase. Note which ate the most wall clock and which produced the most value. They are often not the same.
 
 ---
@@ -771,22 +775,24 @@ One team I watched ran for most of a year on what looked like half the loop: res
 
 **TL;DR**
 
-- Agent reviewers sweep the mechanical layer. Your read is for business correctness and architectural fit.
-- An agent diff fails at intent, not syntax, so read it from the outside in: the shape of the change, then the tests, then the lines.
-- A green suite the agent wrote is evidence, not proof. Four controls keep verify from grading its own homework.
+- Review intent and code quality. Your normal human review remains; add agent reviewers where the risk and measured benefit justify them.
+- A clean agent diff can still fail at intent, so read it from the outside in: the shape of the change, then the tests, then the lines.
+- A green suite the agent wrote is evidence, not proof. Check its assertions against intent and protect the gates from being weakened to pass.
 
 ---
 
 ### Who checks what
 
-**Each check sees what the others cannot, so the loop runs all of them.**
+**Cover both review lenses and the behavior; the number of reviewers can vary.**
 
 | Check | Reads | Asks |
 |---|---|---|
-| Spec reviewer | Note, plan, notes file, diff | Does this match the spec? |
-| Quality reviewer | The diff only | Is this correct by the team's standards? |
+| Intent and spec lens | Request, relevant decisions, diff | Does this match the required business behavior? |
+| Code-quality lens | Diff and relevant surrounding code | Is this correct and maintainable by the team's standards? |
 | Human read | Diff-stat, tests, boundaries, new names | Is the business rule right? Does it fit the architecture? |
-| Verify | New tests, full suite, staging, contract diff | Does the behavior meet the plan's "done"? |
+| Verify | Checks suited to the change and its risk | Does the behavior meet the agreed outcome? |
+
+One human review can cover both lenses. For risky or unattended work, a fresh agent can find gaps before that review. Separate reviewers need distinct questions and enough context to judge the change; two sequential agents are an option, not a requirement.
 
 ---
 
@@ -800,16 +806,16 @@ Verify then ran the full suite of 3,400 tests and a smoke test against the stagi
 
 ---
 
-### Review: two agents, then you
+### Review: choose the depth {#review-two-agents-then-you}
 
-**Two reviewers, in sequence, with different prompts.**
+**That was the banking case's design, not the default for every change.**
 
-One reviewer doing both jobs blurs the signals, so the quality reviewer is a different agent with a different prompt, reading only the diff. Four rules keep it useful:
+Start with the team's normal review and relevant automated checks. Add an independent agent where the change's consequences, unfamiliarity or unattended execution warrant it. Use two distinct reviewers only when their different lenses find useful defects worth the extra time. Model behavior matters: Anthropic recommends fresh verifiers for Fable 5 long tasks, but warns that extra verifier scaffolding makes Opus 5 over-verify (Appendix D).
 
-- **Scope it to correctness.** A reviewer told to review "as a senior would" always finds something, and a diff re-polished each round grows abstractions nobody asked for.
-- **Keep it blind to reviewer one.** Judges anchor on a prior score, and neither chain of thought nor an explicit warning removes the anchor.
-- **Require accept-or-rebut on every finding.** Track the repair rate, meaning findings fixed or rebutted with a reason, not the reviewer's accuracy. A finding nobody acts on is worth nothing.
-- **Cap the rounds.** In one measured verify-and-repair loop, late rounds re-opened settled work about as often as they fixed it.
+- **Scope findings to the task and real defects.** Broad requests to improve everything can turn review into repeated polishing and new abstractions.
+- **Keep separate judgments independent.** Give a fresh reviewer the requirements, diff and relevant code, without the implementer's defense or an earlier reviewer's verdict.
+- **Accept or rebut findings with evidence.** Track useful defects caught, false positives, review time and rework. A high rate of responding to comments does not show that the review improved the change.
+- **Bound repair by value.** Fix supported findings, then run the affected checks. Stop when no material issue remains; another round needs a new concern, changed code or other evidence.
 
 Findings carry a severity: critical blocks ship, important is fixed before ship, suggestions go in the PR description for the human reviewer.
 
@@ -819,17 +825,17 @@ Findings carry a severity: critical blocks ship, important is fixed before ship,
 
 **Read from the outside in: intent first, lines last.**
 
-A human diff fails at execution: a typo, an off-by-one, a forgotten edge case. An agent diff compiles, passes lint and reads like code your team would merge unremarked. It fails one layer up, at intent and context: a business rule that is plausible and wrong, the right code in the wrong layer, the code a good engineer would write for a slightly different task. Fluency is not correctness.
+Any diff can contain a typo, an off-by-one or a forgotten edge case. An agent diff can also compile, pass lint and read like code your team would merge while failing at intent and context: a business rule that is plausible and wrong, the right code in the wrong layer, the code a good engineer would write for a slightly different task. Fluency is not correctness.
 
-So spend the first ten minutes above the code:
+Start above the code, with time proportionate to the change:
 
-1. **Diff-stat against the plan.** Does the shape of the change match the ask? A file the plan never named is the first flag: the agent decided something you did not ask it to.
+1. **Diff-stat against the request or plan.** Does the shape of the change match the ask? An unexpected file deserves an explanation; it can be a necessary discovery or scope drift.
 2. **Read the tests for what they assert,** not whether they pass. Green is the cheapest signal, and the one you already have.
 3. **Check the boundaries your team wrote down:** forbidden patterns in AGENTS.md, layer conventions, dangerous modules. The agent crosses them confidently, in fluent style, so a violation looks clean.
 4. **Grep every new name the diff introduces** that you do not recognize. The call that does not exist reads as plausibly as the one that does (Chapter 6 has the cross-check).
-5. **Only now, line by line,** spending the minutes the reviewers bought you on business correctness and architectural fit.
+5. **Only now, line by line,** for business correctness and architectural fit.
 
-Before you approve, have the agent quiz you on the change: what happens at the edges, which module owns the new behavior, what breaks first if an assumption is wrong. Three or four questions, one minute. If you cannot answer, you were rubber-stamping with extra steps. Appendix B.8 is this order as a one-pager.
+For consequential or unfamiliar changes, an optional comprehension check can help: ask the agent to quiz you on edge cases, ownership and what breaks if an assumption is wrong. An unanswered question identifies something to resolve before approval. Use it when normal review has not already established that understanding. Appendix B.8 carries the read order and this optional check.
 
 ---
 
@@ -837,9 +843,11 @@ Before you approve, have the agent quiz you on the change: what happens at the e
 
 **Verify measures the behavior against the outcome the plan defined.**
 
-Execute already ran the existing tests. Verify runs the new ones and asks whether the change is correct, not merely whether anything else broke.
+Verify asks whether the intended behavior works and what evidence supports that conclusion. Run the relevant tests, build, lint, behavior or visual checks. Add a regression test for a behavioral fix where feasible, using the failure case rather than copying the implementation into the assertion. Existing valid test output can carry forward when no relevant code or assumptions changed; a new phase name is not a reason to repeat a suite.
 
-For frontend work, write them against the accessibility tree, the structure browsers keep for screen readers, not pixels or CSS selectors. A Playwright test that finds the field labeled Priority, changes it, clicks Save and checks the new value asserts behavior, and survives a restyle or a component-library swap.
+A reversible prose or configuration edit does not automatically need a permanent test file. Check the changed content, parser, build or rendered result as appropriate. A reversible change to permissions or money handling can still need substantial behavioral testing: reversibility is not a measure of bug risk.
+
+For frontend behavior, prefer user-facing roles and labels, the accessibility tree browsers keep for screen readers, over brittle CSS selectors. A Playwright test that finds the field labeled Priority, changes it, clicks Save and checks the new value asserts behavior, and survives a restyle or a component-library swap. Visual changes also need a rendered check; behavior tests do not assess the layout.
 
 ---
 
@@ -851,12 +859,11 @@ They are evidence the change does what the test says, not that the test says the
 
 So review the agent's tests like its code, checking the assertions against the spec. A test written from the implementation agrees with the implementation; the assertion has to come from the intent.
 
-The agent also optimizes the evidence it can see. On SpecBench, frontier agents scored near 100% on the visible tests and fell 43 to 48 points short on a hidden set. That is not cheating in the human sense; it is a system doing what the gate rewards. Four controls close the gap:
+The agent also optimizes the evidence it can see. On SpecBench, frontier agents scored near 100% on visible tests and fell 43 to 48 points short on a hidden set. That is a warning about what the gate rewards, not a requirement to turn every PR into a benchmark. Apply the controls at the right boundary:
 
-- [ ] **Held-out tests** the agent never sees, written from the intent and run only at verify.
-- [ ] **Sealed git history and no network egress** while verify runs, so it cannot look the answer up.
-- [ ] **A PreToolUse hook** that blocks edits to linter and test configuration and blocks `commit --no-verify` (the deny rules from Chapter 9, now on every run).
-- [ ] **Explain before fix.** The agent states why a test fails before it may fix it; a fix without a diagnosis is the one most likely to have edited the assertion instead of the code.
+- **For ordinary changes:** review assertions against intent and diagnose failures before changing code or checks. A wrong test can need a legitimate, reviewed update; changing the assertion just to get green needs rejection.
+- **Protect the team's gates:** keep required CI and security checks outside the agent's unilateral control. Hooks can block bypasses and require review for test or lint configuration changes while allowing authorized maintenance.
+- **For evaluations or high-assurance work:** independently written held-out tests can detect overfitting. Sealing answer-bearing git history and network access can prevent benchmark leakage. Ordinary development often needs both history and documentation; restrict them only when that boundary serves the task.
 
 ---
 
@@ -874,16 +881,16 @@ The fix was an explicit floor: a minimum review on business correctness and arch
 
 ### When it breaks
 
-- **The read decays into a glance at checkmarks.** The decay is invisible from the inside; the pre-approval quiz makes it measurable.
+- **The read decays into a glance at checkmarks.** Review time and escaped defects can expose the drift; an optional comprehension check can reveal gaps before approval.
 
 ---
 
 ### Do this Monday
 
-- [ ] Read your next agent diff in the order above, then have the agent quiz you before you approve. Note what you could not answer.
+- [ ] Read your next agent diff in the order above. For an unfamiliar or consequential change, try the optional quiz and resolve what you could not answer.
 - [ ] Open the last three tests the agent wrote. Do the assertions come from the spec or from the code?
-- [ ] Split review into two prompts: spec compliance first, then correctness on the diff alone. Require accept-or-rebut on every finding.
-- [ ] Add the four verify controls, starting with explain-before-fix.
+- [ ] Check both intent and code quality. Try a fresh reviewer on a consequential change, then record useful findings, false positives and time before making it a default.
+- [ ] Diagnose a failing check before changing it. Confirm required CI cannot be bypassed, and that legitimate check updates have a review path.
 - [ ] Set a minimum human review for agent-touched PRs and track it next to defect rate.
 
 ---
@@ -903,8 +910,8 @@ The fix was an explicit floor: a minimum review on business correctness and arch
 
 **TL;DR**
 
-- AGENTS.md is team infrastructure: short, failure-driven rules, reviewed like code and owned by one champion.
-- Keep it under 200 lines with fixed contents and no repo map. The agent reads before it cites; you grep what it names.
+- AGENTS.md is team infrastructure: short rules for documented needs and failures, reviewed like code and owned by one champion.
+- Keep it concise and scoped: commands, key conventions, pitfalls and pointers. About 200 lines is a useful guideline, not a proven cutoff. The agent reads before it cites; you grep what it names.
 - Context is working memory. One unit of work per session, durable state in files, a clean restart at the first sign of drift.
 
 ---
@@ -917,9 +924,9 @@ It is a markdown file in the repository root that the agent reads at session sta
 
 ### AGENTS.md vs CLAUDE.md: what's the difference? {#agents-md-vs-claude-md}
 
-**Same file, same discipline, different name.**
+**The discipline is shared; loading depends on the agent and version.**
 
-AGENTS.md is the vendor-neutral name, read natively by Codex CLI, Cursor, GitHub Copilot, Gemini CLI and most others. CLAUDE.md is the Claude Code variant. The format and the loading are equivalent.
+AGENTS.md is the vendor-neutral name, read natively by Codex CLI, Cursor, GitHub Copilot, Gemini CLI and others. Claude Code v2.1.277 and later can read it directly when no CLAUDE.md or CLAUDE.local.md exists in the working directory or above it. If both exist, the default favors CLAUDE.md; importing `@AGENTS.md` there remains an option. Settings and older versions differ, so check which files actually loaded.
 
 ---
 
@@ -946,9 +953,9 @@ The rule did not make the agent perfect. It removed one repeated correction, and
 | # | Rule | You met it when |
 |---|---|---|
 | 1 | One line, one checkable constraint | It names the layer, the mechanism and an example |
-| 2 | Failure-driven only | You can name the failure and when you last saw it |
-| 3 | Fixed contents, no repo map | Forbidden patterns, conventions, commands, glossary, one pointer |
-| 4 | Under 200 lines, hard cap | Past it, the newest rules get ignored |
+| 2 | A documented need or failure | You can explain the risk, missing convention or repeated correction |
+| 3 | Task-relevant contents | Key conventions, commands, pitfalls, glossary and pointers |
+| 4 | Concise and scoped | Every always-loaded line earns its cost; start well below 200 lines |
 | 5 | Treat it as code | Git, PR review, one rotating champion |
 | 6 | Read before cite | Every name was read this session or found by grep |
 
@@ -965,28 +972,28 @@ The rule did not make the agent perfect. It removed one repeated correction, and
 
 The bad version sounds responsible, but "careful" is not a constraint and "the right architecture" depends on context the rule never gives. The good version is the story's line, hardened: it names the layer, the mechanism, the rule and two examples to pattern-match against. Forbidden patterns follow the same form, with the reason in a clause; Appendix B.2 has three.
 
-### Rules 2 and 5: earned by failure, owned like code
+### Rules 2 and 5: justified by need, owned like code {#rules-2-and-5-earned-by-failure-owned-like-code}
 
-**A rule lands only if a real failure earned it, and a champion keeps the file honest.**
+**A rule earns its place through a concrete need, and a champion keeps the file honest.**
 
-- **Review it like code.** AGENTS.md is code in the sense that the agent executes against it. The reviewer asks: what failure does this prevent, and when did we last see it? "We have not seen it, but we might" does not land, because speculative rules pile up into bloat.
+- **Review it like code.** The agent works against these instructions. Ask which non-obvious convention, preventive constraint or repeated failure justifies each line, and keep the rationale. A documented access restriction need not wait for an incident; vague speculative best practices still pile up into bloat.
 - **Keep a mistake journal.** One entry per real incident, with the rule that prevents a repeat and an evidence pointer, the commit or the incident; B.2 has a sample entry.
 - **Name a champion.** One person owns the file and the journal; everyone edits through pull requests and the champion curates. Each quarter the champion asks of every entry whether it saved anyone in the last three months, and retires those whose underlying problem is gone, with the reason in the commit message; a rule that still prevents a rare failure stays. Then the role rotates.
 
-### Rules 3 and 4: fixed contents, hard cap
+### Rules 3 and 4: scoped contents, a size guideline {#rules-3-and-4-fixed-contents-hard-cap}
 
-**Put in forbidden patterns, conventions, commands and a glossary. Leave the map out.**
+**Keep the instructions the agent needs; link to the detail.**
 
 - **Forbidden patterns, conventions and journal entries**, one line each.
 - **Exact build and test commands.** Without them the agent guesses, and guesses are sometimes wrong.
 - **A domain glossary.** In pretraining "transfer" means many things; in your bank it means one, and a "wire" is only the inter-bank kind.
 - **One pointer line:** "Repository layout and module map: `docs/architecture.md`. Read it before touching a module you have not seen this session."
 
-The map stays out. The agent derives the layout from the tree in seconds. A February 2026 study found that context files as a whole raised inference cost by over 20% without generally improving success, and that the repository overview was the part that did not help (Appendix D). The map lives in `docs/architecture.md`, read on demand; Chapter 7 produces it.
+Avoid a repository dump. The revised context-file study found no general success improvement from generated files and over 20% more inference cost in its tested settings; developer-written files helped slightly, without a statistically significant average gain. That does not establish that all instructions harm or all maps are useless. Keep non-obvious conventions and useful pointers here; put a long architecture map in `docs/architecture.md`, read on demand (Chapter 7).
 
-**Under 200 lines.** The file loads at every session start, so each line spends context the task needs, and instruction-following degrades as the rule count grows (Appendix D). Drop rules untriggered in six months and keep each rule to a line.
+**Aim short; treat 200 lines as a guideline.** The file loads at session start, so every line spends context. There is no universal line count at which a model stops following rules. Remove duplication and stale instructions, and scope conventions to the paths or skills that need them. Keep rare but important constraints while their underlying risk remains.
 
-A banking team's file grew to about nine hundred lines in six months and the agent began ignoring the newest rules. We cut it to ninety, moving conventions into skills that load on detection and past-mistake history into the architecture document, and compliance jumped within a week. The cap forces opinion, and the opinion is the value.
+A banking team's file grew to about nine hundred lines in six months and the agent began ignoring the newest rules. We cut it to ninety, moving conventions into skills that load on detection and past-mistake history into the architecture document, and compliance jumped within a week. That is one team's observation, not a measured threshold; the useful habit is deciding what belongs in every session.
 
 ### Rule 6: when the agent confidently lies
 
@@ -1006,26 +1013,26 @@ It will cite a file that does not exist, a function the library never exposed, a
 
 Everything in the window competes for the same bounded attention. Long sessions fail through context contamination, where settled and stale material crowds out the live task; it is the biggest single reason long agent sessions go wrong. Four habits prevent it.
 
-- **Pointers over payloads.** Link the architecture document from AGENTS.md, do not paste it. The 200-line cap is this rule applied to the always-loaded layer.
-- **One unit of work per session.** The research note, plan and per-task reports from Chapter 4 are committed so the next session starts clean and reads its state from the repository, not from a conversation's history.
-- **Watch for the four signs.** The agent re-answers a question it already settled. It cites a stale version of a file it edited an hour ago. It forgets a constraint it honored twenty minutes back. Its edits get sloppier as the session runs. Do not argue with the session: commit the durable state, end it, start clean. The fresh session is not lost progress; it is the progress, read back without the noise.
+- **Pointers over payloads.** Link the architecture document from AGENTS.md, do not paste it. Keep the always-loaded layer small and load scoped detail when it matters.
+- **One coherent unit of work per session.** Stay in the session while the shared context remains useful. Before a handoff or restart, save the decisions, constraints, changed files and useful evidence the next session needs in a task note, PR or other suitable place; commit when repository practice calls for it.
+- **Watch for the four signs.** The agent re-answers a question it already settled. It cites a stale version of a file it edited an hour ago. It forgets a constraint it honored twenty minutes back. Its edits get sloppier as the session runs. Save the needed state and restart or compact with care; do not keep arguing with stale context.
 - **Treat compaction as a handoff.** Summarizing a full window drops detail, so anything that matters and is not in a file is gone. If you compact, give the compactor a keep-list: the plan, the open questions, the deviations in the implementation notes, the exact commands that worked.
 
 ---
 
 ### When it breaks
 
-- **The file is a request, not a wall.** The agent can still violate AGENTS.md. Anything that must never happen needs a hook (Chapter 2).
+- **The file is a request, not a wall.** The agent can still violate AGENTS.md. Required restrictions need enforced permissions, isolation or protected review gates; a hook helps only on the paths it covers (Chapter 2).
 - **Old entries turn into folklore.** An entry with no evidence pointer is hard to retire, and a graveyard of rules is almost as useless as none: the team stops trusting any of them.
 
 ---
 
 ### Do this Monday
 
-- [ ] Draft a fifteen-line AGENTS.md for one repository: three forbidden patterns, one real mistake-journal entry from last quarter, the exact build and test commands, one pointer line to where the code lives. Commit it.
+- [ ] Inspect the repository's current instructions. Add a documented missing convention, justified constraint or recurring correction; include commands and pointers where they save guessing. There is no quota of lines or rules to fill.
 - [ ] Find your own validation story: a correction you keep making in review. Write it as one checkable line and add it to the PR template as a reviewer prompt.
-- [ ] Add the read-before-cite line, grep every new name in the next agent diff, and name a champion with a quarterly review date.
-- [ ] In your next long session, note which of the four signs shows up first. Then commit the state and start clean.
+- [ ] Check unfamiliar names against their definitions and sources. Add a read-before-cite rule if it corrects an observed problem, and name an owner for instruction maintenance.
+- [ ] In your next long session, watch for drift. Preserve the state needed for a handoff, then recover, compact or restart as appropriate; commit according to repository practice.
 
 ---
 
@@ -1040,13 +1047,13 @@ Everything in the window competes for the same bounded attention. Long sessions 
 ## Chapter 7
 ## Map it first: architecture review
 
-*By the end you can produce a corrected architecture map of a codebase nobody remembers, and read the same run as a verdict on whether agents belong there.*
+*By the end you can produce a corrected architecture map of a codebase nobody remembers, and use the run as an initial diagnostic before choosing a bounded next task.*
 
 **TL;DR**
 
-- One prompt, one agent run and an hour of human review give you `docs/architecture.md`, a map the team and the agent can start from.
-- The agent gets roughly 70% right. The review is the work, and the 45-minute estimate assumes you know the domain.
-- The same run is a diagnostic. If the agent cannot produce a coherent map, the codebase is not ready for autonomous work (Chapter 8).
+- Use a scoped investigation to draft `docs/architecture.md`, then review it against the code and business reality.
+- In the case below, agent work took 18 minutes and expert correction about 45. Accuracy and review time depend on access, scope and domain knowledge.
+- The same run is an initial diagnostic. An incoherent map means pause autonomous changes and investigate the model, access, context and codebase (Chapter 8).
 
 ---
 
@@ -1054,9 +1061,9 @@ Everything in the window competes for the same bounded attention. Long sessions 
 
 **Make the agent read the code first, then correct what it wrote and commit the result.**
 
-Most teams own a codebase that fits one description: the author left, the README describes a build that no longer works, the code earns money and nobody wants to touch it. Getting productive in it used to take a senior engineer weeks. Now it takes ten to twenty minutes of agent time plus an hour of human review.
+Many teams own a codebase that fits one description: the author left, the README describes a build that no longer works, the code earns money and nobody wants to touch it. An agent can shorten the first investigation, but producing a map is not the same as becoming productive or understanding the business. The case below took minutes of agent work and a domain expert's review; other repositories take longer.
 
-The prompt asks for nine sections, from purpose and data model to risks and unknowns, with file-and-line citations throughout; the full text is Appendix B.1. On a moderately complex Spring Boot service it produces a ten-to-fifteen-page document in under fifteen minutes, roughly 70% correct. If the codebase outgrows one context window, fan out: one subagent per module, the orchestrator assembling the parts.
+The prompt asks for nine sections, from purpose and data model to risks and unknowns, with file-and-line citations throughout; the full text is Appendix B.1. Choose the sections and depth the investigation needs. A document can look complete while its central business interpretation is wrong. If the codebase outgrows one context window, independent module investigations can justify subagents, with the orchestrator assembling the parts and checking their shared boundaries.
 
 ---
 
@@ -1110,18 +1117,18 @@ Put it at `docs/architecture.md`. New hires read it first, senior engineers cons
 
 ### Review as diagnostic
 
-**If the agent cannot produce a coherent map, that is a kill signal.** The same run is the cheapest test of whether agentic work will succeed on a codebase.
+**An incoherent map is a reason to pause autonomous changes and investigate the cause.** The run is an initial diagnostic, not a verdict on the codebase.
 
-- **Coherent map, reasonable correction:** the codebase is in good enough shape for the agent to be useful on later work.
-- **Garbage:** the codebase is so tangled that even reading it fails. It sits in the red zone of Chapter 8, and the fix is human-led documentation first, not a different prompt.
+- **Coherent map, reasonable correction:** useful evidence for a bounded next task. It does not establish behavioral understanding or production readiness.
+- **Incoherent map:** check missing access, incomplete context, investigation scope and model fit before attributing the failure to tangled code. If the team still cannot evaluate the result, keep the relevant work human-led and use Chapter 8's rubric.
 
-Either answer is worth the price: fifteen minutes plus an hour, with a bounded downside. Chapter 8's kill signals are the systematic rubric; this run is the cheap test that comes first.
+Time-box the first investigation, then decide whether another pass is likely to resolve a specific gap. Chapter 8's kill signals are the systematic rubric; a single map does not replace it.
 
 ---
 
 ### When it breaks
 
-- **Unreviewed output.** The 70% is a draft, not documentation.
+- **Unreviewed output.** Citations and a polished structure do not make a draft correct documentation.
 - **A reviewer with no domain knowledge** cannot tell which plausible mistakes to flag. Budget hours.
 - **The map goes stale.** Re-run the review whenever the codebase changes substantially.
 
@@ -1129,11 +1136,11 @@ Either answer is worth the price: fifteen minutes plus an hour, with a bounded d
 
 ### Do this Monday
 
-- [ ] On the codebase your team understands least, send the Appendix B.1 prompt with one added line naming the domain (about 15 minutes of agent time).
+- [ ] On a poorly understood codebase, choose the relevant parts of Appendix B.1, name the domain and time-box the first pass.
 - [ ] Correct the output against the five checks above.
 - [ ] Save it as `docs/architecture.md`, commit it, and add one pointer line to AGENTS.md. Do not paste the layout in.
-- [ ] Judge the run: a coherent map means go on; garbage means a kill signal, so read Chapter 8 before any production change there.
-- [ ] Repeat on your next two or three poorest-understood codebases, an hour each, and note which produce a clean map.
+- [ ] Judge the evidence: choose a bounded next task, or investigate why the map failed. Use Chapter 8 before expanding scope.
+- [ ] Record investigation and correction time before repeating the exercise elsewhere.
 
 ---
 
@@ -1205,7 +1212,7 @@ A junior is assigned a story to add a cryptographic verification step to the pay
 
 The agent did exactly what was asked. Its output looked right and was wrong, and nobody was placed to see it.
 
-Teams read this as "we need more senior engineers", which does not scale on a six-month timeline. The structural answer makes senior review unavoidable: a hook that blocks the merge until a senior approves, review agents that run before the human sees the diff, or an AGENTS.md rule that keeps the agent out of cryptography modules until a flag is set.
+Teams read this as "we need more senior engineers", which does not scale on a six-month timeline. Make qualified approval a required server-side review for the sensitive paths, with agent credentials unable to bypass it. Enforced tool policy can also keep the agent from editing those modules. AGENTS.md can explain the restriction and agent reviewers can assist, but neither substitutes for the missing expertise or makes approval unavoidable.
 
 This signal is weighted more heavily than the others: it is counted with them, and it also overrides the count. A codebase that scores zero on signals one through five but yes on signal six is still red for the relevant work. The other seven cost productivity; this one ends in compliance disclosures and incident retrospectives. The fix is to build the capability, bring in someone who has it, or keep the agent away.
 
@@ -1296,8 +1303,8 @@ A partial signal scores half: tests that exist but are partial are half of signa
 
 **TL;DR**
 
-- On a real repo, give agent work its own worktree, hook both the agent and git, and keep a human review floor that no review bot replaces.
-- Most adoptions start with one engineer, not three roles: use it yourself, write it up, teach a peer, then recruit the lead and the manager. Month one shows almost no gain; it compounds after.
+- Isolate concurrent or conflicting work, use local checks for feedback and protected server gates for enforcement, and retain normal human review.
+- One engineer can start a rollout: use it yourself, record outcomes, teach a peer, then recruit the lead and manager. Measure the pace rather than assuming a fixed productivity curve.
 - Name the two engineer archetypes and plan for the vendor's bad week before either finds you.
 
 ---
@@ -1312,9 +1319,9 @@ These repo-level habits sit on top of Chapter 2's five layers and matter most on
 
 ### Worktrees
 
-**Every agent session gets its own git worktree.**
+**Isolate concurrent agent work from unfinished local changes.**
 
-A worktree is a separate checked-out copy of the repository on its own branch. The agent can experiment, fail and retry there without touching anyone's working copy. Good work goes through normal PR review; bad work is a deleted directory. Without one, the agent contends with your unfinished local work and you spend an hour finding out what changed.
+A worktree is a separate checked-out copy of the repository on its own branch. It is useful for concurrent tasks or when an agent would otherwise touch unfinished local work. A clean dedicated checkout or an already isolated environment can satisfy the same purpose. Worktrees prevent working-copy collisions; they are not a security sandbox, and all work still goes through normal review.
 
 ---
 
@@ -1322,11 +1329,11 @@ A worktree is a separate checked-out copy of the repository on its own branch. T
 
 **Hook the agent, hook the repository, and run the same checks in CI.**
 
-- **The agent hook** (hookify, or your agent's equivalent) reads the proposed action and allows it, prompts you or blocks it. Aim it at areas too dangerous to change without senior review: cryptography, payments, data migrations, anything regulatory. Committed to the repository, five to ten rules is usually enough on a yellow project. AGENTS.md is the polite request; the hook is the firm boundary.
+- **The agent hook** (hookify, or your agent's equivalent) checks covered actions and allows them, requests approval or blocks them. Use it for sensitive areas such as cryptography, payments or migrations. Its configuration and failure behavior need protection (Chapter 2); a repository file the agent can rewrite is not a firm boundary.
 - **The git hook** runs for whoever is committing - you, a teammate or the agent - so one check covers every author. Fast checks (format, lint, typecheck, secret scan) run at commit, tests and the build at push, and a hook manager with versioned config makes sure the hooks are installed on every clone.
-- **The escape hatch** is `--no-verify`. Close it with a deny rule in the agent hook.
+- **Local bypasses** include `--no-verify` and changing Git's hook configuration. A deny rule can catch some attempts; it does not make local hooks mandatory.
 
-Local hooks are still fast feedback, not enforcement: skippable, configured in a file the agent can edit, and not guaranteed on every machine. The same checks in CI cannot be skipped from a laptop; with the hook config and the CI workflow behind a deny rule, that is the gate the agent cannot edit.
+Local hooks are fast feedback: skippable and not guaranteed on every machine. Enforce acceptance with required server checks, protected workflow changes and required owner approval. Verify that the agent's credentials cannot change or bypass those rules; moving an editable check into CI does not by itself protect it.
 
 ---
 
@@ -1367,9 +1374,9 @@ By month six it looks like the ideal arc at month three, in twice the time. The 
 
 ### The 90-day arc
 
-**The curve is asymmetric: the first thirty days produce almost no measurable productivity.**
+**The 90-day arc is one workable schedule, not a productivity law.**
 
-Days 31-60 show visible gains on the green project; days 61-90 compound across the team. Companies that measure at thirty days will be disappointed, so tell stakeholders up front. The full calendar is Appendix B.5.
+The example gives setup and a bounded pilot the first month, expansion the second, and operational ownership the third. Some teams benefit immediately; others spend longer on access, governance or verification. Track cycle time, defects, review effort and usage from the start, and expand only when the evidence supports it. Add instruction files, skills and hooks for a demonstrated need or justified risk. The sample calendar is Appendix B.5.
 
 ```
   Days 1-30: Foundation             Days 31-60: Expansion           Days 61-90: Productionization
@@ -1378,26 +1385,26 @@ Days 31-60 show visible gains on the green project; days 61-90 compound across t
   AGENTS.md drafted                 engineers                       into normal velocity
   First green-light project         AGENTS.md hardened              tracking
   Architecture review               Hooks configured                Vendor governance signed
-  workflow proven                   Skills written                  Plugin marketplace
+  workflow proven                   Skills if useful                  Plugin marketplace
                                     Kill signals applied            policy in place
                                     to portfolio
   ====================              ====================            ====================
   Champion                          Lead                            Manager
 ```
 
-*Figure: The 90-day adoption arc. Each phase has a primary role and a primary artifact set.*
+*Figure: The 90-day adoption arc as one possible schedule. Each phase assigns responsibility; milestones depend on the pilot's needs and results.*
 
 ---
 
 ### Role commitments
 
-**Each commitment is small enough to fit alongside normal work.**
+**Agree an explicit time budget and adjust these example commitments to the team.**
 
-**The champion** learns the workflow first. They need to be the most willing to invest the first sixty hours, not the most senior.
+**The champion** learns the workflow first. They need protected time and willingness to investigate failures; seniority alone does not select them. Sixty hours is a possible planning allowance, not a prerequisite or forecast.
 
 - [ ] Week 1: install the agent, run the architecture review (Chapter 7) on a familiar codebase and commit the artifact.
-- [ ] Week 2: write the first AGENTS.md, under fifty lines, and invite additions by pull request.
-- [ ] Weeks 3-4: run the six-phase loop (Chapter 4) on three small features; log friction in the mistake journal.
+- [ ] Week 2: review existing instructions and add missing, useful constraints or commands. Invite justified additions by pull request.
+- [ ] Weeks 3-4: use Chapter 4's functions on three features, sizing the process to each; log friction in the mistake journal.
 - [ ] Months 2-3: three medium features with others taking single phases, then hand the role off; by day 90 another engineer runs the workflow as fluently.
 
 **The lead** decides which projects get the agent and keeps the traffic light.
@@ -1441,9 +1448,9 @@ I watched a team's velocity halve for a week when their primary model was rate-l
 
 ### Do this Monday
 
-- [ ] Set up one git worktree on a project you are about to dispatch the agent on, and do the agent's work there.
+- [ ] Check that the agent's workspace is isolated from concurrent work and unfinished local changes; use a worktree or dedicated checkout where needed.
 - [ ] Pick your role - champion, lead or manager - make the first commitment from its checklist this week, and put it on a calendar.
-- [ ] Add one agent-hook rule on your most dangerous directory, a deny rule on `--no-verify`, and the same checks in CI.
+- [ ] Check required server checks and sensitive-path approval, including who can bypass them. Test any policy hook's blocking response and failure behavior; local hooks are additional feedback.
 - [ ] Write the fallback for a vendor outage week: who ships the hotfix without the agent.
 
 ---
@@ -1467,7 +1474,7 @@ The tools I have named will all be different by the time the next edition of thi
 
 **Reality is the control of adoption.** Kill signals are properties of codebases and teams, not of tools. The traffic light applies whichever agent you use this quarter, and champion, lead, manager is the arc for any tooling transition.
 
-If you take one practice away, take the architecture review from Chapter 7: the lowest-cost test of whether agentic work will succeed on your codebases. If you take one framework, take the kill signals and the traffic light from Chapter 8; the "no" matters as much as the "yes." If you take one orientation, invest in the way of thinking, not the tool.
+If you take one practice away, take the architecture review from Chapter 7 as an initial diagnostic: useful evidence to inspect, not a verdict from one run. If you take one framework, take the kill signals and the traffic light from Chapter 8; the "no" matters as much as the "yes." If you take one orientation, invest in the way of thinking, not the tool.
 
 Back to those nine seconds: PocketOS lost a production database in the time it takes to read this sentence. Every layer of this methodology existed in 2026 and could have been in place in the months before. None was. That is the gap this manual tries to close: between the methodology that exists and the methodology that is applied.
 
@@ -1507,6 +1514,10 @@ I am not neutral. I think agentic software delivery is the most consequential sh
 ## Changelog {#changelog}
 
 This page tracks meaningful updates to the manual. Smaller copy-edits and SEO tweaks are not listed; the footer shows the last updated date.
+
+### 2026-10-23 - Workflow proportionality and the native-agent baseline
+
+The current edition now starts with the native agent and the team's existing controls. The six phases describe functions, not six required skills, documents or approval stops. Planning, delegation, review and verification follow uncertainty, risk and observed usefulness; Superpowers remains optional. An independent editorial pass corrected sandbox coverage and hook/CI enforcement claims, distinguished Goals from protected acceptance checks, made architecture maps provisional diagnostics, and qualified timing and rollout examples. Chapter 6 treats 200 lines as a guideline and updates Claude Code's native AGENTS.md loading. The templates, sources and Romanian edition follow the same advice. Appendices C and D record the evidence and limits reviewed on October 23; other historical claims keep their dates. The September full edition remains frozen.
 
 ### 2026-10-14 - The short edition
 
@@ -1604,7 +1615,7 @@ You also own the calls nobody else can make: hiring the cryptographer behind a s
 - Commit to a three-year ROI before the dashboard has a quarter of data.
 - Authorize vendor-versus-vendor benchmarks before the team has shipped enough to define what it is benchmarking.
 
-Those questions destroy adoption when answered too early. In months one to three, shield the team from them, and tell stakeholders up front that the first thirty days show almost no measurable productivity. When the operational number is solid, defend it; leave the revenue argument to whoever owns revenue. By day 90 your role shifts from standing up the practice to tracking the metrics each quarter.
+Agree a pilot budget and success criteria before rollout. Track operational outcomes from the start while resisting premature individual rankings or unsupported ROI claims. When the operational number is solid, defend it; leave the revenue argument to whoever owns revenue. The sample 90-day arc shifts toward ongoing ownership, but the handoff should follow evidence and readiness.
 
 Without an engaged manager the cost shows up elsewhere: procurement sits two months waiting on legal, the documentation budget is never allocated, yellow projects stay yellow. The lead's classification was correct. It had no buyer.
 
@@ -1728,7 +1739,7 @@ Cite specific files and line numbers throughout. Where the codebase is ambiguous
 
 ### B.2 AGENTS.md skeleton {#template-b2}
 
-Works as [AGENTS.md](https://agents.md/) or CLAUDE.md. Near a hundred lines, never past two hundred. The precedence line goes first: it removes a class of stalls over which instruction to obey.
+Works as [AGENTS.md](https://agents.md/) or CLAUDE.md; check your agent's loading rules. Start short and use roughly 200 lines as a trimming guideline, not a target or universal limit. The precedence line goes first: it clarifies how these local instructions relate to the task and skills, within the agent's higher-priority rules.
 
 ```
 # AGENTS.md
@@ -1762,27 +1773,31 @@ Precedence: in a conflict, the task prompt wins over this file; this file wins o
 ### B.3 Six-phase loop checklist (one-pager) {#template-b3}
 
 ```
-RESEARCH
-  Note of 2-4 pages: files, conventions, open questions.
-PLAN
-  File-level tasks of 2-5 minutes; tests named; "done" defined for the whole change.
-  Human gate: push back on anything vague, too large or wrongly ordered.
+SIZE THE WORK
+  Clear and contained: native agent, direct change, focused check.
+  Unclear or dependent: inspect, settle material questions, make a short plan.
+  Risky or unfamiliar: explicit outcomes, failure cases, human decisions and review.
+RESEARCH AND PLAN
+  Gather missing context; record decisions and dependencies when needed.
+  Define "done" and the checks that assess it. Gate consequential choices.
 EXECUTE
-  Split only for independent files or modules; one writer per file.
-  Fork the workers; isolate the reviewers (fresh context).
-  Autonomy block: finish the task before ending the turn; do not stop at acknowledging
-  capability; no confirmation on reversible actions; no tests for reversible,
-  low-impact changes.
-  Scope block: only the files the plan names; stop and report on anything else.
-  Each subagent keeps the implementation-notes file.
-REVIEW (two reviewers in sequence; cap at three or four rounds)
-  Spec compliance, then correctness; reviewer two never sees reviewer one's verdicts.
-  Executor accepts or rebuts every finding; track repair rate, not reviewer accuracy.
+  Work directly unless sizeable independent work earns delegation's cost.
+  Keep one writer per overlapping area; run dependencies in order.
+  Finish the authorized scope; record material deviations. Ask only when a new
+  decision or action actually needs the user's authorization.
+REVIEW
+  Cover intent and code quality in the normal review. Add independent reviewers
+  where risk, model behavior and measured usefulness justify them.
+  Keep separate judgments fresh and blind to earlier verdicts.
+  Accept or rebut findings with evidence; track useful defects and false positives.
+  Stop repair when no material issue remains; another round needs new evidence.
 VERIFY
-  New tests run; a held-out set the agent never sees; git history sealed, network off.
-  Hook blocks lint and test-config edits and commit --no-verify.
-  Failing test: agent explains why before it may fix. UI: Playwright, accessibility tree.
-  No "done" without test evidence.
+  Run relevant tests, build, lint, behavior or visual checks; report the evidence.
+  For a behavioral fix, add a regression test where feasible. Permanent test files
+  are not required for every prose or config edit; assess risk separately.
+  Diagnose failures before changing checks. Protect gates from bypass; review
+  legitimate test/config updates. Reuse valid results until relevant code changes.
+  Held-out tests and sealed history/network are evaluation or high-assurance tools.
 SHIP
   Structured commit and PR; reviewers per CODEOWNERS; normal team review.
 ```
@@ -1831,8 +1846,8 @@ Signal 6 weighs extra: a 1 is RED for the affected work, whatever the total.
 ```
 CHAMPION
   Week 1      install; architecture review (B.1) on a familiar codebase; commit it
-  Week 2      first AGENTS.md (B.2), under 50 lines
-  Weeks 3-4   six-phase loop (B.3) on three small features
+  Week 2      review instructions (B.2); add only what the pilot needs
+  Weeks 3-4   cover B.3's functions on three features; size the process to each
   Month 2     three medium features; pull others into single phases
   Month 3     hand the role to a successor; AGENTS.md is team-owned
 LEAD
@@ -1865,9 +1880,10 @@ STOP CONDITION (machine-evaluable; the loop halts itself)
 EACH ITERATION
   Fresh context; state read from queue + journal in the repo
   One unit per iteration; finish it or journal why not - nothing half-applied
-  Gate: ______ (tests / lint / typecheck / build) runs outside the agent's reach (CI or hook)
-  Deny rules: agent cannot edit test config, lint config, CI workflow, hook rules, or the
-  journal's done-markers
+  Gate: ______ (tests / lint / typecheck / build), enforced by protected required checks
+  Protect grader/config changes and policy rules from unilateral agent approval.
+  Done-markers advance only after the trusted checks pass; the agent's report alone
+  is not the acceptance gate.
 ISOLATION
   Own worktree and branch, never the default branch
   Sandbox on; no production credentials; network off or allowlisted
@@ -1885,12 +1901,14 @@ LOAD
   Task-relevant context only. Pointers over payloads: name the files, do not
   paste them.
 SESSION
-  One unit of work per session. Durable state lives in committed files.
+  One coherent unit of work per session; preserve useful shared context.
+  Save needed decisions, constraints, changed files and evidence before a handoff;
+  use an existing task note or PR, and commit according to repository practice.
 CONTAMINATED WHEN the agent
   re-answers a settled question; cites a stale version of a file it edited;
   forgets a constraint it honored; degrades late in a long session.
 THEN
-  Do not argue with the session. Commit the durable state, end it, start fresh.
+  Save the needed state, then restart or compact with a clear handoff.
 COMPACTION (a handoff, not a continuation)
   Prefer masking old tool outputs to summarizing. History is append-only on
   Fable 5.1: restart, do not edit. Give the compactor a keep-list: plan, open
@@ -1901,7 +1919,7 @@ COMPACTION (a handoff, not a continuation)
 
 ```
 1 BEFORE THE CODE
-  Diff-stat against the plan. Files the plan never named are the first flag.
+  Diff-stat against the request or plan. Ask why unexpected files changed.
 2 TESTS FIRST
   Read what they assert, not whether they pass. A test written from the code
   agrees with the code; the assertion must come from the intent.
@@ -1912,11 +1930,11 @@ COMPACTION (a handoff, not a continuation)
   Grep every API, function or config key you do not recognize. No hits: the
   name may not exist.
 5 LINE BY LINE
-  Only now, for business correctness and architectural fit. The review agents
-  already swept the mechanical layer.
-THE QUIZ
-  Before approving, have the agent quiz you on edges, ownership and failure
-  modes. Cannot answer: you were rubber-stamping.
+  Only now, for business correctness and architectural fit. Agent reviews, if
+  used, supplement the normal human review.
+OPTIONAL COMPREHENSION CHECK
+  For consequential or unfamiliar work, ask about edges, ownership and failure
+  modes if normal review has not established understanding. Resolve gaps before approval.
 ```
 
 ### B.9 Model-migration checklist (one-pager) {#template-b9}
@@ -1925,17 +1943,19 @@ Run it after every model swap, and when a green codebase turns yellow after an u
 
 ```
 BEFORE THE SWAP
-  Baseline five representative tasks on the current model: cost, outcome, effort
-  level. Read the vendor's guide - every generation retires part of the harness.
+  Baseline representative tasks on the current model: outcomes, regressions,
+  total billed usage (cache and subagents included), elapsed time, review and rework.
+  Read the vendor's guide; the new model may need less or different scaffolding.
 EFFORT
   Sweep effort per task type; pick per phase, not per session. Effort names do
   not transfer between models.
 PROMPTS AND INSTRUCTION FILES
-  Strip emphatic capitals and "verify your work" lines written for a model that
-  needed them. Remove parameters the new model rejects: temperature, prefill,
-  forced tool choice.
+  Re-test emphatic rules and verifier prompts rather than carrying them forward
+  automatically. Model guides differ. Remove API parameters the new model rejects.
   Never ask for the model's reasoning in the reply - a refusal category on Fable 5.
-  Audit skills for over-prescription; rewrite the autonomy and scope blocks (B.3).
+  Audit skills for over-prescription and triggers that fire on the wrong tasks.
+  Compare native execution with the installed workflow version on matched tasks
+  (B.10); preserve the goal and constraints, not every old prompt or ceremony.
   Keep the precedence line (B.2); re-read AGENTS.md for rules the model no longer breaks.
 TOOLS AND HISTORY
   Re-test custom tool schemas with strict decoding on; re-count visible tools.
@@ -1948,7 +1968,7 @@ AFTER THE SWAP
 
 ### B.10 Plugin vetting checklist {#template-b10}
 
-The marketplace is a supply-chain surface like npm. Vet each plugin as you would a dependency.
+The marketplace is a supply-chain surface like npm. Vet each plugin as you would a dependency, then ask whether it improves the work. Superpowers is an optional candidate, not a prerequisite for this manual.
 
 ```
 MAINTAINER
@@ -1957,14 +1977,22 @@ PERMISSIONS SURFACE
   Which tools, hooks, file paths and network calls does it add? Broad requests
   need a reason.
 CODE REVIEW
-  Read the source on first install; it should take twenty minutes. Too large:
-  find a smaller plugin or invest a deeper review.
+  Read the installed version's instructions, tools and hooks before adoption.
+  Allow time for its actual scope; read the diff on updates.
 UPDATE DISCIPLINE
   Pin the version; no auto-update. Read the diff, run the tests, ship the bump
   as a reviewed change.
 BLAST RADIUS
   Inside the sandbox is bounded; a hook on the developer's machine outside it is
   unbounded. Prefer bounded; else raise the bar on everything above.
+VALUE
+  Compare plugin on/off on representative work, including tasks where it should
+  stay inactive. Fix acceptance criteria before running either arm.
+  Same model, effort, starting commit and permissions; fresh sessions. Repeat
+  enough to see whether the result is stable, not one lucky run.
+  Compare success and regressions, total billed usage including cache/subagents,
+  elapsed time, human review and rework. Process compliance alone is not a win.
+  Keep, narrow to manual invocation or disable according to the observed value.
 ```
 
 ### B.11 Exercises {#template-b11}
@@ -1979,9 +2007,9 @@ Two exercises that go beyond a chapter's Do this Monday list. For Chapters 2, 7 
 **Chapter 6 - AGENTS.md and context**
 
 1. Pick a repository whose instruction file is empty, stale, or left by someone who moved on.
-2. Ask your agent: "Walk this codebase for twenty minutes and tell me what a new teammate would need to know before contributing. Cover conventions, test discipline, build and deploy commands, and anything documented partly or wrong."
-3. Draft the file from B.2 and the answer: concrete to this repo, a pointer to docs/architecture.md instead of a layout, no generic best practice.
-4. Commit it. In a fresh session ask: "What would you change about this codebase if I asked you to add a Priority field to the main entity?" Compare with the answer before the file existed.
+2. Inspect the existing instructions and a relevant module. Ask which non-obvious conventions, commands or pitfalls an agent would otherwise miss; verify the answer against the code and a teammate's knowledge.
+3. Draft only the useful additions from B.2. Link to detailed docs rather than copying a repository map; avoid generic best practice.
+4. Compare a representative task with and without the proposed file in fresh sessions, using the same starting commit and acceptance criteria. Look at outcomes, review effort and usage, not just which answer reads better.
 5. Give it to a teammate new to the repo; their confusion is your next edit.
 
 ---
@@ -2038,10 +2066,10 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ---
 
-**Claim:** Claude Code automatically loads `.env*` files in the working directory at session start without explicit user permission, exposing secrets to the agent's context.
-**Source:** Knostic, December 2025. Blog: [knostic.ai/blog/claude-loads-secrets-without-permission](https://knostic.ai/blog/claude-loads-secrets-without-permission).
+**Claim:** Knostic reported in December 2025 that Claude Code loaded `.env*` files from the working directory without explicit permission in the observed setup, exposing secrets to context.
+**Source:** Knostic, December 2025: [knostic.ai/blog/claude-loads-secrets-without-permission](https://knostic.ai/blog/claude-loads-secrets-without-permission). Current control scope: [code.claude.com/docs/en/sandboxing](https://code.claude.com/docs/en/sandboxing).
 **Where used:** Chapter 2 (Layer 3: Secrets); Appendix D, Chapter 2 (three vulnerability classes behind layers one to three), named in the dot-env auto-loading vulnerability class.
-**Caveat:** Mitigation is sandbox `denyRead` of the `.env*` patterns rather than a vendor patch; in June 2026 Claude Code added an opt-in `sandbox.credentials` setting that blocks sandboxed commands from reading credential files and secret environment variables - a more targeted control for the same class, still opt-in rather than default. The behavior may change in future versions; the class (agents loading local config at session start) is enduring.
+**Caveat:** A dated report, not a claim that every current session automatically loads these files. Shell `denyRead` and credential settings protect covered commands; native file reads need separate permissions. Keep secrets outside the agent's environment when no read route should reach them. Current scope checked October 23, 2026.
 
 ---
 
@@ -2052,10 +2080,10 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ---
 
-**Claim:** Permission parsers in coding agents recognize only a known set of shell-read commands; agents invoking Python's `open()`, Node's `fs.readFile`, or any unrecognized binary bypass the deny rules entirely.
+**Claim:** Kinney's April 2026 writeup shows that a deny rule for the built-in Read tool does not block a Bash subprocess reading the same file. A rule matching one command also need not cover equivalent access through another program.
 **Source:** Adam Kinney, April 2026. Writeup: [Claude Code's Deny Rules Don't Protect You - Here's What Actually Does](https://adamkinney.com/aatt/claude-code/deny-rules-dont-protect-you-sandbox-does/).
 **Where used:** Appendix D, Chapter 2 (three vulnerability classes behind layers one to three), as the permission-parser bypass class.
-**Caveat:** Architectural, not a single CVE. Mitigation is the OS sandbox `denyRead` list (kernel-level), not a vendor patch. The class persists across patches because the parser cannot enumerate every binary.
+**Caveat:** This concerns command-parser coverage, not every deny rule in every agent. OS-level read restrictions protect covered sandboxed processes even when the command parser misses a read; native file tools need separate permissions. Check the installed version and all available read routes.
 
 ---
 
@@ -2117,7 +2145,7 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ---
 
-**Claim:** Claude Code supports OS-level sandboxing on Linux (bubblewrap with Landlock and seccomp), macOS (Seatbelt), and Windows (restricted tokens with job objects), and is opt-in by configuration. Codex CLI enforces sandbox by default on Linux and macOS; you have to opt out, not opt in.
+**Claim:** Claude Code provides an opt-in shell sandbox on macOS, Linux and WSL2; native Windows commands run unsandboxed. Native file tools, MCP servers and hooks run outside this boundary and need their own controls. Codex has a different sandbox implementation and default posture.
 **Source:** Claude Code docs ([code.claude.com/docs/en/sandboxing](https://code.claude.com/docs/en/sandboxing)) and Codex CLI agent approvals and security docs ([developers.openai.com/codex/agent-approvals-security](https://developers.openai.com/codex/agent-approvals-security)).
 **Where used:** Chapter 1 (Sandbox posture is a governance choice) and Chapter 2 (Layer 2: Sandbox); Appendix D, Chapter 1 (sandbox posture by vendor, and the mechanisms underneath).
 **Caveat:** Default-on versus opt-in is a versioned implementation detail. Verify the current default for your installed version before relying on it.
@@ -2156,7 +2184,7 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ### Memory primitive sources
 
-**Claim:** AGENTS.md is read at session start by Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, and the wider open-source coding-agent ecosystem (20+ vendors listed at agents.md as of 2026-05). Claude Code reads CLAUDE.md, which can import AGENTS.md to share the same content with other agents. The convergence puts AGENTS.md in the manually defined memory layer of the Memory primitive named in Chapter 1.
+**Claim:** AGENTS.md is read at session start by Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, and the wider open-source coding-agent ecosystem (20+ vendors listed at agents.md as of 2026-05). Claude Code can import it from CLAUDE.md, and current versions also support direct loading under the conditions documented in Chapter 6 and the October source entry below. The convergence puts AGENTS.md in the manually defined memory layer of the Memory primitive named in Chapter 1.
 **Source:** [agents.md](https://agents.md/) (the open standard's site), plus vendor documentation for each agent listed.
 **Where used:** Chapter 1 (Memory) and Chapter 6 (AGENTS.md as team infrastructure); Appendix D, Chapter 1 (memory and skills: the convergence story).
 **Caveat:** The exact filename and load semantics vary by vendor - Claude Code reads CLAUDE.md (importable from AGENTS.md via `@AGENTS.md` or symlink); Cursor reads AGENTS.md plus `.cursorrules`. Convergence is on the structural role - user-written, always-loaded, team-shareable - not on byte-identical file format.
@@ -2179,10 +2207,17 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ### Permissions / Sandbox primitive sources
 
-**Claim:** Claude Code ships an Allow/Ask/Deny permission model with deny-then-ask-then-allow precedence and an opt-in OS sandbox - Seatbelt on macOS, bubblewrap on Linux - configurable via `/sandbox` and project-level `.claude/settings.json`. The decision layer is on by default; the OS sandbox is not.
+**Claim:** Claude Code resolves explicit permission rules before classifying remaining eligible actions in auto mode. Its opt-in OS sandbox wraps shell commands on macOS, Linux and WSL2; it does not cover native file tools, MCP servers or hooks.
 **Source:** [code.claude.com/docs/en/permissions](https://code.claude.com/docs/en/permissions); [code.claude.com/docs/en/sandboxing](https://code.claude.com/docs/en/sandboxing).
 **Where used:** Chapter 1 (Permissions / Sandbox) and Chapter 2 (Layer 1: Permissions and Layer 2: Sandbox).
-**Caveat:** Opt-in posture on the OS-enforcement half. A default Claude Code installation has the decision layer but no kernel-level sandbox; most installations skip the sandbox configuration step.
+**Caveat:** Checked October 23, 2026. A shell deny-read rule does not block native Read; shell network allowlists do not constrain every connected tool. Verify scope, supported platform and permission mode on the installed version.
+
+---
+
+**Claim:** Local hooks can be bypassed, including through Git's hook-path configuration. Claude Code command and HTTP policy hooks can fail open on errors or timeouts unless blocking failure behavior is configured; `onFailure: "block"` requires v2.1.295+. Required server checks and owner approval need protections the agent's credentials cannot bypass or alter unilaterally.
+**Source:** Claude Code, "Hooks reference": [code.claude.com/docs/en/hooks#block-the-action-when-a-hook-fails](https://code.claude.com/docs/en/hooks#block-the-action-when-a-hook-fails); Git, "githooks": [git-scm.com/docs/githooks](https://git-scm.com/docs/githooks); GitHub, "Available rules for rulesets": [docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets).
+**Where used:** Chapters 2, 8 and 9; Appendix B.6; Appendix D, Chapter 9.
+**Caveat:** Documentation checked October 23, 2026. Protection depends on actual settings, hook event and response semantics, credential privileges and server policy. This is not a runtime audit of a reader's environment.
 
 ---
 
@@ -2239,23 +2274,58 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ### Harness and model-migration sources
 
+**Claim:** Current vendor guidance supports task-sized planning and scoped instructions: Codex recommends clear outcomes, practical project instructions and planning for complex work; Claude Code recommends exploration and planning when useful, but direct execution for clear small edits. OpenAI's GPT-6 Astra guidance warns against broad skill triggers, elaborate recipes and requiring a full repository map before every change.
+**Source:** Eric Provencher, OpenAI, "Rethinking skills and prompts for GPT-6 Astra," September 11, 2026: [developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra](https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra); OpenAI, "Best practices": [learn.chatgpt.com/docs/learn/best-practices](https://learn.chatgpt.com/docs/learn/best-practices); Anthropic, "Best practices for Claude Code" and "Create custom subagents": [code.claude.com/docs/en/best-practices](https://code.claude.com/docs/en/best-practices), [code.claude.com/docs/en/sub-agents](https://code.claude.com/docs/en/sub-agents).
+**Where used:** Chapters 1, 3 and 4; Appendix B.3, B.9 and B.10; Appendix D, Chapters 3 and 4.
+**Caveat:** Vendor guidance, not a controlled comparison of the book's entire workflow. Live documentation was checked October 23, 2026; requirements and controls still depend on the task and organization.
+
+---
+
+**Claim:** Anthropic's Opus 5 guide says added verification instructions and verifier subagents can cause over-verification, adding cost without quality gains. Its Fable 5 guide instead recommends fresh verifier subagents for long-running work. Neither establishes a universal requirement for two sequential code reviewers.
+**Source:** Anthropic, "Prompting Claude Opus 5": [platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5); "Prompting Claude Fable 5" below.
+**Where used:** Chapter 5 (Review: choose the depth); Appendix B.3 and B.9; Appendix D, Chapter 5.
+**Caveat:** Model-specific vendor advice, checked October 23, 2026. It concerns added agent scaffolding, not permission to bypass normal human, CI or security gates.
+
+---
+
+**Claim:** Claude Code loads skill descriptions before invocation and full bodies when invoked; overly broad triggers can be narrowed or made manual-only. It recommends concise, scoped project instructions. From v2.1.277 it can read AGENTS.md directly when no CLAUDE.md or CLAUDE.local.md exists on the project path; otherwise the default favors CLAUDE.md, with imports and settings available.
+**Source:** Anthropic, "Extend Claude with skills" and "How Claude remembers your project": [code.claude.com/docs/en/skills](https://code.claude.com/docs/en/skills), [code.claude.com/docs/en/memory](https://code.claude.com/docs/en/memory).
+**Where used:** Chapters 1 and 6; Appendix B.2 and B.10; Appendix D, Chapters 1 and 6.
+**Caveat:** Claude Code behavior, checked October 23, 2026; versions, settings and other harnesses differ. A skill catalog's size is not the amount of full skill text loaded.
+
+---
+
+**Claim:** Direct Superpowers comparisons show conditional gains and extra cost. Krupa's 192-run study of v6.4.2 on Sonnet 5.5 reported a mean per-case cost ratio of 1.33x; a bug-fix regression test appeared in 8/8 plugin runs versus 4/8 baseline runs, with correct fixes in both. OrcaBot's July run of v6 on Codex gpt-5.5/high resolved 57.06% versus 55.56% of 729 common SWE-bench Pro cases at $0.46 versus $0.37 per problem.
+**Source:** Bartłomiej Krupa, September 29, 2026: [bartlomiejkrupa.dev/articles/does-superpowers-beat-no-plugin/](https://bartlomiejkrupa.dev/articles/does-superpowers-beat-no-plugin/); Rob Macrae, OrcaBot, July 31, 2026: [orcabot.com/benchmarks/agent-skills](https://orcabot.com/benchmarks/agent-skills); Superpowers release notes: [github.com/obra/superpowers/blob/main/RELEASE-NOTES.md](https://github.com/obra/superpowers/blob/main/RELEASE-NOTES.md).
+**Where used:** Chapter 4 (What is the six-phase loop?); Appendix B.10; Appendix D, Chapter 4.
+**Caveat:** Krupa used tiny headless cases and grading that partly rewards process; OrcaBot used one seed per arm, so its small advantage is indicative. Later releases changed Native execution and gates. No independent v7.x/current-Codex comparison was found in this review; older cost ratios are not current-version measurements.
+
+---
+
+**Claim:** SkillsBench v4's 87 tasks across eight domains and 18 model/harness configurations improved from 33.9% to 50.5% average pass rate with curated skills.
+**Source:** Xiangyi Li et al., "SkillsBench: Benchmarking How Well Agent Skills Work Across Diverse Tasks," February 13, 2026, v4 June 14: [arxiv.org/abs/2602.12670v4](https://arxiv.org/abs/2602.12670v4).
+**Where used:** Chapter 1 (Skills); Appendix D, Chapter 4 (focused skills versus a general workflow).
+**Caveat:** Curated task-specific skills and deterministic task verifiers, not a Superpowers or mandatory-process evaluation. Aggregate gains do not establish benefit on every task or model; this is a preprint.
+
+---
+
 **Claim:** Anthropic removed over 80% of Claude Code's own system prompt for the Claude 5 generation (Opus 5, Fable 5) with no measurable loss on its coding evaluations, replacing rules with judgment and worked examples with designed interfaces.
 **Source:** Thariq Shihipar, "The new rules of context engineering for Claude 5 generation models," Anthropic blog, July 24, 2026: [claude.com/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models](https://claude.com/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models).
-**Where used:** Appendix D, Chapter 6 (the cap is sized by a rule-count cliff, and vendors are deleting instructions).
+**Where used:** Appendix D, Chapter 6 (instruction load and the size guideline).
 **Caveat:** Vendor's own evaluations on its own harness; the advice is written for the Claude 5 generation and older models may still need the deleted instructions.
 
 ---
 
 **Claim:** Anthropic's prompting guide for Fable 5 states that separate, fresh-context verifier subagents tend to outperform self-critique; describes a memory system of one lesson per file with a one-line summary, updated rather than duplicated, deleted when wrong; documents rare early stopping on a statement of intent ("I'll now run X") and occasional unrequested actions, each with a prompt block; and warns that asking the model to reproduce its reasoning in the reply can trigger the reasoning_extraction refusal category.
 **Source:** Anthropic, "Prompting Claude Fable 5," Claude Platform docs: [platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5).
-**Where used:** Appendix D, Chapter 4 (vendor autonomy and scope blocks), Chapter 5 (the evidence behind the two-reviewer design) and Chapter 6 (mistake-journal mechanics); Appendix B.3 and B.9.
+**Where used:** Appendix D, Chapter 4 (vendor autonomy and scope guidance), Chapter 5 (model-specific review and bounded repair) and Chapter 6 (mistake-journal mechanics); Appendix B.3 and B.9.
 **Caveat:** Undated documentation page, revised in place; verify the current wording before relying on a specific phrase.
 
 ---
 
-**Claim:** Anthropic's prompting guide for Fable 5.1 recommends that the tool starting a subagent return immediately with the result delivered in a later message; states that effort level names do not correspond to the same amount of thinking across models and that Fable 5.1 at low effort is often competitive with Opus and Sonnet on cost per task while scoring higher; requires append-only conversation history because thinking blocks are valid only in the exact conversation that produced them; notes that with cheaper cache reads, compacting early to save cost may no longer be the right trade; and gives a preserve-list for compaction summaries.
+**Claim:** Anthropic's Fable 5.1 guide recommends asynchronous subagent dispatch, a fresh effort sweep, append-only history and a keep-list for compaction. It also recommends keeping changes in scope and permanent tests proportionate to the request and repository practice, rather than committing every scratch check; it reports reduced extras without measurable task-success loss.
 **Source:** Anthropic, "Prompting Claude Fable 5.1," Claude Platform docs: [platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-1](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-1).
-**Where used:** Chapter 1 (Effort), Chapter 6 (Context hygiene); Appendix D, Chapter 1 (Effort: the evidence), Chapter 4 (one writer, forked workers, isolated reviewers) and Chapter 6 (append-only history and cache pricing); Appendix B.7 and B.9.
+**Where used:** Chapters 1, 5 and 6; Appendix D, Chapters 1, 4, 5 and 6; Appendix B.3, B.7 and B.9.
 **Caveat:** Undated documentation page for a model released September 1, 2026. The 0.025x figure in Appendix D, Chapter 6 is the manual's arithmetic from the published cache-read and base input prices at the time of writing; the append-only requirement applies to accounts created on or after August 31, 2026 per the guide.
 
 ---
@@ -2302,17 +2372,17 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ---
 
-**Claim:** Both major agents now expose a completion-condition evaluator the loop does not control: Claude Code's /goal sends the condition and the conversation to a small fast model (Haiku by default) after each turn, which returns one of three verdicts - not yet met, met, or impossible; Codex Goals gives a thread a persistent completion condition and stops only when an evaluation confirms it or a hard limit is hit.
+**Claim:** Claude Code /goal uses a separate model to assess the condition from the conversation. Codex Goals maintains an objective and budget, and the acting model can mark it complete. These continuation and completion mechanisms do not independently execute protected acceptance tests.
 **Source:** Claude Code docs, "/goal": [code.claude.com/docs/en/goal](https://code.claude.com/docs/en/goal); OpenAI Cookbook, "Using Goals in Codex": [developers.openai.com/cookbook/examples/codex/using_goals_in_codex](https://developers.openai.com/cookbook/examples/codex/using_goals_in_codex).
 **Where used:** Chapter 9 (The outer loop, the stop condition); Appendix D, Chapter 9 (the outer loop: the vendor wave and stop-condition mechanisms).
-**Caveat:** Mechanism documentation, not outcome evidence. The ralph-wiggum plugin's README names `--max-iterations` as the primary safety mechanism and offers anecdote rather than controlled results; no controlled evidence for any of the three was found at the time of writing.
+**Caveat:** Mechanism documentation, checked October 23, 2026, not evidence of independent verification. Require externally protected checks for acceptance. The ralph-wiggum plugin offers a maximum-iteration budget and practitioner reports, not proof of a reliable grader.
 
 ---
 
-**Claim:** Repository-level context files (AGENTS.md and equivalents) did not generally improve coding-agent task success while increasing inference cost by over 20% on average; repository overviews, although popular and recommended by model providers, were not helpful; files written by developers showed only a modest, non-significant gain over generated ones.
-**Source:** Thibaud Gloaguen, Niels Mündler, Mark Niklas Müller, Veselin Raychev, Martin Vechev (ETH Zürich), "Evaluating AGENTS.md: Are Repository-Level Context Files Helpful for Coding Agents?", February 12, 2026 (v2 June 23, 2026): [arxiv.org/abs/2602.11988](https://arxiv.org/abs/2602.11988).
-**Where used:** Chapter 6 (Rules 3 and 4, where the map lives); Appendix D, Chapter 6 (repository overviews in context files do not help); Appendix B.2.
-**Caveat:** Measured on specific agents and benchmarks. The manual's reading - keep forbidden patterns, journal, conventions, and commands, move the map out - is an interpretation; the paper does not isolate a content category with a significant positive effect.
+**Claim:** The revised AGENTS.md study found no general success improvement from generated repository context files and over 20% higher inference cost in its tested settings. Developer-written files showed a modest average success gain that was not statistically significant; repository overviews did not help in this evaluation.
+**Source:** Thibaud Gloaguen et al. (ETH Zürich), "Evaluating AGENTS.md: Are Repository-Level Context Files Helpful for Coding Agents?", February 12, 2026, v3 September 29: [arxiv.org/abs/2602.11988v3](https://arxiv.org/abs/2602.11988v3).
+**Where used:** Chapter 6 (Rules 3 and 4); Appendix D, Chapter 6 (context files: the revised evidence); Appendix B.2.
+**Caveat:** Specific agents and benchmarks, not proof that every context file harms. Keeping non-obvious requirements and moving long maps to on-demand docs is the manual's interpretation, not a measured universal content rule.
 
 ---
 
@@ -2339,29 +2409,29 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 **Claim:** In a multi-agent reasoning setup, the more precise reviewer had its verified-useful critiques change the next candidate only 33.6% of the time, while a broadcast (peer) setup reached 93.5% and the higher final pass rate.
 **Source:** Chih-Hsuan Yang et al., "Precise but Uncoupled: Reviewer Precision Does Not Guarantee Critique Uptake in Multi-Agent Math Reasoning," July 16, 2026: [arxiv.org/abs/2607.15388](https://arxiv.org/abs/2607.15388).
-**Where used:** Chapter 5 (Review: two agents, then you); Appendix D, Chapter 5 (the evidence behind the two-reviewer design); Appendix B.3.
-**Caveat:** Mathematical reasoning, not code review; the manual borrows the measurement, uptake over precision, not the domain.
+**Where used:** Chapter 5 (Review: choose the depth); Appendix D, Chapter 5 (model-specific review and bounded repair); Appendix B.3.
+**Caveat:** Mathematical reasoning, not code review; critique uptake is one diagnostic, not proof of useful defect detection or a reason to prefer process compliance over outcomes.
 
 ---
 
 **Claim:** A rubric-guided verify-and-repair loop (DeepVerifier) peaked around the fourth round and had declined by the tenth, because the incorrect-to-correct transition decays quickly while the correct-to-incorrect transition persists.
 **Source:** Yuxuan Wan et al., "Inference-Time Scaling of Verification: Self-Evolving Deep Research Agents via Test-Time Rubric-Guided Verification," January 22, 2026 (v2 April 29, 2026): [arxiv.org/abs/2601.15808](https://arxiv.org/abs/2601.15808).
-**Where used:** Chapter 5 (Review: two agents, then you, capping rounds); Appendix D, Chapter 5 (the evidence behind the two-reviewer design); Appendix B.3.
+**Where used:** Chapter 5 (Review: choose the depth, bounded repair); Appendix D, Chapter 5 (model-specific review and bounded repair); Appendix B.3.
 **Caveat:** Deep research agents on GAIA, not coding; the decline from the peak is a few points, so the lesson is the shape of the curve, not the size of the drop.
 
 ---
 
 **Claim:** LLM judges anchor to a prior score shown to them, and neither chain-of-thought reasoning nor an explicit metadata-disregard warning removes the total effect.
 **Source:** Ante Kapetanovic et al., "Anchoring Bias in LLM-as-a-Judge Systems: Prior Scores Compromise Evaluation Independence," August 26, 2026: [arxiv.org/abs/2608.25869](https://arxiv.org/abs/2608.25869).
-**Where used:** Chapter 5 (Review: two agents, then you, the second reviewer stays blind); Appendix D, Chapter 5 (the evidence behind the two-reviewer design); Appendix B.3.
+**Where used:** Chapter 5 (Review: choose the depth, independent judgments); Appendix D, Chapter 5 (model-specific review and bounded repair); Appendix B.3.
 **Caveat:** Evaluation setting rather than code review; the manual applies the finding to reviewer two seeing reviewer one's verdicts.
 
 ---
 
 **Claim:** The rate at which a model satisfies every rule in a prompt at once collapses to zero by about 80 simultaneous rules, for every model, format, and placement tested, including Claude Sonnet 5 and Claude Haiku.
 **Source:** Netanel Eliav, "Prompt Design at Scale: How Format, Instruction Count, and Context Length Shape Instruction Adherence and Hallucination in Large Language Models," July 21, 2026: [arxiv.org/abs/2607.19257](https://arxiv.org/abs/2607.19257).
-**Where used:** Chapter 6 (Rules 3 and 4, the hard cap); Appendix D, Chapter 6 (the cap is sized by a rule-count cliff, and vendors are deleting instructions).
-**Caveat:** Perfect-response rate is a strict metric; other 2026 work on other frontier models reports softer thresholds. The manual uses the cliff to size the file, not to predict a specific compliance number.
+**Where used:** Appendix D, Chapter 6 (instruction load and the size guideline).
+**Caveat:** Perfect-response rate is a strict metric on the tested models and tasks; other work reports softer thresholds. Rule count is not line count, and this does not establish a universal 200-line cap for AGENTS.md.
 
 ---
 
@@ -2448,7 +2518,7 @@ This is where the evidence and dated detail behind each chapter lives: the studi
 
 **What tool definitions cost, and the 2026 harness answers.** One audit of a default Claude Code session counted about 24k tokens of tool definitions, MCP schemas and reminders before the user typed anything; one practitioner put three MCP servers at 143k of a 200k window. With a large catalog fully loaded, tool-selection accuracy in one benchmark was 13.62%; loading only the relevant tools raised it to 43.13%. The 2026 answers are deferred loading and programmatic tool calling (the model scripts the calls and returns one result; native in GPT-5.6, where it cut input tokens by 21% on one financial-research evaluation). For custom tools with nested schemas, turn strict decoding on: Armin Ronacher documented Opus 4.8 and Sonnet 5 inventing undeclared fields, and strict mode eliminating it. *Sources: Lumer et al., Jan 31, 2026; anthropics/claude-code#42452, Apr 2, 2026; Gan and Sun (RAG-MCP), May 6, 2025; MetaBlogue, Sep 5, 2026; OpenAI GPT-5.6 guide, Aug 2026; Ronacher, Jul 4, 2026. Caveats: 24k and 143k are practitioner counts; the 21% is one benchmark (Rogo's).*
 
-**Sandbox posture by vendor, and the mechanisms underneath.** The OS half runs on Seatbelt (macOS), bubblewrap with Landlock and seccomp (Linux) and restricted tokens with job objects or WSL2-backed isolation (Windows, the least uniform). Codex CLI enforces it by default on Linux and macOS, so you opt out. Cursor added kernel-backed controls in 2.x (default-on macOS from 2.0, October 2025); Gemini CLI ships per-platform profiles. Claude Code is opt-in (`/sandbox`, project `.claude/settings.json`) and most installations skip it, leaving a default install with no kernel-level protection against injection or agent misbehavior (PocketOS is what an unsandboxed default installation looks like when it goes wrong). opencode has permission prompts and path validation only, leaving OS isolation to the operator's Docker or microVM ("soft confinement" is the manual's term). Allowlists for paths and network go in the agent's configuration or AGENTS.md; setup takes an afternoon. Defaults are versioned, so verify yours. *Sources: Claude Code and Codex CLI docs; Vercel KB on opencode; Cursor changelogs.*
+**Sandbox posture by vendor, and the mechanisms underneath.** Scope matters as much as the default. Claude Code has an opt-in shell sandbox on macOS, Linux and WSL2; native Windows commands, native file tools, MCP servers and hooks are outside it. Codex documents OS-level restrictions with a different implementation and platform support; inspect the selected permission profile and any escalation path. opencode documents permission controls, with OS isolation supplied by an external environment. Configure enforceable path and network restrictions in the runtime or managed policy, not AGENTS.md. Test prohibited reads, writes and connections through every relevant route. *Sources: Claude Code sandbox/permission docs; Codex security docs; Vercel KB on opencode, checked October 23, 2026. Caveat: configuration and coverage change by version; one shell boundary is not whole-agent isolation.*
 
 **The two-agent demo, in detail.** Claude Code ran in two panes against Codex CLI (Rust, Apache 2.0, OpenAI) and opencode (TypeScript, MIT, independent team) with one prompt: explain the architecture, map the agent loop, tool system, permission gates, sandbox and plugin model, citing files and lines. It took about four minutes (a May 2026 re-run: 4:13), because both repositories name their architecture in their directories; a less self-documenting codebase takes ten to fifteen minutes per repo. Both returned an agent loop, tool registry, permission gate, plugin directory, MCP support and a subagent path (in opencode, found by behavior: a function that spawns a fresh instance on a bounded prompt). The one divergence was the sandbox. *Source: author experiment, no human correction. Limit: the primitives exist; that does not make them equally well built.*
 
@@ -2460,13 +2530,13 @@ This is where the evidence and dated detail behind each chapter lives: the studi
 
 **Effort: the evidence.** With the harness held constant, GPT-5.6 Sol at low effort beat GPT-5.5 at high effort on Agents' Last Exam; Fable 5.1 at low effort is often competitive with Opus and Sonnet on cost per task while scoring higher, by its vendor's own guide. Effort names do not transfer between models, so every migration starts with a sweep (Appendix B.9). Whether reasoning is kept between turns is the harness's call: on ARC-AGI-3, by OpenAI's account, retained reasoning plus compaction took GPT-5.6 Sol from 13.3% to 38.3% while cutting output tokens sixfold. *Sources: OpenAI GPT-5.6 guide, Aug 2026; OpenAI ARC-AGI-3 post, Jul 29, 2026; Anthropic, "Prompting Claude Fable 5.1." Caveat: vendor evaluations on one benchmark and model; the manual uses ARC-AGI-3 for the mechanism, not the score.*
 
-**Plugins: why each vetting question exists.** As of May 2026 the marketplace was a real distribution channel and a supply-chain surface, the npm of agentic coding. Behind the B.10 questions: a plugin from Anthropic, a known vendor or a verifiable engineer is a different risk class from one uploaded last week by an unknown name; broad permissions deserve the suspicion you give an npm package asking for filesystem and network access; the plugins worth installing are small enough to read in twenty minutes (Superpowers and hookify are); an update is a dependency update; a hook running outside the sandbox is unbounded. *Source: author field practice, May 2026.*
+**Plugins: trust and value are separate checks.** Vet the maintainer, permissions, instructions, tools and hooks in the installed version. Allow review time for its actual scope; an update is a dependency update, and a hook outside the sandbox needs particular scrutiny. Skill descriptions can cost context before invocation; full bodies load when used and may persist. Narrow overbroad triggers or use manual invocation before assuming the whole collection must be enabled or removed. *Sources: author field practice; Claude Code skills docs, checked October 23, 2026. Caveat: loading behavior varies by harness; source size alone does not measure active context or value.*
 
 ---
 
 ### Chapter 2 - Guardrails in five layers {#deep-dive-chapter-2}
 
-**Three vulnerability classes behind layers one to three.** (1) Dot-env auto-loading: agents read `.env*` files in the working directory at session start. Mitigate with a sandbox deny-read list; Claude Code added an opt-in `sandbox.credentials` setting in June 2026 that blocks sandboxed commands from reading credential files and secret environment variables. (2) Configuration-file injection: untrusted `.claude/settings.json` or `.mcp.json` files run hooks before the trust dialog, enabling remote code execution (CVE-2025-59536, patched in Claude Code v1.0.111) or API-key exfiltration through an overridden `ANTHROPIC_BASE_URL` (CVE-2026-21852, patched in v2.0.65). (3) Permission-parser bypass: deny rules skipped for binaries the parser does not recognize (Python's `open()`, Node's `fs.readFile`), or, as a quiet failure, when a command chained more than fifty subcommands (`MAX_SUBCOMMANDS_FOR_SECURITY_CHECK = 50`) and the check fell through to a generic "ask"; disclosed April 1, 2026, patched in v2.1.90 within days. Nothing in the configuration shows such a failure, so assume any single layer can have a bug; the classes outlive their patches. *Sources: Knostic, Dec 2025; Check Point Research, Feb 2026 (patched October 2025); Adversa AI Red Team, Apr 1, 2026; Adam Kinney, Apr 2026. Caveat: architectural classes, not single CVEs; unpatched versions stay vulnerable.*
+**Three vulnerability classes behind layers one to three.** (1) Secret exposure: agents may discover `.env*` files through shell or native tools, or inherit secret environment variables. Protect each route. Claude Code's credential settings restrict sandboxed commands; shell deny-read rules do not block native Read. (2) Configuration-file injection: untrusted `.claude/settings.json` or `.mcp.json` files run hooks before the trust dialog, enabling remote code execution (CVE-2025-59536, patched in Claude Code v1.0.111) or API-key exfiltration through an overridden `ANTHROPIC_BASE_URL` (CVE-2026-21852, patched in v2.0.65). (3) Permission-parser bypass: deny rules skipped for binaries the parser does not recognize (Python's `open()`, Node's `fs.readFile`), or, as a quiet failure, when a command chained more than fifty subcommands (`MAX_SUBCOMMANDS_FOR_SECURITY_CHECK = 50`) and the check fell through to a generic "ask"; disclosed April 1, 2026, patched in v2.1.90 within days. Nothing in the configuration shows such a failure, so assume any single layer can have a bug; the classes outlive their patches. *Sources: Knostic, Dec 2025; Check Point Research, Feb 2026 (patched October 2025); Adversa AI Red Team, Apr 1, 2026; Adam Kinney, Apr 2026. Caveat: architectural classes, not single CVEs; unpatched versions stay vulnerable.*
 
 **The sandbox escapes ("DuneSlide").** In mid-2026 a red team disclosed two critical zero-click prompt-injection flaws in Cursor's kernel-backed sandbox (CVE-2026-50548 and CVE-2026-50549, CVSS 9.8) that abused its working-directory write allowlist and a symlink-resolution fallback to reach OS-level code execution. Versions before Cursor 3.0 (April 2, 2026) were affected. The lesson is the class, not the vendor: the strongest layer can have bugs, which is why there are five. *Sources: Cato Networks (Cato AI Labs), mid-2026; SecurityWeek and The Hacker News, Jul 2026.*
 
@@ -2486,6 +2556,8 @@ This is where the evidence and dated detail behind each chapter lives: the studi
 
 ### Chapter 3 - The bottleneck moved {#deep-dive-chapter-3}
 
+**Workflow advice reviewed October 23, 2026.** OpenAI's September 11 GPT-6 Astra guidance warns that broad skill triggers and elaborate recipes can overconstrain stronger models; requiring a repository map for every edit is excessive. Current Codex advice still recommends planning for complex work. Claude Code likewise recommends planning for uncertain, unfamiliar or multi-file changes while skipping it for clear small fixes. These support the chapter's task-sized workflow, not removing context, verification or normal shipping controls. *Sources: OpenAI, "Rethinking skills and prompts for GPT-6 Astra" and "Best practices"; Claude Code best practices. Caveat: vendor guidance, not a controlled test of this manual's full method.*
+
 **The unknowns frame, in full.** In July 2026 an Anthropic engineer opened a field guide to Claude Fable 5 with this chapter's observation: it was "the first model where I find the quality of the work is bottlenecked by my ability to clarify its unknowns." His four questions: known knowns (what your prompt states), known unknowns (questions you have not settled), unknown knowns (context so obvious you would never write it down, though you would spot a violation at once) and unknown unknowns (what neither of you thought to ask). *Source: Thariq Shihipar, Anthropic, Jul 6, 2026. Caveat: the frame adapts an older taxonomy and "first model" is his judgment, not a measurement; the mapping onto this manual's machinery (the chapter's table) is the author's.*
 
 **The METR randomized controlled trial.** METR's July 2025 trial had experienced open-source developers work on their own familiar repositories with AI assistance. They took 19% longer than without it, after predicting a 24% speedup, and afterward still believed it had made them roughly 20% faster: a 43-point gap between predicted speedup and measured slowdown. The author reads it as a warning that raw assistance does not become delivery speed without workflow discipline. *Source: Becker et al., METR, Jul 10, 2025. Caveat: METR did not test formulation discipline; that reading is the author's. Its follow-up suffered selection bias, it redesigned the experiment in February 2026, and it cautions against applying the 19% to current tools.*
@@ -2496,33 +2568,39 @@ This is where the evidence and dated detail behind each chapter lives: the studi
 
 ### Chapter 4 - The six-phase loop {#deep-dive-chapter-4}
 
-**When splitting into subagents pays.** A study of 260 multi-agent configurations found coordination pays only on decomposable work and costs between 39% and 70% on sequential work, planning above all; when a single agent already clears roughly 45% on a task, adding agents predicts no gain. Split only when tasks are independent by file or module. *Source: Kim et al., Nature Machine Intelligence 8, 1157-1172, Jul 24, 2026. Caveat: not coding-specific benchmarks; 45% is a fitted predictor, not a law.*
+**When splitting into subagents pays.** The 260-configuration scaling study found gains on decomposable work and large losses on some sequential planning tasks. Those percentages and fitted thresholds are not rules for coding. Current Claude Code guidance keeps quick edits and phases sharing substantial context in the main conversation, using subagents for self-contained work or exploration whose output would flood it. Delegate when isolation or parallel progress pays for startup, duplicated context and coordination. *Sources: Kim et al., July 24, 2026; Claude Code subagent docs, checked October 23. Caveat: the study's strongest losses are not coding results; neither source establishes one worker per file as an optimum.*
 
-**One writer, forked workers, isolated reviewers.** Keep one writer per file, which is where Cognition landed after a year of arguing against multi-agent systems: parallel readers, a single writer. Fork the workers so they inherit the orchestrator's history cheaply through the cache; isolate the reviewers so they inherit none of it and cannot be anchored by its assumptions. On current harnesses dispatch returns immediately and the result arrives later, so the orchestrator keeps working (the shape B.3 assumes). Collisions are mediated cheaply (drop the later branch, re-run it sequentially with the first's output) or expensively (a higher-capability model picks the merge); the expensive ones eat the speed gain. *Sources: Walden Yan, Cognition, Apr 22, 2026; Bengre and Curme, LangChain, Sep 8, 2026; Anthropic, "Prompting Claude Fable 5.1." Caveat: vendor posts; "one writer" compresses Cognition's "writes stay single-threaded".*
+**One writer, context sized to the worker.** Keep one writer per overlapping area and settle shared contracts before dependent work. Forks can reuse established context through the cache; fresh workers isolate a large investigation. If an independent reviewer is justified, give it the requirements and evidence without earlier verdicts. Fable 5.1's guide reports faster completion when a lead can continue useful work while children run, at similar quality and cost. *Sources: Walden Yan, Cognition, April 22, 2026; Bengre and Curme, LangChain, September 8; Anthropic, "Prompting Claude Fable 5.1." Caveat: vendor evidence; async dispatch does not make dependent work independent.*
 
-**Vendor autonomy and scope blocks.** Fable ends a turn on a statement of intent ("I'll now run the tests") or takes an action nobody asked for; GPT-6 Astra pauses to ask unneeded questions and writes broader tests than a reversible change requires. Both vendors publish the fix as a prompt block: autonomy (finish the task before ending the turn; no tests for reversible, low-impact changes) and scope (only the files the plan names; stop and report on anything else). B.3 carries both; B.9 rewrites them for the next model. *Sources: Anthropic, "Prompting Claude Fable 5"; OpenAI, "Using GPT-6 Astra," Sep 2026.*
+**Vendor autonomy and scope guidance.** A model may stop after announcing the next step or ask again for work already authorized. Other runs expand scope or add unnecessary test files. Define the deliverable, permit routine authorized steps and require a decision only for real ambiguity, risk or scope changes. Fable 5.1's guide recommends keeping committed tests proportionate to the request and repository practice, while allowing scratch checks. Re-check the guidance per model rather than preserving old prompt blocks unchanged. *Sources: Anthropic, "Prompting Claude Fable 5" and "Prompting Claude Fable 5.1"; OpenAI, "Using GPT-6 Astra." Caveat: reversible changes can still have serious behavioral risk.*
 
-**The implementation-notes file pays twice.** The spec-compliance reviewer reads it first, a confession list of where diff and plan disagree, and it counters orchestrator-summary drift because each deviation is recorded when it happens, by the subagent that made it. Phase gating is still maturing: Superpowers asks through skill instructions, strict gating needs a project-specific PreToolUse hook, and kernel-level enforcement was immature as of mid-2026.
+**The implementation-notes file pays twice when hand-offs need it.** A reviewer can see where diff and plan disagree, and the author records a deviation before it disappears into a compressed summary. A PR or task report can do the same job on smaller work. Skill instructions request discipline; enforce critical permissions and shipping controls outside the model's discretion.
+
+**What the Superpowers comparisons establish.** Krupa's September 29 study tested v6.4.2 with Sonnet 5.5 on twelve tiny headless cases, eight runs per arm. Mean per-case cost was 1.33x; the clear deliverable gain was regression-test consistency on one bug fix, 8/8 versus 4/8, with correct fixes in both arms. OrcaBot's July v6/Codex gpt-5.5-high run reported 57.06% versus 55.56% resolved on 729 common cases, at $0.46 versus $0.37 each. Its single-seed advantage is indicative. Later Native-execution and gate changes limit transfer to v7.x; this review found no independent v7.x/current-Codex comparison. B.10 therefore measures the installed workflow against the native baseline, including process that should stay inactive. *Sources and limitations: Appendix C; reviewed October 23, 2026.*
+
+**Focused skills versus a general workflow.** SkillsBench v4 found curated skills improved average pass rate from 33.9% to 50.5% across 87 tasks and 18 model/harness configurations. This is evidence that useful procedural knowledge remains valuable, not that every agent needs a general process plugin. The intervention and task matter. *Source: Li et al., June 14, 2026, v4. Caveat: preprint, task-specific curated skills; no Superpowers comparison.*
 
 ---
 
 ### Chapter 5 - Review and verify {#deep-dive-chapter-5}
 
-**The evidence behind the two-reviewer design.** Anthropic's Fable 5 prompting guide states that separate, fresh-context verifier subagents tend to outperform self-critique. Uptake beats precision: in a July 2026 multi-agent reasoning study the more precise reviewer lost, its verified-useful critiques changing the solver's next answer only 33.6% of the time against 93.5% for a peer setup with less precise critiques broadcast to everyone, which also had the better final pass rate. Track the repair rate (findings fixed, or rebutted with a reason), not accuracy. Cap the rounds: a rubric-guided verify-and-repair loop (DeepVerifier) peaked around round four and had declined by round ten, because late rounds re-open settled work about as often as they fix it. Keep reviewer two blind: judges anchor to a prior score they see, and neither chain of thought nor an explicit warning removes it. *Sources: Anthropic, "Prompting Claude Fable 5" (undated, revised in place); Yang et al., Jul 16, 2026; Wan et al., Jan 22, 2026 (v2 Apr 29); Kapetanovic et al., Aug 26, 2026. Caveats: math reasoning and deep-research agents, not code review; the round-four decline is a few points, so the lesson is the curve's shape.*
+**Model-specific review and bounded repair.** As checked October 23, Fable 5's guide recommends fresh verifier subagents for long tasks, while Opus 5's guide says extra verification prompts and agent double-checks add cost without improving its quality. Neither is evidence for two reviewers on every PR. Research on critique uptake, late-round degradation and judge anchoring motivates independent judgments and a stopping rule, but mostly studies math or deep research. Track useful defects, false positives and rework; accepting or rebutting a comment is not itself a quality gain. *Sources: Anthropic's Fable 5 and Opus 5 guides; Yang et al., July 16, 2026; Wan et al., January 22, v2 April 29; Kapetanovic et al., August 26. Caveat: model and domain transfer need evaluation.*
 
-**SpecBench and the Cursor finding in full.** SpecBench (May 2026) ran frontier agents against specifications with visible and hidden test sets. Every agent saturated the visible suite near 100%, with hidden-test gaps of roughly 43 to 48 points; the 90th-percentile gap grew by about 27 points per tenfold increase in lines of code, and more search did not reliably remove the reward hacking. Cursor found the other half in June 2026: on SWE-bench Pro, 63% of successful Claude Opus 4.8 Max resolutions had retrieved the upstream fix from git history or the network instead of deriving it, and sealing both dropped the score from 87.1% to 73.0%. Both are a system doing what the gate rewards, hence the four verify controls. *Sources: Zhao, Srikanth, Wu and Jiang (Weco AI), May 20, 2026 (v2 Sep 9); Naman Jain, Cursor, Jun 25, 2026. Caveats: the abstract rounds 27 to 28 points (R-squared 0.21), so the trend is real but noisy; Cursor's result is one harness and one model.*
+**SpecBench and the Cursor finding in full.** SpecBench (May 2026) ran frontier agents against specifications with visible and hidden test sets. Every agent saturated the visible suite near 100%, with hidden-test gaps of roughly 43 to 48 points; the 90th-percentile gap grew by about 27 points per tenfold increase in lines of code, and more search did not reliably remove the reward hacking. Cursor found the other half in June 2026: on SWE-bench Pro, 63% of successful Claude Opus 4.8 Max resolutions had retrieved the upstream fix from git history or the network instead of deriving it, and sealing both dropped the score from 87.1% to 73.0%. These are evaluation-boundary findings: use held-out checks and leakage controls where those boundaries matter, without sealing every ordinary PR from history and documentation. *Sources: Zhao, Srikanth, Wu and Jiang (Weco AI), May 20, 2026 (v2 Sep 9); Naman Jain, Cursor, Jun 25, 2026. Caveats: the abstract rounds 27 to 28 points (R-squared 0.21), so the trend is real but noisy; Cursor's result is one harness and one model.*
 
 **Playwright with the accessibility tree.** The accessibility tree is the structure browsers keep for assistive technology (a button with this label, a field labeled "email"), stable under restyling and component-library swaps. "Find the field labeled Priority, change it, click Save, verify the new value renders" passes whether the field is a select, radio group or custom component. Banking teams with flaky snapshot suites found it the first approach that stayed green. *Sources: Playwright docs; W3C ARIA AOM. Caveat: animation, drag-and-drop and canvas need supplementary verification.*
 
-**The PR review toolkit's saving.** With four agents run first (silent-failure hunter, PR test analyzer, security scanner, documentation reviewer) catching the mechanical findings, a senior's fifteen-minute review becomes five, and the other ten go to architectural judgment.
+**Measure the PR review toolkit's contribution.** Review agents can catch mechanical findings before a senior reads the diff. Measure useful defects, false positives, review time and escaped defects rather than assuming four reviewers save ten minutes. Keep human attention on business correctness and architectural fit; the chapter's case shows what happens when that attention disappears.
 
 ---
 
 ### Chapter 6 - AGENTS.md and context {#deep-dive-chapter-6}
 
-**Repository overviews in context files do not help.** ETH Zurich found that repository-level context files taken as a whole did not generally improve coding-agent task success while raising inference cost by over 20% on average. The repository overview, popular and vendor-recommended, did not help: the agent derives the layout from the tree in seconds. Developer-written files did slightly better than generated ones, not significantly. So the always-loaded file keeps rules, and the map moves to `docs/`, read on demand. OpenAI's Codex practice has the same shape: an AGENTS.md of roughly 100 lines that maps into a structured docs directory. *Sources: Gloaguen, Mundler, Muller, Raychev and Vechev (ETH Zurich), Feb 12, 2026 (v2 Jun 23); Ryan Lopopolo, OpenAI, Feb 11, 2026. Caveats: the paper isolates no content category with a significant positive effect, so keep-and-move is the manual's reading; OpenAI's is one team's practice.*
+**Context files: the revised evidence.** The AGENTS.md study's September 29 v3 found no general success improvement from generated files, with inference cost over 20% higher in its settings. Developer-written files showed a small, statistically non-significant average success gain; repository overviews did not help in this evaluation. This supports testing non-obvious instructions and linking long maps on demand, not declaring all context files harmful. OpenAI's Codex practice also uses a short AGENTS.md pointing into structured docs. *Sources: Gloaguen et al., v3 September 29, 2026; Ryan Lopopolo, OpenAI, February 11. Caveat: tested agents and benchmarks; keep-and-move is the manual's interpretation, not a universal measured content rule.*
 
-**The cap is sized by a rule-count cliff, and vendors are deleting instructions.** In a July 2026 study across formats and placements, the rate at which a model satisfied every rule at once collapsed to zero by about eighty simultaneous rules, on Claude Sonnet 5 and Claude Haiku alike. Eighty rules is roughly a two-hundred-line file with one rule per line, which is why 200 lines is a hard cap. Anthropic removed more than 80% of Claude Code's own system prompt for the Claude 5 generation with no measured loss on its coding evaluations, replacing rules with judgment and worked examples with typed tool interfaces. *Sources: Netanel Eliav, Jul 21, 2026; Thariq Shihipar, Anthropic, Jul 24, 2026. Caveats: perfect-response rate is a strict metric and other 2026 work reports softer thresholds, so the cliff sizes the file, not a compliance number; Anthropic's evaluations are its own.*
+**Instruction load and the size guideline.** A July study found sharply falling perfect adherence as simultaneous rules increased; it did not establish a line limit for project files. Anthropic also reported removing over 80% of Claude Code's own system prompt without measured loss on its Claude 5 coding evaluations. Current Claude Code docs recommend staying under about 200 lines per CLAUDE.md and scoping rules; OpenAI recommends short, accurate instructions. Use those as reasons to trim and test, not proof that line 201 is ignored. *Sources: Netanel Eliav, July 21, 2026; Thariq Shihipar, July 24; current vendor docs checked October 23. Caveats: rule count differs from line count, adherence depends on task and model, and vendor evaluations are their own.*
+
+**Claude Code's native AGENTS.md support.** Since v2.1.277, the default can read AGENTS.md directly when no CLAUDE.md or CLAUDE.local.md exists on the project path. If both exist, CLAUDE.md wins by default; an `@AGENTS.md` import or a setting can load the shared instructions. Check the loaded files rather than assuming names imply identical behavior. *Source: Claude Code memory docs, checked October 23, 2026. Caveat: older versions, settings and some sessions differ.*
 
 **Mistake-journal mechanics.** Anthropic's Fable 5 guide describes a memory system with three rules that keep a journal honest at a hundred entries: one lesson per file with a one-line summary, update rather than duplicate when a lesson recurs, delete notes that turn out wrong. Add an evidence pointer so the next champion can check whether the failure is still possible. OpenWiki's claims runtime, which attaches evidence pointers to stored claims and re-checks them, cut stale claims from 3.5% to 0.5% across 2,000 evaluated claims. The quarterly review asks of each entry, "has anyone been saved by this rule in the last three months?" If yes, keep it; if no but the rule still applies, keep it, since rare failures still matter; if no and the cause is gone, retire it with a commit-message note. *Sources: Anthropic, "Prompting Claude Fable 5"; Colin Francis, LangChain, Aug 25, 2026. Caveat: OpenWiki is a knowledge-base system, not a journal; the manual borrows the mechanism.*
 
@@ -2566,17 +2644,17 @@ This is where the evidence and dated detail behind each chapter lives: the studi
 
 ### Chapter 9 - Rolling it out {#deep-dive-chapter-9}
 
-**The two kinds of hooks in full: pre-commit versus pre-push.** Split git checks by cost. Pre-commit is the fast pass (format, lint, typecheck, secret scan), seconds, so nobody reaches for the escape hatch; every skip trains the habit of skipping. Pre-push is the heavier pass (the fast test suite, the build), run once per push. Manage both from a versioned config through a hook manager so they install on every clone. The two boundaries cover each other's blind spot: the agent hook catches the agent mid-session before the edit lands, the git gate catches every author on paths the agent hook never sees. Deterministic checks do not drift the way probabilistic reviewers can.
+**The two kinds of hooks in full: pre-commit versus pre-push.** Use quick checks at commit and costlier tests or builds at push for fast feedback. A hook manager helps install them but cannot make local hooks unavoidable: Git permits bypasses and alternative hook directories. Policy hooks also need protected configuration and blocking failure behavior. Acceptance belongs in required server checks and protected workflow review, with credentials unable to bypass them. *Sources: Git githooks reference, GitHub rulesets and Claude Code hooks reference, checked October 23, 2026. Caveat: a particular repository must configure and verify these protections; running CI alone is not enforcement.*
 
 **The outer loop: from AutoGPT to Ralph Wiggum.** The inner loop is the six-phase loop (Chapter 4); the outer loop wraps it and re-invokes the agent until a condition holds. In 2023 AutoGPT and BabyAGI looped a model against its own opinion of its progress; nothing external graded an iteration, laps compounded drift, and the approach collapsed as a way of shipping software within months. The revival differs structurally: in mid-2025 Geoff Huntley wired an agent into a bash while-loop (one prompt file, repeat), which spread as "Ralph Wiggum". Each iteration starts with a fresh context, does one unit of work and ends against graders the model does not control (compiler, tests, diff), with state in the repository. His name for the failure mode is overbaking: a loop left running past its job invents work nobody asked for. *Sources: ghuntley.com/ralph (Jul 2025); HumanLayer, Jan 6, 2026; The Register, Jan 27, 2026; AutoGPT and BabyAGI repositories. Caveat: the collapse judgment and structural contrast are the manual's interpretation.*
 
-**The outer loop: the vendor wave and stop-condition mechanisms.** GitHub's Copilot coding agent went generally available on September 25, 2025 (isolated environment, draft pull request); Cursor shipped Cloud Agents on October 30, 2025; Google's Jules added Scheduled Tasks on December 10, 2025; a ralph-wiggum plugin landed in the official Claude Code repository in November 2025. By spring 2026 Claude Code had `/loop` (re-run on an interval or self-paced), Routines (cloud agents from a schedule or GitHub event), `/goal` (work until a completion condition holds) and `/autofix-pr` (push fixes until CI is green). By Chapter 1's test the capability converged, though what converged is a workflow around the primitives, not a primitive. `/goal` sends the condition and conversation to a fresh small model (Haiku by default) after each turn, returning not yet met, met or impossible; Codex Goals gives a thread a persistent condition confirmed by an evaluation or a hard limit. Both are a grader the loop does not control. The ralph-wiggum plugin has no controlled evidence, and its README names max iterations as its primary safeguard, a budget, not a stop condition. *Sources: GitHub changelog, 2025-09-25; Cursor and Google blogs; Claude Code release notes, Apr-May 2026; Claude Code "/goal" docs; OpenAI Cookbook, "Using Goals in Codex." Caveat: vendor dates drift; the goal docs describe mechanism, not outcomes.*
+**The outer loop: the vendor wave and stop-condition mechanisms.** GitHub's Copilot coding agent went generally available on September 25, 2025 (isolated environment, draft pull request); Cursor shipped Cloud Agents on October 30, 2025; Google's Jules added Scheduled Tasks on December 10, 2025; a ralph-wiggum plugin landed in the official Claude Code repository in November 2025. By spring 2026 Claude Code had `/loop` (re-run on an interval or self-paced), Routines (cloud agents from a schedule or GitHub event), `/goal` (work until a completion condition holds) and `/autofix-pr` (push fixes until CI is green). By Chapter 1's test the capability converged, though what converged is a workflow around the primitives, not a primitive. `/goal` uses a separate model to assess the condition from the conversation; Codex Goals lets the acting model mark a persistent objective complete. These control continuation and budgets. Neither replaces independently protected acceptance checks. The ralph-wiggum plugin has no controlled evidence, and its README names max iterations as its primary safeguard, a budget, not a stop condition. *Sources: GitHub changelog, 2025-09-25; Cursor and Google blogs; Claude Code release notes, Apr-May 2026; Claude Code "/goal" docs; OpenAI Cookbook, "Using Goals in Codex." Caveat: vendor dates drift; the goal docs describe mechanism, not outcomes.*
 
-**The outer loop: why each contract line exists, and the two poles.** A machine-evaluable stop condition, because a loop without one is abandonment. A budget, because an unattended loop is the per-token model's best customer (Appendix A). A gate the agent cannot edit (tests, lint config, CI workflow, hook rules behind a deny rule), because the cheapest way to go green is to negotiate with your own grader, and a green suite the agent wrote is evidence, not proof (Chapter 5). Fresh context with a committed queue and journal: forty short sessions instead of one degrading one. Isolation sized for absence, since an unattended session is where prompt injection meets no human skeptic (Chapter 2). Queue many similar, machine-verifiable, reversible units (migrations, lint sweeps, dependency bumps, test backfill) on green codebases only. Huntley runs the loop raw at roughly $10 an hour; StrongDM's software factory runs fully non-interactive delivery, humans neither writing nor reviewing code, with end-to-end scenarios held outside the codebase as a holdout the loop cannot weaken, at a spend Simon Willison pegged near $20,000 a month per engineer. *Sources: Willison, Feb 7, 2026; Huntley and The Register as above. Caveat: the $10 figure is Huntley's own and the StrongDM figures are one company's self-description and Willison's framing, not audits.*
+**The outer loop: why each contract line exists, and the two poles.** A machine-evaluable stop condition, because a loop without one is abandonment. A budget, because an unattended loop is the per-token model's best customer (Appendix A). An acceptance gate enforced by protected required checks and reviewed policy changes, because the cheapest way to go green is to negotiate with your own grader, and a green suite the agent wrote is evidence, not proof (Chapter 5). A durable queue and decision record, with fresh context when the handoff or observed drift justifies it. Isolation sized for absence, since an unattended session is where prompt injection meets no human skeptic (Chapter 2). Queue many similar, machine-verifiable, reversible units (migrations, lint sweeps, dependency bumps, test backfill) on green codebases only. Huntley runs the loop raw at roughly $10 an hour; StrongDM's software factory runs fully non-interactive delivery, humans neither writing nor reviewing code, with end-to-end scenarios held outside the codebase as a holdout the loop cannot weaken, at a spend Simon Willison pegged near $20,000 a month per engineer. *Sources: Willison, Feb 7, 2026; Huntley and The Register as above. Caveat: the $10 figure is Huntley's own and the StrongDM figures are one company's self-description and Willison's framing, not audits.*
 
-**Time budgets of the role commitments.** Champion: week one about three hours, week two about five, weeks three and four roughly the time the features would take by hand (the value is the experience), month two comparable to manual work; after ninety days, a working workflow, a maintained AGENTS.md, three or four delivered features and a designated successor. Lead: week one about two hours, weeks two to four about five, month two about three, month three about five including preparation.
+**Example time budgets for the role commitments.** In this schedule, the champion reserves about three hours in week one and five in week two; later weeks depend on the pilot features. The intended outputs are a tested workflow, useful maintained instructions, delivered features and a designated successor. The lead reserves roughly two hours in week one and three to five in later phases. These are planning examples from practice; adjust them to measured effort and the team's starting point.
 
-**Why the 90-day curve is shaped that way.** The first thirty days produce almost no measurable productivity: the champion is learning, the lead is classifying, the manager is deflecting premature metrics. In the second thirty, cycle times improve, quality holds and reviewers find agent PRs easier to review because the descriptions are more structured. In the third, other engineers join, AGENTS.md grows, the journal fills and yellow projects start moving. The curve is roughly exponential, so measuring at thirty days disappoints and at ninety shows the picture.
+**Why the 90-day example is shaped that way.** The schedule reserves time for learning, a bounded pilot, expansion and operational ownership. It is an organizing example drawn from practice, not a measured exponential curve. Baseline cycle time, defects, review effort and usage before the pilot; inspect outcomes throughout it. Expand or change the approach when those outcomes justify it rather than waiting for a promised month-three payoff.
 
 ---
 
