@@ -168,7 +168,7 @@ Each tool call is a decision point, an audit point and a control point: log the 
 
 ### Permissions / Sandbox {#permissions-sandbox}
 
-**What it is: two controls shipped as a pair - the agent's own rules and the operating system's enforcement.** This is the primitive PocketOS lacked (see the Prologue).
+**What it is: two controls shipped as a pair - the agent's own rules and the operating system's enforcement.**
 
 The agent-level decision layer checks the tool requests it covers against allow / ask / deny rules. Some modes add a model classifier for eligible actions after explicit rules are resolved. Injection can mislead that classifier or exploit permitted actions and gaps in coverage; it cannot simply persuade a correctly enforced deny rule to disappear. The OS layer refuses prohibited system calls from the processes it actually isolates, regardless of the agent's reasoning. Check which tools and subprocesses sit inside that boundary. Neither half is enough alone.
 
@@ -220,7 +220,7 @@ The team writes the first: project instruction files such as AGENTS.md. Discover
 
 **What it is: how hard the model thinks before it acts - the newest primitive, and it earns its place on leverage.**
 
-Every major agent exposes it as a setting, under different names. It moves cost and quality in both directions: too low skips the research the task needed, too high pays for reasoning it never called for. Names do not transfer between models, so every model migration starts with an effort sweep (Appendix B.9). Set it per phase, not per session: research and plan earn high, a mechanical execute task usually does not.
+Where the model and client expose effort controls, compare the available settings on representative tasks. Effort can affect cost and quality: a lower setting may miss needed investigation, while a higher one may add reasoning the task does not need. Names do not transfer between models. Compare settings by task or phase rather than assuming one level suits the whole session (Appendix B.9).
 
 *Ask: What effort levels does it expose, and does the reasoning survive between turns?*
 
@@ -772,7 +772,7 @@ Chapter 3's test tells you when the loop pays at all; inside the loop the same a
 
 One team I watched ran for most of a year on what looked like half the loop: research was a comment thread, the plan was three bullets in the PR. It worked because the functions had moved into the team's walls - a small senior team that built the codebase, a strict CI suite and a serious PR culture. The lesson is to name what covers the function. Do not produce another document or agent review when the existing step already does the job.
 
-For a contrasting small change, the companion fixes a help-text typo: find the string, confirm its scope, edit it, inspect the diff and displayed text, then use the normal PR and release process. Research, planning, execution, review, verification and shipping are covered in a brief interaction. No additional agent or plan file is needed to make that work inspectable.
+For a contrasting small change, the companion illustrates a proportionate workflow for a help-text typo: find the string, confirm its scope, edit it, inspect the diff and displayed text, then use the normal PR and release process. Research, planning, execution, review, verification and shipping are covered in a brief interaction. No additional agent or plan file is needed to make that work inspectable.
 
 ---
 
@@ -780,7 +780,7 @@ For a contrasting small change, the companion fixes a help-text typo: find the s
 
 - **The gates are requests, not walls.** Skill instructions request discipline. Required controls belong in protected runtime policy or server gates; a hook helps only on the routes it covers (Chapter 2).
 - **Parallel subagents on overlapping files** produce inconsistent edits. Re-scope by file or module, or run the tasks in sequence.
-- **Long sessions drift.** The agent re-answers settled questions and forgets constraints. That is context contamination, and Chapter 6 covers the fix.
+- **Long sessions drift.** Repeated questions or forgotten constraints can signal stale context, conflicting requirements or missing information. Diagnose the cause, then use Chapter 6's handoff practices where appropriate.
 
 ---
 
@@ -854,7 +854,7 @@ self.assertEqual(event.get("priority"), "URGENT")
 
 It fails on the defective implementation with `None != 'URGENT'`; including the normalized priority repairs it. Testing all four values also excludes a hard-coded URGENT fix. Run `python3 verify.py` from the [companion pack](/companion/wire-v1.zip) to observe weak-green, corrected-red and repaired-green. That model experiment does not establish the original banking system's behavior.
 
-Verify then ran the full suite of 3,400 tests and a smoke test against the staging compliance-routing service, and produced a diff of the API contract change for the regulator's review. All passing. That evidence went into the pull request at Chapter 4's ship step.
+Back in the original banking engagement described here, verification included the full suite of 3,400 tests, a smoke test against the staging compliance-routing service and a diff of the API contract change for the regulator's review. The checks passed, and that evidence went into the pull request at Chapter 4's ship step.
 
 ---
 
@@ -1078,12 +1078,14 @@ It will cite a file that does not exist, a function the library never exposed, a
 
 **The window is the agent's working memory, so load what the task needs and nothing else.**
 
-Everything in the window competes for the same bounded attention. Long sessions fail through context contamination, where settled and stale material crowds out the live task; it is the biggest single reason long agent sessions go wrong. Four habits prevent it.
+Everything in the window competes for the same bounded attention. Stale or conflicting context is one way a long session can lose track of the task. Four habits help manage that risk.
 
 - **Pointers over payloads.** Link the architecture document from AGENTS.md, do not paste it. Keep the always-loaded layer small and load scoped detail when it matters.
 - **One coherent unit of work per session.** Stay in the session while the shared context remains useful. Before a handoff or restart, save the decisions, constraints, changed files and useful evidence the next session needs in a task note, PR or other suitable place; commit when repository practice calls for it.
-- **Watch for the four signs.** The agent re-answers a question it already settled. It cites a stale version of a file it edited an hour ago. It forgets a constraint it honored twenty minutes back. Its edits get sloppier as the session runs. Save the needed state and restart or compact with care; do not keep arguing with stale context.
-- **Treat compaction as a handoff.** Summarizing a full window drops detail, so anything that matters and is not in a file is gone. If you compact, give the compactor a keep-list: the plan, the open questions, the deviations in the implementation notes, the exact commands that worked.
+- **Watch for signs of drift.** The agent re-answers a settled question, cites a stale file version, forgets a constraint or makes poorer edits late in the session. These symptoms prompt diagnosis: conflicting requirements, stale source material or missing access can also explain them. Resolve the cause; preserve the needed state before restarting or compacting.
+- **Treat compaction as a handoff.** Summarization can retain conversational decisions but omit or distort details, so save indispensable decisions, constraints and evidence durably. Give the compactor a keep-list: the plan, open questions, implementation deviations and exact commands that worked. Then check that the resulting context contains what the next step needs.
+
+The client determines what it summarizes, retains and reloads; [Claude Code's compaction documentation](https://code.claude.com/docs/en/context-window#what-survives-compaction) describes those distinctions. Check the behavior of the client and version you use.
 
 ---
 
@@ -1612,6 +1614,8 @@ This page tracks meaningful updates to the manual. Smaller copy-edits and SEO tw
 
 The maintained editions start with the native agent and task-sized process; Superpowers remains optional. Task prerequisites now precede the heuristic readiness score, with unknowns explicit and behavior-based verification anchors. Control records distinguish prevention, detection, failure behavior and tested coverage. Case notes separate author reports, unavailable measurement records and counterfactual savings; unsupported rollout percentages and labor-saving precision were removed. The economics include all attempts, amortized setup, maintenance and recurring governance, separating capacity from cash. A synthetic runnable Wire companion demonstrates inadequate-green, corrected-red and repaired-green, dependency-aware planning and production handoff. Technical corrections cover instruction discovery, concurrency, context-study baselines, DNS routes, Playwright actions, RULER, MCP and Spring. Templates, summaries, sources and Romanian recommendations align; reader routes, template labels and archive dates are clearer. New or rechecked sources identify their scope and date; this is not a claim that every historical fact was revalidated. The September manuscripts remain frozen.
 
+A final edit removes the remaining certainty about PocketOS controls, qualifies effort availability and compaction, and marks the return from the synthetic Wire experiment to the original engagement. B.9 now covers model, harness and skill evaluation in both languages, retaining migration checks. B.11 adds a reader-observation protocol; it records no trial results.
+
 ### 2026-10-14 - The short edition
 
 The manual now reads in about an hour. The reading path went from roughly 53,000 words to about 15,000, from a Foreword plus ten chapters to a Prologue plus nine. The frameworks did not change; the repetition, the stacked evidence and the meta-commentary did. Chapters 1 and 2 merged into "What an agent is", with the nine primitives as cards. Governance became "Guardrails in five layers". The six-phase loop split in two: Chapter 4 runs the loop, Chapter 5 owns review and verify. Context hygiene joined AGENTS.md in Chapter 6. Brownfield patterns and adoption merged into "Rolling it out". Every chapter now has the same shape: a TL;DR, one story, one table or figure, When it breaks, Do this Monday, Go deeper. The studies, benchmarks and dated vendor detail moved to a new Appendix D, Deep dives, organized by chapter; Appendix A became "For managers" (cost, the manager role, the 20-engineer case); Appendix B gained the plugin-vetting checklist and the exercises; Appendix C is unchanged apart from pointing at the new locations. Old chapter URLs redirect to their new homes. The September 2026 edition, unabridged, stays available at [/full/](/full/).
@@ -1638,7 +1642,7 @@ Chapter 5's review phase gains its human half, inserted after the two agent revi
 
 ### 2026-07-05 - Context hygiene (Chapter 5 + Appendix B.7)
 
-Chapter 5 gains a Context hygiene section, inserted after the inner/outer loop vocabulary paragraph, that teaches the daily craft the book had named but never taught - the window is the agent's working memory, and everything loaded into it competes with reasoning. It names the four signs of contamination (the agent re-answers a settled question, cites a stale version of a file it edited, forgets a constraint it honored, or degrades in edit quality late in a long session), the session-boundary discipline of one unit of work per session with durable state read back from the repository, and compaction as a handoff rather than a continuation, where anything not written to a file by then is gone. New Appendix B.7 context-hygiene one-pager (the template count is now seven). Chapter 1's context-window section gains a one-sentence forward pointer to the new section.
+Chapter 5 gains a Context hygiene section, inserted after the inner/outer loop vocabulary paragraph, that teaches the daily craft the book had named but never taught - the window is the agent's working memory, and everything loaded into it competes with reasoning. It names four signs of drift (the agent re-answers a settled question, cites a stale version of a file it edited, forgets a constraint it honored, or degrades in edit quality late in a long session), the session-boundary discipline of one unit of work per session with durable state read back from the repository, and compaction as a handoff. The current guidance qualifies that early wording: summaries can retain details, but indispensable state needs durable preservation and a checked handoff. New Appendix B.7 context-hygiene one-pager (the template count is now seven). Chapter 1's context-window section gains a one-sentence forward pointer to the new section.
 
 ### 2026-07-05 - Appendix A worked example
 
@@ -2065,15 +2069,18 @@ SESSION
   One coherent unit of work per session; preserve useful shared context.
   Save needed decisions, constraints, changed files and evidence before a handoff;
   use an existing task note or PR, and commit according to repository practice.
-CONTAMINATED WHEN the agent
+SIGNS TO INVESTIGATE: the agent
   re-answers a settled question; cites a stale version of a file it edited;
   forgets a constraint it honored; degrades late in a long session.
 THEN
-  Save the needed state, then restart or compact with a clear handoff.
-COMPACTION (a handoff, not a continuation)
+  Check for conflicting requirements, stale sources or missing access.
+  Resolve the cause; save needed state before a restart or compaction.
+COMPACTION (treat it as a handoff)
   Compare supported masking/summarization strategies with outcomes and usage. History is append-only on
   Fable 5.1: restart, do not edit. Give the compactor a keep-list: plan, open
-  questions, deviations, commands that worked. The rest is gone.
+  questions, deviations, commands that worked. Summaries can retain decisions
+  but omit or distort details; save indispensable state durably. Do not assume
+  details outside the keep-list will survive; verify the handoff before continuing.
 ```
 
 Completed handoff example, a synthetic exercise checkpoint rather than a real session log:
@@ -2113,33 +2120,42 @@ OPTIONAL COMPREHENSION CHECK
   modes if normal review has not established understanding. Resolve gaps before approval.
 ```
 
-### B.9 Model-migration checklist (one-pager) {#template-b9}
+### B.9 Model, harness and skill evaluation checklist (one-pager) {#template-b9}
 
-Run it after every model swap, and when a green codebase turns yellow after an upgrade: instructions written for the previous model do not retire themselves. Not a ninth kill signal.
+Run it after a model, harness or skill change, and when results deteriorate. It is not a ninth kill signal: check whether the workflow still helps in the current configuration. A model migration also needs the compatibility checks below.
 
 ```
-BEFORE THE SWAP
-  Baseline representative tasks on the current model: outcomes, regressions,
-  total billed usage (cache and subagents included), elapsed time, review and rework.
-  Read the vendor's guide; the new model may need less or different scaffolding.
-EFFORT
-  Sweep effort per task type; pick per phase, not per session. Effort names do
-  not transfer between models.
+BASELINE
+  Choose representative tasks and fix acceptance criteria before running them.
+  Include cases where an optional skill should remain inactive.
+  Record model, effort, harness/workflow versions, starting commit and permissions.
+COMPARISON
+  Compare the current and candidate configurations on matched tasks; document
+  what changed. For an optional skill or plugin, compare native execution with
+  it on/off within each model: same effort, commit, permissions and criteria,
+  fresh sessions. Repeat enough to see variation; do not select only the best run.
+MEASURES
+  Correctness, requirements met and regressions, not process compliance alone.
+  Total billed usage including cache and subagents; elapsed time, human review
+  and rework. More tool calls or tokens do not automatically mean more value
+  or the same percentage increase in the bill.
 PROMPTS AND INSTRUCTION FILES
-  Re-test emphatic rules and verifier prompts rather than carrying them forward
-  automatically. Model guides differ. Remove API parameters the new model rejects.
-  Never ask for the model's reasoning in the reply - a refusal category on Fable 5.
-  Audit skills for over-prescription and triggers that fire on the wrong tasks.
-  Compare native execution with the installed workflow version on matched tasks
-  (B.10); preserve the goal and constraints, not every old prompt or ceremony.
-  Keep the precedence line (B.2); re-read AGENTS.md for rules the model no longer breaks.
-TOOLS AND HISTORY
-  Re-test custom tool schemas with strict decoding on; re-count visible tools.
-  Keep history append-only; re-check compaction - the cost trade moved with
-  cached-input pricing.
-AFTER THE SWAP
-  Re-run the baseline; compare cost and outcome per phase. Still yellow: now
-  check the kill signals (Chapter 8).
+  Read the model guide. Re-test emphatic rules, delegation and verifier prompts;
+  try retiring redundant instructions while preserving local constraints and
+  security controls. Audit skill triggers and over-prescription.
+  Verify instruction discovery and precedence (B.2); do not assume AGENTS.md
+  or CLAUDE.md loads the same way in a new client.
+MIGRATION COMPATIBILITY
+  Remove API parameters the new model rejects; check supported output formats.
+  Where effort controls exist, compare levels by task or phase; names do not
+  transfer between models. Keep the current setting as a comparison baseline.
+  Re-test custom tool schemas, including strict decoding where supported;
+  check schema limits and count visible tools. Verify the client's requirements
+  for history and compaction, then compare outcomes, cache use and billed cost.
+DECISION
+  Retain, simplify, restrict to particular tasks or manual invocation, or disable
+  the optional workflow according to observed value. Record versions and the
+  comparison's limits. If results still deteriorate, revisit Chapter 8's signals.
 ```
 
 ### B.10 Plugin vetting checklist {#template-b10}
@@ -2205,6 +2221,20 @@ The acceptance criterion requires chosen priority in the event. The test asserts
 Compare a help-text typo, a priority field crossing storage/API/audit/routing, and an unfamiliar ledger algorithm without a qualified reviewer.
 
 *Answer:* the typo needs direct inspection, edit, focused verification and normal shipping. The priority change needs explicit decisions, ordered dependencies, failure/retry evidence and a production handoff. Restrict the ledger change while establishing evaluability and verification. Alternative artifacts and agent counts are acceptable when the decisions and controls are covered.
+
+**Observe two or three target readers**
+
+Give each engineer these tasks without explaining the answers first:
+
+1. In the Wire exercise, identify what the weak assertion fails to establish before reading the answer or running the verifier.
+2. Apply B.4 to a real proposed change. Explain what work can proceed, what must wait and what evidence would change that decision.
+3. Use Appendix A to distinguish elapsed delivery time, human effort and modeled financial value; explain why the cost example does not establish cash savings.
+
+Ask readers to think aloud. Record their first interpretation, hesitations, evidence cited and any help you supply; do not treat a prompted answer as independent success. Discuss the answers afterward and revise passages that repeatedly need verbal explanation. The table is a blank observation record, not trial results.
+
+| Reader / task | First interpretation or hesitation | Evidence cited / help supplied | Proposed edit |
+|---|---|---|---|
+| | | | |
 
 ---
 
@@ -2437,10 +2467,10 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ---
 
-**Claim:** Codex CLI enforces OS-level sandbox by default on Linux (Landlock + seccomp via bwrap) and macOS (Seatbelt); on Windows it uses restricted tokens plus ACL-based isolation. The decision layer ships alongside as a per-tool approval gate.
-**Source:** [developers.openai.com/codex/concepts/sandboxing](https://developers.openai.com/codex/concepts/sandboxing); [developers.openai.com/codex/agent-approvals-security](https://developers.openai.com/codex/agent-approvals-security).
+**Claim:** Codex uses platform-specific OS isolation. Current documentation describes Seatbelt on macOS, `bwrap` plus `seccomp` by default on Linux, and MXC with legacy `elevated` and `unelevated` fallbacks on Windows. WSL2 uses the Linux implementation. Approvals are a separate control.
+**Source:** OpenAI, "Agent approvals & security," [OS-level sandbox](https://learn.chatgpt.com/docs/agent-approvals-security#os-level-sandbox); [Windows sandbox](https://learn.chatgpt.com/docs/windows/windows-sandbox).
 **Where used:** Chapter 1 (Permissions / Sandbox; Sandbox posture is a governance choice) and Chapter 2 (Layer 2: Sandbox); Appendix D, Chapter 1 (sandbox posture by vendor, and the mechanisms underneath).
-**Caveat:** Opt-out posture - you can configure Codex to run without sandbox, but the default flips the convention from "off unless configured" to "on unless disabled." Windows implementation is the least uniform across major agents.
+**Caveat:** Documentation checked October 23, 2026. Check the installed version, selected backend and effective permission profile; platform support and enforcement differ. Codex can also be configured to run without its sandbox. A backend description does not establish coverage for every tool or connected service.
 
 ---
 
@@ -2673,9 +2703,9 @@ This appendix exists because every claim in this manual deserves a verifiable so
 ---
 
 **Claim:** Opus 4.8 and Sonnet 5 invent keys that a custom nested tool schema never declared, while older models do not, and turning on strict tool invocation eliminated the behavior.
-**Source:** Armin Ronacher, "Better Models: Worse Tools," July 4, 2026: [lucumr.pocoo.org/2026/7/4/better-models-worse-tools/](https://lucumr.pocoo.org/2026/7/4/better-models-worse-tools/).
+**Source:** Armin Ronacher, "Better Models: Worse Tools," July 4, 2026: [lucumr.pocoo.org/2026/7/4/better-models-worse-tools/](https://lucumr.pocoo.org/2026/7/4/better-models-worse-tools/). For provider constraints: Anthropic, [Structured outputs: important considerations](https://platform.claude.com/docs/en/build-with-claude/structured-outputs#important-considerations) and [Strict tool use](https://platform.claude.com/docs/en/agents-and-tools/tool-use/strict-tool-use#data-retention); OpenAI, [Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs#supported-schemas).
 **Where used:** Chapter 1 (Tools); Appendix D, Chapter 1 (what tool definitions cost, and the 2026 harness answers); Appendix B.9.
-**Caveat:** One practitioner's runs on one harness; the recommendation - strict decoding on custom schemas - costs nothing to adopt regardless.
+**Caveat:** One practitioner's runs on one harness. Strict decoding can prevent schema violations where supported; it does not establish semantic correctness. Check schema compatibility, complexity limits and any compilation latency for the provider and model. Anthropic documents first-use compilation latency and shared limits for strict tool schemas; OpenAI also documents schema limits. Provider documentation checked October 23, 2026.
 
 ---
 
@@ -2732,7 +2762,7 @@ This is where the evidence and dated detail behind each chapter lives: the studi
 
 **Effective context depends on the benchmark.** RULER v3 uses a fixed threshold derived from Llama2-7B at 4K (85.6% in Table 3), not each model retaining its own short-context score. Its thirteen synthetic tasks and tested 2024 models establish no universal half-window rule for current coding agents. Evaluate the lengths and tasks you actually intend to use. *Source: Hsieh et al., August 6, 2024, Section 4/Table 3; Appendix C. Definition rechecked October 23, 2026.*
 
-**What tool definitions cost, and the 2026 harness answers.** One audit of a default Claude Code session counted about 24k tokens of tool definitions, MCP schemas and reminders before the user typed anything; one practitioner put three MCP servers at 143k of a 200k window. With a large catalog fully loaded, tool-selection accuracy in one benchmark was 13.62%; loading only the relevant tools raised it to 43.13%. The 2026 answers are deferred loading and programmatic tool calling (the model scripts the calls and returns one result; native in GPT-5.6, where it cut input tokens by 21% on one financial-research evaluation). For custom tools with nested schemas, turn strict decoding on: Armin Ronacher documented Opus 4.8 and Sonnet 5 inventing undeclared fields, and strict mode eliminating it. *Sources: Lumer et al., Jan 31, 2026; anthropics/claude-code#42452, Apr 2, 2026; Gan and Sun (RAG-MCP), May 6, 2025; MetaBlogue, Sep 5, 2026; OpenAI GPT-5.6 guide, Aug 2026; Ronacher, Jul 4, 2026. Caveats: 24k and 143k are practitioner counts; the 21% is one benchmark (Rogo's).*
+**What tool definitions cost, and the 2026 harness answers.** One audit of a default Claude Code session counted about 24k tokens of tool definitions, MCP schemas and reminders before the user typed anything; one practitioner put three MCP servers at 143k of a 200k window. With a large catalog fully loaded, tool-selection accuracy in one benchmark was 13.62%; loading only the relevant tools raised it to 43.13%. The 2026 answers are deferred loading and programmatic tool calling (the model scripts the calls and returns one result; native in GPT-5.6, where it cut input tokens by 21% on one financial-research evaluation). For custom tools with nested schemas, consider strict decoding where supported and check schema and latency limits (Appendix C): Armin Ronacher documented Opus 4.8 and Sonnet 5 inventing undeclared fields, and strict mode eliminating it. *Sources: Lumer et al., Jan 31, 2026; anthropics/claude-code#42452, Apr 2, 2026; Gan and Sun (RAG-MCP), May 6, 2025; MetaBlogue, Sep 5, 2026; OpenAI GPT-5.6 guide, Aug 2026; Ronacher, Jul 4, 2026. Caveats: 24k and 143k are practitioner counts; the 21% is one benchmark (Rogo's).*
 
 **Sandbox posture by vendor, and the mechanisms underneath.** Scope matters as much as the default. Claude Code has an opt-in shell sandbox on macOS, Linux and WSL2; native Windows commands, native file tools, MCP servers and hooks are outside it. Codex documents OS-level restrictions with a different implementation and platform support; inspect the selected permission profile and any escalation path. opencode documents permission controls, with OS isolation supplied by an external environment. Configure enforceable path and network restrictions in the runtime or managed policy, not AGENTS.md. Test prohibited reads, writes and connections through every relevant route. *Sources: Claude Code sandbox/permission docs; Codex security docs; Vercel KB on opencode, checked October 23, 2026. Caveat: configuration and coverage change by version; one shell boundary is not whole-agent isolation.*
 

@@ -932,7 +932,7 @@ async function main() {
       const required = [
         'Permissions / Sandbox primitive sources',
         'Claude Code resolves explicit permission rules',
-        'Codex CLI enforces OS-level sandbox by default',
+        'Codex uses platform-specific OS isolation',
         'opencode ships an in-agent permission-prompt model',
       ];
       let allOk = true;
