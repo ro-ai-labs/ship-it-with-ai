@@ -684,7 +684,7 @@ async function main() {
       const canon = (html.match(/<link rel="canonical" href="([^"]+)"/) || [])[1];
       if (canon !== 'https://ship-it-with.ai/') fail(`/full/ canonical = ${canon}, expected https://ship-it-with.ai/`);
       else ok('/full/ canonical → https://ship-it-with.ai/');
-      if (!/<aside class="edition-banner"[^>]*><strong>Full edition \(September 2026\)\.<\/strong> The current, shorter edition is at <a href="\/">/.test(html)) fail('/full/ banner missing or wrong');
+      if (!/<aside class="edition-banner"[^>]*><strong>September 2026 archive\.<\/strong>.*historical guidance.*<a href="\/">maintained edition<\/a>/.test(html)) fail('/full/ historical warning or maintained-edition link missing');
       else ok('/full/ banner present with link to /');
       const ldTypes = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)]
         .map(m => { try { return JSON.parse(m[1])['@type']; } catch { return null; } });
@@ -705,15 +705,15 @@ async function main() {
         const page = await ctx.newPage();
         await page.goto(`${baseUrl}${p}`);
         const t = (await page.locator('.footer-contact a[href="/full/"]').first().textContent().catch(() => '')) || '';
-        if (t.trim() !== 'Full edition (Sep 2026)') fail(`footer at ${p}: /full/ link text "${t}"`);
-        else ok(`footer at ${p} links "Full edition (Sep 2026)" → /full/`);
+        if (t.trim() !== 'September 2026 archive') fail(`footer at ${p}: /full/ link text "${t}"`);
+        else ok(`footer at ${p} links "September 2026 archive" → /full/`);
         await ctx.close();
       }
       if (EXPECT_RO) {
         const ro = fs.readFileSync(path.join(repoRoot, '_site', 'ro', 'full', 'index.html'), 'utf8');
         if (!/<link rel="canonical" href="https:\/\/ship-it-with\.ai\/ro\/" \/>/.test(ro)) fail('/ro/full/ canonical not /ro/');
-        else if (!ro.includes('Ediția completă (septembrie 2026).') || !ro.includes('<a href="/ro/">')) fail('/ro/full/ banner missing');
-        else if (!ro.includes('href="/ro/full/" class="footer-full-edition">Ediția completă (sep 2026)</a>')) fail('/ro/full/ footer link missing');
+        else if (!ro.includes('Arhiva din septembrie 2026.') || !ro.includes('recomandări istorice') || !ro.includes('<a href="/ro/">')) fail('/ro/full/ historical warning missing');
+        else if (!ro.includes('href="/ro/full/" class="footer-full-edition">Arhiva din septembrie 2026</a>')) fail('/ro/full/ footer link missing');
         else ok('/ro/full/ canonical, banner and footer link');
       }
     }
@@ -763,20 +763,32 @@ async function main() {
     // 5. Positive markers in /read/.
     {
       const readHtml = fs.readFileSync(path.join(repoRoot, '_site', 'read', 'index.html'), 'utf8');
+      // A code fence must not be interpreted as a figure opener that consumes
+      // later chapters. Keep this completeness check in the deployment gate.
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const page = await ctx.newPage();
+      await page.goto(`${baseUrl}/read/`);
+      const chapterCount = await page.locator('h2.chapter-heading').count();
+      const endingPresent = await page.locator('#about-the-author').count()
+        && await page.locator('#contact').count();
+      if (chapterCount !== 9 || !endingPresent) {
+        fail(`/read/ is incomplete: ${chapterCount} chapters; ending anchors present: ${!!endingPresent}`);
+      } else ok('/read/ preserves all 9 chapters and ending anchors');
+      await ctx.close();
       // Short edition: the primitives are now cards with one question each, and
-      // the anatomy demo is a proof box inside Chapter 1. Markers track the
+      // the implementation comparison is inside Chapter 1. Markers track the
       // draft wording; re-pin them if the prose pass rewords these lines.
       const required = [
-        'built from nine primitives',
+        'nine primitives below',
         'two controls shipped as a pair',
         'Neither half is enough alone',
-        'converged across the major agents in the first months of 2026',
-        'Effort is the newest slot',
+        'A capability can be absent or supplied externally',
+        'check effort settings and retained reasoning',
         'Permissions / Sandbox',
         'agent-level decision layer',
         'OS-level enforcement',
-        'The anatomy is invariant',
-        'Proof: one prompt, two agents',
+        'Compare the implementations',
+        'Demonstration: one prompt, two agents',
         'Sandbox posture is a governance choice',
       ];
       let posGreen = true;
@@ -820,7 +832,7 @@ async function main() {
       const page = await ctx.newPage();
       await page.goto(`${baseUrl}/chapter-6-agents-md/`);
       const body = await page.locator('main').textContent();
-      if (!/the manually owned layer of the Memory primitive from Chapter 1/.test(body || '')) {
+      if (!/the manually owned layer of Memory from Chapter 1/.test(body || '')) {
         fail('chapter-6 missing Memory framing intro paragraph');
       } else ok('chapter-6 framing intro present');
       await ctx.close();
@@ -835,7 +847,7 @@ async function main() {
       // Entries no longer carry H4 headings (consistency with rest of Appendix C);
       // assert on uniquely identifying phrases inside each entry's Claim/Caveat body.
       const requiredEntries = [
-        'AGENTS.md is read at session start',           // AGENTS.md entry
+        'Project instructions provide a manually maintained memory layer', // client-specific discovery entry
         'auto-memory layer in which Claude writes',     // Claude Code Auto Memory entry
         'Anthropic publicly unveiled Dreaming',         // Auto Dream entry
       ];
@@ -884,11 +896,11 @@ async function main() {
       await page.goto(`${baseUrl}/chapter-1-primitives/`);
       const body = (await page.locator('main').textContent()) || '';
       let allOk = true;
-      for (const phrase of ['The anatomy is invariant', 'Proof: one prompt, two agents',
+      for (const phrase of ['Compare the implementations', 'Demonstration: one prompt, two agents',
                             'Sandbox posture is a governance choice']) {
         if (!body.includes(phrase)) { fail(`chapter-1 missing "${phrase}" (old Chapter 2)`); allOk = false; }
       }
-      if (allOk) ok('chapter-1 carries the anatomy proof + sandbox posture (old Chapter 2)');
+      if (allOk) ok('chapter-1 carries the implementation comparison + sandbox posture');
       await ctx.close();
     }
 

@@ -55,6 +55,7 @@ jobs:
 
       - name: Verify built site (gate)
         run: |
+          python3 companion/wire/verify.py
           bash build/tests/smoke_check.sh _site
           cd build
           npm ci

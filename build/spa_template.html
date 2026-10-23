@@ -440,7 +440,7 @@
       border-bottom: 1px solid var(--color-border);
       margin-bottom: 48px;
     }
-    /* /full/ archive: "Full edition (September 2026)" banner above the hero. */
+    /* Frozen /full/ archive warning above the hero. */
     .edition-banner {
       margin: 8px 0 0;
       padding: 12px 16px;
@@ -453,6 +453,12 @@
       line-height: 1.5;
     }
     .edition-banner a { color: inherit; text-decoration: underline; }
+    .reader-routes { margin-bottom: 48px; }
+    .article .reader-routes-title { font-weight: 700; margin-bottom: 12px; }
+    .reader-routes ul { padding-left: 22px; }
+    .reader-routes li { margin-bottom: 20px; }
+    .reader-route-steps, .reader-route-output { display: block; margin-top: 4px; }
+    .reader-route-output { color: var(--color-text-muted); font-size: 15px; }
     .article-cover {
       margin: 0;
       padding: 0;
@@ -1381,12 +1387,13 @@
     /* Figure: Traffic Light */
     .diagram-traffic .traffic-light {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
       margin-bottom: 32px;
     }
     .diagram-traffic .light {
-      padding: 20px 16px;
+      min-width: 0;
+      padding: 20px clamp(6px, 2vw, 16px);
       border-radius: var(--radius);
       text-align: center;
       border: 2px solid;
@@ -1422,6 +1429,7 @@
     .diagram-traffic .light-mode {
       display: block;
       font-size: 13px;
+      overflow-wrap: anywhere;
       color: var(--color-text-soft);
       font-weight: 400;
     }
@@ -1992,7 +2000,7 @@
           <span class="footer-sep">·</span>
           <a href="/changelog/">Changelog</a>
           <span class="footer-sep">·</span>
-          <a href="/full/" class="footer-full-edition">Full edition (Sep 2026)</a>
+          <a href="/full/" class="footer-full-edition">September 2026 archive</a>
         </div>
         <p class="footer-copy">© 2026 {{AUTHOR}} · Last updated {{DATE_MODIFIED_HUMAN}} · Bucharest · All rights reserved</p>
       </footer>

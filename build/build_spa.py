@@ -15,6 +15,7 @@ import sys
 import json
 import html as html_lib
 import shutil
+import zipfile
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -74,7 +75,7 @@ def _rel(path: str) -> str:
     return f"{URL_PREFIX}{path}"
 
 
-def _content_date() -> datetime:
+def _content_date(source: Path | None = None) -> datetime:
     """Deterministic build timestamp for sitemap lastmod / JSON-LD dateModified.
 
     Resolution order: SOURCE_DATE_EPOCH env override -> the source file's last
@@ -82,19 +83,20 @@ def _content_date() -> datetime:
     unchanged source rebuilds byte-identically and lastmod reflects the last
     *content* edit rather than when CI happened to run.
     """
+    source = source or SOURCE
     epoch = os.environ.get("SOURCE_DATE_EPOCH")
     if epoch:
         return datetime.fromtimestamp(int(epoch), tz=timezone.utc)
     try:
         out = subprocess.run(
-            ["git", "log", "-1", "--format=%cI", "--", str(SOURCE)],
+            ["git", "log", "-1", "--format=%cI", "--", str(source)],
             cwd=REPO_ROOT, capture_output=True, text=True, check=True,
         ).stdout.strip()
         if out:
             return datetime.fromisoformat(out).astimezone(timezone.utc)
     except Exception:
         pass
-    return datetime.fromtimestamp(SOURCE.stat().st_mtime, tz=timezone.utc)
+    return datetime.fromtimestamp(source.stat().st_mtime, tz=timezone.utc)
 
 
 # ---------------------------------------------------------------------------
@@ -502,17 +504,25 @@ EN_DIAGRAM_LABELS: dict = {
         ("LAYER 1", "Permissions", "allow / ask / deny"),
     ],
     "traffic_lights": [
-        ("0 - 1", "GREEN", "Agent-led, normal velocity"),
-        ("2 - 3", "YELLOW", "Human-led, agent support"),
-        ("4 +", "RED", "Stop. Fix codebase first."),
+        ("0 - 1", "GREEN", "Few preparation gaps"),
+        ("2 - 3", "YELLOW", "Substantial preparation"),
+        ("4 +", "RED", "Broader preparation"),
     ],
-    "traffic_title": "Signals (count each present)",
+    "traffic_prerequisites": "Before scoring: define the task, a qualified evaluator, evidence of consequential errors, and appropriate permissions and recovery. Missing or unknown? Restrict that task to investigation or supervised preparation.",
+    "traffic_qualification": "A green repository score does not authorize every task. Investigate unknown signals (?); never count them as zero. With no unknowns, sum and round halves upward before applying the color.",
+    "traffic_title": "Preparation signals (count known gaps)",
     "traffic_signals": [
-        "No tests", "No documentation", "Tight coupling", "Scattered rules",
-        "Regulatory constraints", "Team cannot evaluate output",
+        "Weak verification of affected behavior", "No documentation", "Tight coupling", "Scattered rules",
+        "Regulatory constraints", "No qualified evaluator",
         "Model-context fit", "Velocity-of-change",
     ],
     "arc": [
+        ("BEFORE STARTING", "Pilot prerequisites", "Owner", [
+            "Approved service and account",
+            "Permitted repositories and data",
+            "Named owner and initial controls",
+            "Spending limit and success criteria",
+        ]),
         ("DAYS 1 - 30", "Foundation", "Champion", [
             "Champion installs",
             "AGENTS.md drafted",
@@ -528,8 +538,8 @@ EN_DIAGRAM_LABELS: dict = {
         ]),
         ("DAYS 61 - 90", "Productionization", "Manager", [
             "Manager folds metrics into normal velocity tracking",
-            "Vendor governance signed",
-            "Plugin marketplace policy in place",
+            "Expansion reviewed against pilot evidence",
+            "Ongoing vendor and plugin governance owned",
         ]),
     ],
     "layers_spine": "Least privilege is the spine. Each layer catches what the others miss.",
@@ -555,17 +565,25 @@ RO_DIAGRAM_LABELS: dict = {
     ],
     "layers_spine": "Privilegiul minim e coloana vertebrală. Fiecare strat prinde ce scapă celorlalte.",
     "traffic_lights": [
-        ("0 - 1", "VERDE", "Condus de agent, viteză normală"),
-        ("2 - 3", "GALBEN", "Condus de om, sprijin de agent"),
-        ("4 +", "ROȘU", "Stop. Repară întâi codebase-ul."),
+        ("0 - 1", "VERDE", "Puține lipsuri de pregătire"),
+        ("2 - 3", "GALBEN", "Pregătire substanțială"),
+        ("4 +", "ROȘU", "Pregătire mai amplă"),
     ],
-    "traffic_title": "Semnale (numără fiecare semnal prezent)",
+    "traffic_prerequisites": "Înainte de scor: definește task-ul, cine poate evalua rezultatul, dovezile care ar expune erorile importante, permisiunile și recuperarea. Lipsește ceva sau nu știi? Limitează acel task la investigație ori pregătire supravegheată.",
+    "traffic_qualification": "Un scor verde pentru repo nu autorizează orice task. Investighează semnalele necunoscute (?); nu le socoti zero. Când nu mai ai necunoscute, adună scorurile și rotunjește jumătățile în sus înainte de a stabili culoarea.",
+    "traffic_title": "Semnale de pregătire (numără lipsurile cunoscute)",
     "traffic_signals": [
-        "Fără teste", "Fără documentație", "Cuplare strânsă", "Reguli împrăștiate",
-        "Constrângeri de reglementare", "Echipa nu poate evalua output-ul",
+        "Verificare slabă a comportamentului afectat", "Fără documentație", "Cuplare strânsă", "Reguli împrăștiate",
+        "Constrângeri de reglementare", "Nimeni calificat să evalueze rezultatul",
         "Potrivirea model-context", "Viteza schimbării",
     ],
     "arc": [
+        ("ÎNAINTE DE START", "Condiții pentru pilot", "Owner", [
+            "Serviciu și cont aprobate",
+            "Repo-uri și date permise",
+            "Responsabil numit și controale inițiale",
+            "Limită de cost și criterii de succes",
+        ]),
         ("ZILELE 1 - 30", "Fundația", "Champion", [
             "Championul instalează",
             "AGENTS.md schițat",
@@ -581,8 +599,8 @@ RO_DIAGRAM_LABELS: dict = {
         ]),
         ("ZILELE 61 - 90", "Operaționalizarea", "Manager", [
             "Managerul integrează metricile în tracking-ul normal de velocity",
-            "Guvernanța de vendor semnată",
-            "Politica de plugin marketplace stabilită",
+            "Extinderea evaluată pe dovezile din pilot",
+            "Guvernanța continuă de vendor și plugin-uri are responsabil",
         ]),
     ],
     "svg_titles": {
@@ -722,6 +740,7 @@ def diagram_traffic_light() -> str:
     )
     (c1, l1, m1), (c2, l2, m2), (c3, l3, m3) = DIAGRAM_LABELS["traffic_lights"]
     return f"""<figure class="diagram diagram-traffic">
+  <p class="traffic-prerequisites">{DIAGRAM_LABELS["traffic_prerequisites"]}</p>
   <div class="traffic-light">
     <div class="light light-green"><span class="light-count">{c1}</span><span class="light-label">{l1}</span><span class="light-mode">{m1}</span></div>
     <div class="light light-yellow"><span class="light-count">{c2}</span><span class="light-label">{l2}</span><span class="light-mode">{m2}</span></div>
@@ -733,6 +752,7 @@ def diagram_traffic_light() -> str:
 {signal_html}
     </ol>
   </div>
+  <p class="traffic-qualification">{DIAGRAM_LABELS["traffic_qualification"]}</p>
   <figcaption>__FIGCAPTION__</figcaption>
 </figure>"""
 
@@ -784,13 +804,14 @@ def diagram_arc() -> str:
 # Preprocessing
 # ---------------------------------------------------------------------------
 
-# Match a fenced code block followed (after blank lines) by an italicized
-# figure caption like `*Figure: ...*`. We capture the caption so each block
-# can be routed to the right renderer by caption content (per-chapter
-# rendering passes a subset of the document, not all 5 figures).
-FIGURE_BLOCK_RE = re.compile(
-    r"```\n.*?\n```\s*\n+\*Figur[ae]:\s+(?P<caption>[^*]+)\*\s*\n",
-    re.DOTALL,
+# Consume every fenced block, including language-tagged examples, before
+# looking for a caption. Searching only for captioned blocks can mistake a
+# Python example's closing fence for a new opener and swallow later chapters.
+_FENCE_OPEN_RE = re.compile(
+    r" {0,3}(?P<fence>`{3,}|~{3,})(?P<info>[^\r\n]*)(?:\r?\n|\Z)"
+)
+_FIGURE_CAPTION_RE = re.compile(
+    r"\*Figur[ae]:[ \t]+(?P<caption>[^*\r\n]+)\*[ \t]*(?:\r?\n|\Z)"
 )
 
 
@@ -815,25 +836,52 @@ def replace_diagrams(md_text: str, *, strict: bool = True) -> str:
     chapter-page rendering passes strict=False.
     """
     seen: list[str] = []
+    lines = md_text.splitlines(keepends=True)
+    output: list[str] = []
+    i = 0
+    while i < len(lines):
+        opener = _FENCE_OPEN_RE.fullmatch(lines[i])
+        if not opener or (opener["fence"][0] == "`" and "`" in opener["info"]):
+            output.append(lines[i])
+            i += 1
+            continue
 
-    def repl(match: re.Match) -> str:
-        caption = match.group("caption").strip()
-        for key, renderer in FIGURE_RENDERERS_BY_CAPTION_KEY:
-            if key in caption:
-                seen.append(key)
-                # Every renderer emits a __FIGCAPTION__ placeholder; fill it
-                # with the source caption in the current language (the bodies
-                # localize through DIAGRAM_LABELS).
-                html = renderer().replace(
-                    "__FIGCAPTION__",
-                    f"{CFG.figure_word}: {html_lib.escape(caption)}",
-                )
-                return f"\n\n<!--RAW_HTML_START-->\n{html}\n<!--RAW_HTML_END-->\n\n"
-        # Unknown caption - leave untouched.
-        return match.group(0)
+        fence = opener["fence"]
+        closing = re.compile(
+            r" {0,3}" + re.escape(fence[0]) + "{" + str(len(fence))
+            + r",}[ \t]*(?:\r?\n|\Z)"
+        )
+        end = i + 1
+        while end < len(lines) and not closing.fullmatch(lines[end]):
+            end += 1
+        if end == len(lines):
+            output.extend(lines[i:])  # Unterminated code stays code through EOF.
+            break
 
-    result = FIGURE_BLOCK_RE.sub(repl, md_text)
-    if strict and len(seen) != len(FIGURE_RENDERERS_BY_CAPTION_KEY):
+        caption_line = end + 1
+        while caption_line < len(lines) and not lines[caption_line].strip():
+            caption_line += 1
+        match = (_FIGURE_CAPTION_RE.fullmatch(lines[caption_line])
+                 if caption_line < len(lines) else None)
+        caption = match["caption"].strip() if match else ""
+        selected = next(((key, renderer) for key, renderer in FIGURE_RENDERERS_BY_CAPTION_KEY
+                         if caption and key in caption), None)
+        if selected:
+            key, renderer = selected
+            seen.append(key)
+            html = renderer().replace(
+                "__FIGCAPTION__", f"{CFG.figure_word}: {html_lib.escape(caption)}",
+            )
+            output.append(f"\n\n<!--RAW_HTML_START-->\n{html}\n<!--RAW_HTML_END-->\n\n")
+            i = caption_line + 1
+        else:
+            # Preserve all nonfigure code bytes, including its original fences.
+            output.extend(lines[i:end + 1])
+            i = end + 1
+
+    result = "".join(output)
+    expected = {key for key, _ in FIGURE_RENDERERS_BY_CAPTION_KEY}
+    if strict and (len(seen) != len(expected) or set(seen) != expected):
         raise RuntimeError(
             f"Figure renderer/caption count mismatch: "
             f"{len(seen)} matched, {len(FIGURE_RENDERERS_BY_CAPTION_KEY)} renderers"
@@ -1765,6 +1813,8 @@ LANDING_ARTICLE_BODY = '''<header class="article-header">
         </nav>
       </header>
 
+      {READER_ROUTES}
+
       <section class="landing-toc">
         {TOC_HTML}
       </section>
@@ -1794,7 +1844,7 @@ FAQ_ENTRIES: list[dict] = [
     {
         "q": "What is AGENTS.md and why does it matter?",
         "home_slug": "chapter-6-agents-md",
-        "a": "AGENTS.md is a Markdown file for project instructions that an agent cannot reliably infer from the code: constraints, nonstandard conventions, build commands, and pointers to relevant documentation. Keep it short and maintain it like code. Codex CLI and other coding agents read it natively. Claude Code v2.1.277+ also supports it natively, by default as a fallback when no CLAUDE.md or CLAUDE.local.md is present on the project path. Check loading and precedence before maintaining both formats. The open standard is documented at agents.md.",
+        "a": "AGENTS.md is a Markdown file for project instructions that an agent cannot reliably infer from the code: constraints, nonstandard conventions, build commands, and pointers to relevant documentation. Keep it short and maintain it like code. Codex CLI reads it natively. Claude Code defaults to CLAUDE.md; v2.1.277+ can load AGENTS.md directly as a fallback when the project/ancestor path contains no CLAUDE.md, .claude/CLAUDE.md or CLAUDE.local.md, subject to its instruction settings. Gemini CLI defaults to GEMINI.md and can be configured for AGENTS.md; Aider requires explicit loading or configuration. Check discovery, scope, precedence, and loaded instructions in each client. The open format is documented at agents.md.",
     },
     {
         "q": "How do you safely roll out AI coding agents in an engineering team?",
@@ -1809,17 +1859,17 @@ FAQ_ENTRIES: list[dict] = [
     {
         "q": "How much does agentic coding cost?",
         "home_slug": "appendix-a-for-managers",
-        "a": "Per-seat tool pricing is the small line item; the real cost is total cost of ownership - seats, token and usage spend, the human review time the loop requires, and the governance setup. The durable way to budget is to match seat tier to actual usage rather than buying uniform tooling, and to compare the loaded cost of agent-assisted delivery against the cost of the work it replaces, not against zero.",
+        "a": "Compare total delivery cost: seats and metered usage, amortized setup, ongoing maintenance and governance, and human investigation, review, and rework, including failed attempts. Use comparable accepted work as the denominator. Shorter elapsed delivery time, useful capacity released, and cash savings are different outcomes. A genuinely fixed seat fee does not rise with usage; caps, overages, and tiers require separate accounting.",
     },
     {
         "q": "What is MCP (Model Context Protocol)?",
         "home_slug": "chapter-1-primitives",
-        "a": "MCP, the Model Context Protocol, is a specification that lets a coding agent connect to external tools and data sources - issue trackers, databases, documentation, internal services - through a uniform interface. It is one of the agent primitives: where Tools are the agent's built-in actions, MCP is how the agent reaches capabilities the harness did not ship with.",
+        "a": "MCP, the Model Context Protocol, lets coding agents connect to external tools and data sources such as issue trackers, databases, and internal services. Integrations can be reused across compatible clients, subject to protocol version, transport, authentication, and capability support. Inspect what the client and server negotiate rather than assuming every MCP integration is interchangeable.",
     },
     {
         "q": "Are AI coding agents production-ready?",
         "home_slug": "chapter-8-readiness-kill-signals",
-        "a": "It depends on the codebase, not the company. Readiness is a per-project question answered by eight kill signals and a green/yellow/red traffic light: a well-tested, documented, decoupled module with a team that can evaluate the output is green; an undocumented, untested, tightly-coupled system whose team cannot verify the result is red. Most companies have a mix, and the mix tells you the order of operations.",
+        "a": "Decide for the proposed task first: define its scope, a qualified evaluator, evidence that would expose consequential errors, and appropriate permissions and recovery. If a prerequisite is missing or unknown, restrict that task to investigation or supervised preparation. The eight signals and traffic light then help prioritize preparation; they are a heuristic, not authorization. A green repository score does not authorize every task, and an unknown signal must be investigated rather than counted as zero.",
     },
 ]
 
@@ -2005,8 +2055,52 @@ def _landing_article_body(subtitle: str, author: str, byline_href: str,
         CTA_ASSESS=CFG.cta_assess,
         CH7_HREF=_rel("/chapter-7-architecture-review/"),
         APPB_HREF=_rel("/appendix-b-templates/"),
+        READER_ROUTES=reader_routes_html(),
     )
     return body + faq_visible_html(CFG.faq_entries)
+
+
+def reader_routes_html() -> str:
+    """Four task-oriented routes, without adding headings to the book outline."""
+    if CFG.code == "ro":
+        title, output_label = "Alege de unde începi", "Rezultat"
+        prologue, chapter, appendix, companion = "Prolog", "Cap.", "Anexa A", "exemplul Wire (.zip)"
+        routes = [
+            ("Înțelege metoda", ["prologue-nine-seconds", 1, 2, 3], "o metodă de lucru pe care o poți explica"),
+            ("Pregătește un repo necunoscut", [2, 7, 6, 8], "o hartă de arhitectură revizuită și un task delimitat"),
+            ("Livrează o schimbare", [3, 4, 5, "companion"], "o schimbare verificată, cu dovezi pentru review"),
+            ("Pornește un pilot în echipă", [8, 9, "appendix-a-for-managers"], "un pilot cu responsabil, limite și criterii de evaluare"),
+        ]
+    else:
+        title, output_label = "Choose your starting point", "Output"
+        prologue, chapter, appendix, companion = "Prologue", "Ch.", "Appendix A", "Wire companion (.zip)"
+        routes = [
+            ("Understand the approach", ["prologue-nine-seconds", 1, 2, 3], "a working approach you can explain"),
+            ("Prepare an unfamiliar repository", [2, 7, 6, 8], "a reviewed architecture map and a bounded task"),
+            ("Deliver one change", [3, 4, 5, "companion"], "a verified change with evidence for review"),
+            ("Run a team pilot", [8, 9, "appendix-a-for-managers"], "a pilot with an owner, boundaries, and evaluation criteria"),
+        ]
+    chapter_slugs = [slug for (kind, _), slug in SECTION_SLUGS.items() if kind == "chapter"]
+    items = []
+    for label, steps, output in routes:
+        links = []
+        for step in steps:
+            download = ""
+            if isinstance(step, int):
+                href, text = _rel(f"/{chapter_slugs[step - 1]}/"), f"{chapter} {step}"
+            elif step == "companion":
+                href, text, download = "/companion/wire-v1.zip", companion, " download"
+            else:
+                href, text = _rel(f"/{step}/"), prologue if step == "prologue-nine-seconds" else appendix
+            links.append(f'<a href="{href}"{download}>{html_lib.escape(text)}</a>')
+        items.append(
+            f'<li><strong>{label}</strong><span class="reader-route-steps">'
+            + ' <span aria-hidden="true">→</span> '.join(links)
+            + f'</span><span class="reader-route-output">{output_label}: {output}.</span></li>'
+        )
+    return (f'<nav class="reader-routes" aria-labelledby="reader-routes-title">'
+            f'<p class="reader-routes-title" id="reader-routes-title">{title}</p><ul>'
+            + "".join(items) + '</ul></nav>')
 
 
 def _json_escape(value: str) -> str:
@@ -2748,7 +2842,8 @@ def render_full_archive(template: str, *, md_text: str,
     listed in the sitemap or the llms files.
     """
     (content_html, reading_times, title, subtitle, author,
-     parts, chapters, appendices, foreword, closing) = render_all_in_one_body(md_text)
+     parts, chapters, appendices, foreword, closing) = render_all_in_one_body(
+         md_text, render_current_diagrams=False)
     toc = build_toc(parts, chapters, appendices, foreword, closing,
                     reading_times=reading_times, mode="in-page",
                     chapter_to_part=derive_chapter_to_part(md_text),
@@ -2786,6 +2881,12 @@ def render_full_archive(template: str, *, md_text: str,
         "DATE_MODIFIED_HUMAN": html_lib.escape(date_modified_human),
         **_lang_subs("/full/", hreflang=False),
     }
+    # The archive's content date stays frozen even when the shared site chrome
+    # changes. Do not imply that the historical guidance was reviewed today.
+    template = template.replace(
+        "Last updated {{DATE_MODIFIED_HUMAN}}",
+        "Content edition: September 2026 (frozen) · Site interface updated {{DATE_MODIFIED_HUMAN}}",
+    )
     return render_template_with_placeholders(template, substitutions)
 
 
@@ -2981,7 +3082,7 @@ You are welcome to read, cite, and summarize this manual; that is what these fil
 # Main
 # ---------------------------------------------------------------------------
 
-def render_all_in_one_body(md_text: str) -> tuple[str, dict, str, str, str, list, list, list, tuple | None, tuple | None]:
+def render_all_in_one_body(md_text: str, *, render_current_diagrams: bool = True) -> tuple[str, dict, str, str, str, list, list, list, tuple | None, tuple | None]:
     """Run the full transforms pipeline on the whole source markdown and
     return the rendered <main>-body HTML plus the per-section metadata the
     TOC + search index need.
@@ -3034,7 +3135,8 @@ def render_all_in_one_body(md_text: str) -> tuple[str, dict, str, str, str, list
     )
 
     # Pre-processing pipeline
-    body_md = replace_diagrams(body_md)
+    if render_current_diagrams:
+        body_md = replace_diagrams(body_md)
     body_md, chapters = transform_chapter_headings(body_md)
     body_md, parts = transform_part_headings(body_md)
     body_md, closing = transform_closing(body_md)
@@ -3228,18 +3330,18 @@ EN_SECTION_DESCRIPTIONS = {
     "about-the-author": "Mihai Cvasnievschi: 40 years of code, from BASIC in 1989 to shipping with Claude Code, Codex and Cursor. The experience behind this agentic coding manual.",
     "acknowledgments": "Closing thanks from the author of Ship It With AI. Share your agentic coding wins or failures - your experience shapes the next edition of the manual.",
     "appendix-a-for-managers": "For managers: your job in the first 90 days, which codebases get agents now, later or never, and AI coding agent cost mapped onto your team's numbers.",
-    "appendix-b-templates": "AGENTS.md template that doubles as CLAUDE.md, plus copy-paste one-pagers: architecture review prompt, six-phase loop checklist, kill signal worksheet.",
+    "appendix-b-templates": "Scoped instruction templates, architecture review prompt, proportional delivery checklist, task prerequisites, readiness worksheet, and worked exercises.",
     "appendix-c-sources": "Agentic coding sources and references, organized by claim: studies, named incidents, CVEs with patch versions, and tool docs you can chase down and verify.",
     "appendix-d-deep-dives": "The evidence behind each chapter of Ship It With AI: the studies, benchmarks, vendor-specific details and longer sidebars, organized by chapter.",
     "changelog": "Ship It With AI changelog: meaningful updates to the agentic-coding manual, dated newest first. New sections, reworked chapters, and key fixes.",
-    "chapter-1-primitives": "A coding agent is a model in a harness built from nine primitives: context, tools, permissions/sandbox, skills, plugins, MCP, memory, effort, subagents.",
-    "chapter-2-guardrails": "AI agent guardrails in five layers: permissions, sandbox, secrets, hooks, and telemetry. The least-privilege controls that would have stopped PocketOS.",
-    "chapter-3-bottleneck-moved": "With AI coding agents the bottleneck moved from typing code to formulating the work. Three habits, the four unknowns, and when to run the full loop.",
+    "chapter-1-primitives": "Inspect coding agents through nine practical categories: context, tools, permissions/sandbox, skills, plugins, MCP, memory, effort, and subagents.",
+    "chapter-2-guardrails": "AI agent guardrails in five layers: permissions, sandbox, secrets, hooks, and telemetry. Verify covered routes, failure behavior, prevention, and detection.",
+    "chapter-3-bottleneck-moved": "Coding agents make plausible code cheaper to produce. Decide what should change, supply context, integrate the result, and establish that it works.",
     "chapter-4-six-phase-loop": "Research, plan, execute, review, verify, ship: scale the agentic coding loop to the task's uncertainty and risk, using native capabilities or optional workflow skills.",
     "chapter-5-review-and-verify": "Review an agent-written diff for intent and correctness, choose review depth and checks for the risk, and understand why green tests are evidence, not proof.",
     "chapter-6-agents-md": "AGENTS.md is the vendor-neutral team instruction file: six rules for writing one, how it differs from CLAUDE.md, and the context hygiene that keeps sessions sharp.",
     "chapter-7-architecture-review": "Architecture review for AI agents: point Claude Code, Codex, or Cursor at a repo, generate a structured review, and save it as a durable diagnosis artifact.",
-    "chapter-8-readiness-kill-signals": "AI coding agent readiness: learn the kill signals and traffic light that tell you when to put Claude Code, Codex or Copilot on a codebase, and when not to.",
+    "chapter-8-readiness-kill-signals": "AI coding agent readiness: establish task prerequisites, then use eight signals to prioritize preparation. A green repository score never authorizes every task.",
     "chapter-9-rolling-it-out": "Rolling out AI coding agents on a team: worktrees, two kinds of hooks, the human review floor, the grassroots path, the 90-day arc, and three roles.",
     "closing": "The future of agentic software engineering rests on durable principles, not tools. Claude Code, Codex and the rest will churn - the loop endures.",
     "prologue-nine-seconds": "An AI coding agent incident, step by step: a Cursor agent on Claude Opus wiped PocketOS's production database trying to fix a credentials mismatch.",
@@ -3270,18 +3372,18 @@ RO_SECTION_DESCRIPTIONS = {
     "about-the-author": "Mihai Cvasnievschi: 40 de ani de cod, de la BASIC în 1989 la shipping cu coding agents ca Claude Code, Codex și Cursor. Experiența din spatele manualului.",
     "acknowledgments": "Mulțumiri de final de la autorul Ship It With AI. Spune-ți reușitele sau eșecurile din programarea cu agenți AI - experiența ta modelează ediția viitoare.",
     "appendix-a-for-managers": "Pentru manageri: ce ai de făcut în primele 90 de zile, ce codebase-uri primesc agenți acum, mai târziu sau niciodată, și costul pus pe numerele echipei tale.",
-    "appendix-b-templates": "Template AGENTS.md care merge și ca CLAUDE.md, plus one-pagere copy-paste: prompt de architecture review, checklist six-phase loop și worksheet kill signals.",
+    "appendix-b-templates": "Template-uri de instrucțiuni cu scope explicit, prompt de architecture review, checklist proporțional, condiții pentru task, evaluare de readiness și exerciții rezolvate.",
     "appendix-c-sources": "Surse și lecturi despre programarea cu agenți, grupate pe afirmație: studii, incidente cunoscute, CVE-uri cu versiuni de patch și documentația tool-urilor.",
     "appendix-d-deep-dives": "Dovezile din spatele fiecărui capitol din Ship It With AI: studii, benchmark-uri, detalii specifice vendorilor și secțiunile lungi, organizate pe capitole.",
     "changelog": "Jurnal de modificări Ship It With AI: actualizările semnificative ale manualului de programare cu agenți AI, datate, cele mai noi întâi.",
-    "chapter-1-primitives": "Un coding agent e un model într-un harness construit din nouă componente principale: context, tools, permisiuni/sandbox, skills, plugins, MCP, memory, effort, subagenți.",
-    "chapter-2-guardrails": "Guardrails pentru agenți AI în cinci straturi: permisiuni, sandbox, secrete, hooks și telemetrie. Controalele least-privilege care ar fi oprit incidentul PocketOS.",
-    "chapter-3-bottleneck-moved": "Cu agenții AI, bottleneck-ul nu mai e scrierea codului, ci formularea muncii. Trei obiceiuri, cele patru necunoscute și când merită să rulezi bucla completă.",
+    "chapter-1-primitives": "Inspectează coding agents prin nouă categorii practice: context, tools, permisiuni/sandbox, skills, plugins, MCP, memory, effort și subagenți.",
+    "chapter-2-guardrails": "Guardrails pentru agenți AI în cinci straturi: permisiuni, sandbox, secrete, hooks și telemetrie. Verifică rutele, erorile, prevenirea și detecția.",
+    "chapter-3-bottleneck-moved": "Agenții reduc costul producerii de cod plauzibil. Decide ce trebuie schimbat, oferă contextul, integrează rezultatul și verifică dacă funcționează.",
     "chapter-4-six-phase-loop": "Research, Plan, Execute, Review, Verify, Ship: adaptează bucla la incertitudinea și riscul task-ului, cu funcțiile native ale agentului sau skill-uri opționale.",
     "chapter-5-review-and-verify": "Verifică intenția și corectitudinea unui diff scris de agent, alege review-ul și controalele potrivite riscului și înțelege ce dovedesc testele verzi.",
     "chapter-6-agents-md": "AGENTS.md e fișierul de instrucțiuni al echipei, neutru față de vendor: șase reguli de scriere, diferența față de CLAUDE.md și igiena de context din sesiuni.",
     "chapter-7-architecture-review": "Review de arhitectură pentru agenți AI: îndrepți Claude Code, Codex sau Cursor spre un repo, generezi un review structurat și îl salvezi ca artefact durabil.",
-    "chapter-8-readiness-kill-signals": "Pregătire pentru livrarea cu agenți AI: kill signals și semaforul care îți arată când să pui un coding agent pe un codebase și când să nu o faci.",
+    "chapter-8-readiness-kill-signals": "Verifică întâi condițiile task-ului, apoi folosește opt semnale pentru a prioritiza pregătirea. Un scor verde pentru repo nu autorizează orice task.",
     "chapter-9-rolling-it-out": "Rollout-ul agenților AI într-o echipă: worktrees, două tipuri de hooks, pragul de review uman, drumul grassroots, arcul de 90 de zile și cele trei roluri.",
     "closing": "Viitorul ingineriei software cu agenți AI stă în principii durabile, nu în tool-uri. Claude Code, Codex și restul vor dispărea - bucla rămâne.",
     "prologue-nine-seconds": "Incident agent de cod AI în 9 secunde: un agent Cursor pe Claude Opus a șters baza de date de producție PocketOS în timp ce repară o problemă de credențiale.",
@@ -3347,7 +3449,7 @@ EN = Lang(
               "This field manual is the methodology."),
     cta_aria="Quick start",
     cta_primary="Start with the architecture review",
-    cta_templates="Download the templates",
+    cta_templates="Use the templates",
     cta_assess="Book an assessment",
     read_note=("You're reading in single-page mode. The landing page at "
                '<a href="{ROOT}">ship-it-with.ai</a> indexes every chapter.'),
@@ -3372,12 +3474,13 @@ EN = Lang(
     llms_author_heading="Author",
     llms_author_line="author; 25+ years shipping software, now focused on agentic delivery.",
     full_source=REPO_ROOT / "source" / "Ship_It_With_AI.full.md",
-    full_title="Ship It With AI - Full edition (September 2026)",
+    full_title="Ship It With AI - September 2026 archive",
     full_description=("The complete September 2026 edition of Ship It With AI on one "
                       "page, kept as an archive. The current, shorter edition is at "
                       "ship-it-with.ai."),
-    full_banner=('<strong>Full edition (September 2026).</strong> The current, shorter '
-                 'edition is at <a href="{HOME}">ship-it-with.ai</a>.'),
+    full_banner=('<strong>September 2026 archive.</strong> This frozen edition contains '
+                 'historical guidance. Read the <a href="{HOME}">maintained edition</a> '
+                 'for current recommendations.'),
     moved_title="Moved", moved_body="This page has moved to",
 )
 
@@ -3398,7 +3501,7 @@ RO_FAQ_ENTRIES = [
     {
         "q": "Ce este AGENTS.md și de ce contează?",
         "home_slug": "chapter-6-agents-md",
-        "a": "AGENTS.md e un fișier Markdown cu instrucțiuni pe care agentul nu le poate deduce sigur din cod: constrângeri, convenții neobișnuite, comenzi de build și trimiteri la documentația relevantă. Ține-l scurt și întreține-l ca pe cod. Codex CLI și alți coding agents îl citesc nativ. Claude Code v2.1.277+ îl suportă și el nativ, implicit ca fallback când pe calea proiectului nu există CLAUDE.md sau CLAUDE.local.md. Verifică regulile de încărcare și precedență înainte să întreții ambele formate. Standardul deschis e documentat la agents.md.",
+        "a": "AGENTS.md e un fișier Markdown cu instrucțiuni pe care agentul nu le poate deduce sigur din cod: constrângeri, convenții neobișnuite, comenzi de build și trimiteri la documentația relevantă. Ține-l scurt și întreține-l ca pe cod. Codex CLI îl citește nativ. Claude Code folosește implicit CLAUDE.md; de la v2.1.277 poate încărca AGENTS.md direct ca fallback dacă pe calea proiectului și a directoarelor părinte nu există CLAUDE.md, .claude/CLAUDE.md sau CLAUDE.local.md, în funcție de setările de instrucțiuni. Gemini CLI folosește implicit GEMINI.md și poate fi configurat pentru AGENTS.md; în Aider îl încarci explicit sau prin configurație. Verifică descoperirea, scope-ul, precedența și instrucțiunile încărcate în fiecare client. Formatul deschis e documentat la agents.md.",
     },
     {
         "q": "Cum faci un rollout sigur de coding agents într-o echipă de engineering?",
@@ -3413,17 +3516,17 @@ RO_FAQ_ENTRIES = [
     {
         "q": "Cât costă programarea cu agenți?",
         "home_slug": "appendix-a-for-managers",
-        "a": "Prețul per-seat al tool-ului e linia mică; costul real e total cost of ownership - seat-uri, cheltuiala pe tokeni și utilizare, timpul de review uman pe care îl cere bucla și setup-ul de guvernanță. Felul durabil de a face bugetul e să potrivești tier-ul de seat cu utilizarea reală, nu să cumperi tooling uniform, și să compari costul complet al livrării cu agenți cu costul muncii pe care o înlocuiește, nu cu zero.",
+        "a": "Compară costul complet al livrării: seat-uri și utilizare facturată, setup amortizat, mentenanță și guvernanță continuă, plus investigație, review și rework uman, inclusiv încercările nereușite. Raportează costul la muncă acceptată și comparabilă. Timpul scurs până la livrare, capacitatea utilă eliberată și economiile de bani sunt rezultate diferite. O taxă fixă per seat nu crește cu utilizarea; limitele, depășirile și tier-urile se calculează separat.",
     },
     {
         "q": "Ce este MCP (Model Context Protocol)?",
         "home_slug": "chapter-1-primitives",
-        "a": "MCP, Model Context Protocol, e o specificație care lasă un coding agent să se conecteze la tool-uri și surse de date externe - issue trackere, baze de date, documentație, servicii interne - printr-o interfață uniformă. E una dintre componentele principale ale agentului: unde Tools sunt acțiunile built-in ale agentului, MCP e felul în care agentul ajunge la capabilități cu care nu a venit harness-ul.",
+        "a": "MCP, Model Context Protocol, conectează coding agents la tool-uri și surse de date externe: issue trackere, baze de date și servicii interne. Integrările pot fi refolosite între clienți compatibili, în funcție de versiunea protocolului, transport, autentificare și capabilitățile suportate. Verifică ce negociază clientul și serverul; suportul MCP nu face automat orice integrare interschimbabilă.",
     },
     {
         "q": "Sunt coding agents gata de producție?",
         "home_slug": "chapter-8-readiness-kill-signals",
-        "a": "Depinde de codebase, nu de companie. Pregătirea e o întrebare per-proiect, la care răspund cele opt kill signals și un semafor verde/galben/roșu: un modul bine testat, documentat, decuplat, cu o echipă care poate evalua output-ul e verde; un sistem nedocumentat, netestat, strâns cuplat, a cărui echipă nu poate verifica rezultatul e roșu. Cele mai multe companii au un mix, iar mixul îți spune ordinea operațiilor.",
+        "a": "Decide întâi pentru task-ul propus: definește scope-ul, cine poate evalua rezultatul, dovezile care ar expune erorile importante, permisiunile și recuperarea. Dacă o condiție lipsește sau nu o cunoști, limitează acel task la investigație ori pregătire supravegheată. Cele opt semnale și semaforul ajută apoi la prioritizarea pregătirii; sunt o euristică, nu o autorizare. Un scor verde pentru repo nu autorizează orice task, iar un semnal necunoscut trebuie investigat, nu socotit zero.",
     },
 ]
 
@@ -3490,7 +3593,7 @@ RO = Lang(
               "contextul, acțiunile, verificarea și suprafața de adopție. Manualul ăsta e metoda."),
     cta_aria="Start rapid",
     cta_primary="Începe cu review-ul de arhitectură",
-    cta_templates="Descarcă template-urile",
+    cta_templates="Folosește template-urile",
     cta_assess="Programează o evaluare",
     read_note=("Citești în mod pagină unică. Pagina principală de la "
                '<a href="{ROOT}">ship-it-with.ai</a> indexează fiecare capitol.'),
@@ -3514,12 +3617,13 @@ RO = Lang(
     llms_author_heading="Autor",
     llms_author_line="autor; 25+ ani de livrat software, acum concentrat pe delivery cu agenți.",
     full_source=REPO_ROOT / "source" / "Ship_It_With_AI.RO.full.md",
-    full_title="Ship It With AI - Ediția completă (septembrie 2026)",
+    full_title="Ship It With AI - Arhiva din septembrie 2026",
     full_description=("Ediția completă din septembrie 2026 a manualului Ship It With AI, "
                       "pe o singură pagină, păstrată ca arhivă. Ediția actuală, mai "
                       "scurtă, e la ship-it-with.ai/ro."),
-    full_banner=('<strong>Ediția completă (septembrie 2026).</strong> Ediția actuală, mai '
-                 'scurtă, e la <a href="{HOME}">ship-it-with.ai/ro</a>.'),
+    full_banner=('<strong>Arhiva din septembrie 2026.</strong> Ediția asta e înghețată și '
+                 'conține recomandări istorice. Citește <a href="{HOME}">ediția întreținută '
+                 'la zi</a> pentru recomandările actuale.'),
     moved_title="Mutat", moved_body="Pagina s-a mutat la",
 )
 
@@ -3613,7 +3717,7 @@ def set_language(lang: Lang) -> None:
             ("Componentele principale și harness-ul", diagram_primitives),
             ("cinci straturi de guvernanță", diagram_layers),
             ("Bucla în șase faze", diagram_loop),
-            ("Kill signals și regula de decizie", diagram_traffic_light),
+            ("Kill signals și semaforul", diagram_traffic_light),
             ("arcul de adopție de 90 de zile", diagram_arc),
         ]
         DIAGRAM_LABELS = RO_DIAGRAM_LABELS
@@ -3691,11 +3795,13 @@ _CHROME_RO = [
     ('>Shortcuts are disabled while typing in a field.</p>',
      '>Scurtăturile sunt dezactivate cât scrii într-un câmp.</p>'),
     # footer
+    ('Content edition: September 2026 (frozen)', 'Ediția de conținut: septembrie 2026 (înghețată)'),
+    ('Site interface updated', 'Interfața site-ului actualizată'),
     ('Last updated', 'Ultima actualizare'),
     ('· Bucharest · All rights reserved', '· București · Toate drepturile rezervate'),
     ('href="/changelog/"', 'href="/ro/changelog/"'),
-    ('<a href="/full/" class="footer-full-edition">Full edition (Sep 2026)</a>',
-     '<a href="/ro/full/" class="footer-full-edition">Ediția completă (sep 2026)</a>'),
+    ('<a href="/full/" class="footer-full-edition">September 2026 archive</a>',
+     '<a href="/ro/full/" class="footer-full-edition">Arhiva din septembrie 2026</a>'),
     # head: per-language markdown mirrors + search index
     ('href="https://ship-it-with.ai/llms-full.txt"', 'href="https://ship-it-with.ai/ro/llms-full.txt"'),
     ('href="https://ship-it-with.ai/llms.txt"', 'href="https://ship-it-with.ai/ro/llms.txt"'),
@@ -3737,7 +3843,9 @@ def build_full_archive(lang: Lang, template: str) -> None:
     if not lang.full_source:
         return
     md_text = lang.full_source.read_text()
-    date_human = lang_date_human(_content_date(), lang)
+    interface_date = max(_content_date(), _content_date(HERE / "build_spa.py"),
+                         _content_date(TEMPLATE_PATH))
+    date_human = lang_date_human(interface_date, lang)
     path = lang.out / "full" / "index.html"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(localize_chrome(
@@ -3907,6 +4015,33 @@ def selected_langs(argv: list[str]) -> list[Lang]:
     return [lang for lang in LANGS if lang.code in codes]
 
 
+def build_wire_companion() -> None:
+    """Package the inspectable, dependency-free example at a versioned URL.
+
+    Stable timestamps and permissions make identical sources produce identical
+    ZIP bytes. Generated Python caches and hidden files never enter the pack.
+    """
+    source = REPO_ROOT / "companion" / "wire"
+    required = {"README.md", "baseline.py", "wire.py", "defective.py", "tests.py", "verify.py"}
+    missing = sorted(name for name in required if not (source / name).is_file())
+    if missing:
+        raise RuntimeError(f"Wire companion is incomplete: {', '.join(missing)}")
+    target = SITE_DIR / "companion" / "wire-v1.zip"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(target, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for path in sorted(source.rglob("*")):
+            relative = path.relative_to(source)
+            if (not path.is_file() or path.is_symlink()
+                    or any(part.startswith(".") or part == "__pycache__" for part in relative.parts)
+                    or path.suffix in {".pyc", ".pyo"}):
+                continue
+            entry = zipfile.ZipInfo(f"wire-v1/{relative.as_posix()}", date_time=(1980, 1, 1, 0, 0, 0))
+            entry.compress_type = zipfile.ZIP_DEFLATED
+            entry.external_attr = 0o100644 << 16
+            archive.writestr(entry, path.read_bytes())
+    print(f"Wrote {target.relative_to(REPO_ROOT)}")
+
+
 def main(argv: list[str] | None = None) -> int:
     langs = selected_langs(sys.argv[1:] if argv is None else argv)
     template_raw = TEMPLATE_PATH.read_text()
@@ -3933,6 +4068,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Wrote _site/deferred.css ({len(deferred_css) / 1024:.1f} KB)")
     copy_static()
     print(f"Copied static files from {STATIC_DIR.relative_to(REPO_ROOT)}/")
+    build_wire_companion()
 
     # Combined sitemap at the root. Each URL carries xhtml:link hreflang
     # alternates so Google consolidates the EN/RO pair into one result set.

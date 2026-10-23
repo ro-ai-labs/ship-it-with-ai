@@ -239,7 +239,7 @@ async function main() {
     if (theme === 'light') {
       const banner = page.locator('aside.edition-banner');
       const btxt = (await banner.count()) ? await banner.first().textContent() : '';
-      if (!/Full edition \(September 2026\)\. The current, shorter edition is at/.test(btxt || '')) {
+      if (!/September 2026 archive\..*historical guidance.*maintained edition/.test(btxt || '')) {
         fail(`/full/ banner missing or wrong: ${JSON.stringify(btxt)}`);
       } else ok('/full/ banner present');
       const bannerLink = await banner.locator('a[href="/"]').count();

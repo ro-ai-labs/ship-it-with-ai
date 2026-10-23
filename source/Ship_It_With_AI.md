@@ -8,7 +8,7 @@
 
 > The agents write the code.
 > You understand the problem.
-> That is the skill no one is automating.
+> You remain accountable for the judgment.
 
 ---
 
@@ -58,7 +58,7 @@ Afterward the agent confessed in writing: "I violated every principle I was give
 
 ---
 
-**What would have stopped it.** Not magic: ordinary engineering controls, applied to a new kind of worker. Bound the credentials, bound the tools, review the work before it ships, record what happened - the same controls an experienced engineer would apply to any new junior teammate authorized to push to production. None of them is exotic, and none was in place. Chapter 2 walks the incident through five layers, any one of which could have broken the chain.
+**What could have changed the outcome.** Bound credentials, enforced tool restrictions and protected approval gates could have prevented the destructive call if they covered its route. Logs, alerts and a tested response could have shortened detection and recovery; recording an event does not prevent it. Public accounts do not establish every control PocketOS had configured. Chapter 2 separates prevention from detection and asks readers to test the boundary they intend to rely on.
 
 **Why this keeps happening.** A senior engineer tells me they tried Claude Code, or Codex, or another coding agent, and "it didn't work": the code looked right and was not, or something broke and nobody noticed for two weeks. Most failed adoptions are not explained by model weakness alone. They are failures of structure around the agent: missing context, constraints, process and review discipline.
 
@@ -82,7 +82,14 @@ I will not tell you which agent to pick. The one you pick today will be deprecat
 
 Workflow advice was reviewed on October 23, 2026; other tool-specific claims retain their stated dates. The load-bearing claims and their limits are in Appendix C. Meaningful updates are in the [changelog](/changelog/).
 
-**How to read it.** It is written for the senior engineer, staff, principal or tech lead, who will run this practice on a real team and defend it upward; anyone who ships software with AI can follow. Read it in order the first time. Managers and directors: Chapters 2, 8 and 9 and Appendix A; facilitating adoption: Chapters 7 to 9 and Appendix B. The studies and numbers behind each chapter are in Appendix D; the chapters keep only what changes a decision.
+**How to read it.** It is written for the senior engineer, staff, principal or tech lead who will run this practice on a real team and defend it upward; anyone who ships software with AI can follow. Read sequentially for the full argument, or choose a route that ends in an inspectable result. Appendix D holds extended evidence and its limits.
+
+| Immediate goal | Route | Output |
+|---|---|---|
+| Understand the approach | Prologue → Chapters 1–3 | A capability comparison and the controls/workflow your tasks need |
+| Prepare an unfamiliar repository | Chapters 2 → 7 → 6 → 8 | A reviewed map, useful instructions and task prerequisites |
+| Deliver one change | Chapters 3 → 4 → 5, with the [Wire pack](/companion/wire-v1.zip) | Accepted behavior, verification evidence and production handoff |
+| Run a team pilot | Chapters 8 → 9 → Appendix A | A bounded pilot, measurement card and expansion/stop decision |
 
 ---
 
@@ -95,12 +102,12 @@ Workflow advice was reviewed on October 23, 2026; other tool-specific claims ret
 ## Chapter 1
 ## What an agent is
 
-*By the end you can name the nine parts of any coding agent, find the one that controls a given risk, and compare two agents by what is inside them.*
+*By the end you can inspect a contemporary coding agent through nine recurring capabilities and compare how two systems implement or supply them.*
 
 **TL;DR**
 
-- A coding agent is a model inside a harness, built from nine primitives you can inspect.
-- The anatomy is the same across vendors. The implementations differ, and the differences, the sandbox above all, are governance choices.
+- A coding agent is a model inside a harness. The nine primitives below are a practical inspection framework, not a universal anatomy theorem.
+- A capability can be built in, external, absent or implemented differently. Those differences, the sandbox above all, affect the controls you need.
 - Inspect the harness and the model's fit for your tasks. For any new agent, ask one question per primitive, then test the combination.
 
 ---
@@ -109,7 +116,7 @@ Workflow advice was reviewed on October 23, 2026; other tool-specific claims ret
 
 **An agent is a model plus a harness, and the harness is a small, recurring set of parts.**
 
-Open the source of most production-grade coding agents and the same architecture shows up: a set of primitives wrapped by a harness. A mechanism counts as a primitive when every major coding agent ships it as a distinct, configurable bundle. Each card below ends with the question to ask a new agent.
+Contemporary coding agents repeatedly expose the capabilities below, though their packaging and availability differ. Here, "primitive" means a useful capability to inspect, not a requirement that every product ship it as a separate configurable bundle. Each card ends with a question; "absent" and "provided externally" are valid answers.
 
 ```
                           THE HARNESS
@@ -135,7 +142,7 @@ Open the source of most production-grade coding agents and the same architecture
         of the agent itself
 ```
 
-*Figure: The primitives and the harness that runs them. Permissions / Sandbox sits in slot 3 as a primitive whose two halves - the agent-level decision layer and OS-level enforcement - converge on presence but diverge on posture across vendors. Memory's second half - the agent-written layer - converged across the major agents in the first months of 2026. Effort is the newest slot: the reasoning dial, and whether the reasoning it buys is retained from one turn to the next. Subagents sit below the line because they are the recursive primitive: each subagent is itself an instance of the others.*
+*Figure: The primitives and the harness as an inspection framework. Compare the agent-level decision layer with actual OS-level enforcement and its covered routes. Inspect team-written and agent-written memory separately, and check effort settings and retained reasoning in the selected model/client. A capability can be absent or supplied externally; a subagent is another constrained agent instance when the harness provides it.*
 
 ---
 
@@ -193,7 +200,7 @@ The plugin is the unit of distribution: one team's PR-review workflow becomes an
 
 **What it is: the Model Context Protocol, a specification for how agents talk to external systems** - Jira, Postgres, GitHub, your data warehouse.
 
-The same MCP server works with any agent that supports it, so the integration survives the next agent you adopt: the closest thing the ecosystem has to an open standard.
+An MCP integration can be reused across compatible clients. Check the negotiated protocol version, capabilities, transport and authentication: saying that two products support MCP does not establish that every server works unchanged with both.
 
 *Ask: Does it speak MCP, and how good is the integration?*
 
@@ -203,7 +210,7 @@ The same MCP server works with any agent that supports it, so the integration su
 
 **What it is: what carries over from one session to the next, in two halves.**
 
-The team writes the first: AGENTS.md, read at session start by most agents. Claude Code can now read it natively too, with version and file-precedence conditions covered in Chapter 6. The agent writes the second for itself: build commands it figured out, debugging insights, inferred preferences.
+The team writes the first: project instruction files such as AGENTS.md. Discovery, scope and precedence depend on the client; some require configuration or explicit loading (Chapter 6). The agent writes the second for itself: build commands it figured out, debugging insights, inferred preferences.
 
 *Ask: Does it read a team memory file at session start, and keep memory of its own?*
 
@@ -237,15 +244,15 @@ The harness is the runtime around the model: it formats your request, manages th
 
 ---
 
-### The anatomy is invariant
+### Compare the implementations
 
-**The anatomy is the same in every agent; the implementation is not.**
+**The framework makes differences visible; two implementations do not prove a universal architecture.**
 
-> **Proof: one prompt, two agents.** While preparing this manual I pointed Claude Code at the source of two other coding agents in two terminal panes: Codex CLI (Rust, maintained by OpenAI) and opencode (TypeScript, an independent team). Both are open source and share no code. Same prompt in each: map the agent loop, tools, permission gates, sandbox and plugin model, citing files and line numbers.
+> **Demonstration: one prompt, two agents.** While preparing this manual I pointed Claude Code at the source of two other coding agents in two terminal panes: Codex CLI (Rust, maintained by OpenAI) and opencode (TypeScript, an independent team). Both are open source and share no code. Same prompt in each: map the agent loop, tools, permission gates, sandbox and plugin model, citing files and line numbers.
 >
 > About four minutes later, with no human correction, both returned the same shape: an agent loop, a tool registry, a permission gate, a sandbox, a plugin model, MCP support, a subagent dispatch path. Different languages, files and names. The clearest divergence was the sandbox: Codex implements real OS-level isolation, so the kernel itself refuses what the agent is not authorized to do; opencode implements soft confinement, path validation and permission prompts with no kernel-enforced boundary.
 >
-> *Limits: the experiment shows the primitives exist, not that they are equally well implemented, and they are not.*
+> *Limits: an author-run comparison of two repositories illustrates the framework. It does not establish that every agent has all nine capabilities or that the implementations are equally effective.*
 
 ---
 
@@ -253,7 +260,7 @@ The harness is the runtime around the model: it formats your request, manages th
 
 **A vendor's choices about primitives are governance choices.**
 
-The kernel calls are in the source, so you can see whether a sandbox is real or theater. Codex CLI enforces an OS sandbox by default on Linux and macOS; Claude Code ships one as opt-in, and most installations skip it; opencode ships only the decision half. Defaults are versioned, so check yours.
+Source and runtime probes can show what a sandbox actually covers. Codex CLI enforces an OS sandbox by default on Linux and macOS; Claude Code ships an opt-in shell sandbox; opencode needs external OS isolation. Defaults are versioned, so check yours.
 
 A vendor that ships a real sandbox expects untrusted instructions to arrive - through dependencies, compromised files, injection - and builds defense in depth. One that ships soft confinement expects a trusted environment. Both are defensible; you are the one choosing, and Chapter 2 turns the choice into five layers.
 
@@ -286,7 +293,7 @@ A vendor that ships a real sandbox expects untrusted instructions to arrive - th
 ## Chapter 2
 ## Guardrails in five layers
 
-*By the end you can score a repository on five layers of control and name the one fix that closes its biggest gap.*
+*By the end you can document and test a repository's intended control boundaries, identify uncovered routes and assign the next fix.*
 
 **TL;DR**
 
@@ -333,9 +340,9 @@ Underneath all five sits least privilege: at every level - the agent, its proces
 | 2. Sandbox | Prohibited access by isolated processes | Off, bypassed through an uncovered tool, or defective | Could have, if it covered the destructive call |
 | 3. Secrets | The agent holding a credential | A secret sits within reach | Could have: no production token in the session |
 | 4. Hooks | Covered actions a blocking policy rejects | A rule is missing, editable or fails open | Could have: forced human approval |
-| 5. Telemetry | Nothing; it detects afterwards | Nobody is alerted | No, but "two days until we notice" becomes "two minutes until the on-call engineer is paged" |
+| 5. Telemetry | Nothing; it detects afterwards | Nobody is alerted or responds | No; a tested alert and response could shorten detection and recovery |
 
-No single layer would have saved PocketOS with certainty; any one enforceable layer could have broken the chain. A second 2026 incident, at DataTalks.Club, was the mirror image: Claude Code ran `terraform destroy` against a stale state file. Same cure: confirmation on destructive operations, only the credentials the task needs, and state the team has verified.
+A preventive control could have broken the chain only if it covered the destructive operation. Telemetry serves detection and response, not prevention. The public record does not establish a complete configuration audit. A second 2026 incident, at DataTalks.Club, involved Claude Code running `terraform destroy` against a stale state file. Both accounts motivate testing destructive-operation approval, credential scope, state and recovery rather than assuming those protections exist.
 
 ---
 
@@ -381,7 +388,7 @@ Your own rules go on top: any change to currency-conversion logic needs explicit
 
 ### Layer 5: Telemetry
 
-**The first four layers prevent; telemetry detects, so a failed prevention costs minutes instead of days.**
+**The first four layers aim to prevent; telemetry supports detection and response. Test the alert and the response, not just the log.**
 
 Record tool-call metadata and policy outcomes in a central store the security team owns. Capture arguments or results only where needed, with secrets and sensitive payloads redacted, access controlled and retention defined. Check what the harness actually exports; metrics alone are not a complete action log. Then "which sessions touched the payments service in the last thirty days" can be a query rather than a grep through local histories. Watch for:
 
@@ -422,21 +429,28 @@ Before Chapter 4's execute phase, establish which permission rules, hooks and sa
 ### When it breaks
 
 - **Every layer is code, and code has bugs.** In mid-2026 a red team disclosed two critical zero-click escapes of one vendor's kernel-backed sandbox (patched), and a permission check once skipped its deny rules on very long command chains. That is the argument for five layers.
-- **A log with no alert is not a layer.** PocketOS's platform recorded the delete, but no alert fired when an agent session used a production token; the first signal was an unreachable database.
+- **A log alone does not ensure a response.** The PocketOS accounts describe a recorded deletion. They do not establish a tested alert-and-response path that could have prevented the loss.
 
 ---
 
 ### Do this Monday
 
-*Score each layer DEFAULT, CONFIGURED, ENFORCED or MONITORED. DEFAULT or CONFIGURED across the board is normal; ENFORCED or MONITORED everywhere is production-grade.*
+*Create a control record for each intended boundary. Monitoring is evidence of detection, not evidence that a prohibited action is blocked.*
 
-- [ ] Pick one repository your team owns, ideally one where an agent already commits code.
-- [ ] Permissions: what runs without a prompt? Are `rm`, `terraform destroy`, drop table and force push to main gated?
-- [ ] Sandbox: kernel-enforced, or only path validation inside the agent's own code?
-- [ ] Secrets: are `.env` files committed? Can the agent reach a production token?
-- [ ] Hooks: does any pre-tool-call hook audit, log or gate dangerous operations?
-- [ ] Telemetry: would a destructive command show on a dashboard within minutes?
-- [ ] For every layer below ENFORCED, write one fix and one owner. That sheet is next quarter's plan; rerun it after every incident.
+| Record | What to write |
+|---|---|
+| Intended boundary | The operation that must be prohibited or explicitly approved |
+| Covered routes | Shell, native file tools, connected services and subprocesses; name exclusions |
+| Enforcement | Configuration location, protection against unilateral edits, installed version |
+| Verification | A benign probe, expected denial or approval, actual result and evidence |
+| Failure behavior | What happens when the control is absent, cannot start, crashes or times out |
+| Detection and response | Alert recipient, expected response and a tested alert; separate from blocking |
+| Owner and date | Who checked it, when, and when it must be rechecked |
+
+- [ ] Choose one consequential boundary in a repository and fill the record for every available route.
+- [ ] Use harmless fixtures and a test environment to confirm an allowed action and the intended denial; do not probe destructive production actions.
+- [ ] Test control failure and alert delivery. Record uncovered routes as gaps, with an owner and next action.
+- [ ] Finish when another engineer can reproduce the probe and interpret its result. Recheck after version, policy or tool changes.
 
 ---
 
@@ -463,7 +477,7 @@ Architecture answers "what is this thing." Method answers "how do we get work do
 
 **TL;DR**
 
-- Typing code is no longer the constraint; formulating the work is. Three habits carry it: domain clarity, useful decomposition, evidence before "done".
+- Agents make plausible code cheaper to produce. Domain clarity, useful decomposition and evidence before "done" help turn that output into useful changes.
 - Match the workflow to uncertainty and risk: direct work for clear changes, a short plan for dependencies, explicit outcomes and review for consequential work.
 - Setup and review have a cost; measure whether the work improves. Start with a useful constraint, not a perfect setup.
 
@@ -471,9 +485,9 @@ Architecture answers "what is this thing." Method answers "how do we get work do
 
 ### The constraint moved
 
-**The bottleneck is no longer producing code. It is formulating the work clearly enough that the agent does exactly what is needed.**
+**Cheaper code generation makes the surrounding engineering decisions more visible.**
 
-For forty years, output was limited by how fast a developer could type valid code. Autocomplete, better IDEs and AI-assisted typing all attacked that gap. An agent breaks it: in the work an agent handles well, the next hundred lines went from an hour of typing to thirty seconds of waiting. The cost is not zero, but it is no longer the constraint.
+Agents make producing plausible code much cheaper. That exposes the constraints around it: deciding what should change, supplying missing context, integrating the result and establishing that it works. Different teams have different bottlenecks; typing speed was never a complete account of software delivery.
 
 Teams that treat the agent as a code generator let it type, handle everything else as before, and spend more time fixing output than the typing saved. Teams that ship well formulate the work so the agent can execute it correctly. Vague specifications produce guessing, and guessing produces output that looks right and is not.
 
@@ -532,7 +546,15 @@ Team A turned the agent loose immediately and celebrated the early velocity. By 
 
 Team B spent month one on the practice: AGENTS.md drafted and iterated, skills written for the team's patterns, hooks configured. They shipped no agent-led work that month. By month two they were back at baseline velocity. By month three they shipped at noticeably better quality and velocity than before the agent.
 
-Discipline feels slow; the lack of it costs more, and that stays invisible until you look at cycle time across a quarter. This was a field observation, not a controlled experiment, and adjacent teams are not independent samples.
+The observation motivates measuring setup, delivery, review and defects together. It does not establish that every team should lose its first month or that this workflow caused the difference.
+
+| Case note | What this account establishes |
+|---|---|
+| Provenance | Author-reported, anonymized engagement |
+| Evidence | The qualitative account above; no underlying task counts or time series are published here |
+| Comparison | Adjacent teams before and after adoption, without controlled task selection |
+| Limitations | Team differences and the combined interventions prevent causal attribution to one agent or method |
+| Transfer | Measure your own baseline and costs; expand when the observed outcomes justify it |
 
 ---
 
@@ -542,14 +564,14 @@ Discipline feels slow; the lack of it costs more, and that stays invisible until
 
 A few useful lines in AGENTS.md can prevent a repeated mistake. A short note can settle an unfamiliar task. Teams that build the perfect workflow before running it get stuck, because there is always one more rule, skill or hook to add.
 
-Write fifteen lines on what you know is dangerous, run a few stories through the agent, and add the rules that would have prevented the failures you saw.
+Write the few useful constraints the first task needs, run bounded work through the agent, and add rules justified by observed failures or a specific risk.
 
 ---
 
 ### When it breaks
 
 - **One workflow for every task.** Ceremony can slow a clear edit; missing investigation can sink an unfamiliar one. Run the loop test first.
-- **Judging at week four.** Team B shipped no agent-led work in month one. Measure across the quarter.
+- **Waiting for a promised quarter-end payoff.** Track outcomes from the start; change or stop a pilot whose costs and failures are not justified.
 
 ---
 
@@ -617,9 +639,9 @@ Superpowers, GitHub Spec Kit, BMAD and team-built collections package parts of t
 
 ### The feature
 
-Here is one feature, followed through every phase. It is small: add a `priority` field to the `Wire` record in a regulated banking service.
+Here is one feature, followed through every phase: add a `priority` field to a `Wire` record in a banking service. The narrative below is an author-reported example; its original code and run logs are not published. The [Wire companion source](https://github.com/ro-ai-labs/ship-it-with-ai/tree/main/companion/wire) and [versioned runnable pack](/companion/wire-v1.zip) are a clearly labeled synthetic worked example for practice, not evidence of the original engagement. The small Python model makes the decisions inspectable without claiming to implement production banking infrastructure.
 
-Priority is one of low / normal / high / urgent and defaults to normal. The urgent flag triggers a separate compliance-review queue.
+Priority is one of low / normal / high / urgent and defaults to normal. The urgent flag triggers a separate compliance-review queue. The companion settles missing and null priority, older clients, unavailable queues, audit contents and retry behavior in an acceptance table before code. Those are explicit teaching decisions, not claims about an undisclosed client's policy.
 
 ---
 
@@ -683,7 +705,7 @@ The review takes a few minutes. It saves an afternoon when the plan was wrong an
 
 **Delegate independent work when the gain exceeds the coordination cost.**
 
-In this case six subagents ran in parallel, one per scoped task. They returned in under three minutes; five tasks had passing tests on the first run. That is the case's execution shape, not a default agent count: task five's dependency on task four still requires the contract to be settled before the dependent implementation can be trusted.
+The original account reported six concurrent workers, despite the dependency between tasks four and five. Without a preserved handoff record, that account does not establish that the dependency was satisfied; it describes a coordination risk, not a schedule to copy. The companion makes the safe schedule visible: settle the priority/API/audit contracts first; implement independent areas against those contracts; integrate dependent routing and verify the whole behavior afterward. One implementer can follow the same waves without subagents.
 
 The sixth, the audit-log emitter, also had a passing test - but the test was wrong. It asserted the old log format. Green, and wrong. Chapter 5 picks up how that got caught.
 
@@ -704,7 +726,7 @@ When a check fails, diagnose it before retrying. Repair a local implementation d
 
 **Review checks the diff against the spec; verify checks the behavior against the outcome.**
 
-On the wire, review caught the audit-log test and a migration with no down direction, and verify ran the full suite plus a smoke test against staging. Chapter 5 owns both phases: how to read an agent diff, and why a green suite the agent wrote is evidence, not proof.
+On the wire, review challenged the audit-log assertion and the migration's recovery plan. An absent down migration is a defect only if the project's recovery policy requires one; backward-compatible deployment, roll-forward repair or tested restoration can be valid alternatives. Verify then assesses the chosen behavior and recovery approach. Chapter 5 shows the inadequate assertion directly, and the companion lets you run the red and green stages.
 
 ---
 
@@ -716,7 +738,17 @@ The agent commits with a structured message, pushes the branch and opens a pull 
 
 On the wire, the PR carried the research note, the plan, the per-task reports, both reviews and the test evidence. A senior reviewer spent eleven minutes on it and asked one question: should the urgent flag be observable in the metrics dashboard? I had not thought about it. Approved, merged.
 
-That PR is exactly the artifact the team already knows how to review. The agent does not replace your shipping process; it feeds it better-formulated work.
+That PR is an artifact the team knows how to review, but merge is not the end of delivery. Complete the production handoff through the existing release process:
+
+| Question | Required handoff |
+|---|---|
+| How does it reach production? | Deployment order, compatibility with existing data and clients, responsible release owner |
+| What confirms success? | Observable behavior or operational signal, including urgent routing and audit priority |
+| What triggers intervention? | A named failure condition and the person who receives it |
+| How is recovery handled? | The tested rollback, roll-forward or restore approach appropriate to this change |
+| What follows release? | A bounded observation window, its owner and the decision to close it |
+
+The companion fills these fields and distinguishes simulated checks from staging and production evidence. The agent feeds your delivery process; it does not replace its accountable owners.
 
 ---
 
@@ -740,11 +772,13 @@ Chapter 3's test tells you when the loop pays at all; inside the loop the same a
 
 One team I watched ran for most of a year on what looked like half the loop: research was a comment thread, the plan was three bullets in the PR. It worked because the functions had moved into the team's walls - a small senior team that built the codebase, a strict CI suite and a serious PR culture. The lesson is to name what covers the function. Do not produce another document or agent review when the existing step already does the job.
 
+For a contrasting small change, the companion fixes a help-text typo: find the string, confirm its scope, edit it, inspect the diff and displayed text, then use the normal PR and release process. Research, planning, execution, review, verification and shipping are covered in a brief interaction. No additional agent or plan file is needed to make that work inspectable.
+
 ---
 
 ### When it breaks
 
-- **The gates are requests, not walls.** Skill instructions ask for "tests in the plan"; strict enforcement needs a project-specific PreToolUse hook (Chapter 2).
+- **The gates are requests, not walls.** Skill instructions request discipline. Required controls belong in protected runtime policy or server gates; a hook helps only on the routes it covers (Chapter 2).
 - **Parallel subagents on overlapping files** produce inconsistent edits. Re-scope by file or module, or run the tasks in sequence.
 - **Long sessions drift.** The agent re-answers settled questions and forgets constraints. That is context contamination, and Chapter 6 covers the fix.
 
@@ -800,7 +834,25 @@ One human review can cover both lenses. For risky or unattended work, a fresh ag
 
 **A suite that is happy can still be wrong.**
 
-Chapter 4 left the audit-log emitter with a test that was green and wrong. The spec-compliance reviewer, comparing the diff to the plan, caught that the test asserted the old log format, and flagged a migration with no down direction. The code-quality reviewer, who saw only the diff, found nothing of note. The implementer subagent fixed both and re-ran the relevant tests.
+Chapter 4 left the audit-log emitter with a test that was green and incomplete. Review found that the assertion omitted the newly required priority, and asked for a documented migration recovery approach. The latter is a project decision, not a universal requirement for a down migration. The implementer addressed the findings and reran the relevant checks.
+
+In the synthetic companion, the old test checks that one `wire.created` event exists and names the wire:
+
+```python
+self.assertEqual(len(service.audit_events), 1)
+self.assertEqual(service.audit_events[0]["type"], "wire.created")
+self.assertEqual(service.audit_events[0]["wire_id"], wire.wire_id)
+```
+
+Before reading on, ask: which new acceptance criterion could still fail while these checks pass?
+
+The event can omit priority entirely. The stronger assertion observes the chosen value:
+
+```python
+self.assertEqual(event.get("priority"), "URGENT")
+```
+
+It fails on the defective implementation with `None != 'URGENT'`; including the normalized priority repairs it. Testing all four values also excludes a hard-coded URGENT fix. Run `python3 verify.py` from the [companion pack](/companion/wire-v1.zip) to observe weak-green, corrected-red and repaired-green. That model experiment does not establish the original banking system's behavior.
 
 Verify then ran the full suite of 3,400 tests and a smoke test against the staging compliance-routing service, and produced a diff of the API contract change for the regulator's review. All passing. That evidence went into the pull request at Chapter 4's ship step.
 
@@ -847,7 +899,7 @@ Verify asks whether the intended behavior works and what evidence supports that 
 
 A reversible prose or configuration edit does not automatically need a permanent test file. Check the changed content, parser, build or rendered result as appropriate. A reversible change to permissions or money handling can still need substantial behavioral testing: reversibility is not a measure of bug risk.
 
-For frontend behavior, prefer user-facing roles and labels, the accessibility tree browsers keep for screen readers, over brittle CSS selectors. A Playwright test that finds the field labeled Priority, changes it, clicks Save and checks the new value asserts behavior, and survives a restyle or a component-library swap. Visual changes also need a rendered check; behavior tests do not assess the layout.
+For frontend behavior, prefer user-facing roles and labels over brittle CSS selectors. They resist many styling and DOM changes when the accessible contract stays stable. A native select uses `selectOption()`; a radio uses `check()`; a custom combobox can require a different interaction. Replacing one control with another may require a test update even when the business outcome is unchanged. Assert the resulting behavior and inspect rendered visual changes; semantic locators do not assess layout.
 
 ---
 
@@ -875,7 +927,7 @@ A team I worked with installed a full review toolkit: agents for swallowed excep
 
 Then a PR that every agent had passed - tests green, no security findings, clean diff - applied a discount rule to the wrong customer tier and ran in production for weeks until a support ticket surfaced it. The toolkit had worked as designed: it removed the mechanical findings from human review, and the judgment drifted away with them. That is Chapter 9's uncalibrated delegator, at team scale.
 
-The fix was an explicit floor: a minimum review on business correctness and architectural fit for every agent-touched PR, tracked as a number next to defect rate. The read order above is that floor made concrete.
+The fix was a judgment floor, not a duration quota. Before approval, the reviewer should be able to explain the business rule, the consequential edge case, why the change belongs at this architectural boundary, and which evidence would reveal the most damaging plausible mistake. Review time and escaped defects are useful diagnostics. A short review can answer these questions well; a long review can still miss them.
 
 ---
 
@@ -891,7 +943,7 @@ The fix was an explicit floor: a minimum review on business correctness and arch
 - [ ] Open the last three tests the agent wrote. Do the assertions come from the spec or from the code?
 - [ ] Check both intent and code quality. Try a fresh reviewer on a consequential change, then record useful findings, false positives and time before making it a default.
 - [ ] Diagnose a failing check before changing it. Confirm required CI cannot be bypassed, and that legitimate check updates have a review path.
-- [ ] Set a minimum human review for agent-touched PRs and track it next to defect rate.
+- [ ] Confirm the review answers the business-rule, consequential-edge, architectural-boundary and damaging-mistake questions. Track time as a diagnostic alongside escaped defects, not a quality quota.
 
 ---
 
@@ -920,17 +972,26 @@ The fix was an explicit floor: a minimum review on business correctness and arch
 
 **AGENTS.md is the team's agreement with the agent, committed in git.**
 
-It is a markdown file in the repository root that the agent reads at session start, before any prompt. It turns "what the agent thinks is reasonable" into "what the team has agreed is reasonable", reviewable in a pull request. It is the manually owned layer of the Memory primitive from Chapter 1: the part the team writes.
+It is a Markdown file for project instructions. A compatible client loads it according to its own discovery and configuration rules; some clients need explicit loading. The text records what the team wants the agent to follow, reviewable in a pull request. It is the manually owned layer of Memory from Chapter 1, not an enforced permission policy.
 
 ### AGENTS.md vs CLAUDE.md: what's the difference? {#agents-md-vs-claude-md}
 
 **The discipline is shared; loading depends on the agent and version.**
 
-AGENTS.md is the vendor-neutral name, read natively by Codex CLI, Cursor, GitHub Copilot, Gemini CLI and others. Claude Code v2.1.277 and later can read it directly when no CLAUDE.md or CLAUDE.local.md exists in the working directory or above it. If both exist, the default favors CLAUDE.md; importing `@AGENTS.md` there remains an option. Settings and older versions differ, so check which files actually loaded.
+The shared filename does not imply identical loading. This compatibility summary was checked October 23, 2026; verify the installed version and effective context.
+
+| Client | Filename and configuration | Scope and precedence | Inspect what loaded |
+|---|---|---|---|
+| Codex CLI | `AGENTS.md`; `AGENTS.override.md` takes precedence in a directory; fallback names configurable | Global guidance, then repository root toward working directory; closer instructions override earlier ones; combined size limit configurable | Ask for active sources and inspect session/TUI logs when auditing |
+| Claude Code | `CLAUDE.md` default; direct `AGENTS.md` from v2.1.277 | Default AGENTS fallback only when the working-directory/ancestor path contains no `CLAUDE.md`, `.claude/CLAUDE.md` or `CLAUDE.local.md`; a CLAUDE file can import `@AGENTS.md`; AGENTS override/local filenames are not Codex equivalents | `/memory`; direct AGENTS listings require v2.1.280+, with early exceptions fixed in v2.1.281 |
+| Gemini CLI | `GEMINI.md` default; configure `context.fileName` to include `AGENTS.md` | Global, workspace/ancestor and relevant directory context, subject to trusted-root rules; not Codex's precedence model | `/memory show`, then `/memory reload` after changes |
+| Aider | Explicit `aider --read AGENTS.md`; persist `read: AGENTS.md` in `.aider.conf.yml` | Included read-only chat context; no implied AGENTS ancestor-discovery hierarchy | Startup confirmation and `/ls` |
+
+Primary documentation and version limits are in Appendix C. Test one distinctive instruction in a fresh session rather than assuming the file was discovered or has identical authority in every client.
 
 ---
 
-### The story: one line, three hours a month
+### The story: one convention, three supports
 
 A team I worked with had used a coding agent for six months when a senior engineer brought me a complaint. "Every time we generate an API endpoint, I have to fix the validation. Always the same fix. The agent puts it in the wrong layer."
 
@@ -938,11 +999,17 @@ A team I worked with had used a coding agent for six months when a senior engine
 
 "We never wrote it down. We just keep fixing it."
 
-We counted. Last month the agent had generated twelve endpoints and he had fixed the validation layer in eleven, about fifteen minutes each. Three hours of senior time a month, absorbed into "normal review work".
+The senior repeatedly corrected the same validation placement during endpoint reviews. The original account included endpoint counts and a time estimate, but the underlying review records are not available here, so this edition makes no precise monthly saving claim.
 
-We wrote one line in AGENTS.md: "Bean Validation annotations on DTOs at the controller boundary; service-layer methods trust their inputs." We added it to the pull request template as a reviewer prompt and tagged the already-correct endpoints as reference examples. The next twelve endpoints needed zero validation-layer corrections.
+We documented the convention in AGENTS.md, added a PR-template reminder and identified correct endpoints as reference examples. Subsequent reviews reportedly needed fewer corrections of that kind. The intervention was that combination; the account does not isolate the instruction's contribution.
 
-The rule did not make the agent perfect. It removed one repeated correction, and that is the file's whole job.
+| Case note | What this account establishes |
+|---|---|
+| Provenance | Author-reported, anonymized engagement |
+| Evidence | A recurring review problem and a reported improvement; underlying review/time records are not published |
+| Comparison | Before/after observations of a combined instruction, reminder and reference-example change |
+| Limitations | No isolated instruction effect, controlled task mix or defensible monthly time saving |
+| Transfer | Write a scoped convention, support reviewers and examples, then measure recurring corrections |
 
 ---
 
@@ -968,9 +1035,9 @@ The rule did not make the agent perfect. It removed one repeated correction, and
 | | The rule |
 |---|---|
 | Bad | "Always follow our coding standards. Be careful with validation. Use the right architecture." |
-| Good | "DTOs own controller-boundary validation via Bean Validation annotations. Services trust validated DTOs and do not re-validate. Never add validation annotations inside service methods. Examples: UserCreateController, AccountUpdateController." |
+| Good, for this project's HTTP entry path | "Controller DTOs establish request-shape guarantees through Bean Validation before service calls; follow UserCreateController. Other entry points establish the same guarantees. Service/domain code still enforces business invariants; use service method validation where required by that boundary." |
 
-The bad version sounds responsible, but "careful" is not a constraint and "the right architecture" depends on context the rule never gives. The good version is the story's line, hardened: it names the layer, the mechanism, the rule and two examples to pattern-match against. Forbidden patterns follow the same form, with the reason in a clause; Appendix B.2 has three.
+The bad version leaves the architecture unspecified. The scoped version identifies an entry boundary, its guarantee, a mechanism and an example without declaring services universally safe to trust arbitrary input. Spring supports service method validation too. A portable pattern is: "Within [scope], [entry boundary] establishes [input guarantee] using [mechanism]; follow [reference]. Other entries establish the same guarantee; [owner] maintains domain invariants." Appendix B.2 is a project-specific starting point.
 
 ### Rules 2 and 5: justified by need, owned like code {#rules-2-and-5-earned-by-failure-owned-like-code}
 
@@ -1079,7 +1146,7 @@ I asked for fifteen minutes and a terminal. I pasted the review prompt with two 
 - It described a scheduled job in confident detail. On inspection it was commented-out code that had not run in production for three years.
 - It missed that a third-party dependency was deprecated and carried a security advisory. The agent had no access to the advisory database, so I added that myself.
 
-The corrected document went into the repository, and the team did not do the rewrite. It showed them the two modules that really needed replacing, the deprecated dependency among them, and they replaced just those the following quarter. I ran this exact workflow on this exact codebase, and the company saved nine person-months of rewrite effort that they would otherwise have spent and regretted.
+The corrected document went into the repository, and the team chose targeted work instead of the broad rewrite proposal. They replaced two modules the following quarter, including the deprecated dependency. The eighteen-month proposal and three-month replacement describe elapsed schedules, not comparable labor totals. Without the original staffing assumptions and a credible counterfactual, this account does not establish person-months saved or isolate the agent's effect from the experts' judgment.
 
 | | |
 |---|---|
@@ -1088,6 +1155,14 @@ The corrected document went into the repository, and the team did not do the rew
 | **Human correction time** | ~45 minutes (reviewer knew the customer onboarding domain) |
 | **Outcome** | Two modules carried the technical debt; the 18-month rewrite became a targeted 3-month replacement |
 | **Limitations** | The workflow accelerates domain knowledge, it does not substitute for it |
+
+| Case note | What this account establishes |
+|---|---|
+| Provenance | Author-reported, anonymized banking engagement |
+| Evidence | The account, its three corrected mistakes and reported investigation times; original artifacts are not published |
+| Comparison | An estimated broad rewrite schedule versus the targeted work the team chose; staffing is unspecified |
+| Limitations | Avoided effort is an unmeasured counterfactual; experts corrected the map and chose the alternative |
+| Transfer | Use a reviewed map to challenge scope, then estimate the alternatives explicitly |
 
 ---
 
@@ -1161,13 +1236,13 @@ Time-box the first investigation, then decide whether another pass is likely to 
 ## Chapter 8
 ## Should the agent touch this code?
 
-*By the end you can score any codebase green, yellow or red, and say which work the agent should and should not do there.*
+*By the end you can establish a task's prerequisites, identify preparation gaps and decide what work can proceed within tested boundaries.*
 
 **TL;DR**
 
-- Score a codebase on eight kill signals: 0-1 is green (agent-led), 2-3 yellow (human-led), 4 or more red (fix the codebase first).
-- Signal 6, a team that cannot evaluate the output, weighs more than the others: present, it makes that work red whatever the count.
-- Count by intensity, not presence, and score per project, not per company.
+- Before scoring, define the task, its qualified reviewer, evidence that would expose a consequential mistake, and appropriate permissions and recovery.
+- Missing or unknown prerequisites restrict the affected task to investigation or supervised preparation. A green repository score does not authorize every task in it.
+- Use the eight signals as a heuristic preparation guide. Record unknowns explicitly; coverage percentage alone does not establish verification.
 
 ---
 
@@ -1175,7 +1250,18 @@ Time-box the first investigation, then decide whether another pass is likely to 
 
 **Some codebases should not get an agent yet, and saying no there is what lets you say yes everywhere else.**
 
-The reason is not that the agent or the team is bad: the codebase has properties that make agentic work unsafe, unproductive, or both. The rubric is eight kill signals, each a property of the codebase or the team. Without it, every project becomes an AI project, and the failures of the ones that should not be taint the whole approach.
+The reason is not that the agent or the team is bad: a proposed change can exceed the team's ability to evaluate it, verify it or contain its consequences. Establish those prerequisites first. The eight signals then help prioritize preparation; they are a discussion aid drawn from practice, not a validated risk model.
+
+### Before scoring: define the task
+
+| Prerequisite | Evidence needed |
+|---|---|
+| Scope | Named behavior, affected module and environment; permitted actions |
+| Evaluability | A qualified person who can recognize a plausible but incorrect result |
+| Verification | Checks that expose consequential mistakes in this change, with meaningful assertions and interpretable failures |
+| Boundaries and recovery | Appropriate access, approval, deployment and recovery arrangements for the consequences |
+
+If any answer is missing or unknown, restrict that work until the gap is addressed. An agent can still investigate an untested module or draft characterization tests under supervision. That does not authorize it to change the module's business behavior. The restriction follows the affected task, not every activity in the repository.
 
 ---
 
@@ -1198,9 +1284,9 @@ The reason is not that the agent or the team is bad: the codebase has properties
 
 ### Signal 1: no tests
 
-**Close this one first, and let the agent help - as a net, not as proof.**
+**Establish relevant verification before behavioral changes; let the agent help prepare it.**
 
-Ask the agent for characterization tests of what the module does today; the spec is "whatever the code currently produces", which is bulk work it does well. It is a real investment of time, and if the team will not make it, the answer is no. The tests lock in today's behavior, bugs included: a net, not proof (Chapter 5).
+Ask the agent to draft characterization tests of current behavior, then have a qualified reviewer distinguish intended behavior from existing bugs. Check important outcomes, failure cases, reliability and whether the team can interpret failures. If no available evidence would expose a consequential mistake, restrict the affected work to investigation or supervised preparation until that evidence exists. The tests are a regression net, not proof of correctness (Chapter 5).
 
 ---
 
@@ -1214,44 +1300,47 @@ The agent did exactly what was asked. Its output looked right and was wrong, and
 
 Teams read this as "we need more senior engineers", which does not scale on a six-month timeline. Make qualified approval a required server-side review for the sensitive paths, with agent credentials unable to bypass it. Enforced tool policy can also keep the agent from editing those modules. AGENTS.md can explain the restriction and agent reviewers can assist, but neither substitutes for the missing expertise or makes approval unavoidable.
 
-This signal is weighted more heavily than the others: it is counted with them, and it also overrides the count. A codebase that scores zero on signals one through five but yes on signal six is still red for the relevant work. The other seven cost productivity; this one ends in compliance disclosures and incident retrospectives. The fix is to build the capability, bring in someone who has it, or keep the agent away.
+This signal fails the evaluability prerequisite regardless of the total. Several other signals can also block a particular task, including absent verification or an unavailable approval path. Build the missing capability, bring in someone who has it, or restrict the affected work. A low total never overrides a missing prerequisite.
 
 ---
 
 ### Are AI coding agents production-ready? {#are-agents-production-ready}
 
-**It depends on the project: the count picks the color, and signal 6 alone makes it red.**
+**Readiness belongs to a task and its controls; a repository color only helps prioritize preparation.**
 
 ```
-  Signal count       Color       Mode
+  Check task prerequisites first. Unknown is not zero.
+  With no unknowns, sum and round halves upward before choosing a color.
+
+  Signal count       Color       Preparation guide
   ============       =====       ====
 
-  0 - 1              GREEN       Agent-led, normal velocity
-  2 - 3              YELLOW      Human-led, agent support
-  4 +                RED         Stop. Fix codebase first.
+  0 - 1              GREEN       Few preparation gaps
+  2 - 3              YELLOW      Substantial preparation
+  4 +                RED         Broader preparation first
 
-  Signals (count each present):
+  Signals (score each known gap):
    1. No tests          5. Regulatory constraints
    2. No documentation  6. Team cannot evaluate output
    3. Tight coupling    7. Model-context fit
    4. Scattered rules   8. Velocity-of-change
 ```
 
-*Figure: The kill signals and the traffic light decision rule. Signal 6 weighs more heavily than the others.*
+*Figure: The kill signals and the traffic light preparation guide. Missing task prerequisites override the color; unknown answers require investigation.*
 
-- **Green:** agent-led. One developer dispatches and supervises the six-phase loop.
-- **Yellow:** human-led, agent supports. Pair with it instead of dispatching it; the gain is quality more than speed.
-- **Red:** fix the codebase first. The agent is net negative until the signals come down.
+- **Green:** a candidate starting point, once the proposed task meets all prerequisites.
+- **Yellow:** prioritize the specific gaps and use closely supervised work where the prerequisites hold.
+- **Red:** broader preparation is likely needed. Investigation and bounded repair can still be useful; do not treat the color as permission for behavioral changes.
 
-Apply the light per project, not per company. Start on green, move yellow toward green over a quarter or two, and reform or retire red.
+Apply the guide to the relevant area of a project. A green repository score supports choosing a starting point. It does not authorize every task in that repository.
 
 ---
 
 ### Count by intensity, not presence
 
-**Signals are not binary, and 3 versus 4 is a rule of thumb, not a threshold.**
+**Score the evidence for the affected area; leave uninvestigated properties unknown.**
 
-A partial signal scores half: tests that exist but are partial are half of signal 1, documentation three years stale is half of signal 2. Add the partials and round: four halves is a 2, three halves and a full signal is a 3, five halves is a 3. The full worksheet is Appendix B.4.
+Use 0 for an absent preparation gap, 0.5 for a partial gap and 1 for a substantial gap, with a short evidence note. Use `?` when uninvestigated; do not calculate a reassuring total by counting it as zero. With no unknowns, sum and round halves upward before applying the 0-1 / 2-3 / 4+ bands. These are author heuristics, not measured safety thresholds. Appendix B.4 gives behavioral anchors; a line-coverage percentage is supporting information only.
 
 ---
 
@@ -1259,31 +1348,32 @@ A partial signal scores half: tests that exist but are partial are half of signa
 
 **Each color changes how you use the agent.**
 
-| Project | Count | Color | What to do |
+| Project and evidence | Count | Preparation | What to do |
 |---|---|---|---|
-| Customer-profile service: 70% coverage, README overview, rules in one library | 0 | Green | Agent-led through the loop |
-| Legacy payments engine: 20% coverage, stale docs, moderate coupling, audit machinery in place | 2.5, round to 3 | Yellow | Human-led: characterization tests, docs, bounded refactors |
-| Custom encryption library, 2017 contractor: undocumented, no cryptographer | 5 | Red | Keep the agent out; fund the expertise or replace it with a vetted standard library |
-| Greenfield API service: senior team, clear spec | 0 | Green-plus | AGENTS.md before the first commit, tests from day one |
-| Internal tool: 20 developers, written 2019, low regulatory exposure | 1 | Green-leaning | The right first target for a team new to agents: realistic, low stakes |
+| Customer-profile service: relevant outcomes and failure cases tested reliably, current overview, canonical rules, qualified reviewer | 0 | Green | Choose a bounded task and establish its remaining prerequisites |
+| Legacy payments: relevant failure cases absent (1), stale docs (0.5), costly coupling (1), scattered rules (0.5); approval and expertise available | 3 | Yellow | Prepare verification first; supervise bounded investigation and refactoring |
+| Custom encryption library: undocumented, no qualified cryptographic reviewer | Not decisive | Prerequisite failed | Restrict cryptographic changes; obtain expertise or evaluate a vetted replacement |
+| Greenfield API: clear request, verification and deployment not investigated | ? | Unknown | Define behavior, checks, reviewer and recovery before choosing a mode |
+| Internal tool: relevant checks established, some documentation and coupling gaps (0.5 each), low exposure | 1 | Green | A possible pilot, subject to task prerequisites and spending limits |
 
 ---
 
 ### When it breaks
 
-- **Counting presence instead of intensity** turns yellow into green. "Technically has tests" that cover 10% of the code at low quality is not a pass.
-- **Adopting AI on a red codebase because leadership decided to** is the pattern behind failed adoption stories. Fix the signals first.
+- **Counting test coverage instead of assertions** hides missing verification. Check the affected behavior and consequential failure cases.
+- **A green total masks an unknown.** Investigate the unknown and task prerequisites before expanding scope.
+- **Leadership mandates a mode despite a missing prerequisite.** Restrict the affected task and name the preparation needed.
 - **A green codebase starts giving yellow results after a model upgrade.** Suspect instructions written for the previous model before you blame the code: run the migration checklist in Appendix B.9.
 
 ---
 
 ### Do this Monday
 
-- [ ] Pick one in-flight project and write your gut color on a separate sheet. The whole exercise takes under fifteen minutes.
-- [ ] Score the eight signals with the Appendix B.4 worksheet, using the team's answers rather than your impression.
-- [ ] Check signal 6 first: if it is present, that work is red whatever the count. Then count and compare with your gut; the gap shows which signals you over- or under-weight.
-- [ ] Defend the classification to your tech lead with the scores.
-- [ ] Re-score quarterly, after major incidents, and before expanding agent scope.
+- [ ] Name one proposed task, the affected behavior and environment.
+- [ ] Fill the four prerequisites in B.4; restrict the affected work wherever an answer is missing or unknown.
+- [ ] Record evidence for the eight preparation signals. Use `?` for unknowns and meaningful checks rather than coverage thresholds.
+- [ ] Give the lead a bounded next action, owner and completion criterion. Finish when another engineer can reproduce the decision from the worksheet.
+- [ ] Recheck when the task, model, controls or surrounding system changes.
 
 ---
 
@@ -1305,7 +1395,7 @@ A partial signal scores half: tests that exist but are partial are half of signa
 
 - Isolate concurrent or conflicting work, use local checks for feedback and protected server gates for enforcement, and retain normal human review.
 - One engineer can start a rollout: use it yourself, record outcomes, teach a peer, then recruit the lead and manager. Measure the pace rather than assuming a fixed productivity curve.
-- Name the two engineer archetypes and plan for the vendor's bad week before either finds you.
+- Give skepticism a constructive role, make review accountable and plan for vendor outages.
 
 ---
 
@@ -1349,9 +1439,9 @@ The mistake journal and its champion are Chapter 6. For process mistakes, keep a
 
 **Run the agent unattended only under a written contract.**
 
-The outer loop re-invokes the agent until a condition holds. It adds attempts, not judgment, so it multiplies whatever your inner loop permits (Chapter 4). Use it on GREEN codebases only (Chapter 8), on many similar, verifiable, reversible units, and read the pull requests in the morning.
+The outer loop re-invokes the agent until a condition holds. It adds attempts, not judgment, so it multiplies whatever your inner loop permits (Chapter 4). Use it only when every unit meets Chapter 8's task prerequisites and can be independently verified and recovered, with controls suited to unattended work. A green preparation score alone is insufficient. Review the resulting pull requests before release.
 
-Before the first unattended run, write five lines: a stop condition a machine can evaluate; a budget; a gate the agent cannot edit; fresh context each iteration with state in the repository; isolation sized for absence (own worktree, sandbox on, no production credentials, network constrained). Appendix B.6 is the form, with the four signs that mean stop before you relaunch.
+Before the first unattended run, record a machine-evaluable stop condition, budget, protected acceptance gate, durable state and context handoff, and isolation sized for absence. Use a dedicated branch and working copy, verify each tool's sandbox coverage, keep production credentials out and test network restrictions. Appendix B.6 is the form, with the four signs that mean stop before relaunch.
 
 ---
 
@@ -1376,17 +1466,20 @@ By month six it looks like the ideal arc at month three, in twice the time. The 
 
 **The 90-day arc is one workable schedule, not a productivity law.**
 
-The example gives setup and a bounded pilot the first month, expansion the second, and operational ownership the third. Some teams benefit immediately; others spend longer on access, governance or verification. Track cycle time, defects, review effort and usage from the start, and expand only when the evidence supports it. Add instruction files, skills and hooks for a demonstrated need or justified risk. The sample calendar is Appendix B.5.
+Before starting, establish an approved service and account, permitted repositories and data, a responsible owner, initial tested controls and a spending limit. Existing policy applies to a grassroots pilot too. The example then gives setup and a bounded pilot the first month, expansion the second, and operational ownership the third. Later governance work reviews expansion and recurring ownership; it is not the first approval. Track elapsed and human touch time, quality, review/rework and total cost from the start. Add instructions, skills and hooks for a demonstrated need or justified risk. The reusable calendar and measurement card are Appendix B.5.
 
 ```
+  BEFORE STARTING: approved service/account; permitted repositories/data;
+  responsible owner; initial tested controls; spending limit and baseline.
+
   Days 1-30: Foundation             Days 31-60: Expansion           Days 61-90: Productionization
   -------------------------         -------------------------       -------------------------
   Champion installs                 Lead onboards 2-3 more          Manager folds metrics
   AGENTS.md drafted                 engineers                       into normal velocity
   First green-light project         AGENTS.md hardened              tracking
-  Architecture review               Hooks configured                Vendor governance signed
-  workflow proven                   Skills if useful                  Plugin marketplace
-                                    Kill signals applied            policy in place
+  Architecture review               Hooks configured                Expansion governance reviewed
+  workflow proven                   Skills if useful                Ongoing marketplace
+                                    Kill signals applied            policy and ownership
                                     to portfolio
   ====================              ====================            ====================
   Champion                          Lead                            Manager
@@ -1413,15 +1506,15 @@ The example gives setup and a bounded pilot the first month, expansion the secon
 - [ ] Weeks 2-4: for one project per color, write down what would have to change to move it up.
 - [ ] Months 2-3: track cycle time, defect rate and reviewer time (noisy; measure anyway), then present honest results, including where the agent did not deliver.
 
-**The manager** owns budget, procurement and governance sign-off, and shields the team from premature metrics. Their page is Appendix A, with the 20-engineer engagement where agent-touched PRs (41% of the total) ran 28% below the pre-agent cycle-time baseline, defects within noise.
+**The manager** owns pilot eligibility and budget before work begins, then procurement, expansion decisions and recurring governance. Appendix A provides an illustrative twenty-engineer scenario and a complete hypothetical cost calculation; it does not supply measured adoption or cycle-time outcomes.
 
 ---
 
-### Two archetypes that kill rollouts
+### Dissent and overconfidence
 
-**Treat each as a structural problem with a structural fix, not a character flaw.**
+**Separate justified dissent from unexamined delegation, using evidence and the normal engineering process.**
 
-**The principled skeptic** is the senior who has seen AI hype cycles before, will not use the agent and reviews agent-led PRs with extra hostility. Either the team works around them and the codebase splits into agent-friendly and agent-hostile territory, or they win the argument and the rollout stalls. Do not try to convert them; give them a boundary: "your modules, your rules, the agent will not touch them; everywhere else the team standard applies." And do not let every agent-led PR queue behind them, or you have granted a veto nobody intended.
+**The principled skeptic** may be identifying a real failure mode. Invite them to define representative tasks, consequential mistakes, evidence needed to expand scope and stop conditions. A demanding reviewer can improve the pilot without choosing to use the agent personally. Distinguish evidence-based dissent from obstruction through the normal engineering process. Resolve ownership and conduct disputes there; do not route around required expertise or approvals to preserve adoption momentum.
 
 **The uncalibrated delegator** skips the careful read because "the agent always does it right". Defects compound, the team blames the agent instead of the missing review step, and eventually the engineer cannot debug what the agent helped build. Every agent-led PR gets the same human review as a human-led one. For the first month, pair them with a senior who reads the output line by line.
 
@@ -1442,7 +1535,7 @@ I watched a team's velocity halve for a week when their primary model was rate-l
 | A champion, no lead | The champion does all the agent work alone; the agent is labeled "interesting but limited" | The lead's checklist, above |
 | A champion and lead, no manager | Procurement stalls, yellow projects stay yellow; the classification has no buyer | The manager's page, Appendix A |
 | A lead and manager, no champion | Committed in theory, stuck in practice | The champion's checklist, above |
-| Local hooks treated as enforcement | Skipped, edited or never installed | Run the same checks in CI |
+| Local hooks treated as enforcement | Skipped, edited or never installed | Protected required server checks and reviewed policy changes |
 
 ---
 
@@ -1468,19 +1561,19 @@ I watched a team's velocity halve for a week when their primary model was rate-l
 
 The tools I have named will all be different by the time the next edition of this manual is due. What you have learned is not the tools. It is a way of thinking that survives them, in three controls.
 
-**Architecture is the control of capability.** The primitives - context window, tools, permissions / sandbox, skills, plugins, MCP, memory, effort, subagents - plus the harness that organizes them. Most production agents converge on this anatomy because the work determines it, not the vendor, so you can evaluate the next agent by walking down the list.
+**Architecture is the control of capability.** Inspect context, tools, permissions / sandbox, skills, plugins, MCP, memory, effort and subagents, and the harness that supplies them. The list helps compare contemporary systems; absent or externally supplied capabilities are legitimate findings.
 
 **Method is the control of workflow.** Formulating work clearly is the foundational shift. The six-phase loop is one implementation; AGENTS.md will exist under other names, but the principle is permanent: discipline as code, not oral tradition.
 
 **Reality is the control of adoption.** Kill signals are properties of codebases and teams, not of tools. The traffic light applies whichever agent you use this quarter, and champion, lead, manager is the arc for any tooling transition.
 
-If you take one practice away, take the architecture review from Chapter 7 as an initial diagnostic: useful evidence to inspect, not a verdict from one run. If you take one framework, take the kill signals and the traffic light from Chapter 8; the "no" matters as much as the "yes." If you take one orientation, invest in the way of thinking, not the tool.
+If you take one practice away, take the architecture review from Chapter 7 as an initial diagnostic: useful evidence to inspect, not a verdict from one run. If you take one framework, take the task prerequisites and preparation signals from Chapter 8; the "no" matters as much as the "yes." If you take one orientation, invest in the way of thinking, not the tool.
 
-Back to those nine seconds: PocketOS lost a production database in the time it takes to read this sentence. Every layer of this methodology existed in 2026 and could have been in place in the months before. None was. That is the gap this manual tries to close: between the methodology that exists and the methodology that is applied.
+Back to those nine seconds: the PocketOS account shows why an instruction against destructive behavior is insufficient. Preventive boundaries need route-specific verification; detection needs a tested response. The public accounts leave configuration details unresolved. This manual asks you to make your own controls and decisions inspectable.
 
 Understanding the problem becomes more important than writing the code. That was true when programming meant punching holes in cards, when the IDE replaced the text editor, and when AI-assisted coding crossed from autocomplete to drafting; it is true now that agents do the writing. The model names will age out of this edition, and the durable work stays: understand the problem, formulate the work, constrain the execution, verify the result. That sequence is the whole control problem, and it never belonged to the tools: it belongs to you.
 
-The agents write the code. You understand the problem. That is the skill no one is automating.
+Agents can help you understand the system. You remain accountable for understanding enough to choose the work, evaluate the evidence and accept the consequences.
 
 ---
 
@@ -1502,7 +1595,7 @@ The shape of a manual depends on the shape of the writer, so here is mine.
 
 I wrote my first programs in BASIC in 1989. My professional career started in 2000 as IT Manager for a manufacturing company; from 2001 I was in software engineering, and through 2023 I delivered .NET for customers across industries, with production code in C, Java, JavaScript, Go and Python along the way. I am an engineer first and a consultant second.
 
-I started on machine learning around 2013. In late 2015 I ported DarkNet and YOLO onto an XR headset and began building AI applications professionally; in 2023 I joined a company building the first neuromorphic SoC. I have used every generation of coding assistant, from Visual Assist to the first Copilot to LLMs for coding since ChatGPT shipped. I have not built my own coding agent; I have used most of the ones that ship now and watched many teams use them.
+I started on machine learning around 2013. In late 2015 I ported DarkNet and YOLO onto an XR headset and began building AI applications professionally; in 2023 I joined a company developing neuromorphic SoCs. I have used every generation of coding assistant, from Visual Assist to the first Copilot to LLMs for coding since ChatGPT shipped. I have not built my own coding agent; I have used most of the ones that ship now and watched many teams use them.
 
 I am not neutral. I think agentic software delivery is the most consequential shift in our field since high-level languages, and that the way most teams adopt it is doing them more harm than good. This is the third or fourth iteration of these frames; the earlier ones were wrong in interesting ways.
 
@@ -1515,9 +1608,9 @@ I am not neutral. I think agentic software delivery is the most consequential sh
 
 This page tracks meaningful updates to the manual. Smaller copy-edits and SEO tweaks are not listed; the footer shows the last updated date.
 
-### 2026-10-23 - Workflow proportionality and the native-agent baseline
+### 2026-10-23 - Evidence, task prerequisites and reproducible delivery
 
-The current edition now starts with the native agent and the team's existing controls. The six phases describe functions, not six required skills, documents or approval stops. Planning, delegation, review and verification follow uncertainty, risk and observed usefulness; Superpowers remains optional. An independent editorial pass corrected sandbox coverage and hook/CI enforcement claims, distinguished Goals from protected acceptance checks, made architecture maps provisional diagnostics, and qualified timing and rollout examples. Chapter 6 treats 200 lines as a guideline and updates Claude Code's native AGENTS.md loading. The templates, sources and Romanian edition follow the same advice. Appendices C and D record the evidence and limits reviewed on October 23; other historical claims keep their dates. The September full edition remains frozen.
+The maintained editions start with the native agent and task-sized process; Superpowers remains optional. Task prerequisites now precede the heuristic readiness score, with unknowns explicit and behavior-based verification anchors. Control records distinguish prevention, detection, failure behavior and tested coverage. Case notes separate author reports, unavailable measurement records and counterfactual savings; unsupported rollout percentages and labor-saving precision were removed. The economics include all attempts, amortized setup, maintenance and recurring governance, separating capacity from cash. A synthetic runnable Wire companion demonstrates inadequate-green, corrected-red and repaired-green, dependency-aware planning and production handoff. Technical corrections cover instruction discovery, concurrency, context-study baselines, DNS routes, Playwright actions, RULER, MCP and Spring. Templates, summaries, sources and Romanian recommendations align; reader routes, template labels and archive dates are clearer. New or rechecked sources identify their scope and date; this is not a claim that every historical fact was revalidated. The September manuscripts remain frozen.
 
 ### 2026-10-14 - The short edition
 
@@ -1549,7 +1642,7 @@ Chapter 5 gains a Context hygiene section, inserted after the inner/outer loop v
 
 ### 2026-07-05 - Appendix A worked example
 
-Appendix A gains a worked pass of its own rubric, closing the one gap in a book built on worked examples: the cost section had no numbers. The new subsection runs the Chapter 10 manager sidebar's 20-engineer financial-services engagement through the appendix - 13 Team seats plus 7 Pro seats, the four-category TCO list, and the bounding heuristic - using the engagement's published operational numbers (41% of merged PRs agent-touched, cycle time 28% below baseline, defects flat) as the value anchor. The cost-side rates are labeled as illustrative round numbers, not quotes, consistent with the appendix's stance that specific prices go stale quarterly. The honest headline lands in a small table: the sticker is the smallest line, and the human-time categories dwarf it. The close holds Chapter 10's boundary: the manager defends the operational number, not a projected ROI.
+Appendix A gained a worked cost example using illustrative rates and the then-reported rollout figures. **Superseded October 23:** the underlying measurement definitions and records are not available here; those figures are no longer presented as measured pilot evidence. The maintained appendix now contains an explicitly hypothetical full-cost comparison and a reusable measurement card.
 
 ### 2026-07-05 - Two kinds of hooks (Chapter 9 pattern three)
 
@@ -1591,127 +1684,146 @@ Manual published at ship-it-with.ai. Ten chapters across three parts (Architectu
 
 ## Appendix A. For managers
 
-*For the engineering manager, director or CTO who owns budget, hiring and procurement - and for the champion who has to hand them a case. Read Chapters 2, 8 and 9 first (guardrails, readiness, rollout). This appendix holds the rest: your role, the portfolio call, one worked team, and the money. It is built to be forwarded on its own.*
+*For the engineering manager, director or CTO who owns budget, staffing and procurement, and for the champion who has to hand them a case. Read Chapters 2, 8 and 9 for controls, task readiness and rollout. This appendix covers your decisions, an illustrative team, and a cost comparison you can replace with your own numbers. It can be forwarded on its own.*
 
 ---
 
 ### Your job in the 90 days
 
-**The manager does not run the agent. The manager defends three boundaries.**
+**The manager owns the conditions for starting, the decision to expand, and the ongoing cost.** Those responsibilities begin before the first pilot. The sample 90-day arc in Chapter 9 gives more attention to the manager later; it does not postpone procurement or governance until day 61.
 
-The manager phase is days 61-90, after the champion has stood up the practice and the lead has hardened it (Chapter 9 has the arc). It has three centers of gravity:
+Before starting, name the responsible owner and agree:
 
-- **Procurement.** Close the licensing decision so the team is not on individual seats forever.
-- **Governance.** Sign off on the security posture the champion drafts.
-- **Reporting.** Translate operational results into terms leadership will fund.
+- The approved service and account, permitted repositories and data, and any required contractual terms.
+- Initial permissions, secrets controls, isolation and recovery arrangements appropriate to the pilot. Verify the covered routes rather than assuming the configuration works.
+- A spending limit, comparable work to observe, success criteria, and conditions for stopping or restricting the pilot.
+- Who can judge the affected behavior, review consequential changes, and make the expansion decision.
 
-None of it needs you to write code. All of it needs you to hold lines: operational data versus ROI promises, tooling matched to usage versus forced uniformity, protecting the team from premature metrics versus demanding evidence that the work pays off.
+During the pilot, protect time for investigation, review and maintenance. Help the lead resolve access, documentation and expertise gaps. A team unable to evaluate a payment algorithm needs qualified help or a narrower task; a subscription does not supply that expertise.
 
-You also own the calls nobody else can make: hiring the cryptographer behind a signal-six problem, funding a quarter to move a yellow project to green, buying extra tooling or services.
+Later, decide whether the evidence supports expansion, a different workflow or stopping. Assign continuing ownership for instructions, integrations, vendor risk, controls and evaluation. These are operating responsibilities, even when the initial setup is complete.
 
-**What you do not do:**
-
-- Chase per-engineer productivity metrics in month two.
-- Commit to a three-year ROI before the dashboard has a quarter of data.
-- Authorize vendor-versus-vendor benchmarks before the team has shipped enough to define what it is benchmarking.
-
-Agree a pilot budget and success criteria before rollout. Track operational outcomes from the start while resisting premature individual rankings or unsupported ROI claims. When the operational number is solid, defend it; leave the revenue argument to whoever owns revenue. The sample 90-day arc shifts toward ongoing ownership, but the handoff should follow evidence and readiness.
-
-Without an engaged manager the cost shows up elsewhere: procurement sits two months waiting on legal, the documentation budget is never allocated, yellow projects stay yellow. The lead's classification was correct. It had no buyer.
+Track outcomes from the start. Resist individual rankings based on PR counts, early promises of revenue, and a calendar that expands scope regardless of results. A small, well-understood pilot is easier to evaluate than a company-wide adoption target.
 
 ---
 
 ### Which codebases now, later, never
 
-**Apply the traffic light per project, never per company.** The question is not "is this company ready for AI." It is "which of our codebases is ready today, and what would it take to move the others." Chapter 8 holds the eight kill signals and the scoring. The part you act on is the sort.
+**Decide for the proposed task before sorting the portfolio.** Define the affected behavior and environment. Establish a qualified evaluator, evidence that would expose a consequential mistake, and suitable permissions and recovery. If a prerequisite is missing or unknown, restrict that task to investigation or supervised preparation until the gap is addressed.
 
-| Color | Signals | Mode | Your call |
-|---|---|---|---|
-| Green | 0-1 | Agent-led | **Now.** Start here to build the team's experience and confidence. |
-| Yellow | 2-3 | Human-led, agent support | **Later.** Fund the structural fixes that move it toward green over a quarter or two. |
-| Red | 4+ | Fix the codebase first | **Never, as it stands.** Reform or retire over a longer horizon; the agent stays out until the signals close. |
+Chapter 8's eight signals then help prioritize preparation. The colors are a heuristic, not a delegation policy. With no unknowns, sum and round halves upward before applying a color:
 
-Most companies hold a mix, and the mix is the plan. When leadership has decided to "adopt AI," the temptation is to put the agent on a red codebase anyway. Resist: that temptation is what produces the failed adoption stories that taint the field.
+| Rounded repository score | Preparation guide | Manager's decision |
+|---|---|---|
+| Green, 0–1 known gaps | Few preparation gaps | Consider bounded work whose task prerequisites are established. |
+| Yellow, 2–3 known gaps | Substantial preparation | Fund the most consequential gaps and select work the team can evaluate now. |
+| Red, 4+ known gaps | Broader preparation | Restrict the affected work while deciding what to investigate, improve, replace or retire. |
+| Unknown, `?` | Evidence is missing | Investigate it; do not silently count it as zero. |
 
-Two rules to know before you read a scorecard:
+A green repository score does not authorize every task. A high score does not prohibit useful read-only investigation. Missing qualified evaluation is a task prerequisite failure regardless of the total. Test coverage can inform the discussion, but relevant assertions, failure cases, reliable execution and the team's ability to interpret results matter more than a percentage.
 
-- **Signal six is weighted more heavily than the others.** It is counted with them and also overrides the count: a codebase that scores zero on signals one through five but yes on signal six is still red for the relevant work. The fix is structural: build the capability, partner with someone who has it, or restrict the agent away from those areas.
-- **Count by intensity, not presence.** "Tests exist but are partial" is half a signal. A codebase that technically has tests that cover 10% of the code at low quality is not green.
-
-Ask your lead for a one-row-per-project scorecard on the top five active projects: signals scored, color, recommended mode (agent-led, human-led, fix first). It takes about two hours. For a yellow project, ask for the two or three structural fixes that would make it green. For a red one, ask whether the answer is investment, replacement or retirement. Sometimes the question is the strategy, not the codebase: a vendor-customized fork with severe upstream coupling asks whether the custom layer should exist at all.
+Ask the lead for a short portfolio record: proposed task, prerequisites, known and unknown gaps, permitted scope, required preparation and owner. For each investment, ask what decision or verification capability it buys. "Never" should describe work the team cannot responsibly authorize under its present constraints, not a permanent label attached to a company or repository.
 
 ---
 
 ### One team, week by week
 
-**Twenty engineers in a regulated financial-services firm.** The manager owns the engineering function and reports to a supportive but cost-conscious CTO. The board wants a one-page update at the end of the third quarter on the AI investment. The champion ran days 1-30 and the lead hardened the practice in days 31-60; the manager picks up from day 61.
+**Illustrative planning scenario:** twenty engineers in a regulated financial-services firm, with an engineering manager and a cost-conscious CTO. This is not a measured pilot or a report of a client engagement. The schedule illustrates decisions and responsibilities; it supplies no observed adoption, cycle-time or defect-rate result. Use the sequence where it fits, and change the dates to match the evidence.
 
-| Week | What lands | What the manager does |
+| Stage | What the team brings | What the manager does |
 |---|---|---|
-| 1 (days 61-67) | A dashboard of three metrics: share of merged PRs touching agent code; cycle time and defect rate on that set, each compared to the prior quarter. | Verifies the metrics are real. Does not try to grow them. |
-| 2 (days 68-74) | Procurement asks seat versus enterprise. The team is on individual Pro seats. | Chooses Team tier for 13 of 20 engineers and Pro seats for the 7 who rarely use the agent. Defends it: the goal is bounded spend that matches usage, not uniform tooling. |
-| 3 (days 75-81) | The security committee has read about the configuration-file injection class Check Point Research disclosed in early 2026 (Appendix C) and wants a written governance posture. | Edits and signs a one-page document naming four control points: hooks, sandbox, secrets vault, telemetry (Chapter 2 has the layers). The champion writes it. |
-| 4 (days 82-88) | The board ask. | Sends two sentences and one number. Promises no revenue figure. |
+| Before the pilot | A bounded proposal, an accountable owner, approved account/data scope, initial controls, and an evaluation plan | Confirms eligibility, expertise, spending limit and stopping conditions before work begins. |
+| First month | A small sample of accepted and failed attempts, review findings, billed usage and unresolved gaps | Protects evaluation time; addresses missing access or expertise; does not demand an adoption percentage. |
+| Second month | A comparison of similar work, with human effort, delivery time, quality observations and costs recorded separately | Checks how tasks were selected and whether the results justify another bounded group of users or tasks. |
+| Later manager phase | A recommendation to expand, change or stop, with limitations and operating responsibilities | Resolves licensing for the approved scope, assigns ongoing governance and maintenance, and reports supported outcomes. |
 
-The numbers behind week 1: 41% of merged PRs agent-touched in month two, cycle time on them 28% below the pre-agent baseline, defect rate within noise of it.
+A useful board update names what was compared, what was observed and what remains uncertain. For example: *"We compared [counts and task types] during [dates], using [selection method]. Human touch time was [result], elapsed delivery time was [result], and [defect observations] cover [window]. The incremental cost was [amount]. We recommend [decision], subject to [remaining uncertainty]."* Fill the fields from records; leave unsupported claims out.
 
-The board update, in full: *"We have twenty engineers on agent-assisted delivery. Cycle time on agent-touched PRs is 28% lower than baseline at no measurable change in defect rate. We are continuing to scope expansion through the next quarter."* The manager defends the operational number and leaves the revenue argument to the CTO.
+Keep one measurement card with the report:
 
-Day 90: back to ongoing operations. The dashboard stays; the champion and lead keep their roles.
+| Field | What to record |
+|---|---|
+| Provenance and period | Observed pilot or illustrative example; dates, service/model versions, workflow and owner. |
+| Work and comparison | Raw counts of attempted, completed and accepted tasks; task types, selection method, baseline/comparison group, exclusions and material differences. |
+| Delivery time | Elapsed start-to-acceptance time, with the start/end definition and waiting time stated. Record human touch time separately. |
+| Human effort | Investigation, implementation, review and rework for both groups; include failed or abandoned attempts. State how time was captured. |
+| Quality | Escaped defects by severity, denominator and observation window. Record acceptance criteria and relevant checks; disclose missing follow-up. |
+| Review | Reviewer effort, useful findings, resulting rework and required domain expertise. |
+| Cost | Seats, all billed usage including failures, infrastructure, setup, ongoing maintenance and recurring governance/evaluation. State allocation and amortization assumptions. |
+| Independence | Whether another engineer can operate the workflow and interpret its evidence without the champion. |
+| Decision and limits | What supports expanding, changing or stopping; uncertainty, confounders and the next observation needed. |
+
+Agent-touched PR share describes adoption. It is not an outcome target. A change in cycle time does not establish effort released, cash saved or unchanged quality. With a small sample or a short defect window, say what you observed; do not replace missing evidence with "within noise."
 
 ---
 
 ### How much does agentic coding cost? {#how-much-does-it-cost}
 
-**The sticker is the smallest line, and the one everybody asks about first.** Prices change every quarter; the rubric does not. Plug your own numbers into it.
+**Count the full delivery cost, then compare useful accepted work.** A seat quote is easy to find; investigation, review, failed attempts and maintenance are easier to miss. Prices and contract terms change. Use the structure below with your own agreement and records.
 
-Three pricing models dominate:
+- **Fixed seats.** A genuinely fixed monthly fee stays the same when usage rises. Effective cost per useful task falls as useful usage increases. That does not make more generated output valuable. Usage caps, overages and tier changes are separate conditions to check.
+- **Metered usage.** Count what is billed across all attempts, including retries, discarded work and additional agents. Use actual bills or usage records, not the final response's token count.
+- **Enterprise terms.** Commitments, allowances, access controls, retention, audit facilities and contractual protections vary. Verify what the agreement provides and what the pilot requires; the label does not establish the terms.
 
-- **Per-seat.** A flat monthly fee per engineer. Predictable; cheap for occasional users, expensive for power users who run the agent all day.
-- **Per-token.** You pay for what the agent reads and writes. Fair to occasional users; punishing for the engineer running three parallel sessions for ten hours.
-- **Enterprise.** A negotiated annual commitment bundling seats, a token allowance and the compliance surface (Zero Data Retention, audit log access, dedicated capacity, SSO, signed BAAs). It amortizes both extremes and adds what regulated industries require.
+Separate initial setup from continuing work:
 
-**The bounding heuristic.** Per-engineer cost is bounded by what the team would otherwise spend on similar tooling (IDE licenses, code-intelligence platforms, AI-coding subscriptions) plus a fraction of a senior engineer's hourly time saved per week. If the all-in monthly cost exceeds that envelope by a wide margin, the math is unlikely to work with any vendor. If it falls comfortably inside, it is unlikely to fail. Break-even lands quickly when the agent saves even a few hours a month per engineer.
+| Cost | Include |
+|---|---|
+| Task delivery | Human investigation, implementation, review and rework, including failed attempts, on both sides of the comparison. |
+| Tooling and infrastructure | Incremental seats, metered usage, environments and connected services. |
+| Initial setup | Initial instruction, integration and control work; state the period over which it is amortized. |
+| Ongoing maintenance | Updating instructions, skills, integrations and controls as the system changes. |
+| Recurring governance and evaluation | Vendor-risk review, access review, measurement, control checks and procurement work that continues after setup. |
 
-**What the quote leaves out.** Four lines dominate the real total:
-
-| Line | What it covers | The 20-engineer team (illustrative) |
-|---|---|---|
-| Seats (the sticker) | The vendor quote | ~$530/mo, ~$6,400/yr, recurring |
-| Integration | Custom skills, hooks, MCP servers for internal systems | A few engineer-weeks, one-time |
-| Skill-authoring | Maintaining AGENTS.md, updating skills as the codebase evolves | A few hours per engineer per month, plus the champion's part-time quarter |
-| Review | Reviewing agent output: less per change than hand-written code in most cases, never zero | Concentrated on senior reviewers, ongoing |
-| Governance | CISO security review, Zero Data Retention addendum, procurement cycle, audit logging, vendor-risk monitoring | A week to a quarter, front-loaded in a regulated firm, one-time |
+Keep three outcomes separate: shorter elapsed delivery time, useful engineering capacity released, and actual cash savings. A loaded hourly rate values capacity for comparison; it does not mean payroll falls when a task takes fewer hours. Record how any released time is used.
 
 ---
 
 ### The structural levers {#cost-levers}
 
-**Prices go stale; the levers that move the token line do not.** On per-token plans they are where the second-year savings live.
+**Change a cost lever only while checking the outcomes it must preserve.** A cheaper run that misses the requirement is a failed attempt, not a saving.
 
-- **Effort level.** The Chapter 1 primitive and the largest cost dial you own. Set it per phase, sweep it per model, and never leave the default on for the whole loop.
-- **Cache-first prompt layout.** Stable content first (system prompt, AGENTS.md, loaded skills), per-turn content last, so the prefix caches. Across 500 sessions on three providers that ordering alone cut cost by 41% to 80%.
-- **Deferred tool loading.** One audit of a default Claude Code session counted about 24k tokens of tool definitions and schemas before the user's first word. Defer the schemas and pay only when a tool is used.
-- **Masking over summarization.** Blank old tool results instead of summarizing the history. JetBrains measured it over 50% cheaper, with a solve rate that matched or beat summarization.
-- **Tier routing.** Route by task, not by team: a cheaper model does the work, a stronger one stays on call. In Anthropic's advisor pattern (April 2026), Sonnet with an Opus advisor beat Sonnet alone at 11.9% lower cost per task; Haiku with the advisor was 85% cheaper than Sonnet alone but trailed it by 29% in score. Right for the mechanical tiers of the loop, wrong for research.
+- **Effort and model choice.** Compare settings on representative tasks. Use more reasoning or a stronger model where it changes the result enough to justify its cost; use a cheaper setting where the evidence supports it.
+- **Stable prefixes and caching.** Where the provider supports prefix caching, stable instructions before changing task content can reduce repeated input cost. Check cache eligibility, actual hits and billed rates.
+- **Tool loading.** Load the capabilities the task needs. Deferred schemas can reduce initial context where the client supports them; confirm that required tools remain discoverable.
+- **Context management.** The cited JetBrains study compared observation masking and summarization with unmanaged history across five configurations. Both substantially reduced cost in most settings; masking was cheaper than summarization in four of five. The Qwen3-Coder 480B configuration saved 52.7% and 50.4% respectively against unmanaged history. This is not a universal 50% saving from replacing summarization with masking.
+- **Workflow and routing.** Compare the native workflow with optional skills, reviewers or advisor arrangements on matched tasks. Include their startup, review and coordination costs. The right arrangement depends on the task and model.
+
+Appendix C records the sources and their scope. Recheck the relevant result before treating it as a budget assumption.
 
 ---
 
 ### A worked example {#a-worked-example}
 
-**Run the 20-engineer team through the rubric.** The figures are round numbers for the arithmetic, not quotes.
+**Hypothetical monthly comparison, not a measured result or vendor quote.** A twenty-engineer team accepts twenty comparable pilot changes. The calculation assumes comparable useful outcomes for the arithmetic; it does not establish equal quality or prove that agents caused the effort difference.
 
-Sticker first. 13 Team seats at an illustrative $30 plus 7 Pro seats at $20 is $530 a month, call it $6,400 a year. Write it down: it is the smallest number on the page.
+Across those changes, the baseline uses **200 human task hours** and the agent-assisted workflow uses **160**. Both include investigation, implementation, review, rework and failed or abandoned attempts. Value human time at an illustrative loaded **$100 per hour**. Costs shared unchanged by both workflows are omitted from both sides.
 
-Then the human lines. A few engineer-weeks of integration, at any realistic loaded cost, clears the first year's sticker on its own, once. Skill-authoring across 20 engineers, plus the champion's quarter, recurs and can run larger than the seats themselves. Review lands on your most expensive hours, the senior reviewers. Governance in a regulated shop is a week to a quarter of security, procurement and audit-logging work before a single seat is billed.
+| Monthly cost for 20 accepted changes | Baseline | Agent-assisted |
+|---|---:|---:|
+| Human task time: 200h / 160h at $100/h | $20,000 | $16,000 |
+| Incremental seats | — | $530 |
+| Metered usage, including failed attempts | — | $270 |
+| Incremental infrastructure | — | $100 |
+| Initial setup: 120h × $100 = $12,000, amortized over 12 months | — | $1,000 |
+| Ongoing instruction/integration maintenance: 10h × $100 | — | $1,000 |
+| Recurring governance/evaluation: 4h × $100 | — | $400 |
+| **Modeled monthly total** | **$20,000** | **$19,300** |
+| **Modeled cost per comparable accepted change** | **$1,000** | **$965** |
 
-The value side runs the bounding heuristic in reverse. At an illustrative $100 loaded per hour, a $30 seat is covered when the agent saves that engineer about twenty minutes in the month; a few saved hours is nowhere near close. But that back-of-envelope is not what justified the spend. The operational number did: 41% of merged PRs agent-touched, cycle time 28% below baseline, defects flat. Measured hours out, not projected dollars.
+The maintenance and governance hours are additional operating work, separate from the 160 task hours. Task review and rework appear only in task time. Initial setup appears only in its amortized line. All attempts contribute their effort and usage costs, even though only accepted changes form the denominator.
 
-**The discipline:** the four hidden lines dominate, and the human ones dwarf the seat math. Defend the operational number to the board, not a projected ROI the dashboard cannot yet support. Walk into procurement with your own numbers in this structure. Pricing changes; this arithmetic does not.
+The value calculation is:
+
+**$4,000 released task-capacity value − $900 tooling/infrastructure − $1,000 amortized setup − $1,000 ongoing maintenance − $400 recurring governance = $700 modeled net capacity value per month.**
+
+That $700 is not cash savings or a forecast. The initial setup consumes 120 hours upfront; amortization spreads its value for this comparison rather than changing when the work occurs. A different useful life, more review, fewer accepted tasks, worse quality or unused released capacity can change the result. Elapsed delivery time is not specified by these human-hour totals.
+
+For an actual pilot, replace each assumption with a record or label it as an estimate. Compare the measurement card as well as the arithmetic. Cost per accepted task is useful only when the work and its accepted outcomes are comparable; twenty easy fixes and twenty consequential changes do not become equivalent because both sets contain twenty items.
 
 ---
 
-**Related:** [Appendix B.4](#template-b4) (kill-signal scoring worksheet), [Appendix B.5](#template-b5) (90-day calendar), Appendix C (sources).
+**Related:** [Appendix B.4](#template-b4) (task prerequisites and preparation worksheet), [Appendix B.5](#template-b5) (example rollout calendar), [Appendix B.10](#template-b10) (matched workflow comparison), Appendix C (sources).
 
 ---
 
@@ -1724,6 +1836,15 @@ Eleven copy-paste templates and exercises. All are starting points; customize fo
 ```
 Analyze the architecture of this codebase. Produce a structured architecture review document covering:
 
+Repository and scope: [repository, affected areas and exclusions]
+Business domain: [known domain and owner who can correct inferences]
+Authorization: read-only investigation by default; other actions only [explicit scope]
+Time budget: [bounded first pass]
+Evidence available: [code, tests, docs, runtime access]
+Evidence unavailable: [production state, advisories, business decisions, other gaps]
+Commit reviewed: [actual git SHA; state dirty/untracked files separately]
+Human review owner: [name/role]
+
 1. Purpose. What does this service do? Who uses it? What business problem does it solve?
 2. Top-level structure. Major modules, packages, or folders. One paragraph per major component.
 3. Data model. Primary entities, relationships, persistence. Cite specific files and line numbers.
@@ -1734,10 +1855,15 @@ Analyze the architecture of this codebase. Produce a structured architecture rev
 8. Build and deployment. Cite the configuration files.
 9. Risks and unknowns. Fragile code, inconsistent conventions, deprecated dependencies, unresolved patterns.
 
-Cite specific files and line numbers throughout. Where the codebase is ambiguous, say so explicitly. Where you encounter patterns the team should formalize, suggest the convention.
+Cite specific files and line numbers throughout. Separate observed code facts,
+inferred business purpose, and unverified operational claims. Configuration is not
+proof of production behavior. State ambiguity and unavailable evidence. Suggest
+conventions for human review; do not implement them without authorization.
 ```
 
 ### B.2 AGENTS.md skeleton {#template-b2}
+
+This is an illustrative Java/Spring project skeleton. Replace example names, incident dates, commands and restrictions with verified project facts; the sample incidents are not reports about your repository.
 
 Works as [AGENTS.md](https://agents.md/) or CLAUDE.md; check your agent's loading rules. Start short and use roughly 200 lines as a trimming guideline, not a target or universal limit. The precedence line goes first: it clarifies how these local instructions relate to the task and skills, within the agent's higher-priority rules.
 
@@ -1756,7 +1882,7 @@ Precedence: in a conflict, the task prompt wins over this file; this file wins o
 
 ## Conventions
 - Constructor injection only, not field injection.
-- @Transactional only on service methods that mutate state.
+- In this project's persistence services, use transactions where consistency requires them; use @Transactional(readOnly = true) for appropriate reads and explicit write transactions for mutations. Follow the reviewed service example; this is not a universal Spring restriction.
 
 ## Build and test
 - Build: mvn clean verify
@@ -1800,50 +1926,72 @@ VERIFY
   Held-out tests and sealed history/network are evaluation or high-assurance tools.
 SHIP
   Structured commit and PR; reviewers per CODEOWNERS; normal team review.
+  Record release owner/order, compatibility, success signal, intervention trigger,
+  recovery approach and observation window before the production handoff.
 ```
 
 ### B.4 Kill signal scoring worksheet {#template-b4}
 
 ```
-Score each signal 0 (absent), 0.5 (partial, between the anchors) or 1 (present).
+TASK PREREQUISITES — complete before scoring
+  Proposed behavior/module/environment: ______
+  Qualified evaluation owner: ______
+  Consequential mistake and evidence that would expose it: ______
+  Permitted actions, required approval, deployment and recovery: ______
+Missing or unknown? Restrict the affected work to investigation or supervised
+preparation until resolved. A green repository score authorizes no task by itself.
 
-1 No tests
-  0    > 70% coverage AND run on every commit
-  0.5  30-70% coverage, or not routinely run
-  1    < 30% coverage or no suite
+PREPARATION SIGNALS — 0 absent gap / 0.5 partial / 1 substantial / ? unknown
+For each, record evidence, owner and next action. Never turn ? into 0.
+
+1 Inadequate verification
+  0    important outcomes/failure cases asserted; reliable runs; failures understood
+  0.5  some relevant checks, with named bounded gaps
+  1    absent or unreliable checks cannot expose consequential mistakes
+  ?    affected behavior or assertions not investigated; coverage alone cannot settle it
 2 No documentation
-  0    current architecture doc, decision records
-  1    no overview; only the author knows
+  0    current explanation and decisions for the affected behavior
+  0.5  usable explanation with named gaps
+  1    required behavior/decisions unavailable
 3 Tight coupling
-  0    clear boundaries; modules change in isolation
-  0.5  some coupling; new hires struggle
-  1    hairball; one edit breaks three files
+  0    clear contracts and understood effects of a change
+  0.5  some cross-module effects, with known seams
+  1    effects cannot be bounded without wider investigation
 4 Scattered business rules
-  0    one source of truth per rule
-  1    same rule in 3+ places, inconsistent
+  0    canonical owner/source for relevant rules
+  0.5  duplicated rules with known reconciliation
+  1    conflicting rules without a known authority
 5 Regulatory constraints
-  0    standard controls; audit machinery copes
-  0.5  regulated, but the workflow is in place
-  1    heavy controls, no integrated workflow
+  0    required approvals and evidence supported by an established workflow
+  0.5  additional preparation needed for this task's approval/evidence
+  1    required approval or evidence path unavailable
 6 Team cannot evaluate output
-  0    senior expertise for every domain
-  0.5  expertise exists but is fragile
-  1    cannot evaluate output in some domain
+  0    qualified reviewer available for the affected domain
+  0.5  expertise available with a fragile handoff
+  1    no qualified evaluator: task prerequisite fails regardless of total
 7 Model-context fit
-  0    popular language/framework, public footprint
-  1    proprietary DSL, internal framework
+  0    model works with supplied context on representative bounded tasks
+  0.5  known gaps need extra documentation or supervision
+  1    material misunderstanding persists in the proposed work
 8 Velocity of change
-  0    stable framework and dependencies
-  1    major migration mid-flight
+  0    target versions and compatibility understood
+  0.5  migration boundaries known but require care
+  1    moving targets or compatibility unresolved
 
-Sum, round to the nearest integer.
-  0-1 GREEN (agent-led)  2-3 YELLOW (human-led, agent supports)  4+ RED (fix the codebase first)
-Signal 6 weighs extra: a 1 is RED for the affected work, whatever the total.
+With no unknowns, sum and round halves upward. Author heuristic, not a safety score:
+  0-1 GREEN few gaps / 2-3 YELLOW substantial preparation / 4+ RED broader preparation
+Task prerequisites override every color. Investigate unknowns before assigning a color.
+Allowed next task: ______  Restriction: ______  Owner/check/date: ______
 ```
 
 ### B.5 90-day adoption calendar (one-pager) {#template-b5}
 
 ```
+BEFORE STARTING
+  Approved service/account: ______  Permitted repositories/data: ______
+  Responsible owner and qualified reviewer: ______
+  Initial verified controls/recovery: ______  Spending limit: ______
+  Baseline, comparable task sample and stop/expansion criteria: ______
 CHAMPION
   Week 1      install; architecture review (B.1) on a familiar codebase; commit it
   Week 2      review instructions (B.2); add only what the pilot needs
@@ -1853,17 +2001,29 @@ CHAMPION
 LEAD
   Week 1      classify the top 5 projects against the 8 kill signals (B.4)
   Weeks 2-4   per color, write what would have to change to move one project
-  Month 2     track cycle time, defect rate, reviewer time
+  From start  record elapsed and human touch time, quality, review/rework and all costs
   Month 3     present honest results
 MANAGER
-  Months 1-2  protect the team: no per-engineer productivity metrics, ROI projections or vendor benchmarks yet
+  From start  confirm eligibility/budget; evaluate outcomes without individual PR quotas
   Days 61-67  take the handoff; verify the dashboard metrics are real
   Days 68-74  close the seat-vs-enterprise decision (Appendix A)
-  Days 75-81  governance one-pager; champion drafts, manager signs
-  Days 82-90  two sentences and one number to leadership; quarterly cadence
+  Days 75-81  review expansion and ongoing governance; initial approval was before pilot
+  Days 82-90  report observations, costs and limits; decide expand/change/stop
 ```
 
-Grassroots track for teams without all three roles: Chapter 9.
+Reuse this measurement card; dates are examples, not a required expansion schedule. Agent-touched PR share measures adoption, not outcome.
+
+| Measure | Record |
+|---|---|
+| Comparison | Dates, model/workflow versions, task types/selection, raw attempted/completed/accepted counts and baseline |
+| Delivery | Elapsed start-to-acceptance definition; human touch time separately |
+| Quality | Escaped defects by severity, denominator and observation window; unknown follow-up |
+| Review | Reviewer effort, useful findings, rework and required expertise |
+| Cost | All billed usage and failed attempts, seats/infrastructure, amortized setup, maintenance and recurring governance |
+| Independence | Another engineer can operate the workflow and interpret the checks |
+| Decision | Expand/change/stop, limitations and next evidence needed |
+
+Grassroots track for teams without all three roles: Chapter 9. Appendix A fills a hypothetical cost comparison; do not substitute PR-cycle time for effort or cash saved.
 
 ### B.6 Outer-loop contract (one-pager) {#template-b6}
 
@@ -1872,7 +2032,8 @@ Before any unattended run, fill every line. A blank line means the loop is not r
 
 WORK
   Queue: ______ (in the repo; one small, similar, reversible unit per item)
-  Eligibility: GREEN codebase (B.4 score 0-1) / every unit machine-verifiable / every unit revertible
+  Eligibility: every unit meets B.4 task prerequisites; independently verifiable
+  and recoverable within the unattended-run controls. Green score alone is insufficient.
 STOP CONDITION (machine-evaluable; the loop halts itself)
   Done when: ______ (queue empty / suite green / N units ready for review)
   Budget: max ______ tokens or $______ or ______ iterations or ______ hours - whichever hits first
@@ -1885,8 +2046,8 @@ EACH ITERATION
   Done-markers advance only after the trusted checks pass; the agent's report alone
   is not the acceptance gate.
 ISOLATION
-  Own worktree and branch, never the default branch
-  Sandbox on; no production credentials; network off or allowlisted
+  Dedicated working copy and branch, never the default branch
+  Verified tool/sandbox coverage; no production credentials; test network/DNS routes
 MORNING REVIEW (the human floor)
   Each PR reviewed for business correctness and architectural fit
   Kill check before relaunch: oscillating diffs? budget spent but queue not shorter?
@@ -1910,9 +2071,24 @@ CONTAMINATED WHEN the agent
 THEN
   Save the needed state, then restart or compact with a clear handoff.
 COMPACTION (a handoff, not a continuation)
-  Prefer masking old tool outputs to summarizing. History is append-only on
+  Compare supported masking/summarization strategies with outcomes and usage. History is append-only on
   Fable 5.1: restart, do not edit. Give the compactor a keep-list: plan, open
   questions, deviations, commands that worked. The rest is gone.
+```
+
+Completed handoff example, a synthetic exercise checkpoint rather than a real session log:
+
+```
+Objective: add Wire priority while preserving v1 responses and retry behavior.
+Accepted decisions: four enum values; omitted/null => NORMAL; only URGENT queues;
+  reject urgent creation on queue outage; audit chosen priority; replay once.
+Current revision: wire-v1 teaching snapshot; no Git commit SHA asserted.
+Changed files: wire.py, defective.py, tests.py, verify.py, README.md; baseline.py retained.
+Unresolved: real queue durability/atomicity and production consumer compatibility.
+Failed approach: event-existence assertion passed while priority was omitted.
+Checks run: weak-green, corrected expected-red, repaired suite green via verify.py.
+Next action: qualified reviewer inspects acceptance evidence and release assumptions;
+  no production deployment authorized by these model tests.
 ```
 
 ### B.8 Agent-diff read order (one-pager) {#template-b8}
@@ -1997,12 +2173,12 @@ VALUE
 
 ### B.11 Exercises {#template-b11}
 
-Two exercises that go beyond a chapter's Do this Monday list. For Chapters 2, 7 and 8, the Monday list is the exercise: the five-layer scorecard, the first architecture review, the gut-color check.
+These exercises test judgment rather than document count. Chapters 2, 7 and 8 add a reproducible control record, reviewed architecture map and task-readiness worksheet. The [Wire pack](/companion/wire-v1.zip) provides executable examples and fuller answer keys.
 
 **Chapter 1 - What an agent is**
 
-1. Clone two open-source coding agents, open your own agent in each and ask: "Walk this codebase and name the primitives - context window, tools, permissions / sandbox, skills, plugins, MCP, memory, effort, subagents. For each, name the file or module that implements it and rate it basic, intermediate, or advanced."
-2. Save both answers in a two-column table. The primitives match; the differences are governance choices.
+1. Inspect two open-source coding agents: "Find context, tools, permissions / sandbox, skills, plugins, MCP, memory, effort and subagents. Cite the implementing file/module, or report absent/external/unknown. Distinguish documented claims from observed behavior."
+2. Compare the evidence. Different packaging and absent capabilities are valid findings; do not force the implementation into the framework.
 
 **Chapter 6 - AGENTS.md and context**
 
@@ -2011,6 +2187,24 @@ Two exercises that go beyond a chapter's Do this Monday list. For Chapters 2, 7 
 3. Draft only the useful additions from B.2. Link to detailed docs rather than copying a repository map; avoid generic best practice.
 4. Compare a representative task with and without the proposed file in fresh sessions, using the same starting commit and acceptance criteria. Look at outcomes, review effort and usage, not just which answer reads better.
 5. Give it to a teammate new to the repo; their confusion is your next edit.
+
+**Find the dependency error**
+
+Proposed plan: run routing, API and audit workers concurrently; let each choose a priority representation; agree the record/default afterward. What must change?
+
+*Answer:* settle the shared representation, defaults and failure policy before dependent implementation. Then use dependency-aware waves or one implementer, one writer per overlapping area, and an integration check. Independent exploration can propose alternatives earlier; it cannot silently commit conflicting contracts.
+
+**Find the inadequate assertion**
+
+The acceptance criterion requires chosen priority in the event. The test asserts only one event, its type and wire ID. What can still be wrong?
+
+*Answer:* priority can be absent or incorrect. Assert its value against the selected input, demonstrate failure on the defect, then repair and rerun. Exercise all values to reject a hard-coded fix. Exact event equality can also be valid if the accepted contract requires it.
+
+**Choose the workflow size**
+
+Compare a help-text typo, a priority field crossing storage/API/audit/routing, and an unfamiliar ledger algorithm without a qualified reviewer.
+
+*Answer:* the typo needs direct inspection, edit, focused verification and normal shipping. The priority change needs explicit decisions, ordered dependencies, failure/retry evidence and a production handoff. Restrict the ledger change while establishing evaluability and verification. Alternative artifacts and agent counts are acceptable when the decisions and controls are covered.
 
 ---
 
@@ -2054,7 +2248,7 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 **Claim:** Claude Code was vulnerable to remote code execution via untrusted project files: malicious `.mcp.json` or `.claude/settings.json` files in untrusted repos could execute hooks before the trust dialog, enabling RCE.
 **Source:** Check Point Research, February 2026. CVE-2025-59536. NVD: [nvd.nist.gov/vuln/detail/CVE-2025-59536](https://nvd.nist.gov/vuln/detail/CVE-2025-59536). Writeup: [research.checkpoint.com/2026/rce-and-api-token-exfiltration-through-claude-code-project-files-cve-2025-59536/](https://research.checkpoint.com/2026/rce-and-api-token-exfiltration-through-claude-code-project-files-cve-2025-59536/).
-**Where used:** Appendix D, Chapter 2 (three vulnerability classes behind layers one to three); referenced in Appendix A (One team, week by week, security committee scene).
+**Where used:** Appendix D, Chapter 2 (three vulnerability classes behind layers one to three).
 **Caveat:** Disclosed and patched in Claude Code v1.0.111 (October 2025); the Check Point writeup was published February 2026. Versions earlier than the patch remain vulnerable; the class survives even after the specific patch.
 
 ---
@@ -2094,10 +2288,10 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ---
 
-**Claim:** Mozilla 0Din researchers demonstrated (June 2026) an indirect prompt-injection attack in which a harmless-looking repository induces Claude Code to run a script that pulls a base64-encoded payload from a DNS TXT record and spawns a reverse shell - splitting the attack across the repository, DNS, and the developer's machine so no reverse-shell signature appears in plaintext on disk or on the wire.
-**Source:** SecurityWeek, June 29, 2026: [securityweek.com/new-attack-abuses-claude-code-and-harmless-looking-repositories-to-hijack-developer-machines/](https://www.securityweek.com/new-attack-abuses-claude-code-and-harmless-looking-repositories-to-hijack-developer-machines/).
-**Where used:** Chapter 2 (Injection arrives through the work itself); Appendix D, Chapter 2 (injection through the work: the DNS TXT proof of concept).
-**Caveat:** Proof of concept; no vendor patch reported at the time of writing. The mitigation is the layered posture - a network allowlist bounds the DNS path regardless of what the agent was convinced to run.
+**Claim:** Mozilla 0Din researchers demonstrated an indirect prompt-injection proof of concept in which a repository induces Claude Code to retrieve a payload through a DNS TXT record and execute it.
+**Source:** June 2026 report: [SecurityWeek](https://www.securityweek.com/new-attack-abuses-claude-code-and-harmless-looking-repositories-to-hijack-developer-machines/). Current network-scope documentation: [Anthropic sandbox-runtime README](https://github.com/anthropics/sandbox-runtime/blob/main/README.md#network-isolation-architecture).
+**Where used:** Chapter 2; Appendix D, Chapter 2 (DNS TXT proof of concept).
+**Caveat:** The incident report is secondary coverage of a proof of concept. A proxy allowlist does not establish DNS containment: verify direct connections, system resolver and direct DNS-tool paths separately. The runtime documents unfenced system-resolver requests on its Windows path and similar macOS behavior. Standalone runtime Windows support is not Claude Code native-Windows sandbox support. Current scope checked October 23, 2026.
 
 ---
 
@@ -2110,10 +2304,10 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ---
 
-**Claim:** Codex CLI subagents went GA on March 14, 2026 and run up to six in parallel by default (`agents.max_threads`, default 6; nesting depth defaults to one level).
-**Source:** OpenAI Codex CLI docs, [developers.openai.com/codex/subagents](https://developers.openai.com/codex/subagents).
+**Claim:** Codex CLI supports configurable subagent concurrency through `agents.max_concurrent_threads_per_session`, excluding the primary thread. `agents.max_threads` is a legacy alias; when unset, Codex chooses a default. A historical default of six was not a fixed platform cap.
+**Source:** OpenAI, Configuration Reference: [learn.chatgpt.com/docs/config-file/config-reference#agentsmax_concurrent_threads_per_session](https://learn.chatgpt.com/docs/config-file/config-reference#agentsmax_concurrent_threads_per_session); [Subagents](https://learn.chatgpt.com/docs/agent-configuration/subagents).
 **Where used:** Appendix D, Chapter 1 (subagent adoption timeline).
-**Caveat:** Vendor documentation; the six-thread default is effectively a cap as of mid-2026 (openai/codex#11965 tracks making it configurable) and may change with subsequent versions.
+**Caveat:** Official CLI documentation checked October 23, 2026. Client settings, resource limits and policy still constrain actual concurrency. These are CLI settings, not Agents API limits; the cited current docs do not establish the previously stated March 14 GA date.
 
 ---
 
@@ -2124,10 +2318,10 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ---
 
-**Claim:** AGENTS.md as the vendor-neutral team-instruction-file convention has native support across Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, Zed, and Windsurf. The format is markdown; the loading semantics are equivalent across tools.
-**Source:** Cross-vendor documentation: Codex CLI ([developers.openai.com/codex/agents-md](https://developers.openai.com/codex/agents-md)), Cursor ([cursor.sh/docs](https://cursor.sh/docs)), GitHub Copilot ([docs.github.com/copilot](https://docs.github.com/copilot)), Gemini CLI ([cloud.google.com/gemini/docs/codeassist](https://cloud.google.com/gemini/docs/codeassist)), Aider ([aider.chat/docs](https://aider.chat/docs)), Zed ([zed.dev/docs/ai](https://zed.dev/docs/ai)), Windsurf ([codeium.com/windsurf/docs](https://codeium.com/windsurf/docs)).
-**Where used:** Chapter 1 (Memory), Chapter 6 (AGENTS.md vs CLAUDE.md) and Appendix D, Chapter 1 (memory and skills: the convergence story).
-**Caveat:** The list of supporting tools grows over time; the claim is that AGENTS.md is the de facto vendor-neutral convention, not that the list is exhaustive. The list also churns: Google began transitioning Gemini CLI users to Antigravity CLI in mid-2026 (free and consumer tiers stopped being served in June) - and the successor reads the same AGENTS.md, which is the convention outliving the tool, i.e. the point of this entry.
+**Claim:** AGENTS.md is a shared project-instruction convention, but discovery and precedence differ. Codex loads it natively with directory precedence; Claude supports version-dependent fallback/import behavior; Gemini CLI defaults to GEMINI.md and can configure AGENTS.md; Aider supports explicit read-only inclusion.
+**Source:** [Codex project instructions](https://learn.chatgpt.com/docs/agent-configuration/agents-md); [Claude Code memory](https://code.claude.com/docs/en/memory#agentsmd); [Gemini CLI context files](https://geminicli.com/docs/cli/gemini-md/); [Aider conventions](https://aider.chat/docs/usage/conventions.html).
+**Where used:** Chapters 1 and 6 (instruction compatibility table); Appendix D, Chapter 1.
+**Caveat:** Checked October 23, 2026. A shared Markdown filename does not imply identical scope, hierarchy, precedence or automatic loading. Inspect effective sources in the installed client; the table is not an exhaustive vendor inventory.
 
 ---
 
@@ -2138,10 +2332,10 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ---
 
-**Claim:** Playwright drives a real browser through scripted interactions; the accessibility tree is the semantic structure browsers expose for assistive technology and is stable across visual restyles or component-library swaps. Tests written against the accessibility tree assert behavior rather than presentation.
-**Source:** Playwright documentation ([playwright.dev/docs/accessibility-testing](https://playwright.dev/docs/accessibility-testing)); W3C ARIA Accessibility Object Model spec.
-**Where used:** Chapter 5 (Verify), as the recommended frontend-verification pattern; Appendix D, Chapter 5 (Playwright with the accessibility tree); Appendix B.3 checklist.
-**Caveat:** Some UI behavior (animation, drag-and-drop, complex canvas surfaces) is not fully captured by the accessibility tree and needs supplementary verification.
+**Claim:** Playwright semantic locators can resist styling and DOM changes while the accessible contract stays stable. Interaction actions are control-specific: selectOption targets native selects; check targets checkboxes/radios.
+**Source:** Playwright [locators](https://playwright.dev/docs/locators#locating-elements), [select options](https://playwright.dev/docs/input#select-options), [checkboxes and radios](https://playwright.dev/docs/input#checkboxes-and-radio-buttons).
+**Where used:** Chapter 5 (Verify); Appendix D, Chapter 5; Appendix B.3.
+**Caveat:** Current docs checked October 23, 2026. Changing a component library or interaction model may require new actions/locators. Behavioral assertions do not verify rendered layout.
 
 ---
 
@@ -2173,6 +2367,28 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ---
 
+**Claim:** MCP clients and servers negotiate protocol versions and capabilities. Integration reuse also depends on supported transports and authentication; MCP support alone does not establish interchangeability.
+**Source:** Versioned MCP specification, June 18, 2025: [lifecycle](https://modelcontextprotocol.io/specification/2025-06-18/basic/lifecycle#version-negotiation), [transports](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports), [authorization](https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization).
+**Where used:** Chapter 1 (What is MCP?).
+**Caveat:** This versioned specification was checked October 23, 2026; it is not a claim that June 2025 is the latest protocol edition. Verify both endpoints and required capabilities.
+
+---
+
+**Claim:** Spring supports read-only service transactions as well as write transactions, and supports method-level validation. A controller-validation convention must specify its scope without removing service/domain responsibility for business invariants.
+**Source:** Spring Framework 7.0.10 reference: [transaction annotations](https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/annotations.html), [service method validation](https://docs.spring.io/spring-framework/reference/core/validation/beanvalidation.html#validation-beanvalidation-spring-method).
+**Where used:** Chapter 6 (scoped conventions); Appendix B.2.
+**Caveat:** Checked October 23, 2026. Transaction and validation boundaries are architectural choices; proxy/call-path behavior and project examples still need verification. These docs do not establish an effect from the book's private engagement.
+
+---
+
+
+**Claim:** An undo migration is optional and cannot reliably reverse every destructive data change or partial failure. Recovery can instead use backward-compatible deployment, roll-forward correction or tested restoration.
+**Source:** Redgate Flyway, [Undo migrations](https://documentation.red-gate.com/flyway/flyway-concepts/migrations/undo-migrations), updated May 21, 2026.
+**Where used:** Chapters 4–5 (Wire migration review); worked companion.
+**Caveat:** Checked October 23, 2026. The appropriate strategy depends on the system and required recovery objectives. This documentation does not prove which policy an unpublished client engagement used.
+
+---
+
 ### Marketplaces and plugin ecosystems
 
 **Claim:** Anthropic's `claude-plugins-official` marketplace ships built-in with Claude Code as of May 2026 and bundles skills, hooks, tools, and commands behind a single install command. The marketplace warns users to trust plugins before installing.
@@ -2184,10 +2400,10 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ### Memory primitive sources
 
-**Claim:** AGENTS.md is read at session start by Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, and the wider open-source coding-agent ecosystem (20+ vendors listed at agents.md as of 2026-05). Claude Code can import it from CLAUDE.md, and current versions also support direct loading under the conditions documented in Chapter 6 and the October source entry below. The convergence puts AGENTS.md in the manually defined memory layer of the Memory primitive named in Chapter 1.
-**Source:** [agents.md](https://agents.md/) (the open standard's site), plus vendor documentation for each agent listed.
-**Where used:** Chapter 1 (Memory) and Chapter 6 (AGENTS.md as team infrastructure); Appendix D, Chapter 1 (memory and skills: the convergence story).
-**Caveat:** The exact filename and load semantics vary by vendor - Claude Code reads CLAUDE.md (importable from AGENTS.md via `@AGENTS.md` or symlink); Cursor reads AGENTS.md plus `.cursorrules`. Convergence is on the structural role - user-written, always-loaded, team-shareable - not on byte-identical file format.
+**Claim:** Project instructions provide a manually maintained memory layer across coding tools. AGENTS.md is one convention; some clients use a different default filename or require explicit configuration/loading. A CLAUDE.md file can import shared instructions through `@AGENTS.md`.
+**Source:** [agents.md](https://agents.md/); client-specific loading documentation in the compatibility entry above and Chapter 6.
+**Where used:** Chapters 1 and 6; Appendix D, Chapter 1 (memory and skills).
+**Caveat:** Discovery checked October 23, 2026. The structural role is shared; automatic loading, precedence and available filenames are not. Do not infer support for AGENTS.override.md in a client from Codex behavior.
 
 ---
 
@@ -2435,17 +2651,17 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ---
 
-**Claim:** RULER measures an effective context length - the longest input at which a model keeps a threshold score on retrieval and reasoning tasks across the window - and for most models tested that length falls well short of the claimed context size.
-**Source:** Cheng-Ping Hsieh et al. (NVIDIA), "RULER: What's the Real Context Size of Your Long-Context Language Models?", 2024: [arxiv.org/abs/2404.06654](https://arxiv.org/abs/2404.06654).
-**Where used:** Chapter 1 (Context window); Appendix D, Chapter 1 (effective context is shorter than the advertised window).
-**Caveat:** The "around half" reading in Appendix D, Chapter 1 is a rule of thumb from 2026 practitioner roundups of RULER-style results, not a single measurement; per-model effective lengths vary widely and improve with each generation.
+**Claim:** RULER defines effective context using the largest tested length above a fixed benchmark threshold derived from Llama2-7B at 4K; Table 3 uses 85.6%. It is not each model retaining its own short-context score.
+**Source:** Cheng-Ping Hsieh et al., "RULER: What's the Real Context Size of Your Long-Context Language Models?", v3, August 6, 2024: [effective context and Table 3](https://arxiv.org/html/2404.06654v3#S4).
+**Where used:** Chapter 1 (Context window); Appendix D, Chapter 1.
+**Caveat:** Thirteen synthetic tasks and the tested 2024 models. These results establish neither a universal half-window rule nor the usable fraction of a current coding model's context. Rechecked October 23, 2026.
 
 ---
 
-**Claim:** For long agentic coding sessions, masking old tool observations beat LLM summarization in four of five settings, cut cost by over 50%, and matched or slightly beat summarization on solve rate.
-**Source:** Katie Fraser and Tobias Lindenbauer, JetBrains Research, "Cutting Through the Noise: Smarter Context Management for LLM-Powered Agents," December 2025: [blog.jetbrains.com/research/2025/12/efficient-context-management/](https://blog.jetbrains.com/research/2025/12/efficient-context-management/) (paper: "The Complexity Trap," NeurIPS 2025 DL4Code workshop).
-**Where used:** Chapter 6 (Context hygiene); Appendix D, Chapter 6 (compaction and context measurements); Appendix A; Appendix B.7.
-**Caveat:** The 52% figure sometimes quoted is one configuration (Qwen3-Coder 480B); the general finding is "over 50%."
+**Claim:** In five SWE-agent/SWE-bench Verified configurations, observation masking was cheaper than summarization in four. Both substantially reduced cost against unmanaged history in most settings; for Qwen3-Coder 480B, reductions were 52.7% and 50.4% respectively against that baseline.
+**Source:** Tobias Lindenbauer, Igor Slinko, Ludwig Felder, Egor Bogomolov and Yaroslav Zharov, "The Complexity Trap", August 2025, camera-ready October 27: [paper v3](https://arxiv.org/abs/2508.21433v3); [primary Table 1](https://kairos.jetbrains.com/research/articles/the-complexity-trap); [JetBrains December explanation](https://blog.jetbrains.com/research/2025/12/efficient-context-management/).
+**Where used:** Chapter 6 (Context hygiene); Appendix A; Appendix B.7; Appendix D, Chapter 6.
+**Caveat:** The over-50% example compares each method with unmanaged history, not masking with summarization. Savings vary materially across configurations. Table 1 does not support a universal over-50% reduction; checked October 23, 2026.
 
 ---
 
@@ -2500,7 +2716,7 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ### Notes on currency
 
-Most of the sources in this appendix are dated. Tool documentation updates frequently; vulnerability records get amended as patches ship and new variants surface. The frameworks in the body of the manual are intended to outlast any specific source URL. If a URL breaks, the underlying claim should still be searchable by the named incident, study, or product.
+Sources retain their publication/version dates. Entries rechecked in this revision state October 23, 2026 explicitly; that does not mean every historical claim was independently revalidated. For a consequential claim, retain the direct source, version/date, date checked, applicable setting and the interpretation being drawn. Mutable documentation must be rechecked before relying on it. Author-reported case notes are not controlled measurements, and the synthetic companion and hypothetical economics are teaching artifacts rather than engagement evidence.
 
 ---
 
@@ -2514,19 +2730,19 @@ This is where the evidence and dated detail behind each chapter lives: the studi
 
 ### Chapter 1 - What an agent is {#deep-dive-chapter-1}
 
-**Effective context is shorter than the advertised window.** Windows run from 200 thousand tokens on compact models to a million from the mid-range up. NVIDIA's RULER measures effective context length, the longest input at which a model still holds its short-context score across the whole window, and for most models it lands well under the advertised figure, commonly around half. *Source: Hsieh et al. (NVIDIA), "RULER," 2024. Caveat: "around half" is a rule of thumb from 2026 practitioner roundups, not one measurement.*
+**Effective context depends on the benchmark.** RULER v3 uses a fixed threshold derived from Llama2-7B at 4K (85.6% in Table 3), not each model retaining its own short-context score. Its thirteen synthetic tasks and tested 2024 models establish no universal half-window rule for current coding agents. Evaluate the lengths and tasks you actually intend to use. *Source: Hsieh et al., August 6, 2024, Section 4/Table 3; Appendix C. Definition rechecked October 23, 2026.*
 
 **What tool definitions cost, and the 2026 harness answers.** One audit of a default Claude Code session counted about 24k tokens of tool definitions, MCP schemas and reminders before the user typed anything; one practitioner put three MCP servers at 143k of a 200k window. With a large catalog fully loaded, tool-selection accuracy in one benchmark was 13.62%; loading only the relevant tools raised it to 43.13%. The 2026 answers are deferred loading and programmatic tool calling (the model scripts the calls and returns one result; native in GPT-5.6, where it cut input tokens by 21% on one financial-research evaluation). For custom tools with nested schemas, turn strict decoding on: Armin Ronacher documented Opus 4.8 and Sonnet 5 inventing undeclared fields, and strict mode eliminating it. *Sources: Lumer et al., Jan 31, 2026; anthropics/claude-code#42452, Apr 2, 2026; Gan and Sun (RAG-MCP), May 6, 2025; MetaBlogue, Sep 5, 2026; OpenAI GPT-5.6 guide, Aug 2026; Ronacher, Jul 4, 2026. Caveats: 24k and 143k are practitioner counts; the 21% is one benchmark (Rogo's).*
 
 **Sandbox posture by vendor, and the mechanisms underneath.** Scope matters as much as the default. Claude Code has an opt-in shell sandbox on macOS, Linux and WSL2; native Windows commands, native file tools, MCP servers and hooks are outside it. Codex documents OS-level restrictions with a different implementation and platform support; inspect the selected permission profile and any escalation path. opencode documents permission controls, with OS isolation supplied by an external environment. Configure enforceable path and network restrictions in the runtime or managed policy, not AGENTS.md. Test prohibited reads, writes and connections through every relevant route. *Sources: Claude Code sandbox/permission docs; Codex security docs; Vercel KB on opencode, checked October 23, 2026. Caveat: configuration and coverage change by version; one shell boundary is not whole-agent isolation.*
 
-**The two-agent demo, in detail.** Claude Code ran in two panes against Codex CLI (Rust, Apache 2.0, OpenAI) and opencode (TypeScript, MIT, independent team) with one prompt: explain the architecture, map the agent loop, tool system, permission gates, sandbox and plugin model, citing files and lines. It took about four minutes (a May 2026 re-run: 4:13), because both repositories name their architecture in their directories; a less self-documenting codebase takes ten to fifteen minutes per repo. Both returned an agent loop, tool registry, permission gate, plugin directory, MCP support and a subagent path (in opencode, found by behavior: a function that spawns a fresh instance on a bounded prompt). The one divergence was the sandbox. *Source: author experiment, no human correction. Limit: the primitives exist; that does not make them equally well built.*
+**The two-agent demo, in detail.** Claude Code ran in two panes against Codex CLI (Rust, Apache 2.0, OpenAI) and opencode (TypeScript, MIT, independent team) with one prompt: explain the architecture, map the agent loop, tool system, permission gates, sandbox and plugin model, citing files and lines. It took about four minutes (a May 2026 re-run: 4:13), because both repositories name their architecture in their directories; a less self-documenting codebase takes ten to fifteen minutes per repo. Both returned an agent loop, tool registry, permission gate, plugin directory, MCP support and a subagent path (in opencode, found by behavior: a function that spawns a fresh instance on a bounded prompt). The one divergence was the sandbox. *Source: author experiment, no human correction. Limit: the comparison illustrates capabilities in two repositories, not a universal anatomy or effectiveness result.*
 
-**Subagent adoption timeline.** Claude Code shipped the Task tool, then Agent Teams on top. Codex CLI took subagents GA on March 14, 2026 (up to six in parallel by default, nesting depth one). Cursor shipped parallel agents in 2.0 (October 2025), a subagent system in 2.4 (January 2026) and async in 2.5. *Sources: Codex CLI subagents docs; Cursor changelogs. Caveat: the six-thread Codex default is effectively a cap as of mid-2026.*
+**Subagent configuration and historical adoption.** Codex CLI exposes `agents.max_concurrent_threads_per_session` for spawned threads, excluding the primary; `agents.max_threads` is a legacy alias. Unset defaults are client-selected, not a fixed-six ceiling. Other agents expose their own version-specific orchestration. *Sources: OpenAI config reference and Subagents docs, checked October 23, 2026; historical vendor changelogs. Caveat: the current docs do not establish the previously stated March 14 GA date; inspect installed settings and resource limits.*
 
 **Scripted orchestration (`/workflows`).** Claude Code's `/workflows` (mid-2026) has the agent write a script that dispatches subagents deterministically: ordered phases, parallel or pipeline fan-out across hundreds of children, schema-validated handoffs, an optional verification gate, resumable and budget-bounded. Determinism is the only real difference from model-driven dispatch (as in Superpowers); use it when the fan-out is large, repeatable or worth verifying mechanically. *Source: Changelog, 2026-06-11.*
 
-**Memory and skills: the convergence story.** The always-loaded primitive converged on AGENTS.md (read at session start by Codex CLI, Cursor, GitHub Copilot, Gemini CLI, Aider, Zed, Windsurf and more; 20+ vendors listed at agents.md as of 2026-05) and CLAUDE.md, which Claude Code reads natively and which can import AGENTS.md. On-demand skills converged too (Claude Code Skills; Codex CLI `SKILL.md`, December 2025). The agent-written half converged within a winter: GitHub Copilot Memory public preview January 15, 2026, on by default for individual tiers by March; Claude Code Auto Memory in February (v2.1.59+); Codex CLI background memory in April. Anthropic's Dreaming (Claude Managed Agents, Code with Claude SF, 2026-05-06) is a scheduled background process that reviews sessions and memory and writes consolidated notes back; it is platform-level behind a beta header, and a `/dream` CLI had not shipped as of July 2026. *Sources: agents.md; vendor and Claude Code memory docs. Caveat: load semantics vary (Cursor also reads `.cursorrules`).*
+**Memory and skills: shared roles, different loading.** Project instructions have a shared role, not identical discovery. Codex has directory precedence; Claude has versioned fallback/import behavior; Gemini CLI defaults to GEMINI.md and can configure AGENTS.md; Aider supports explicit read-only inclusion. Chapter 6 records scope and inspection methods. Skill bodies and agent-written memory are separate mechanisms with their own loading and retention. *Sources: official Codex, Claude Code, Gemini CLI and Aider docs, checked October 23, 2026; Appendix C. Caveat: shared naming implies neither automatic loading nor equal authority.*
 
 **Effort: the evidence.** With the harness held constant, GPT-5.6 Sol at low effort beat GPT-5.5 at high effort on Agents' Last Exam; Fable 5.1 at low effort is often competitive with Opus and Sonnet on cost per task while scoring higher, by its vendor's own guide. Effort names do not transfer between models, so every migration starts with a sweep (Appendix B.9). Whether reasoning is kept between turns is the harness's call: on ARC-AGI-3, by OpenAI's account, retained reasoning plus compaction took GPT-5.6 Sol from 13.3% to 38.3% while cutting output tokens sixfold. *Sources: OpenAI GPT-5.6 guide, Aug 2026; OpenAI ARC-AGI-3 post, Jul 29, 2026; Anthropic, "Prompting Claude Fable 5.1." Caveat: vendor evaluations on one benchmark and model; the manual uses ARC-AGI-3 for the mechanism, not the score.*
 
@@ -2542,7 +2758,7 @@ This is where the evidence and dated detail behind each chapter lives: the studi
 
 **Per-agent sandbox defaults.** See the Chapter 1 entry on sandbox posture by vendor; the point for this chapter is that a default install of an opt-in agent runs with layer two switched off.
 
-**Injection through the work: the DNS TXT proof of concept.** In June 2026 Mozilla 0Din researchers showed a harmless-looking repository inducing Claude Code to run a script that pulls a base64 payload from a DNS TXT record and spawns a reverse shell, split across the repository, DNS and the developer's machine so no signature appears in plaintext. A proof of concept with no vendor patch reported; a network allowlist bounds the DNS path. *Source: SecurityWeek, Jun 29, 2026.*
+**Injection through the work: the DNS TXT proof of concept.** The June 2026 report describes a repository inducing Claude Code to retrieve a payload through DNS TXT and execute it. An HTTP proxy/domain allowlist does not establish DNS containment. Verify direct connections, direct DNS tools and system-resolver requests separately, using benign owned endpoints. The runtime README documents unfenced system-resolver requests on its Windows path and similar macOS behavior. Standalone runtime support does not imply Claude Code native-Windows shell sandbox support. *Sources: June 29 incident coverage and Anthropic sandbox-runtime network documentation, Appendix C; current scope checked October 23, 2026. Caveat: platform and resolver routes differ; a proof of concept is not a measured frequency.*
 
 **Telemetry plumbing and hook examples.** By mid-2026 Claude Code, Codex CLI and Gemini CLI emit OpenTelemetry natively, so the audit store can be whatever the stack already speaks; the requirement is durability and queryability. The security-guidance plugin ships rules for roughly eight to ten vulnerability categories. One team rule beyond the chapter's two: block edits to a compliance-relevant module outside business hours.
 
@@ -2588,7 +2804,7 @@ This is where the evidence and dated detail behind each chapter lives: the studi
 
 **SpecBench and the Cursor finding in full.** SpecBench (May 2026) ran frontier agents against specifications with visible and hidden test sets. Every agent saturated the visible suite near 100%, with hidden-test gaps of roughly 43 to 48 points; the 90th-percentile gap grew by about 27 points per tenfold increase in lines of code, and more search did not reliably remove the reward hacking. Cursor found the other half in June 2026: on SWE-bench Pro, 63% of successful Claude Opus 4.8 Max resolutions had retrieved the upstream fix from git history or the network instead of deriving it, and sealing both dropped the score from 87.1% to 73.0%. These are evaluation-boundary findings: use held-out checks and leakage controls where those boundaries matter, without sealing every ordinary PR from history and documentation. *Sources: Zhao, Srikanth, Wu and Jiang (Weco AI), May 20, 2026 (v2 Sep 9); Naman Jain, Cursor, Jun 25, 2026. Caveats: the abstract rounds 27 to 28 points (R-squared 0.21), so the trend is real but noisy; Cursor's result is one harness and one model.*
 
-**Playwright with the accessibility tree.** The accessibility tree is the structure browsers keep for assistive technology (a button with this label, a field labeled "email"), stable under restyling and component-library swaps. "Find the field labeled Priority, change it, click Save, verify the new value renders" passes whether the field is a select, radio group or custom component. Banking teams with flaky snapshot suites found it the first approach that stayed green. *Sources: Playwright docs; W3C ARIA AOM. Caveat: animation, drag-and-drop and canvas need supplementary verification.*
+**Playwright semantic locators and interactions.** Roles and labels can resist styling/DOM changes while the accessible contract is stable. Actions remain control-specific: `selectOption()` targets a native select; `check()` selects a radio/checkbox; a custom widget can require different interactions. A component replacement may need a test update. Assert business behavior and inspect rendered visual changes. *Sources: Playwright locators/input documentation, checked October 23, 2026; Appendix C. Caveat: semantic stability establishes neither interaction-model compatibility nor visual correctness.*
 
 **Measure the PR review toolkit's contribution.** Review agents can catch mechanical findings before a senior reads the diff. Measure useful defects, false positives, review time and escaped defects rather than assuming four reviewers save ten minutes. Keep human attention on business correctness and architectural fit; the chapter's case shows what happens when that attention disappears.
 
@@ -2600,13 +2816,13 @@ This is where the evidence and dated detail behind each chapter lives: the studi
 
 **Instruction load and the size guideline.** A July study found sharply falling perfect adherence as simultaneous rules increased; it did not establish a line limit for project files. Anthropic also reported removing over 80% of Claude Code's own system prompt without measured loss on its Claude 5 coding evaluations. Current Claude Code docs recommend staying under about 200 lines per CLAUDE.md and scoping rules; OpenAI recommends short, accurate instructions. Use those as reasons to trim and test, not proof that line 201 is ignored. *Sources: Netanel Eliav, July 21, 2026; Thariq Shihipar, July 24; current vendor docs checked October 23. Caveats: rule count differs from line count, adherence depends on task and model, and vendor evaluations are their own.*
 
-**Claude Code's native AGENTS.md support.** Since v2.1.277, the default can read AGENTS.md directly when no CLAUDE.md or CLAUDE.local.md exists on the project path. If both exist, CLAUDE.md wins by default; an `@AGENTS.md` import or a setting can load the shared instructions. Check the loaded files rather than assuming names imply identical behavior. *Source: Claude Code memory docs, checked October 23, 2026. Caveat: older versions, settings and some sessions differ.*
+**Claude Code's native AGENTS.md support.** Direct loading begins at v2.1.277 under the Project instructions setting. Default fallback checks for CLAUDE.md, .claude/CLAUDE.md and CLAUDE.local.md on the working-directory/ancestor path. A CLAUDE file can import @AGENTS.md. These are not Codex override semantics; Chapter 6 includes inspection/version caveats. *Source: current memory documentation, checked October 23, 2026. Caveat: earlier releases and settings differ.*
 
 **Mistake-journal mechanics.** Anthropic's Fable 5 guide describes a memory system with three rules that keep a journal honest at a hundred entries: one lesson per file with a one-line summary, update rather than duplicate when a lesson recurs, delete notes that turn out wrong. Add an evidence pointer so the next champion can check whether the failure is still possible. OpenWiki's claims runtime, which attaches evidence pointers to stored claims and re-checks them, cut stale claims from 3.5% to 0.5% across 2,000 evaluated claims. The quarterly review asks of each entry, "has anyone been saved by this rule in the last three months?" If yes, keep it; if no but the rule still applies, keep it, since rare failures still matter; if no and the cause is gone, retire it with a commit-message note. *Sources: Anthropic, "Prompting Claude Fable 5"; Colin Francis, LangChain, Aug 25, 2026. Caveat: OpenWiki is a knowledge-base system, not a journal; the manual borrows the mechanism.*
 
 **Why the precedence line exists.** GPT-6 Astra follows longer instructions better and is more sensitive to context: conflicting guidance in a skill file can make it pause and block early, and OpenAI's guide says the user's instructions take precedence over a skill's. One top line ("In a conflict, the task prompt wins over this file; this file wins over any skill", in the B.2 skeleton) removes a class of stalls. *Source: OpenAI, "Using GPT-6 Astra," Sep 2026 (GPT-6 released September 3-4, 2026; guide revised in place).*
 
-**Compaction and context measurements.** JetBrains found that masking old tool outputs (call kept, bulky result blanked) beat LLM summarization in four of five settings at over 50% lower cost, with a matching or slightly better solve rate. Anthropic's tool-result clearing, the same move at platform level, gave a 29% gain on an internal agentic search evaluation. Across 15 models, fragmented multi-turn conversations lost 39% on average against a single specified turn, and one consolidated turn recovered about 95%. *Sources: Fraser and Lindenbauer, JetBrains Research, Dec 2025; Anthropic, Sep 29, 2025; Laban et al., May 2025. Caveats: the 52% sometimes quoted is one configuration (Qwen3-Coder 480B); Anthropic's result is internal; the multi-turn study used simulated generation tasks, not coding sessions.*
+**Compaction and context measurements.** JetBrains compared unmanaged history, masking and summarization across five SWE-agent/SWE-bench Verified configurations. Masking was cheaper than summarization in four; Qwen3-Coder 480B saved 52.7% with masking and 50.4% with summarization against unmanaged history. Other configurations saved less; neither a universal over-50% reduction nor that ratio between methods follows. Anthropic separately reported a 29% gain from tool-result clearing on its internal search evaluation. The multi-turn study found average degradation against a fully specified turn and recovery through consolidation. *Sources: Lindenbauer et al., The Complexity Trap, Table 1; Anthropic, September 29, 2025; Laban et al., May 2025; Appendix C. Caveat: different interventions and settings, not a controlled coding-handoff comparison. Cost baseline rechecked October 23, 2026.*
 
 **Append-only history and cache pricing (Fable 5.1).** Thinking blocks are bound to the exact prefix that produced them, so editing or reordering earlier turns invalidates them and discards the retained reasoning that Chapter 1 counts as half of Effort: end the session and start clean. With cache reads at 0.025x the base input price, the guide says compacting early to save cost may no longer be the right trade; when you do compact, give the compactor a keep-list (the plan, open questions, deviations in the implementation notes, the exact commands that worked). *Source: Anthropic, "Prompting Claude Fable 5.1." Caveats: undated page; 0.025x is the manual's arithmetic from published prices; append-only applies to accounts created on or after August 31, 2026.*
 
@@ -2632,13 +2848,13 @@ This is where the evidence and dated detail behind each chapter lives: the studi
 
 **Signal 5, regulatory constraints.** Any change to anti-money-laundering logic needs sign-off from the compliance officer, a representative from legal and a senior engineer not involved in the implementation; the agent cannot route approvals or satisfy a two-person rule. Mild constraints (a senior review on every change) fit the existing process; heavy ones (sign-off matrices, evidence trails, time-stamped approvals, retention) mean the agent works only inside a system that already handles them.
 
-**Signal 7, model-context fit: the in-house workflow engine.** A custom engine from the early 2010s with no public documentation and peculiar state-transition syntax. The agent applied patterns from an unrelated framework it had seen more of; the code compiled, the thin tests passed, and the state machine misbehaved in three untested edge cases. With no substantial public footprint (repositories, documentation, talks), treat the codebase as if signal 6 were active even when every other signal is clean.
+**Signal 7, model-context fit: the in-house workflow engine.** A proprietary workflow engine can be unfamiliar to the model even when domain experts understand it. Check representative state transitions and edge cases against documented behavior; investigate missing context or choose a better-fit model. Thin public documentation creates model-fit uncertainty, not automatically a missing qualified evaluator. If the team also cannot judge the behavior, evaluability separately fails. *Author-reported case pattern, not a measured rule about language popularity.*
 
 **Signal 8, velocity-of-change: the React 18/19 bug.** On a codebase mid-migration the agent is confidently right about the old version and wrong about the new, and you cannot always tell which. The author's own bug: Claude used React 18 idioms where React 19 was needed; it worked locally on a transitive React 18 dependency and broke when production pulled 19. Fix: a version rule in AGENTS.md ("we are migrating from React 18 to React 19 this quarter; new code uses 19 idioms; old code may still use 18 but should be updated when touched").
 
 **The model-migration soft signal, with its evidence.** Instructions written for the previous model (AGENTS.md rules, skill prompts, effort levels) do not retire themselves. For between 37% and 63% of the software-engineering papers surveyed, a newer model given a single prompt natively outperformed the heavily engineered tooling proposed about a year earlier. It is not a ninth kill signal; it is what to check when a green codebase turns yellow after a model upgrade (Appendix B.9). *Source: Salsabil et al., Aug 31, 2026 (arXiv 2609.00468). Caveat: preprint, not peer-reviewed; use it for the direction, not the fraction.*
 
-**The six worked examples in full.** (1) Customer-profile microservice: 70% coverage, README overview, REST-decoupled, rules in one typed validation library, standard SOX controls, seniors who handle profile changes. Zero, green. (2) Legacy payments engine: 20% mostly happy-path coverage, partly stale docs, moderate coupling with documented seams, a few straggler rules, real PCI and fraud-reporting constraints with audit machinery in place, one or two seniors who can judge payments output. No tests half, documentation half, coupling one, rules half, regulatory zero, evaluation zero: two and a half, rounded up to three, yellow. (3) Custom encryption library by a 2017 contractor: undocumented, integration-tested only, tightly coupled to key management, compliance rules in code, no cryptographer. Five, red. (4) Greenfield API service, senior team, clear spec: zero, green-plus. (5) Internal tool, 20 developers, written 2019, modest tests, low regulatory exposure: one, green-leaning, the right first target. (6) Vendor-customized fork, hasty contractor layer, no tests or docs on the customizations, severe upstream coupling: four, red. The question is the strategy: should the custom layer exist at all? Replace it with upstream features, contribute it back or maintain it deliberately, but do not use the agent to make the wrong work faster.
+**Worked preparation examples and task restrictions.** (1) Customer-profile service: relevant assertions/failure cases run reliably, current overview, canonical rules and qualified reviewer. Zero known gaps, green candidate; still establish task scope and recovery. (2) Legacy payments: missing failure-case checks (1), stale docs (0.5), costly coupling (1), scattered rules (0.5), with expertise and approval machinery available. Total 3, yellow preparation; establish verification before behavior changes. (3) Custom cryptography without a qualified reviewer fails evaluability regardless of count. (4) Greenfield API with uninvestigated checks/deployment is unknown, not automatically green. (5) Internal tool with relevant checks and bounded documentation/coupling gaps (0.5 each) totals 1, a possible pilot subject to task prerequisites. (6) A vendor-customized fork with unknown upstream effects needs investigation and a decision whether to retain the custom layer. These are illustrative worksheet applications, not validated safety classifications; coverage percentages alone determine none of them.
 
 ---
 
@@ -2650,7 +2866,7 @@ This is where the evidence and dated detail behind each chapter lives: the studi
 
 **The outer loop: the vendor wave and stop-condition mechanisms.** GitHub's Copilot coding agent went generally available on September 25, 2025 (isolated environment, draft pull request); Cursor shipped Cloud Agents on October 30, 2025; Google's Jules added Scheduled Tasks on December 10, 2025; a ralph-wiggum plugin landed in the official Claude Code repository in November 2025. By spring 2026 Claude Code had `/loop` (re-run on an interval or self-paced), Routines (cloud agents from a schedule or GitHub event), `/goal` (work until a completion condition holds) and `/autofix-pr` (push fixes until CI is green). By Chapter 1's test the capability converged, though what converged is a workflow around the primitives, not a primitive. `/goal` uses a separate model to assess the condition from the conversation; Codex Goals lets the acting model mark a persistent objective complete. These control continuation and budgets. Neither replaces independently protected acceptance checks. The ralph-wiggum plugin has no controlled evidence, and its README names max iterations as its primary safeguard, a budget, not a stop condition. *Sources: GitHub changelog, 2025-09-25; Cursor and Google blogs; Claude Code release notes, Apr-May 2026; Claude Code "/goal" docs; OpenAI Cookbook, "Using Goals in Codex." Caveat: vendor dates drift; the goal docs describe mechanism, not outcomes.*
 
-**The outer loop: why each contract line exists, and the two poles.** A machine-evaluable stop condition, because a loop without one is abandonment. A budget, because an unattended loop is the per-token model's best customer (Appendix A). An acceptance gate enforced by protected required checks and reviewed policy changes, because the cheapest way to go green is to negotiate with your own grader, and a green suite the agent wrote is evidence, not proof (Chapter 5). A durable queue and decision record, with fresh context when the handoff or observed drift justifies it. Isolation sized for absence, since an unattended session is where prompt injection meets no human skeptic (Chapter 2). Queue many similar, machine-verifiable, reversible units (migrations, lint sweeps, dependency bumps, test backfill) on green codebases only. Huntley runs the loop raw at roughly $10 an hour; StrongDM's software factory runs fully non-interactive delivery, humans neither writing nor reviewing code, with end-to-end scenarios held outside the codebase as a holdout the loop cannot weaken, at a spend Simon Willison pegged near $20,000 a month per engineer. *Sources: Willison, Feb 7, 2026; Huntley and The Register as above. Caveat: the $10 figure is Huntley's own and the StrongDM figures are one company's self-description and Willison's framing, not audits.*
+**The outer loop: why each contract line exists, and the two poles.** A machine-evaluable stop condition, because a loop without one is abandonment. A budget, because an unattended loop is the per-token model's best customer (Appendix A). An acceptance gate enforced by protected required checks and reviewed policy changes, because the cheapest way to go green is to negotiate with your own grader, and a green suite the agent wrote is evidence, not proof (Chapter 5). A durable queue and decision record, with fresh context when the handoff or observed drift justifies it. Isolation sized for absence, since an unattended session is where prompt injection meets no human skeptic (Chapter 2). Queue similar, independently verifiable and recoverable units only after each meets the task prerequisites and unattended-run controls; green alone is insufficient. Huntley runs the loop raw at roughly $10 an hour; StrongDM's software factory runs fully non-interactive delivery, humans neither writing nor reviewing code, with end-to-end scenarios held outside the codebase as a holdout the loop cannot weaken, at a spend Simon Willison pegged near $20,000 a month per engineer. *Sources: Willison, Feb 7, 2026; Huntley and The Register as above. Caveat: the $10 figure is Huntley's own and the StrongDM figures are one company's self-description and Willison's framing, not audits.*
 
 **Example time budgets for the role commitments.** In this schedule, the champion reserves about three hours in week one and five in week two; later weeks depend on the pilot features. The intended outputs are a tested workflow, useful maintained instructions, delivered features and a designated successor. The lead reserves roughly two hours in week one and three to five in later phases. These are planning examples from practice; adjust them to measured effort and the team's starting point.
 
@@ -2662,8 +2878,8 @@ This is where the evidence and dated detail behind each chapter lives: the studi
 
 ### Appendix A - For managers {#deep-dive-appendix-a}
 
-**Tier routing, the two measured points.** Anthropic's advisor pattern pairs a cheaper executor with a stronger model on call. Sonnet with Opus as advisor scored 2.7 points higher on SWE-bench Multilingual than Sonnet alone, at 11.9% lower cost per task. Haiku with an Opus advisor scored 41.2% on BrowseComp against 19.7% solo, trailing Sonnet solo by 29% in score at 85% lower cost per task. Right for the mechanical tiers of the loop, wrong for research. *Source: Anthropic, "The advisor strategy," Apr 9, 2026. Caveat: vendor benchmarks on the vendor's own models; per-task figures, not a general ratio.*
+**Tier routing, the two measured points.** Anthropic's advisor pattern pairs a cheaper executor with a stronger model on call. Sonnet with Opus as advisor scored 2.7 points higher on SWE-bench Multilingual than Sonnet alone, at 11.9% lower cost per task. Haiku with an Opus advisor scored 41.2% on BrowseComp against 19.7% solo, trailing Sonnet solo by 29% in score at 85% lower cost per task. These vendor benchmarks suggest a candidate to compare on representative tasks, not a universal routing rule for implementation or research. *Source: Anthropic, "The advisor strategy," Apr 9, 2026. Caveat: vendor benchmarks on the vendor's own models; per-task figures, not a general ratio.*
 
 **Cache-first layout, tool tax and masking.** Cache-first layout cut API cost by 41% to 80% on more than 500 agent sessions across three providers (Lumer et al., Jan 31, 2026). The tool-definition figures are under Chapter 1, the masking result under Chapter 6.
 
-**The bounding heuristic, long form.** Cost per engineer per month is bounded by what the team would otherwise spend on similar tooling (IDE licenses, code-intelligence platforms, AI-coding subscriptions) plus a fraction of a senior engineer's hourly time saved per week. Run it with your tooling stack, loaded hourly cost, an honest hours-saved estimate and the vendor's quote; break-even lands quickly when the agent saves even a few hours a month per engineer.
+**The full-cost comparison.** Compare useful accepted work and human effort on both sides, including investigation, implementation, review, rework and failed attempts. Add incremental tooling/infrastructure, amortized setup, ongoing maintenance and recurring governance/evaluation. The hypothetical calculation in Appendix A values released capacity; it establishes neither cash savings nor faster elapsed delivery. Replace assumptions with records before making an investment claim.
