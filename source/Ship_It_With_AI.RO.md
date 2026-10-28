@@ -14,7 +14,7 @@
 
 ## Cuprins
 
-**Prolog** - Nouă secunde
+**Prolog** - Zece mii de dolari pe săptămână
 
 **Partea I - Arhitectura**
 1. Ce este un agent
@@ -44,21 +44,17 @@
 
 # Prolog
 
-## Nouă secunde {#nine-seconds}
+## Zece mii de dolari pe săptămână {#nine-seconds}
 
-Pe 24 aprilie 2026, o mică firmă de SaaS pe nume PocketOS, un produs de management pentru închirieri auto, și-a pierdut baza de date de producție din cauza unui agent AI care a hotărât să rezolve de unul singur o problemă de credențiale.
+În iulie 2026, o echipă de trei senior engineers pe nume Slopfix a ajuns pe prima pagină a Hacker News cu o ofertă neobișnuită: „O săptămână. Trei senior engineers. 10.000 de dolari.” Treaba lor nu e să scrie cod, ci să-l șteargă. Preiau codebase-uri construite cu coding agents și le aduc înapoi la ceva ce o echipă poate întreține, iar plata e proporțională cu cât din reducerea de linii de cod agreată reușesc să livreze.
 
-Un developer lucra pe codebase-ul PocketOS cu un coding agent (Cursor, pe Claude Opus 4.6). În timpul unui task de rutină, agentul a dat peste o nepotrivire de credențiale și, în loc să se oprească și să întrebe, a decis să repare singur problema. A găsit un API token care se autentifica la Railway, platforma de infrastructură folosită de PocketOS, și a invocat comanda Volume Delete din Railway. Apelul distructiv a durat nouă secunde.
+Diagnosticul lor încape într-o frază: „Asta se întâmplă oricărui proiect vibecoded peste o anumită dimensiune: agentul nu mai vede imaginea de ansamblu și începe să duplice cod în loc să-l găsească.” Nimeni n-a șters vreo bază de date și niciun agent n-a scăpat de sub control. Agentul a făcut ce i s-a cerut, task după task, până când „adăugarea unui feature durează acum zile și strică alte două lucruri”. Exemplul lor de curățenie: „cele paisprezece formatoare de dată devin unul singur”.
 
-Pierderea a fost totală: toate rezervările clienților, înregistrările de plăți și inventarul de vehicule. Railway ține backup-urile pe același volum cu datele primare, așa că au dispărut odată cu ele, iar cel mai recent snapshot recuperabil avea trei luni vechime. Recuperarea a fost până la urmă posibilă, dar nu pe ruta de backup la care se aștepta echipa; relatările publice diferă în privința cronologiei.
+Surpriza e în propriul lor FAQ: „Da, folosim și noi Claude Code. În lesă foarte scurtă.” Același tip de agent care a produs dezastrul e cel care face curat. Diferența e structura din jurul lui: o listă scrisă cu ce face aplicația, ecran cu ecran, înainte să se taie ceva; senior engineers care decid ce rămâne; și, printre livrabile, un CLAUDE.md, reguli de lint și verificări în CI. Cum spun ei, „agentul nu are drept de vot”.
 
-După aceea, agentul și-a recunoscut vina în scris: „I violated every principle I was given. I guessed instead of verifying. I ran a destructive action without being asked. I didn't understand what I was doing before doing it.”
-
-*Folosesc incidentul pentru pattern-ul de guvernanță, nu ca pe o reconstituire exactă, de tip forensic. Sursele și detaliile contestate sunt în Anexa C.*
+*Folosesc Slopfix ca ilustrare publică a unui pattern de eșec, nu ca studiu de caz auditat. Sursa și limitele ei sunt în Anexa C.*
 
 ---
-
-**Ce ar fi putut schimba rezultatul.** Credențiale cu drepturi limitate, restricții aplicate efectiv asupra tool-urilor și gate-uri de aprobare protejate ar fi putut împiedica apelul distructiv, dacă îi acopereau calea de execuție. Logurile, alertele și un răspuns testat ar fi putut scurta detectarea și recuperarea; înregistrarea unui eveniment nu îl previne. Relatările publice nu stabilesc toate controalele pe care le configurase PocketOS. Capitolul 2 separă prevenția de detectare și îți cere să testezi limita pe care vrei să te bazezi.
 
 **De ce se tot întâmplă asta.** Un senior engineer îmi spune că a încercat Claude Code, sau Codex, sau alt coding agent, și că „n-a mers”: codul arăta corect, dar nu era, sau s-a stricat ceva și nimeni n-a observat timp de două săptămâni. Cele mai multe adopții ratate nu se explică doar prin slăbiciunea modelului. Sunt eșecuri ale structurii din jurul agentului: lipsește contextul, lipsesc constrângerile, lipsește procesul, lipsește disciplina de review.
 
@@ -307,7 +303,9 @@ Un vendor care livrează un sandbox real se așteaptă ca instrucțiuni ostile s
 
 **Un prompt e o cerere. Un control e ceva ce agentul nu poate ocoli cu vorba.**
 
-PocketOS (Prologul) avea o instrucțiune în limbaj natural, care e mai slabă decât stratul unu. Din incident se citează trei lecții, și toate trei sunt greșite:
+Pe 24 aprilie 2026, PocketOS, un mic SaaS pentru închirieri auto, și-a pierdut baza de date de producție din cauza unui coding agent (Cursor, pe Claude Opus 4.6). În timpul unui task de rutină, agentul a dat peste o nepotrivire de credențiale, a găsit un API token pentru Railway, platforma de infrastructură a firmei, și a invocat Volume Delete. Apelul a durat nouă secunde, iar backup-urile stăteau pe același volum. După aceea, agentul a scris: „I guessed instead of verifying. I ran a destructive action without being asked.” Relatările publice diferă în privința recuperării; sursele sunt în Anexa C.
+
+PocketOS avea o instrucțiune în limbaj natural, care e mai slabă decât stratul unu. Din incident se citează trei lecții, și toate trei sunt greșite:
 
 - „Agentul și-a ignorat instrucțiunile.” Da. Asta fac agenții uneori; un prompt nu e niciodată un control dur pentru o acțiune distructivă.
 - „Agenții AI sunt nesiguri.” La fel de nesigur e orice tool îndreptat spre producție fără controale.
@@ -1571,7 +1569,7 @@ Tool-urile pe care le-am numit vor arăta cu totul altfel până la următoarea 
 
 Dacă iei o singură practică, ia review-ul de arhitectură din Capitolul 7 ca diagnostic inițial: dovezi utile de analizat, nu un verdict dintr-o singură rulare. Dacă iei un singur framework, ia kill signals și semaforul din Capitolul 8; „nu”-ul contează la fel de mult ca „da”-ul. Dacă iei o singură orientare, investește în modul de a gândi, nu în tool.
 
-Înapoi la cele nouă secunde: relatarea PocketOS arată de ce o instrucțiune împotriva comportamentului distructiv nu ajunge. Limitele preventive cer verificări pe fiecare rută; detectarea cere un răspuns testat. Relatările publice lasă nerezolvate detalii de configurație. Manualul îți cere să faci propriile controale și decizii inspectabile.
+Înapoi la Slopfix: agentul care a scris paisprezece formatoare de dată și agentul care le strânge într-unul singur sunt același tip de tool. S-au schimbat contextul pe care l-a primit, verificările pe care nu le putea ocoli și oamenii care au decis ce rămâne. Asta e tot manualul, într-un singur exemplu. Îți cere să faci propriile controale și decizii inspectabile.
 
 Să înțelegi problema devine mai important decât să scrii codul. Era adevărat când a programa însemna să perforezi cartele, când IDE-ul a înlocuit editorul de text și când coding-ul asistat de AI a trecut de la autocomplete la redactarea de cod; e adevărat și acum, când scrisul a rămas în seama agenților. Numele modelelor din ediția asta vor îmbătrâni, iar munca durabilă rămâne: înțelege problema, formulează munca, constrânge execuția, verifică rezultatul. Secvența asta e întreaga problemă de control - și n-a aparținut niciodată tool-urilor. Îți aparține ție.
 
@@ -2274,9 +2272,16 @@ Anexa asta există pentru că fiecare afirmație din manual merită o sursă ver
 
 ### Incidente cunoscute
 
+**Afirmația:** În iulie 2026, Slopfix, o echipă de trei senior engineers, a oferit să readucă la o formă întreținabilă codebase-uri scrise de agenți („vibecoded”), la un preț fix de 10.000 de dolari pentru o săptămână de lucru, plătit proporțional cu reducerea de linii de cod agreată, și a pus umflarea codului pe seama agenților care nu mai văd imaginea de ansamblu și duplică cod în loc să-l găsească. Pentru curățenie folosesc Claude Code, „în lesă foarte scurtă”.
+**Sursa:** Slopfix, [odra.dev/slopfix/](https://odra.dev/slopfix/); prima pagină Hacker News, 7 iulie 2026 ([news.ycombinator.com/item?id=48823359](https://news.ycombinator.com/item?id=48823359)). Preluat de Tom's Hardware, PC Gamer și TechRadar.
+**Unde e folosită:** Prolog (Zece mii de dolari pe săptămână) și Încheiere.
+**Atenție:** E pagina de ofertă a unui furnizor, nu un raport de incident și nici un studiu. Cifra „100.000 de linii reduse la 35.000” de pe pagină e un exemplu ilustrativ, nu un client numit; titlurile din presă au transformat-o în „până la 65%”. Pagina nu are dată; data e cea a postării pe Hacker News. O folosesc pentru pattern-ul de eșec pe care îl numește, care se potrivește cu ce raportează echipele, nu ca dovadă a cât de răspândit e.
+
+---
+
 **Afirmația:** Pe 24 aprilie 2026, PocketOS și-a pierdut baza de date de producție în nouă secunde, când un agent Cursor bazat pe Claude Opus 4.6 a invocat Volume Delete de la Railway printr-un API token găsit pe parcurs, în timpul unei încercări de recuperare după o nepotrivire de credențiale. Backup-urile, stocate pe același volum, au fost distruse odată cu datele primare.
 **Sursa:** Reported by DevOps.com ("When AI Goes Really, Really Wrong"), Business Insider (Jer Crane statement), and others. Anthropic's Claude Opus 4.6 system card (February 2026) describes the model that powered the agent.
-**Unde e folosită:** Prolog (Nouă secunde) și Capitolul 2 (Guardrails în cinci straturi); Anexa D, Capitolul 2 (PocketOS: unde diferă relatările și ce au schimbat platformele).
+**Unde e folosită:** Capitolul 2 (Guardrails în cinci straturi); Anexa D, Capitolul 2 (PocketOS: unde diferă relatările și ce au schimbat platformele).
 **Atenție:** Cronologia recuperării diferă între relatările publice - restore-ul făcut de Railway ar fi durat ~30 de minute după ce Crane i-a contactat, în timp ce alte relatări vorbesc de ~30 de ore sau două zile până la restaurarea operațională completă. Folosesc incidentul pentru pattern-ul de guvernanță, nu ca reconstituire criminalistică exactă. Urmarea: pe 29 aprilie 2026, Railway a anunțat că toate ștergerile de volume și resurse - până atunci instantanee când erau invocate prin API - fac acum soft-delete cu o fereastră de recuperare de 48 de ore, alături de guardrails la nivel de workspace și acces de agent cu scop limitat ([blog.railway.com/p/your-ai-wants-to-nuke-your-database](https://blog.railway.com/p/your-ai-wants-to-nuke-your-database)).
 
 ---

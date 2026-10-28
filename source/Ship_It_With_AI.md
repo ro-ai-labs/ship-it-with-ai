@@ -14,7 +14,7 @@
 
 ## Contents
 
-**Prologue** - Nine seconds
+**Prologue** - Ten thousand dollars a week
 
 **Part I - Architecture**
 1. What an agent is
@@ -44,21 +44,17 @@
 
 # Prologue
 
-## Nine seconds {#nine-seconds}
+## Ten thousand dollars a week {#nine-seconds}
 
-On April 24, 2026, a small SaaS company called PocketOS, a car rental management product, lost its production database to an AI agent that decided to fix a credentials problem on its own.
+In July 2026 a team of three senior engineers called Slopfix reached the front page of Hacker News with an unusual offer: "One week. Three senior engineers. $10,000." The job is not to write code. It is to delete it. They take codebases built with coding agents and cut them back to something a team can maintain, paid in proportion to how much of an agreed line-count reduction they deliver.
 
-A developer was using a coding agent (Cursor powered by Claude Opus 4.6) on the PocketOS codebase. During a routine task the agent hit a credentials mismatch and, instead of stopping and asking, decided to fix it itself. It found an API token that authenticated against Railway, the infrastructure platform PocketOS used, and invoked Railway's Volume Delete command. The destructive call took nine seconds.
+Their diagnosis fits in one sentence: "This happens to every vibecoded project past a certain size: the agent stops seeing the whole picture and starts duplicating code instead of finding it." Nobody deleted a database and nothing went rogue. The agent did what it was asked, one task at a time, until "adding a feature now takes days and breaks two other things." Their example of the cleanup: "the fourteen date formatters become one."
 
-The loss was total: all the customer reservations, payment records and vehicle inventory. Railway stores backups on the same volume as the primary data, so the backups went with it, and the most recent recoverable snapshot was three months old. Recovery turned out to be possible, but not through the backup path the team expected; public accounts differ on the timeline.
+The twist is in their own FAQ: "Yes, we use Claude Code too. On a very short leash." The same kind of agent that produced the mess is the one removing it. What differs is the structure around it: a written list of what the app does, screen by screen, before anything is cut; senior engineers who decide what stays; and, among the deliverables, a CLAUDE.md, lint rules and CI checks. In their words, "the agent doesn't get a vote."
 
-Afterward the agent confessed in writing: "I violated every principle I was given. I guessed instead of verifying. I ran a destructive action without being asked. I didn't understand what I was doing before doing it."
-
-*I use the incident for the governance pattern, not as a precise forensic reconstruction. Sources and the disputed details are in Appendix C.*
+*I use Slopfix as a public illustration of a failure pattern, not as an audited case study. The source and its limits are in Appendix C.*
 
 ---
-
-**What could have changed the outcome.** Bound credentials, enforced tool restrictions and protected approval gates could have prevented the destructive call if they covered its route. Logs, alerts and a tested response could have shortened detection and recovery; recording an event does not prevent it. Public accounts do not establish every control PocketOS had configured. Chapter 2 separates prevention from detection and asks readers to test the boundary they intend to rely on.
 
 **Why this keeps happening.** A senior engineer tells me they tried Claude Code, or Codex, or another coding agent, and "it didn't work": the code looked right and was not, or something broke and nobody noticed for two weeks. Most failed adoptions are not explained by model weakness alone. They are failures of structure around the agent: missing context, constraints, process and review discipline.
 
@@ -307,7 +303,9 @@ A vendor that ships a real sandbox expects untrusted instructions to arrive - th
 
 **A prompt is a request. A control is something the agent cannot talk its way past.**
 
-PocketOS (the Prologue) had a natural-language instruction, which is weaker than layer one. Three lessons get quoted from it, and all three are wrong:
+On April 24, 2026, PocketOS, a small car rental SaaS, lost its production database to a coding agent (Cursor powered by Claude Opus 4.6). During a routine task the agent hit a credentials mismatch, found an API token for Railway, the company's infrastructure platform, and invoked Volume Delete. The call took nine seconds, and the backups lived on the same volume. Afterward the agent wrote: "I guessed instead of verifying. I ran a destructive action without being asked." Public accounts differ on the recovery; Appendix C has the sources.
+
+PocketOS had a natural-language instruction, which is weaker than layer one. Three lessons get quoted from it, and all three are wrong:
 
 - "The agent ignored its instructions." It did, as agents sometimes do; a prompt is never a hard control for a destructive action.
 - "AI agents are unsafe." So is any tool pointed at production without controls.
@@ -1571,7 +1569,7 @@ The tools I have named will all be different by the time the next edition of thi
 
 If you take one practice away, take the architecture review from Chapter 7 as an initial diagnostic: useful evidence to inspect, not a verdict from one run. If you take one framework, take the task prerequisites and preparation signals from Chapter 8; the "no" matters as much as the "yes." If you take one orientation, invest in the way of thinking, not the tool.
 
-Back to those nine seconds: the PocketOS account shows why an instruction against destructive behavior is insufficient. Preventive boundaries need route-specific verification; detection needs a tested response. The public accounts leave configuration details unresolved. This manual asks you to make your own controls and decisions inspectable.
+Back to Slopfix: the agent that wrote fourteen date formatters and the agent that collapses them into one are the same kind of tool. What changed was the context it was given, the checks it could not argue with and the people who decided what stayed. That is the whole manual in one example. It asks you to make your own controls and decisions inspectable.
 
 Understanding the problem becomes more important than writing the code. That was true when programming meant punching holes in cards, when the IDE replaced the text editor, and when AI-assisted coding crossed from autocomplete to drafting; it is true now that agents do the writing. The model names will age out of this edition, and the durable work stays: understand the problem, formulate the work, constrain the execution, verify the result. That sequence is the whole control problem, and it never belonged to the tools: it belongs to you.
 
@@ -2253,9 +2251,16 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ### Named incidents
 
+**Claim:** In July 2026 Slopfix, a team of three senior engineers, offered to cut agent-written ("vibecoded") codebases back to maintainability for a fixed $10,000 per one-week engagement, paid in proportion to the agreed line-count reduction, and attributed the bloat to agents that stop seeing the whole picture and duplicate code instead of finding it. They use Claude Code for the cleanup, "on a very short leash."
+**Source:** Slopfix, [odra.dev/slopfix/](https://odra.dev/slopfix/); Hacker News front page, July 7, 2026 ([news.ycombinator.com/item?id=48823359](https://news.ycombinator.com/item?id=48823359)). Covered by Tom's Hardware, PC Gamer and TechRadar.
+**Where used:** Prologue (Ten thousand dollars a week) and Closing.
+**Caveat:** This is a vendor's own offer page, not an incident report or a study. The "100,000 lines down to 35,000" figure on the page is an illustrative example, not a named client; press headlines turned it into "up to 65%." The page is undated; the date is the Hacker News submission. I use it for the failure pattern it names, which matches what teams report, not as evidence of how common the pattern is.
+
+---
+
 **Claim:** On April 24, 2026, PocketOS lost its production database in nine seconds when a Cursor agent powered by Claude Opus 4.6 invoked Railway's Volume Delete via a found API token during a credentials-mismatch recovery attempt. Backups stored on the same volume were destroyed with the primary data.
 **Source:** Reported by DevOps.com ("When AI Goes Really, Really Wrong"), Business Insider (Jer Crane statement), and others. Anthropic's Claude Opus 4.6 system card (February 2026) describes the model that powered the agent.
-**Where used:** Prologue (Nine seconds) and Chapter 2 (Guardrails in five layers); Appendix D, Chapter 2 (PocketOS: where the accounts disagree, and what the platforms changed).
+**Where used:** Chapter 2 (Guardrails in five layers); Appendix D, Chapter 2 (PocketOS: where the accounts disagree, and what the platforms changed).
 **Caveat:** Recovery timeline differs across public accounts - Railway's restore was reportedly ~30 minutes after Crane contacted them, while other accounts describe ~30 hours or two days for full operational restoration. I use the incident for the governance pattern, not as a precise forensic reconstruction. Aftermath: on April 29, 2026 Railway announced that all volume and resource deletes - previously instant when invoked via the API - now soft-delete with a 48-hour recovery window, alongside workspace guardrails and scoped agent access ([blog.railway.com/p/your-ai-wants-to-nuke-your-database](https://blog.railway.com/p/your-ai-wants-to-nuke-your-database)).
 
 ---

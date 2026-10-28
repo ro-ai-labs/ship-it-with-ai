@@ -112,7 +112,7 @@ def _content_date(source: Path | None = None) -> datetime:
 # Appendix C); otherwise it gets a new slug and the old one becomes a redirect
 # stub (RETIRED_SLUG_REDIRECTS below).
 SECTION_SLUGS: dict[tuple[str, str], str] = {
-    ("prologue", "Nine seconds"):                                   "prologue-nine-seconds",
+    ("prologue", "Ten thousand dollars a week"):                    "prologue",
     ("chapter", "What an agent is"):                                "chapter-1-primitives",
     ("chapter", "Guardrails in five layers"):                       "chapter-2-guardrails",
     ("chapter", "The bottleneck moved"):                            "chapter-3-bottleneck-moved",
@@ -165,7 +165,8 @@ LEGACY_SECTION_SLUGS: dict[tuple[str, str], str] = {
 # inbound links and bookmarks land on the right page; stubs are not sections,
 # so they never reach the sitemap or llms.txt.
 RETIRED_SLUG_REDIRECTS: dict[str, str] = {
-    "foreword":                                            "prologue-nine-seconds",
+    "foreword":                                            "prologue",
+    "prologue-nine-seconds":                               "prologue",
     "chapter-2-anatomy-invariant":                         "chapter-1-primitives",
     "chapter-3-governance-in-layers":                      "chapter-2-guardrails",
     "chapter-4-from-generating-code-to-shipping-software": "chapter-3-bottleneck-moved",
@@ -446,7 +447,7 @@ def build_anchor_index(sections: list[Section]) -> dict[str, str]:
                 index[f"appendix-{m.group(1)}"] = s.slug
         if s.slug == "about-the-author":
             index["contact"] = s.slug
-        if s.slug == "prologue-nine-seconds":
+        if s.slug == "prologue":
             index["nine-seconds"] = s.slug
         if s.slug == "foreword":
             index["foreword"] = s.slug
@@ -2066,7 +2067,7 @@ def reader_routes_html() -> str:
         title, output_label = "Alege de unde începi", "Rezultat"
         prologue, chapter, appendix, companion = "Prolog", "Cap.", "Anexa A", "exemplul Wire (.zip)"
         routes = [
-            ("Înțelege metoda", ["prologue-nine-seconds", 1, 2, 3], "o metodă de lucru pe care o poți explica"),
+            ("Înțelege metoda", ["prologue", 1, 2, 3], "o metodă de lucru pe care o poți explica"),
             ("Pregătește un repo necunoscut", [2, 7, 6, 8], "o hartă de arhitectură revizuită și un task delimitat"),
             ("Livrează o schimbare", [3, 4, 5, "companion"], "o schimbare verificată, cu dovezi pentru review"),
             ("Pornește un pilot în echipă", [8, 9, "appendix-a-for-managers"], "un pilot cu responsabil, limite și criterii de evaluare"),
@@ -2075,7 +2076,7 @@ def reader_routes_html() -> str:
         title, output_label = "Choose your starting point", "Output"
         prologue, chapter, appendix, companion = "Prologue", "Ch.", "Appendix A", "Wire companion (.zip)"
         routes = [
-            ("Understand the approach", ["prologue-nine-seconds", 1, 2, 3], "a working approach you can explain"),
+            ("Understand the approach", ["prologue", 1, 2, 3], "a working approach you can explain"),
             ("Prepare an unfamiliar repository", [2, 7, 6, 8], "a reviewed architecture map and a bounded task"),
             ("Deliver one change", [3, 4, 5, "companion"], "a verified change with evidence for review"),
             ("Run a team pilot", [8, 9, "appendix-a-for-managers"], "a pilot with an owner, boundaries, and evaluation criteria"),
@@ -2091,7 +2092,7 @@ def reader_routes_html() -> str:
             elif step == "companion":
                 href, text, download = "/companion/wire-v1.zip", companion, " download"
             else:
-                href, text = _rel(f"/{step}/"), prologue if step == "prologue-nine-seconds" else appendix
+                href, text = _rel(f"/{step}/"), prologue if step == "prologue" else appendix
             links.append(f'<a href="{href}"{download}>{html_lib.escape(text)}</a>')
         items.append(
             f'<li><strong>{label}</strong><span class="reader-route-steps">'
@@ -2182,8 +2183,8 @@ def render_hash_redirect_js(sections: list[Section],
         redirects[f"#{s.slug}"] = _rel(f"/{s.slug}/")
         if s.slug == "about-the-author":
             redirects["#contact"] = _rel("/about-the-author/#contact")
-        if s.slug == "prologue-nine-seconds":
-            redirects["#nine-seconds"] = _rel("/prologue-nine-seconds/")
+        if s.slug == "prologue":
+            redirects["#nine-seconds"] = _rel("/prologue/")
     # Appendix D is new (no legacy meaning), so /#appendix-d is unambiguous.
     for s in sections:
         if s.kind == "appendix":
@@ -3323,7 +3324,7 @@ EN_SECTION_TITLES = {
     "chapter-8-readiness-kill-signals": "AI Coding Agent Readiness: The Kill Signals",
     "chapter-9-rolling-it-out": "Rolling Out AI Coding Agents: The 90-Day Arc",
     "closing": "Future of Agentic Software Engineering - Ship It",
-    "prologue-nine-seconds": "AI coding agent incident: PocketOS lost its database",
+    "prologue": "Why AI-written code needs structure: the Slopfix story",
 }
 
 EN_SECTION_DESCRIPTIONS = {
@@ -3344,7 +3345,7 @@ EN_SECTION_DESCRIPTIONS = {
     "chapter-8-readiness-kill-signals": "AI coding agent readiness: establish task prerequisites, then use eight signals to prioritize preparation. A green repository score never authorizes every task.",
     "chapter-9-rolling-it-out": "Rolling out AI coding agents on a team: worktrees, two kinds of hooks, the human review floor, the grassroots path, the 90-day arc, and three roles.",
     "closing": "The future of agentic software engineering rests on durable principles, not tools. Claude Code, Codex and the rest will churn - the loop endures.",
-    "prologue-nine-seconds": "An AI coding agent incident, step by step: a Cursor agent on Claude Opus wiped PocketOS's production database trying to fix a credentials mismatch.",
+    "prologue": "A team charges $10,000 a week to delete code that coding agents wrote, using a coding agent. Why agentic delivery is a control problem, not a tooling problem.",
 }
 
 RO_SECTION_TITLES = {
@@ -3365,7 +3366,7 @@ RO_SECTION_TITLES = {
     "chapter-8-readiness-kill-signals": "Pregătire pentru livrarea cu agenți AI",
     "chapter-9-rolling-it-out": "Rollout de agenți AI în echipă: arcul de 90 de zile",
     "closing": "Viitorul ingineriei software cu agenți AI",
-    "prologue-nine-seconds": "Incident agent de cod AI: PocketOS pierde baza de date",
+    "prologue": "De ce codul scris de AI cere structură: povestea Slopfix",
 }
 
 RO_SECTION_DESCRIPTIONS = {
@@ -3386,7 +3387,7 @@ RO_SECTION_DESCRIPTIONS = {
     "chapter-8-readiness-kill-signals": "Verifică întâi condițiile task-ului, apoi folosește opt semnale pentru a prioritiza pregătirea. Un scor verde pentru repo nu autorizează orice task.",
     "chapter-9-rolling-it-out": "Rollout-ul agenților AI într-o echipă: worktrees, două tipuri de hooks, pragul de review uman, drumul grassroots, arcul de 90 de zile și cele trei roluri.",
     "closing": "Viitorul ingineriei software cu agenți AI stă în principii durabile, nu în tool-uri. Claude Code, Codex și restul vor dispărea - bucla rămâne.",
-    "prologue-nine-seconds": "Incident agent de cod AI în 9 secunde: un agent Cursor pe Claude Opus a șters baza de date de producție PocketOS în timp ce repară o problemă de credențiale.",
+    "prologue": "O echipă cere 10.000 de dolari pe săptămână ca să șteargă cod scris de coding agents, folosind tot un coding agent. De ce livrarea cu agenți e o problemă de control, nu de tool-uri.",
 }
 
 
@@ -3424,7 +3425,7 @@ EN = Lang(
         ("scope-and-limits", "Scope and limits"),
         ("cases-used-in-this-book", "Cases used in this manual"),
     ],
-    nine_seconds_label="Nine seconds", min_label="min", toc_appendices="Appendices",
+    nine_seconds_label="Ten thousand dollars a week", min_label="min", toc_appendices="Appendices",
     min_read="min read", chapter_nav_aria="Chapter navigation",
     title_suffix=" - Agentic Coding Field Manual", crumb_home="Home",
     crumb_parts={
@@ -3565,7 +3566,7 @@ RO = Lang(
         ("scope-and-limits", "Aria de acoperire și limitele"),
         ("cases-used-in-this-book", "Cazurile folosite în manual"),
     ],
-    nine_seconds_label="Nouă secunde", min_label="min", toc_appendices="Anexe",
+    nine_seconds_label="Zece mii de dolari pe săptămână", min_label="min", toc_appendices="Anexe",
     min_read="min de citit", chapter_nav_aria="Navigare între capitole",
     title_suffix=" - Manual de programare cu agenți", crumb_home="Acasă",
     crumb_parts={

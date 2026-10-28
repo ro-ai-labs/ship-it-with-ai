@@ -24,7 +24,7 @@ const EXPECT_RO = !SITE_LANGS || /(^|,)\s*(ro|all|\*)\s*(,|$)/.test(SITE_LANGS);
 const SECTION_COUNT = 18;                 // EXPECTED_PAGE_COUNT in build_spa.py
 const URLS_PER_LANG = SECTION_COUNT + 1;  // + landing; /read/ and /full/ are noindex
 const RETIRED = {
-  'foreword': 'prologue-nine-seconds',
+  'foreword': 'prologue',
   'chapter-2-anatomy-invariant': 'chapter-1-primitives',
   'chapter-3-governance-in-layers': 'chapter-2-guardrails',
   'chapter-4-from-generating-code-to-shipping-software': 'chapter-3-bottleneck-moved',
@@ -371,7 +371,7 @@ async function main() {
     // Every section page returns 200, has one <h1>, unique title, canonical,
     // and a BreadcrumbList + TechArticle JSON-LD pair.
     const SLUGS = [
-      'prologue-nine-seconds',
+      'prologue',
       'chapter-1-primitives', 'chapter-2-guardrails',
       'chapter-3-bottleneck-moved', 'chapter-4-six-phase-loop',
       'chapter-5-review-and-verify', 'chapter-6-agents-md',
@@ -471,8 +471,8 @@ async function main() {
       ['#chapter-10', '/chapter-9-rolling-it-out/'],
       ['#appendix-a', '/appendix-a-for-managers/'],
       ['#appendix-d', '/appendix-d-deep-dives/'],
-      ['#foreword', '/prologue-nine-seconds/'],
-      ['#how-to-read-this-book', '/prologue-nine-seconds/'],
+      ['#foreword', '/prologue/'],
+      ['#how-to-read-this-book', '/prologue/'],
       ['#reviewing-agent-diffs', '/chapter-5-review-and-verify/#reviewing-agent-diffs'],
     ]) {
       const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
@@ -485,12 +485,12 @@ async function main() {
       await ctx.close();
     }
 
-    // Cross-section anchor rewriting: /prologue-nine-seconds/ (which absorbed
+    // Cross-section anchor rewriting: /prologue/ (which absorbed
     // the Foreword's author note) has a /about-the-author/#about-the-author link.
     {
       const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
       const page = await ctx.newPage();
-      await page.goto(`${baseUrl}/prologue-nine-seconds/`);
+      await page.goto(`${baseUrl}/prologue/`);
       const count = await page.locator('a[href="/about-the-author/#about-the-author"]').count();
       if (!count) fail('prologue: cross-section anchor not rewritten');
       else ok('cross-section anchor rewriting works (prologue → /about-the-author/#about-the-author)');
@@ -656,7 +656,7 @@ async function main() {
       if (stubsOk) ok(`all ${Object.keys(RETIRED).length} retired slugs serve redirect stubs (refresh + canonical + noindex)`);
 
       for (const [from, want] of [
-        ['/foreword/', '/prologue-nine-seconds/'],
+        ['/foreword/', '/prologue/'],
         ['/chapter-10-adoption-90-days/', '/chapter-9-rolling-it-out/'],
         ['/chapter-5-six-phase-loop/', '/chapter-4-six-phase-loop/'],
         ['/chapter-5-six-phase-loop/#reviewing-agent-diffs', '/chapter-5-review-and-verify/#reviewing-agent-diffs'],
@@ -1058,14 +1058,14 @@ async function main() {
     {
       const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
       const page = await ctx.newPage();
-      await page.goto(`${baseUrl}/prologue-nine-seconds/`);
+      await page.goto(`${baseUrl}/prologue/`);
       const body = (await page.locator('main').textContent() || '');
       if (!/Workflow advice was reviewed on [A-Za-z]+ \d{1,2}, \d{4}/.test(body)) {
-        fail('/prologue-nine-seconds/ missing the dated-claims note');
+        fail('/prologue/ missing the dated-claims note');
       } else {
         const linkCount = await page.locator('main p a[href="/changelog/"]').count();
-        if (linkCount < 1) fail('/prologue-nine-seconds/ dated-claims note missing /changelog/ link');
-        else ok('/prologue-nine-seconds/ has dated-claims note + /changelog/ link');
+        if (linkCount < 1) fail('/prologue/ dated-claims note missing /changelog/ link');
+        else ok('/prologue/ has dated-claims note + /changelog/ link');
       }
       await ctx.close();
     }
