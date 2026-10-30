@@ -476,12 +476,18 @@ def reset_site_dir() -> None:
 
 
 def copy_static() -> None:
-    """Copy every file in build/static/ verbatim into _site/."""
+    """Copy every file and folder in build/static/ verbatim into _site/.
+
+    Folders hold standalone pages the book never links to (e.g. the talk deck
+    under talks/); they stay out of the sitemap, llms files and search index.
+    """
     if not STATIC_DIR.exists():
         raise RuntimeError(f"missing static dir: {STATIC_DIR}")
     for p in STATIC_DIR.iterdir():
         if p.is_file():
             shutil.copy2(p, SITE_DIR / p.name)
+        elif p.is_dir():
+            shutil.copytree(p, SITE_DIR / p.name, dirs_exist_ok=True)
 
 
 # ---------------------------------------------------------------------------
