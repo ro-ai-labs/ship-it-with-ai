@@ -82,7 +82,7 @@ Workflow advice was reviewed on October 23, 2026; other tool-specific claims ret
 
 | Immediate goal | Route | Output |
 |---|---|---|
-| Understand the approach | Prologue → Chapters 1–3 | A capability comparison and the controls/workflow your tasks need |
+| Understand the approach | Prologue → Chapters 1-3 | A capability comparison and the controls/workflow your tasks need |
 | Prepare an unfamiliar repository | Chapters 2 → 7 → 6 → 8 | A reviewed map, useful instructions and task prerequisites |
 | Deliver one change | Chapters 3 → 4 → 5, with the [Wire pack](/companion/wire-v1.zip) | Accepted behavior, verification evidence and production handoff |
 | Run a team pilot | Chapters 8 → 9 → Appendix A | A bounded pilot, measurement card and expansion/stop decision |
@@ -206,7 +206,7 @@ An MCP integration can be reused across compatible clients. Check the negotiated
 
 **What it is: what carries over from one session to the next, in two halves.**
 
-The team writes the first: project instruction files such as AGENTS.md. Discovery, scope and precedence depend on the client; some require configuration or explicit loading (Chapter 6). The agent writes the second for itself: build commands it figured out, debugging insights, inferred preferences.
+The team writes the first: project instruction files such as AGENTS.md. Discovery, scope and precedence depend on the client; some require configuration or explicit loading (Chapter 6). The agent writes the second for itself: preferences, corrections and decisions it cannot re-derive from the code.
 
 *Ask: Does it read a team memory file at session start, and keep memory of its own?*
 
@@ -258,7 +258,7 @@ The harness is the runtime around the model: it formats your request, manages th
 
 Source and runtime probes can show what a sandbox actually covers. Codex CLI enforces an OS sandbox by default on Linux and macOS; Claude Code ships an opt-in shell sandbox; opencode needs external OS isolation. Defaults are versioned, so check yours.
 
-A vendor that ships a real sandbox expects untrusted instructions to arrive - through dependencies, compromised files, injection - and builds defense in depth. One that ships soft confinement expects a trusted environment. Both are defensible; you are the one choosing, and Chapter 2 turns the choice into five layers.
+What the sandbox actually covers matters more than what the vendor intended. You are the one choosing, and Chapter 2 turns the choice into five layers.
 
 ---
 
@@ -303,12 +303,12 @@ A vendor that ships a real sandbox expects untrusted instructions to arrive - th
 
 **A prompt is a request. A control is something the agent cannot talk its way past.**
 
-On April 24, 2026, PocketOS, a small car rental SaaS, lost its production database to a coding agent (Cursor powered by Claude Opus 4.6). During a routine task the agent hit a credentials mismatch, found an API token for Railway, the company's infrastructure platform, and invoked Volume Delete. The call took nine seconds, and the backups lived on the same volume. Afterward the agent wrote: "I guessed instead of verifying. I ran a destructive action without being asked." Public accounts differ on the recovery; Appendix C has the sources.
+On April 24, 2026, PocketOS, a small car rental SaaS, lost its production database to a coding agent (Cursor powered by Claude Opus 4.6). During a routine task the agent hit a credentials mismatch, found an API token for Railway, the company's infrastructure platform, and invoked Volume Delete. The call took nine seconds. Afterward the agent wrote: "I guessed instead of verifying. I ran a destructive action without being asked." Railway says the legacy API path cascaded the delete so the backups looked gone, and that offsite disaster backups let it recover the data; accounts differ on how long that took. Appendix C has the sources.
 
 PocketOS had a natural-language instruction, which is weaker than layer one. Three lessons get quoted from it, and all three are wrong:
 
 - "The agent ignored its instructions." It did, as agents sometimes do; a prompt is never a hard control for a destructive action.
-- "AI agents are unsafe." So is any tool pointed at production without controls.
+- "AI agents are unsafe." So is any automation that can reach production without enforced controls.
 - "Do not use AI for database operations." That throws away real productivity when layers can bound the risk.
 
 Underneath all five sits least privilege: at every level - the agent, its process, its credentials, its network - grant the minimum that lets the work happen.
@@ -405,6 +405,8 @@ Anywhere the agent reads natural language is a surface: a Jira ticket whose acce
 
 Constrain what the agent can do regardless of what it has read. An enforced sandbox blocks prohibited access on covered paths; a protected, blocking hook can gate the categories it recognizes. Check the routes neither covers. A poisoned AGENTS.md can change the agent on every session start, one more reason it is reviewed like code (Chapter 6).
 
+Repository configuration is code that runs. Before trusting a cloned repository, read its agent settings, hooks, MCP servers and editor tasks. Microsoft's August 2026 analysis of the ChainDrop worm found it writing `.claude/settings.json` and `.vscode/tasks.json` into repositories so that later agent or editor activity would restart the payload. If you find such a change, stop running sessions and background jobs, revoke the credentials they could reach, preserve the evidence and involve whoever owns incidents before cleaning up. In CI, never run an agent with secrets or write access over untrusted pull-request content.
+
 ---
 
 ### Beyond the five
@@ -433,12 +435,12 @@ Before Chapter 4's execute phase, establish which permission rules, hooks and sa
 
 ### Do this Monday
 
-*Create a control record for each intended boundary. Monitoring is evidence of detection, not evidence that a prohibited action is blocked.*
+*Create a control record for each intended boundary. Monitoring is evidence of detection, not evidence that a prohibited action is blocked. A separate subagent context is not a separate authority, and blocking one route does not block another: OpenAI's managed configuration notes that disabling Browser Use alone does not stop Computer Use driving the browser as a desktop app.*
 
 | Record | What to write |
 |---|---|
 | Intended boundary | The operation that must be prohibited or explicitly approved |
-| Covered routes | Shell, native file tools, connected services and subprocesses; name exclusions |
+| Covered routes | Shell, native file tools, MCP and other connected services, signed-in browser sessions, desktop control and subprocesses; name exclusions |
 | Enforcement | Configuration location, protection against unilateral edits, installed version |
 | Verification | A benign probe, expected denial or approval, actual result and evidence |
 | Failure behavior | What happens when the control is absent, cannot start, crashes or times out |
@@ -882,7 +884,7 @@ Start above the code, with time proportionate to the change:
 1. **Diff-stat against the request or plan.** Does the shape of the change match the ask? An unexpected file deserves an explanation; it can be a necessary discovery or scope drift.
 2. **Read the tests for what they assert,** not whether they pass. Green is the cheapest signal, and the one you already have.
 3. **Check the boundaries your team wrote down:** forbidden patterns in AGENTS.md, layer conventions, dangerous modules. The agent crosses them confidently, in fluent style, so a violation looks clean.
-4. **Grep every new name the diff introduces** that you do not recognize. The call that does not exist reads as plausibly as the one that does (Chapter 6 has the cross-check).
+4. **Grep every new name the diff introduces** that you do not recognize. The call that does not exist reads as plausibly as the one that does (Chapter 6 has the cross-check). For a new dependency, confirm the exact package and publisher, its license and advisories and what it runs at install, and read the manifest and lockfile together; an existing approved dependency may already do the job.
 5. **Only now, line by line,** for business correctness and architectural fit.
 
 For consequential or unfamiliar changes, an optional comprehension check can help: ask the agent to quiz you on edge cases, ownership and what breaks if an assumption is wrong. An unanswered question identifies something to resolve before approval. Use it when normal review has not already established that understanding. Appendix B.8 carries the read order and this optional check.
@@ -897,7 +899,7 @@ Verify asks whether the intended behavior works and what evidence supports that 
 
 A reversible prose or configuration edit does not automatically need a permanent test file. Check the changed content, parser, build or rendered result as appropriate. A reversible change to permissions or money handling can still need substantial behavioral testing: reversibility is not a measure of bug risk.
 
-For frontend behavior, prefer user-facing roles and labels over brittle CSS selectors. They resist many styling and DOM changes when the accessible contract stays stable. A native select uses `selectOption()`; a radio uses `check()`; a custom combobox can require a different interaction. Replacing one control with another may require a test update even when the business outcome is unchanged. Assert the resulting behavior and inspect rendered visual changes; semantic locators do not assess layout.
+For frontend behavior, prefer user-facing roles and labels over brittle CSS selectors, assert the resulting behavior and inspect rendered visual changes; semantic locators do not assess layout. Appendix D covers control-specific interactions.
 
 ---
 
@@ -909,7 +911,7 @@ They are evidence the change does what the test says, not that the test says the
 
 So review the agent's tests like its code, checking the assertions against the spec. A test written from the implementation agrees with the implementation; the assertion has to come from the intent.
 
-The agent also optimizes the evidence it can see. On SpecBench, frontier agents scored near 100% on visible tests and fell 43 to 48 points short on a hidden set. That is a warning about what the gate rewards, not a requirement to turn every PR into a benchmark. Apply the controls at the right boundary:
+The agent also optimizes the evidence it can see. On SpecBench, frontier agents saturated the visible tests while held-out scores stayed far lower; for Claude Code the gap was roughly 43 to 48 points across three search strategies. That is a warning about what the gate rewards, not a requirement to turn every PR into a benchmark. Apply the controls at the right boundary:
 
 - **For ordinary changes:** review assertions against intent and diagnose failures before changing code or checks. A wrong test can need a legitimate, reviewed update; changing the assertion just to get green needs rejection.
 - **Protect the team's gates:** keep required CI and security checks outside the agent's unilateral control. Hooks can block bypasses and require review for test or lint configuration changes while allowing authorized maintenance.
@@ -962,7 +964,7 @@ The fix was a judgment floor, not a duration quota. Before approval, the reviewe
 
 - AGENTS.md is team infrastructure: short rules for documented needs and failures, reviewed like code and owned by one champion.
 - Keep it concise and scoped: commands, key conventions, pitfalls and pointers. About 200 lines is a useful guideline, not a proven cutoff. The agent reads before it cites; you grep what it names.
-- Context is working memory. One unit of work per session, durable state in files, a clean restart at the first sign of drift.
+- Context is working memory. One unit of work per session, durable state in files; when drift appears, diagnose the cause before compacting or restarting.
 
 ---
 
@@ -1148,14 +1150,6 @@ I asked for fifteen minutes and a terminal. I pasted the review prompt with two 
 
 The corrected document went into the repository, and the team chose targeted work instead of the broad rewrite proposal. They replaced two modules the following quarter, including the deprecated dependency. The eighteen-month proposal and three-month replacement describe elapsed schedules, not comparable labor totals. Without the original staffing assumptions and a credible counterfactual, this account does not establish person-months saved or isolate the agent's effect from the experts' judgment.
 
-| | |
-|---|---|
-| **Context** | Regulated banking team, ~60k LOC Java service written 2018-2024, stale documentation |
-| **Agent time** | ~15-18 minutes |
-| **Human correction time** | ~45 minutes (reviewer knew the customer onboarding domain) |
-| **Outcome** | Two modules carried the technical debt; the 18-month rewrite became a targeted 3-month replacement |
-| **Limitations** | The workflow accelerates domain knowledge, it does not substitute for it |
-
 | Case note | What this account establishes |
 |---|---|
 | Provenance | Author-reported, anonymized banking engagement |
@@ -1187,6 +1181,14 @@ Check the map against five things:
 **The corrected document is the entry point for all later work.**
 
 Put it at `docs/architecture.md`. New hires read it first, senior engineers consult it before touching an unfamiliar part, and the agent opens it on demand, when a task touches a module it has not seen, instead of re-deriving the architecture. AGENTS.md holds a pointer to the file, not the layout (Chapter 6).
+
+---
+
+### Delete with evidence {#delete-with-evidence}
+
+**A removal is a claim; prove it before the agent deletes anything.**
+
+The map also makes cleanup safer, the work the Prologue's Slopfix sells. For each candidate, gather static references, runtime use (logs, metrics, flags, scheduled jobs), any fallback kept for incidents, and the owner's confirmation. Then open one small pull request per removal with the evidence linked, reviewed by the team that owns the code. OpenAI's account of its own cleanup with GPT-6 models, over 1,400 merged pull requests deleting more than 800,000 lines, names the traps: reflection that defeats static analysis, an unused path kept to mitigate future incidents, and proposals that added more complexity than they removed.
 
 ---
 
@@ -1493,17 +1495,11 @@ Before starting, establish an approved service and account, permitted repositori
 
 **Agree an explicit time budget and adjust these example commitments to the team.**
 
-**The champion** learns the workflow first. They need protected time and willingness to investigate failures; seniority alone does not select them. Sixty hours is a possible planning allowance, not a prerequisite or forecast.
+**The champion** learns the workflow first. They need protected time and willingness to investigate failures; seniority alone does not select them. They run the architecture review (Chapter 7) on a familiar codebase, tighten the instruction file, and use Chapter 4's loop on a few features sized to each, logging friction in the mistake journal. By day 90 another engineer runs the workflow as fluently. Appendix B.5 has the week-by-week calendar.
 
-- [ ] Week 1: install the agent, run the architecture review (Chapter 7) on a familiar codebase and commit the artifact.
-- [ ] Week 2: review existing instructions and add missing, useful constraints or commands. Invite justified additions by pull request.
-- [ ] Weeks 3-4: use Chapter 4's functions on three features, sizing the process to each; log friction in the mistake journal.
-- [ ] Months 2-3: three medium features with others taking single phases, then hand the role off; by day 90 another engineer runs the workflow as fluently.
+**The lead** decides which work gets the agent.
 
-**The lead** decides which projects get the agent and keeps the traffic light.
-
-- [ ] Week 1: classify the top five projects against the eight kill signals (Chapter 8) and share the colors.
-- [ ] Weeks 2-4: for one project per color, write down what would have to change to move it up.
+- [ ] Week 1: select proposed tasks, establish their prerequisites and record preparation gaps (Chapter 8).
 - [ ] Months 2-3: track cycle time, defect rate and reviewer time (noisy; measure anyway), then present honest results, including where the agent did not deliver.
 
 **The manager** owns pilot eligibility and budget before work begins, then procurement, expansion decisions and recurring governance. Appendix A provides an illustrative twenty-engineer scenario and a complete hypothetical cost calculation; it does not supply measured adoption or cycle-time outcomes.
@@ -1569,7 +1565,7 @@ The tools I have named will all be different by the time the next edition of thi
 
 If you take one practice away, take the architecture review from Chapter 7 as an initial diagnostic: useful evidence to inspect, not a verdict from one run. If you take one framework, take the task prerequisites and preparation signals from Chapter 8; the "no" matters as much as the "yes." If you take one orientation, invest in the way of thinking, not the tool.
 
-Back to Slopfix: the agent that wrote fourteen date formatters and the agent that collapses them into one are the same kind of tool. What changed was the context it was given, the checks it could not argue with and the people who decided what stayed. That is the whole manual in one example. It asks you to make your own controls and decisions inspectable.
+Back to Slopfix: the agent that wrote fourteen date formatters and the agent that collapses them into one are the same kind of agent. What changed was the context it was given, the checks it could not argue with and the people who decided what stayed. That is the whole manual in one example. It asks you to make your own controls and decisions inspectable.
 
 Understanding the problem becomes more important than writing the code. That was true when programming meant punching holes in cards, when the IDE replaced the text editor, and when AI-assisted coding crossed from autocomplete to drafting; it is true now that agents do the writing. The model names will age out of this edition, and the durable work stays: understand the problem, formulate the work, constrain the execution, verify the result. That sequence is the whole control problem, and it never belonged to the tools: it belongs to you.
 
@@ -1607,6 +1603,10 @@ I am not neutral. I think agentic software delivery is the most consequential sh
 ## Changelog {#changelog}
 
 This page tracks meaningful updates to the manual. Smaller copy-edits and SEO tweaks are not listed; the footer shows the last updated date.
+
+### 2026-10-30 - October currency pass: trust, routes, cleanup and recovery
+
+Chapter 2 adds repository configuration as an attack surface (the ChainDrop worm), a short compromise response and the CI boundary, and the control record now covers browser sessions, desktop control and connected services. Chapter 5 adds a dependency check to diff review. Chapter 7 adds deleting with evidence. B.6 adds reconciliation before a retry and an enforced budget; B.9 records routed models, sign-in surface and memory state. Corrections: Railway's account of the PocketOS backups and token scopes, the separate Claude Code trust-dialog advisories, Knostic's finding, SpecBench's Claude Code attribution, `/workflows` budgets and current auto-memory policy. The reader-observation protocol moved to the reader-trial materials.
 
 ### 2026-10-23 - Evidence, task prerequisites and reproducible delivery
 
@@ -1717,8 +1717,8 @@ Chapter 8's eight signals then help prioritize preparation. The colors are a heu
 
 | Rounded repository score | Preparation guide | Manager's decision |
 |---|---|---|
-| Green, 0–1 known gaps | Few preparation gaps | Consider bounded work whose task prerequisites are established. |
-| Yellow, 2–3 known gaps | Substantial preparation | Fund the most consequential gaps and select work the team can evaluate now. |
+| Green, 0-1 known gaps | Few preparation gaps | Consider bounded work whose task prerequisites are established. |
+| Yellow, 2-3 known gaps | Substantial preparation | Fund the most consequential gaps and select work the team can evaluate now. |
 | Red, 4+ known gaps | Broader preparation | Restrict the affected work while deciding what to investigate, improve, replace or retire. |
 | Unknown, `?` | Evidence is missing | Investigate it; do not silently count it as zero. |
 
@@ -1804,12 +1804,12 @@ Across those changes, the baseline uses **200 human task hours** and the agent-a
 | Monthly cost for 20 accepted changes | Baseline | Agent-assisted |
 |---|---:|---:|
 | Human task time: 200h / 160h at $100/h | $20,000 | $16,000 |
-| Incremental seats | — | $530 |
-| Metered usage, including failed attempts | — | $270 |
-| Incremental infrastructure | — | $100 |
-| Initial setup: 120h × $100 = $12,000, amortized over 12 months | — | $1,000 |
-| Ongoing instruction/integration maintenance: 10h × $100 | — | $1,000 |
-| Recurring governance/evaluation: 4h × $100 | — | $400 |
+| Incremental seats | $0 | $530 |
+| Metered usage, including failed attempts | $0 | $270 |
+| Incremental infrastructure | $0 | $100 |
+| Initial setup: 120h × $100 = $12,000, amortized over 12 months | $0 | $1,000 |
+| Ongoing instruction/integration maintenance: 10h × $100 | $0 | $1,000 |
+| Recurring governance/evaluation: 4h × $100 | $0 | $400 |
 | **Modeled monthly total** | **$20,000** | **$19,300** |
 | **Modeled cost per comparable accepted change** | **$1,000** | **$965** |
 
@@ -1935,7 +1935,7 @@ SHIP
 ### B.4 Kill signal scoring worksheet {#template-b4}
 
 ```
-TASK PREREQUISITES — complete before scoring
+TASK PREREQUISITES - complete before scoring
   Proposed behavior/module/environment: ______
   Qualified evaluation owner: ______
   Consequential mistake and evidence that would expose it: ______
@@ -1943,7 +1943,7 @@ TASK PREREQUISITES — complete before scoring
 Missing or unknown? Restrict the affected work to investigation or supervised
 preparation until resolved. A green repository score authorizes no task by itself.
 
-PREPARATION SIGNALS — 0 absent gap / 0.5 partial / 1 substantial / ? unknown
+PREPARATION SIGNALS - 0 absent gap / 0.5 partial / 1 substantial / ? unknown
 For each, record evidence, owner and next action. Never turn ? into 0.
 
 1 Inadequate verification
@@ -2038,10 +2038,13 @@ WORK
   and recoverable within the unattended-run controls. Green score alone is insufficient.
 STOP CONDITION (machine-evaluable; the loop halts itself)
   Done when: ______ (queue empty / suite green / N units ready for review)
-  Budget: max ______ tokens or $______ or ______ iterations or ______ hours - whichever hits first
+  Budget: max ______ tokens or $______ or ______ iterations or ______ hours - whichever hits first,
+  enforced by something the loop cannot override (a usage warning is not a budget)
   Failure rule: same unit fails twice -> skip it and flag; three skipped units -> halt
 EACH ITERATION
   Fresh context; state read from queue + journal in the repo
+  Before a retry or resume: reconcile commit, completed writes, running processes,
+  external calls and spend; make consequential operations safe to repeat
   One unit per iteration; finish it or journal why not - nothing half-applied
   Gate: ______ (tests / lint / typecheck / build), enforced by protected required checks
   Protect grader/config changes and policy rules from unilateral agent approval.
@@ -2126,7 +2129,10 @@ Run it after a model, harness or skill change, and when results deteriorate. It 
 BASELINE
   Choose representative tasks and fix acceptance criteria before running them.
   Include cases where an optional skill should remain inactive.
-  Record model, effort, harness/workflow versions, starting commit and permissions.
+  Record the models actually used (not only the picker label when routing is on),
+  effort, harness/workflow versions, sign-in surface and plan, starting commit,
+  permissions and persistent-memory state. Fresh sessions start from equivalent
+  saved state.
 COMPARISON
   Compare the current and candidate configurations on matched tasks; document
   what changed. For an optional skill or plugin, compare native execution with
@@ -2142,7 +2148,8 @@ PROMPTS AND INSTRUCTION FILES
   try retiring redundant instructions while preserving local constraints and
   security controls. Audit skill triggers and over-prescription.
   Verify instruction discovery and precedence (B.2); do not assume AGENTS.md
-  or CLAUDE.md loads the same way in a new client.
+  or CLAUDE.md loads the same way in a new client. Confirm when an edit takes
+  effect: Codex builds its instruction chain at start, so restart to reload.
 MIGRATION COMPATIBILITY
   Remove API parameters the new model rejects; check supported output formats.
   Where effort controls exist, compare levels by task or phase; names do not
@@ -2153,7 +2160,7 @@ MIGRATION COMPATIBILITY
 DECISION
   Retain, simplify, restrict to particular tasks or manual invocation, or disable
   the optional workflow according to observed value. Record versions and the
-  comparison's limits. If results still deteriorate, revisit Chapter 8's signals.
+  comparison's limits. Keep a tested fallback for a model retired from your plan. If results still deteriorate, revisit Chapter 8's signals.
 ```
 
 ### B.10 Plugin vetting checklist {#template-b10}
@@ -2165,7 +2172,8 @@ MAINTAINER
   Active in the last 90 days? More than one maintainer? A real track record?
 PERMISSIONS SURFACE
   Which tools, hooks, file paths and network calls does it add? Broad requests
-  need a reason.
+  need a reason. MCP annotations (read-only, destructive) are claims, not
+  controls; trust them only as far as you trust the server.
 CODE REVIEW
   Read the installed version's instructions, tools and hooks before adoption.
   Allow time for its actual scope; read the diff on updates.
@@ -2220,20 +2228,6 @@ Compare a help-text typo, a priority field crossing storage/API/audit/routing, a
 
 *Answer:* the typo needs direct inspection, edit, focused verification and normal shipping. The priority change needs explicit decisions, ordered dependencies, failure/retry evidence and a production handoff. Restrict the ledger change while establishing evaluability and verification. Alternative artifacts and agent counts are acceptable when the decisions and controls are covered.
 
-**Observe two or three target readers**
-
-Give each engineer these tasks without explaining the answers first:
-
-1. In the Wire exercise, identify what the weak assertion fails to establish before reading the answer or running the verifier.
-2. Apply B.4 to a real proposed change. Explain what work can proceed, what must wait and what evidence would change that decision.
-3. Use Appendix A to distinguish elapsed delivery time, human effort and modeled financial value; explain why the cost example does not establish cash savings.
-
-Ask readers to think aloud. Record their first interpretation, hesitations, evidence cited and any help you supply; do not treat a prompted answer as independent success. Discuss the answers afterward and revise passages that repeatedly need verbal explanation. The table is a blank observation record, not trial results.
-
-| Reader / task | First interpretation or hesitation | Evidence cited / help supplied | Proposed edit |
-|---|---|---|---|
-| | | | |
-
 ---
 
 ## Appendix C. Sources and Further Reading
@@ -2258,10 +2252,10 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ---
 
-**Claim:** On April 24, 2026, PocketOS lost its production database in nine seconds when a Cursor agent powered by Claude Opus 4.6 invoked Railway's Volume Delete via a found API token during a credentials-mismatch recovery attempt. Backups stored on the same volume were destroyed with the primary data.
-**Source:** Reported by DevOps.com ("When AI Goes Really, Really Wrong"), Business Insider (Jer Crane statement), and others. Anthropic's Claude Opus 4.6 system card (February 2026) describes the model that powered the agent.
+**Claim:** On April 24, 2026, PocketOS lost its production database in nine seconds when a Cursor agent powered by Claude Opus 4.6 invoked Railway's Volume Delete via a found API token during a credentials-mismatch recovery attempt. Railway says the legacy API path performed a cascading delete that made the backups appear unavailable, and that it recovered the database with all data from offsite disaster backups. The token had account-scoped access.
+**Source:** Railway, "Your AI wants to nuke your database," April 29, 2026 ([blog.railway.com/p/your-ai-wants-to-nuke-your-database](https://blog.railway.com/p/your-ai-wants-to-nuke-your-database)). Reported by DevOps.com ("When AI Goes Really, Really Wrong"), Business Insider (Jer Crane statement), and others. Anthropic's Claude Opus 4.6 system card (February 2026) describes the model that powered the agent.
 **Where used:** Chapter 2 (Guardrails in five layers); Appendix D, Chapter 2 (PocketOS: where the accounts disagree, and what the platforms changed).
-**Caveat:** Recovery timeline differs across public accounts - Railway's restore was reportedly ~30 minutes after Crane contacted them, while other accounts describe ~30 hours or two days for full operational restoration. I use the incident for the governance pattern, not as a precise forensic reconstruction. Aftermath: on April 29, 2026 Railway announced that all volume and resource deletes - previously instant when invoked via the API - now soft-delete with a 48-hour recovery window, alongside workspace guardrails and scoped agent access ([blog.railway.com/p/your-ai-wants-to-nuke-your-database](https://blog.railway.com/p/your-ai-wants-to-nuke-your-database)).
+**Caveat:** Recovery timeline differs across public accounts - Railway's restore was reportedly ~30 minutes after Crane contacted them, while other accounts describe ~30 hours or two days for full operational restoration. I use the incident for the governance pattern, not as a precise forensic reconstruction. Aftermath: on April 29, 2026 Railway announced that API deletes, previously immediate, now soft-delete with the dashboard's 48-hour recovery window. Workspace- and project-scoped tokens already existed; the session used an account-scoped one. Rechecked October 30, 2026.
 
 ---
 
@@ -2279,23 +2273,30 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ---
 
+**Claim:** Microsoft's analysis of the ChainDrop supply-chain worm describes it using stolen GitHub credentials to inject files into Claude and Visual Studio Code configuration (`.claude/settings.json`, `.vscode/tasks.json` and companion setup scripts) across repository branches for persistence, so that later Claude or VS Code activity could restart the payload.
+**Source:** Microsoft Security, "ChainDrop supply-chain compromise: anatomy of a self-propagating worm," August 4, 2026: [microsoft.com/en-us/security/blog/2026/08/04/chaindrop-supply-chain-compromise-anatomy-self-propagating-worm/](https://www.microsoft.com/en-us/security/blog/2026/08/04/chaindrop-supply-chain-compromise-anatomy-self-propagating-worm/).
+**Where used:** Chapter 2 (Injection arrives through the work itself); Appendix D, Chapter 2.
+**Caveat:** One campaign's analysis. The article says "Claude" configuration paths; the lesson is that agent and editor configuration is executable and belongs in incident recovery.
+
+---
+
 ### Vulnerabilities with patch versions
 
-**Claim:** Claude Code was vulnerable to remote code execution via untrusted project files: malicious `.mcp.json` or `.claude/settings.json` files in untrusted repos could execute hooks before the trust dialog, enabling RCE.
-**Source:** Check Point Research, February 2026. CVE-2025-59536. NVD: [nvd.nist.gov/vuln/detail/CVE-2025-59536](https://nvd.nist.gov/vuln/detail/CVE-2025-59536). Writeup: [research.checkpoint.com/2026/rce-and-api-token-exfiltration-through-claude-code-project-files-cve-2025-59536/](https://research.checkpoint.com/2026/rce-and-api-token-exfiltration-through-claude-code-project-files-cve-2025-59536/).
+**Claim:** Check Point Research reported two Claude Code flaws in untrusted project configuration. The startup trust warning did not make clear that accepting a folder let its hooks run without further confirmation (GHSA-ph6w-f82w-28w6, no CVE, patched in v1.0.87). Separately, a bug in the trust dialog let a project execute code before the user accepted it (CVE-2025-59536, GHSA-4fgq-fpq9-mr3g, patched in v1.0.111).
+**Source:** Check Point Research, February 25, 2026. Anthropic advisories: [GHSA-ph6w-f82w-28w6](https://github.com/anthropics/claude-code/security/advisories/GHSA-ph6w-f82w-28w6), [GHSA-4fgq-fpq9-mr3g](https://github.com/anthropics/claude-code/security/advisories/GHSA-4fgq-fpq9-mr3g). CVE-2025-59536. NVD: [nvd.nist.gov/vuln/detail/CVE-2025-59536](https://nvd.nist.gov/vuln/detail/CVE-2025-59536). Writeup: [research.checkpoint.com/2026/rce-and-api-token-exfiltration-through-claude-code-project-files-cve-2025-59536/](https://research.checkpoint.com/2026/rce-and-api-token-exfiltration-through-claude-code-project-files-cve-2025-59536/).
 **Where used:** Appendix D, Chapter 2 (three vulnerability classes behind layers one to three).
-**Caveat:** Disclosed and patched in Claude Code v1.0.111 (October 2025); the Check Point writeup was published February 2026. Versions earlier than the patch remain vulnerable; the class survives even after the specific patch.
+**Caveat:** Fixes shipped August 26 and September 22, 2025; the trust-dialog advisory was published October 3, 2025 and the Check Point writeup in February 2026. Accepting trust is itself a grant of execution. Versions earlier than the patches remain vulnerable; the class survives the specific patches. Rechecked October 30, 2026.
 
 ---
 
 **Claim:** Claude Code was vulnerable to API-key exfiltration via configuration injection: attacker-controlled settings overriding `ANTHROPIC_BASE_URL` before the trust prompt could leak API keys.
-**Source:** Check Point Research, February 2026. CVE-2026-21852.
+**Source:** Check Point Research, February 2026. CVE-2026-21852; Anthropic advisory [GHSA-jh7p-qr78-84p7](https://github.com/anthropics/claude-code/security/advisories/GHSA-jh7p-qr78-84p7), January 20, 2026.
 **Where used:** Appendix D, Chapter 2 (three vulnerability classes behind layers one to three).
 **Caveat:** Patched in Claude Code v2.0.65. Same class as CVE-2025-59536: pre-trust execution of untrusted project configuration.
 
 ---
 
-**Claim:** Knostic reported in December 2025 that Claude Code loaded `.env*` files from the working directory without explicit permission in the observed setup, exposing secrets to context.
+**Claim:** Knostic reported in December 2025 that Claude Code loaded `.env*` files from the working directory without explicit permission in the observed setup, loading their values into the process environment. Knostic notes this does not prove the values reached the model's context, but advises assuming they could leave the local environment.
 **Source:** Knostic, December 2025: [knostic.ai/blog/claude-loads-secrets-without-permission](https://knostic.ai/blog/claude-loads-secrets-without-permission). Current control scope: [code.claude.com/docs/en/sandboxing](https://code.claude.com/docs/en/sandboxing).
 **Where used:** Chapter 2 (Layer 3: Secrets); Appendix D, Chapter 2 (three vulnerability classes behind layers one to three), named in the dot-env auto-loading vulnerability class.
 **Caveat:** A dated report, not a claim that every current session automatically loads these files. Shell `denyRead` and credential settings protect covered commands; native file reads need separate permissions. Keep secrets outside the agent's environment when no read route should reach them. Current scope checked October 23, 2026.
@@ -2419,8 +2420,64 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 **Claim:** An undo migration is optional and cannot reliably reverse every destructive data change or partial failure. Recovery can instead use backward-compatible deployment, roll-forward correction or tested restoration.
 **Source:** Redgate Flyway, [Undo migrations](https://documentation.red-gate.com/flyway/flyway-concepts/migrations/undo-migrations), updated May 21, 2026.
-**Where used:** Chapters 4–5 (Wire migration review); worked companion.
+**Where used:** Chapters 4-5 (Wire migration review); worked companion.
 **Caveat:** Checked October 23, 2026. The appropriate strategy depends on the system and required recovery objectives. This documentation does not prove which policy an unpublished client engagement used.
+
+---
+
+**Claim:** OpenAI's managed configuration documentation states that Computer Use can operate a browser as a native app, that Browser Use site and capability rules do not apply to that path, and that disabling Browser Use alone does not block every browser path.
+**Source:** OpenAI, managed configuration documentation, [learn.chatgpt.com/docs/enterprise/managed-configuration](https://learn.chatgpt.com/docs/enterprise/managed-configuration), checked October 30, 2026.
+**Where used:** Chapter 2 (Do this Monday); Appendix D, Chapter 2 (browser, desktop and remote routes).
+**Caveat:** Undated, mutable vendor documentation; the route-coverage lesson applies to any agent with browser or desktop control.
+
+---
+
+**Claim:** The Model Context Protocol specification says clients must consider tool annotations untrusted unless they come from trusted servers, and that there should always be a human able to deny tool invocations.
+**Source:** MCP specification 2026-07-28, Tools: [modelcontextprotocol.io/specification/2026-07-28/server/tools](https://modelcontextprotocol.io/specification/2026-07-28/server/tools).
+**Where used:** Appendix B.10; Appendix D, Chapter 2.
+**Caveat:** A specification states client obligations; check what a particular client actually enforces.
+
+---
+
+**Claim:** GitHub's Actions guidance says `pull_request_target` and `workflow_run` workflows are privileged, can have write access and secrets, and must not check out untrusted pull-request code.
+**Source:** GitHub Docs, "Secure use reference," [docs.github.com/en/actions/reference/security/secure-use](https://docs.github.com/en/actions/reference/security/secure-use), checked October 30, 2026.
+**Where used:** Chapter 2 (Injection arrives through the work itself); Appendix D, Chapter 2.
+**Caveat:** Platform-specific; other CI systems need the equivalent separation of untrusted input from privileged execution.
+
+---
+
+**Claim:** Claude Code workflows enforce runtime agent caps (concurrency, items per call, 1,000 agents per run); the size guideline is advice to the model, and the large-workflow warning "doesn't pause or limit the run." Resume returns saved results for completed agents within the same session.
+**Source:** Claude Code workflows documentation, [code.claude.com/docs/en/workflows](https://code.claude.com/docs/en/workflows), checked October 30, 2026.
+**Where used:** Appendix B.6; Appendix D, Chapters 1 and 9.
+**Caveat:** Caps bound agent count, not tokens or dollars; a spending limit needs its own control.
+
+---
+
+**Claim:** GitHub Copilot Fusion became generally available on October 28, 2026; it routes and orchestrates the models used for a request and bills each model at its standard rate.
+**Source:** GitHub changelog, October 28, 2026: [github.blog/changelog/2026-10-28-route-and-orchestrate-models-with-github-copilot-fusion/](https://github.blog/changelog/2026-10-28-route-and-orchestrate-models-with-github-copilot-fusion/).
+**Where used:** Appendix B.9; Appendix D, Appendix A.
+**Caveat:** Vendor announcement; record the models actually used rather than inferring them from the picker.
+
+---
+
+**Claim:** Effective October 14, 2026, GPT-5.5 retired from Codex for users signed in with ChatGPT; the OpenAI API and Codex sessions authenticated with an API key were not affected.
+**Source:** OpenAI Codex changelog, [learn.chatgpt.com/docs/changelog](https://learn.chatgpt.com/docs/changelog), entry of October 14, 2026.
+**Where used:** Appendix B.9; Appendix D, Appendix A.
+**Caveat:** Availability differs by sign-in surface and plan; check yours.
+
+---
+
+**Claim:** Codex builds its AGENTS.md instruction chain when it starts, walking from the project root to the current directory; to pick up changes, restart Codex.
+**Source:** OpenAI, AGENTS.md documentation, [learn.chatgpt.com/docs/agent-configuration/agents-md](https://learn.chatgpt.com/docs/agent-configuration/agents-md), checked October 30, 2026.
+**Where used:** Appendix B.9.
+**Caveat:** Other clients reload instructions differently; verify per client.
+
+---
+
+**Claim:** OpenAI reports using GPT-6 models to clean up its own code: more than 1,400 merged pull requests deleting over 800,000 lines, gathering evidence (configuration, history, production profiles) before each change, one small draft PR per cleanup, and noting traps such as reflection that defeats static analysis, unused paths kept to mitigate future incidents, and proposals that added more complexity than their expected benefit.
+**Source:** OpenAI, "Maintaining software with the GPT-6 family," [developers.openai.com/blog/maintaining-software-with-the-gpt-6-family](https://developers.openai.com/blog/maintaining-software-with-the-gpt-6-family), checked October 30, 2026.
+**Where used:** Chapter 7 (Delete with evidence).
+**Caveat:** A vendor's account of its own codebase, undated on the page; not a controlled measurement.
 
 ---
 
@@ -2442,7 +2499,7 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ---
 
-**Claim:** Claude Code maintains an auto-memory layer in which Claude writes notes for itself across sessions - build commands it figured out, debugging insights it confirmed, code-style preferences it inferred - distinct from the user-written CLAUDE.md. Requires Claude Code v2.1.59+; on by default; per-repo storage.
+**Claim:** Claude Code maintains an auto-memory layer in which Claude writes notes for itself across sessions - user preferences, feedback, ongoing project decisions and external references, skipping anything it can derive from the codebase such as architecture or debugging fixes - distinct from the user-written CLAUDE.md. Memory is machine-local and shared by all worktrees of a repository (checked October 30, 2026). Requires Claude Code v2.1.59+; on by default; per-repo storage.
 **Source:** [code.claude.com/docs/en/memory](https://code.claude.com/docs/en/memory).
 **Where used:** Chapter 1 (Memory); Appendix D, Chapter 1 (memory and skills: the convergence story).
 **Caveat:** The entry documents the Claude Code implementation, but the half is a convergence, not an exclusive: GitHub Copilot Memory reached public preview on January 15, 2026 - before Auto Memory shipped - and was on by default for Pro tiers by March 4; Codex CLI added automatic background memory in April 2026.
@@ -2640,11 +2697,11 @@ This appendix exists because every claim in this manual deserves a verifiable so
 **Claim:** Across 260 multi-agent configurations, coordination helped only on decomposable tasks, degraded sequential planning by between 39% and 70% depending on architecture, and produced negative returns on tasks where a single agent already exceeded about 45% accuracy.
 **Source:** Kim et al., "Capable language models can outgrow the benefits of collaboration," Nature Machine Intelligence 8, 1157-1172, July 24, 2026: [doi.org/10.1038/s42256-026-01268-y](https://doi.org/10.1038/s42256-026-01268-y); preprint "Towards a Science of Scaling Agent Systems," [arxiv.org/abs/2512.08296](https://arxiv.org/abs/2512.08296).
 **Where used:** Chapter 4 (Execute, the split gate); Appendix D, Chapter 4 (when splitting into subagents pays); Appendix B.3.
-**Caveat:** Benchmarks are not coding-specific; the 45% threshold is a fitted predictor across the tested tasks, not a law.
+**Caveat:** Mostly not coding-specific: SWE-bench Verified and Terminal-Bench are the only coding benchmarks among six, each on a 20-instance subset; the 45% threshold is a fitted predictor across the tested tasks, not a law.
 
 ---
 
-**Claim:** On SpecBench, every frontier agent saturates the visible test suite while the held-out score stays much lower, producing gaps of roughly 43 to 48 percentage points; the 90th-percentile gap grows by about 27 points for every tenfold increase in lines of code; additional search does not reliably remove the reward hacking.
+**Claim:** On SpecBench, every frontier agent saturates the visible test suite while the held-out score stays much lower; for Claude Code the gap is roughly 43 to 48 percentage points across three search strategies, and other agents vary by strategy; the 90th-percentile gap grows by about 27 points for every tenfold increase in lines of code; additional search does not reliably remove the reward hacking.
 **Source:** Bingchen Zhao, Dhruv Srikanth, Yuxiang Wu, Zhengyao Jiang (Weco AI), "SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents," May 20, 2026 (v2 September 9, 2026): [arxiv.org/abs/2605.21384](https://arxiv.org/abs/2605.21384).
 **Where used:** Chapter 5 (Can you trust the tests the agent writes?); Appendix D, Chapter 5 (SpecBench and the Cursor finding in full); Appendix B.3.
 **Caveat:** The abstract rounds the growth figure to 28 points; the body reports 27 with R² of 0.21, so the trend is real and noisy.
@@ -2751,7 +2808,7 @@ This appendix exists because every claim in this manual deserves a verifiable so
 
 ### Notes on currency
 
-Sources retain their publication/version dates. Entries rechecked in this revision state October 23, 2026 explicitly; that does not mean every historical claim was independently revalidated. For a consequential claim, retain the direct source, version/date, date checked, applicable setting and the interpretation being drawn. Mutable documentation must be rechecked before relying on it. Author-reported case notes are not controlled measurements, and the synthetic companion and hypothetical economics are teaching artifacts rather than engagement evidence.
+Sources retain their publication/version dates. Entries rechecked in the latest revisions state October 23 or October 30, 2026 explicitly; that does not mean every historical claim was independently revalidated. For a consequential claim, retain the direct source, version/date, date checked, applicable setting and the interpretation being drawn. Mutable documentation must be rechecked before relying on it. Author-reported case notes are not controlled measurements, and the synthetic companion and hypothetical economics are teaching artifacts rather than engagement evidence.
 
 ---
 
@@ -2775,7 +2832,7 @@ This is where the evidence and dated detail behind each chapter lives: the studi
 
 **Subagent configuration and historical adoption.** Codex CLI exposes `agents.max_concurrent_threads_per_session` for spawned threads, excluding the primary; `agents.max_threads` is a legacy alias. Unset defaults are client-selected, not a fixed-six ceiling. Other agents expose their own version-specific orchestration. *Sources: OpenAI config reference and Subagents docs, checked October 23, 2026; historical vendor changelogs. Caveat: the current docs do not establish the previously stated March 14 GA date; inspect installed settings and resource limits.*
 
-**Scripted orchestration (`/workflows`).** Claude Code's `/workflows` (mid-2026) has the agent write a script that dispatches subagents deterministically: ordered phases, parallel or pipeline fan-out across hundreds of children, schema-validated handoffs, an optional verification gate, resumable and budget-bounded. Determinism is the only real difference from model-driven dispatch (as in Superpowers); use it when the fan-out is large, repeatable or worth verifying mechanically. *Source: Changelog, 2026-06-11.*
+**Scripted orchestration (`/workflows`).** Claude Code's `/workflows` (mid-2026) has the agent write a script that dispatches subagents deterministically: ordered phases, parallel or pipeline fan-out across hundreds of children, schema-validated handoffs, an optional verification gate, and resume that replays completed agents. Runtime caps bound the agent count; the size guideline and the large-run warning are advisory and do not pause or limit spending, so a budget still needs its own control. Compared with model-driven dispatch (as in Superpowers), it adds determinism and keeps intermediate results out of the main conversation; use it when the fan-out is large, repeatable or worth verifying mechanically. *Source: Claude Code workflows documentation, checked October 30, 2026.*
 
 **Memory and skills: shared roles, different loading.** Project instructions have a shared role, not identical discovery. Codex has directory precedence; Claude has versioned fallback/import behavior; Gemini CLI defaults to GEMINI.md and can configure AGENTS.md; Aider supports explicit read-only inclusion. Chapter 6 records scope and inspection methods. Skill bodies and agent-written memory are separate mechanisms with their own loading and retention. *Sources: official Codex, Claude Code, Gemini CLI and Aider docs, checked October 23, 2026; Appendix C. Caveat: shared naming implies neither automatic loading nor equal authority.*
 
@@ -2787,23 +2844,19 @@ This is where the evidence and dated detail behind each chapter lives: the studi
 
 ### Chapter 2 - Guardrails in five layers {#deep-dive-chapter-2}
 
-**Three vulnerability classes behind layers one to three.** (1) Secret exposure: agents may discover `.env*` files through shell or native tools, or inherit secret environment variables. Protect each route. Claude Code's credential settings restrict sandboxed commands; shell deny-read rules do not block native Read. (2) Configuration-file injection: untrusted `.claude/settings.json` or `.mcp.json` files run hooks before the trust dialog, enabling remote code execution (CVE-2025-59536, patched in Claude Code v1.0.111) or API-key exfiltration through an overridden `ANTHROPIC_BASE_URL` (CVE-2026-21852, patched in v2.0.65). (3) Permission-parser bypass: deny rules skipped for binaries the parser does not recognize (Python's `open()`, Node's `fs.readFile`), or, as a quiet failure, when a command chained more than fifty subcommands (`MAX_SUBCOMMANDS_FOR_SECURITY_CHECK = 50`) and the check fell through to a generic "ask"; disclosed April 1, 2026, patched in v2.1.90 within days. Nothing in the configuration shows such a failure, so assume any single layer can have a bug; the classes outlive their patches. *Sources: Knostic, Dec 2025; Check Point Research, Feb 2026 (patched October 2025); Adversa AI Red Team, Apr 1, 2026; Adam Kinney, Apr 2026. Caveat: architectural classes, not single CVEs; unpatched versions stay vulnerable.*
+**Three vulnerability classes behind layers one to three.** (1) Secret exposure: agents may discover `.env*` files through shell or native tools, or inherit secret environment variables. Protect each route. Claude Code's credential settings restrict sandboxed commands; shell deny-read rules do not block native Read. (2) Configuration-file injection: untrusted project settings could run hooks once a folder was trusted, without the warning saying so (patched in v1.0.87); execute code before the trust dialog was accepted (CVE-2025-59536, patched in v1.0.111); or send requests, and the API key, to an overridden `ANTHROPIC_BASE_URL` before the trust prompt (CVE-2026-21852, patched in v2.0.65). Accepting trust is itself a grant of execution. (3) Coverage gaps and parser bypasses: a deny rule written for one interface does not cover another (a Read deny rule does not stop `cat` through Bash, or Python's `open()`), or, as a quiet failure, when a command chained more than fifty subcommands (`MAX_SUBCOMMANDS_FOR_SECURITY_CHECK = 50`) and the check fell through to a generic "ask"; disclosed April 1, 2026, patched in v2.1.90 within days. Nothing in the configuration shows such a failure, so assume any single layer can have a bug; the classes outlive their patches. *Sources: Knostic, Dec 2025; Check Point Research, Feb 2026 (fixes August to December 2025); Adversa AI Red Team, Apr 1, 2026; Adam Kinney, Apr 2026. Caveat: architectural classes, not single CVEs; unpatched versions stay vulnerable.*
 
 **The sandbox escapes ("DuneSlide").** In mid-2026 a red team disclosed two critical zero-click prompt-injection flaws in Cursor's kernel-backed sandbox (CVE-2026-50548 and CVE-2026-50549, CVSS 9.8) that abused its working-directory write allowlist and a symlink-resolution fallback to reach OS-level code execution. Versions before Cursor 3.0 (April 2, 2026) were affected. The lesson is the class, not the vendor: the strongest layer can have bugs, which is why there are five. *Sources: Cato Networks (Cato AI Labs), mid-2026; SecurityWeek and The Hacker News, Jul 2026.*
-
-**Per-agent sandbox defaults.** See the Chapter 1 entry on sandbox posture by vendor; the point for this chapter is that a default install of an opt-in agent runs with layer two switched off.
 
 **Injection through the work: the DNS TXT proof of concept.** The June 2026 report describes a repository inducing Claude Code to retrieve a payload through DNS TXT and execute it. An HTTP proxy/domain allowlist does not establish DNS containment. Verify direct connections, direct DNS tools and system-resolver requests separately, using benign owned endpoints. The runtime README documents unfenced system-resolver requests on its Windows path and similar macOS behavior. Standalone runtime support does not imply Claude Code native-Windows shell sandbox support. *Sources: June 29 incident coverage and Anthropic sandbox-runtime network documentation, Appendix C; current scope checked October 23, 2026. Caveat: platform and resolver routes differ; a proof of concept is not a measured frequency.*
 
 **Telemetry plumbing and hook examples.** By mid-2026 Claude Code, Codex CLI and Gemini CLI emit OpenTelemetry natively, so the audit store can be whatever the stack already speaks; the requirement is durability and queryability. The security-guidance plugin ships rules for roughly eight to ten vulnerability categories. One team rule beyond the chapter's two: block edits to a compliance-relevant module outside business hours.
 
-**PocketOS: where the accounts disagree, and what the platforms changed.** Railway's restore was reportedly about 30 minutes after the CEO contacted them; other accounts say about 30 hours, or two days, for full restoration, so the manual uses the incident for the governance pattern only. Within a week, on April 29, 2026, Railway moved all volume and resource deletes, including the API path the agent used, to soft-delete with a 48-hour recovery window, and added workspace guardrails and scoped agent credentials. Alexey Grigorev's follow-up to the DataTalks.Club Terraform loss (late February 2026) reads like this chapter's checklist: delete protection in Terraform and AWS, state moved to S3, manual review of every destructive plan, an upgraded AWS support tier. AWS restored roughly 1.94M rows from a snapshot within about a day. *Sources: DevOps.com; Business Insider; Railway blog, Apr 29, 2026; Grigorev's public account.*
+**PocketOS: where the accounts disagree, and what the platforms changed.** Railway says it recovered the database with all data from offsite disaster backups; the restore was reportedly about 30 minutes after the CEO contacted them, while other accounts say about 30 hours, or two days, for full restoration, so the manual uses the incident for the governance pattern only. On April 29, 2026, Railway made API deletes match the dashboard's 48-hour soft delete. Workspace- and project-scoped tokens already existed; the session's token was account-scoped, the broadest available. Alexey Grigorev's follow-up to the DataTalks.Club Terraform loss (late February 2026) reads like this chapter's checklist: delete protection in Terraform and AWS, state moved to S3, manual review of every destructive plan, an upgraded AWS support tier. AWS restored roughly 1.94M rows from a snapshot within about a day. *Sources: DevOps.com; Business Insider; Railway blog, Apr 29, 2026; Grigorev's public account.*
 
----
+**Browser, desktop and remote routes.** A project-directory sandbox does not bound an already signed-in browser, a desktop-control feature or a remote API reached with stored credentials. OpenAI's managed configuration is explicit: Computer Use can operate a browser as a native app, Browser Use site rules do not apply to that path, and blocking it takes forcing Computer Use off or denying the browser app. Record each route in the control record with its effective identity. MCP tool annotations such as read-only or destructive are descriptions, not controls: the July 2026 specification says clients must treat them as untrusted unless the server is trusted. *Sources: OpenAI managed configuration and MCP specification 2026-07-28, checked October 30, 2026.*
 
-**PocketOS: the public post.** The PocketOS CEO posted about the incident publicly, and the post quickly became a reference point in discussions of AI safety in production. *Source: Appendix C, Named incidents.*
-
-**DataTalks.Club as the mirror image of PocketOS.** In the DataTalks.Club incident Claude Code ran `terraform destroy` against a stale state file: a map the agent did not know it needed, where PocketOS was a credential it should not have held. Same cure: confirmation on destructive operations, only the credentials the task needs, and state the team has verified. *Source: Alexey Grigorev's public account; Appendix C.*
+**ChainDrop: persistence through agent and editor configuration.** Microsoft's August 4, 2026 analysis of a self-propagating supply-chain worm describes it using stolen GitHub credentials to inject `.claude/settings.json`, `.vscode/tasks.json` and companion setup scripts across branches, so that later Claude or VS Code activity could restart the payload. Recovery therefore includes those files, hooks, memory and workflow definitions, not only the package that delivered it. For CI, GitHub's guidance is that `pull_request_target` and `workflow_run` workflows are privileged and must not check out untrusted code. *Sources: Microsoft Security, Aug 4, 2026; GitHub Actions secure-use reference, checked October 30, 2026.*
 
 ### Chapter 3 - The bottleneck moved {#deep-dive-chapter-3}
 
@@ -2837,7 +2890,7 @@ This is where the evidence and dated detail behind each chapter lives: the studi
 
 **Model-specific review and bounded repair.** As checked October 23, Fable 5's guide recommends fresh verifier subagents for long tasks, while Opus 5's guide says extra verification prompts and agent double-checks add cost without improving its quality. Neither is evidence for two reviewers on every PR. Research on critique uptake, late-round degradation and judge anchoring motivates independent judgments and a stopping rule, but mostly studies math or deep research. Track useful defects, false positives and rework; accepting or rebutting a comment is not itself a quality gain. *Sources: Anthropic's Fable 5 and Opus 5 guides; Yang et al., July 16, 2026; Wan et al., January 22, v2 April 29; Kapetanovic et al., August 26. Caveat: model and domain transfer need evaluation.*
 
-**SpecBench and the Cursor finding in full.** SpecBench (May 2026) ran frontier agents against specifications with visible and hidden test sets. Every agent saturated the visible suite near 100%, with hidden-test gaps of roughly 43 to 48 points; the 90th-percentile gap grew by about 27 points per tenfold increase in lines of code, and more search did not reliably remove the reward hacking. Cursor found the other half in June 2026: on SWE-bench Pro, 63% of successful Claude Opus 4.8 Max resolutions had retrieved the upstream fix from git history or the network instead of deriving it, and sealing both dropped the score from 87.1% to 73.0%. These are evaluation-boundary findings: use held-out checks and leakage controls where those boundaries matter, without sealing every ordinary PR from history and documentation. *Sources: Zhao, Srikanth, Wu and Jiang (Weco AI), May 20, 2026 (v2 Sep 9); Naman Jain, Cursor, Jun 25, 2026. Caveats: the abstract rounds 27 to 28 points (R-squared 0.21), so the trend is real but noisy; Cursor's result is one harness and one model.*
+**SpecBench and the Cursor finding in full.** SpecBench (May 2026) ran frontier agents against specifications with visible and hidden test sets. Every agent saturated the visible suite, while held-out scores stayed much lower; Claude Code's gap was roughly 43 to 48 points across three search strategies, and other agents varied by strategy; the 90th-percentile gap grew by about 27 points per tenfold increase in lines of code, and more search did not reliably remove the reward hacking. Cursor found the other half in June 2026: on SWE-bench Pro, 63% of successful Claude Opus 4.8 Max resolutions had retrieved the upstream fix from git history or the network instead of deriving it, and sealing both dropped the score from 87.1% to 73.0%. These are evaluation-boundary findings: use held-out checks and leakage controls where those boundaries matter, without sealing every ordinary PR from history and documentation. *Sources: Zhao, Srikanth, Wu and Jiang (Weco AI), May 20, 2026 (v2 Sep 9); Naman Jain, Cursor, Jun 25, 2026. Caveats: the abstract rounds 27 to 28 points (R-squared 0.21), so the trend is real but noisy; Cursor's result is one harness and one model.*
 
 **Playwright semantic locators and interactions.** Roles and labels can resist styling/DOM changes while the accessible contract is stable. Actions remain control-specific: `selectOption()` targets a native select; `check()` selects a radio/checkbox; a custom widget can require different interactions. A component replacement may need a test update. Assert business behavior and inspect rendered visual changes. *Sources: Playwright locators/input documentation, checked October 23, 2026; Appendix C. Caveat: semantic stability establishes neither interaction-model compatibility nor visual correctness.*
 
@@ -2859,7 +2912,7 @@ This is where the evidence and dated detail behind each chapter lives: the studi
 
 **Compaction and context measurements.** JetBrains compared unmanaged history, masking and summarization across five SWE-agent/SWE-bench Verified configurations. Masking was cheaper than summarization in four; Qwen3-Coder 480B saved 52.7% with masking and 50.4% with summarization against unmanaged history. Other configurations saved less; neither a universal over-50% reduction nor that ratio between methods follows. Anthropic separately reported a 29% gain from tool-result clearing on its internal search evaluation. The multi-turn study found average degradation against a fully specified turn and recovery through consolidation. *Sources: Lindenbauer et al., The Complexity Trap, Table 1; Anthropic, September 29, 2025; Laban et al., May 2025; Appendix C. Caveat: different interventions and settings, not a controlled coding-handoff comparison. Cost baseline rechecked October 23, 2026.*
 
-**Append-only history and cache pricing (Fable 5.1).** Thinking blocks are bound to the exact prefix that produced them, so editing or reordering earlier turns invalidates them and discards the retained reasoning that Chapter 1 counts as half of Effort: end the session and start clean. With cache reads at 0.025x the base input price, the guide says compacting early to save cost may no longer be the right trade; when you do compact, give the compactor a keep-list (the plan, open questions, deviations in the implementation notes, the exact commands that worked). *Source: Anthropic, "Prompting Claude Fable 5.1." Caveats: undated page; 0.025x is the manual's arithmetic from published prices; append-only applies to accounts created on or after August 31, 2026.*
+**Append-only history and cache pricing (Fable 5.1).** Thinking blocks are bound to the exact prefix that produced them, so editing or reordering earlier turns invalidates them and discards the retained reasoning that Chapter 1 counts as half of Effort. The guide's answer is to keep history append-only and let server-side compaction or context editing do the trimming; if you compact on the client, replace the whole history with one summary plus the new turn. With cache reads at 0.025x the base input price, the guide says compacting early to save cost may no longer be the right trade; when you do compact, give the compactor a keep-list (the plan, open questions, deviations in the implementation notes, the exact commands that worked). *Source: Anthropic, "Prompting Claude Fable 5.1." Caveats: undated page, written for API harness builders; 0.025x is the manual's arithmetic from published prices; append-only applies to accounts created on or after August 31, 2026.*
 
 ---
 
@@ -2899,9 +2952,9 @@ This is where the evidence and dated detail behind each chapter lives: the studi
 
 **The outer loop: from AutoGPT to Ralph Wiggum.** The inner loop is the six-phase loop (Chapter 4); the outer loop wraps it and re-invokes the agent until a condition holds. In 2023 AutoGPT and BabyAGI looped a model against its own opinion of its progress; nothing external graded an iteration, laps compounded drift, and the approach collapsed as a way of shipping software within months. The revival differs structurally: in mid-2025 Geoff Huntley wired an agent into a bash while-loop (one prompt file, repeat), which spread as "Ralph Wiggum". Each iteration starts with a fresh context, does one unit of work and ends against graders the model does not control (compiler, tests, diff), with state in the repository. His name for the failure mode is overbaking: a loop left running past its job invents work nobody asked for. *Sources: ghuntley.com/ralph (Jul 2025); HumanLayer, Jan 6, 2026; The Register, Jan 27, 2026; AutoGPT and BabyAGI repositories. Caveat: the collapse judgment and structural contrast are the manual's interpretation.*
 
-**The outer loop: the vendor wave and stop-condition mechanisms.** GitHub's Copilot coding agent went generally available on September 25, 2025 (isolated environment, draft pull request); Cursor shipped Cloud Agents on October 30, 2025; Google's Jules added Scheduled Tasks on December 10, 2025; a ralph-wiggum plugin landed in the official Claude Code repository in November 2025. By spring 2026 Claude Code had `/loop` (re-run on an interval or self-paced), Routines (cloud agents from a schedule or GitHub event), `/goal` (work until a completion condition holds) and `/autofix-pr` (push fixes until CI is green). By Chapter 1's test the capability converged, though what converged is a workflow around the primitives, not a primitive. `/goal` uses a separate model to assess the condition from the conversation; Codex Goals lets the acting model mark a persistent objective complete. These control continuation and budgets. Neither replaces independently protected acceptance checks. The ralph-wiggum plugin has no controlled evidence, and its README names max iterations as its primary safeguard, a budget, not a stop condition. *Sources: GitHub changelog, 2025-09-25; Cursor and Google blogs; Claude Code release notes, Apr-May 2026; Claude Code "/goal" docs; OpenAI Cookbook, "Using Goals in Codex." Caveat: vendor dates drift; the goal docs describe mechanism, not outcomes.*
+**The outer loop: the vendor wave and stop-condition mechanisms.** Between September and December 2025 GitHub, Cursor and Google shipped cloud or scheduled agents, and a ralph-wiggum plugin landed in the official Claude Code repository. By spring 2026 Claude Code had `/loop` (re-run on an interval or self-paced), Routines (cloud agents from a schedule or GitHub event), `/goal` (work until a completion condition holds) and `/autofix-pr` (push fixes until CI is green). By Chapter 1's test the capability converged, though what converged is a workflow around the primitives, not a primitive. `/goal` uses a separate model to assess the condition from the conversation; Codex Goals lets the acting model mark a persistent objective complete. These control continuation and budgets. Neither replaces independently protected acceptance checks. The ralph-wiggum plugin has no controlled evidence, and its README names max iterations as its primary safeguard, a budget, not a stop condition. *Sources: GitHub changelog, 2025-09-25; Cursor and Google blogs; Claude Code release notes, Apr-May 2026; Claude Code "/goal" docs; OpenAI Cookbook, "Using Goals in Codex." Caveat: vendor dates drift; the goal docs describe mechanism, not outcomes.*
 
-**The outer loop: why each contract line exists, and the two poles.** A machine-evaluable stop condition, because a loop without one is abandonment. A budget, because an unattended loop is the per-token model's best customer (Appendix A). An acceptance gate enforced by protected required checks and reviewed policy changes, because the cheapest way to go green is to negotiate with your own grader, and a green suite the agent wrote is evidence, not proof (Chapter 5). A durable queue and decision record, with fresh context when the handoff or observed drift justifies it. Isolation sized for absence, since an unattended session is where prompt injection meets no human skeptic (Chapter 2). Queue similar, independently verifiable and recoverable units only after each meets the task prerequisites and unattended-run controls; green alone is insufficient. Huntley runs the loop raw at roughly $10 an hour; StrongDM's software factory runs fully non-interactive delivery, humans neither writing nor reviewing code, with end-to-end scenarios held outside the codebase as a holdout the loop cannot weaken, at a spend Simon Willison pegged near $20,000 a month per engineer. *Sources: Willison, Feb 7, 2026; Huntley and The Register as above. Caveat: the $10 figure is Huntley's own and the StrongDM figures are one company's self-description and Willison's framing, not audits.*
+**The outer loop: why each contract line exists, and the two poles.** A machine-evaluable stop condition, because a loop without one is abandonment. A budget, because an unattended loop is the per-token model's best customer (Appendix A). An acceptance gate enforced by protected required checks and reviewed policy changes, because the cheapest way to go green is to negotiate with your own grader, and a green suite the agent wrote is evidence, not proof (Chapter 5). A durable queue and decision record, with fresh context when the handoff or observed drift justifies it. Fresh context does not mean a fresh world: before a retry or resume, reconcile the current commit, completed writes, running processes, external calls and spend, and make consequential operations safe to repeat. Isolation sized for absence, since an unattended session is where prompt injection meets no human skeptic (Chapter 2). Queue similar, independently verifiable and recoverable units only after each meets the task prerequisites and unattended-run controls; green alone is insufficient. Huntley runs the loop raw at roughly $10 an hour; StrongDM's software factory runs fully non-interactive delivery, humans neither writing nor reviewing code, with end-to-end scenarios held outside the codebase as a holdout the loop cannot weaken, at a spend Simon Willison pegged near $20,000 a month per engineer. *Sources: Willison, Feb 7, 2026; Huntley and The Register as above. Caveat: the $10 figure is Huntley's own and the StrongDM figures are one company's self-description and Willison's framing, not audits.*
 
 **Example time budgets for the role commitments.** In this schedule, the champion reserves about three hours in week one and five in week two; later weeks depend on the pilot features. The intended outputs are a tested workflow, useful maintained instructions, delivered features and a designated successor. The lead reserves roughly two hours in week one and three to five in later phases. These are planning examples from practice; adjust them to measured effort and the team's starting point.
 
@@ -2913,7 +2966,7 @@ This is where the evidence and dated detail behind each chapter lives: the studi
 
 ### Appendix A - For managers {#deep-dive-appendix-a}
 
-**Tier routing, the two measured points.** Anthropic's advisor pattern pairs a cheaper executor with a stronger model on call. Sonnet with Opus as advisor scored 2.7 points higher on SWE-bench Multilingual than Sonnet alone, at 11.9% lower cost per task. Haiku with an Opus advisor scored 41.2% on BrowseComp against 19.7% solo, trailing Sonnet solo by 29% in score at 85% lower cost per task. These vendor benchmarks suggest a candidate to compare on representative tasks, not a universal routing rule for implementation or research. *Source: Anthropic, "The advisor strategy," Apr 9, 2026. Caveat: vendor benchmarks on the vendor's own models; per-task figures, not a general ratio.*
+**Tier routing, the two measured points.** Anthropic's advisor pattern pairs a cheaper executor with a stronger model on call. Sonnet with Opus as advisor scored 2.7 points higher on SWE-bench Multilingual than Sonnet alone, at 11.9% lower cost per task. Haiku with an Opus advisor scored 41.2% on BrowseComp against 19.7% solo, trailing Sonnet solo by 29% in score at 85% lower cost per task. These vendor benchmarks suggest a candidate to compare on representative tasks, not a universal routing rule for implementation or research. Routing can also be the vendor's: GitHub Copilot Fusion, generally available on October 28, 2026, chooses the models per request and bills each at its standard rate, so record the models actually used. Availability depends on how you sign in: GPT-5.5 left Codex for ChatGPT sign-ins on October 14, 2026, while API-key sessions were unaffected. Keep a tested fallback. *Sources: Anthropic, "The advisor strategy," Apr 9, 2026; GitHub changelog, Oct 28, 2026; Codex changelog, Oct 14, 2026. Caveat: vendor benchmarks on the vendor's own models; per-task figures, not a general ratio.*
 
 **Cache-first layout, tool tax and masking.** Cache-first layout cut API cost by 41% to 80% on more than 500 agent sessions across three providers (Lumer et al., Jan 31, 2026). The tool-definition figures are under Chapter 1, the masking result under Chapter 6.
 

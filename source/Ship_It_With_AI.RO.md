@@ -82,7 +82,7 @@ Recomandările despre workflow, skill-uri, delegare, review și fișierele de in
 
 | Obiectiv imediat | Traseu | Rezultat |
 |---|---|---|
-| Înțelege abordarea | Prolog → Capitolele 1–3 | O comparație de capabilități și controalele/workflow-ul necesare task-urilor tale |
+| Înțelege abordarea | Prolog → Capitolele 1-3 | O comparație de capabilități și controalele/workflow-ul necesare task-urilor tale |
 | Pregătește un repository nefamiliar | Capitolele 2 → 7 → 6 → 8 | O hartă revizuită, instrucțiuni utile și condițiile task-ului |
 | Livrează o schimbare | Capitolele 3 → 4 → 5, cu [pachetul Wire](/companion/wire-v1.zip) | Comportament acceptat, dovezi de verificare și predare către producție |
 | Rulează un pilot de echipă | Capitolele 8 → 9 → Anexa A | Un pilot delimitat, fișă de măsurare și decizie de extindere/oprire |
@@ -206,7 +206,7 @@ O integrare MCP poate fi reutilizată în clienți compatibili. Verifică versiu
 
 **Ce este: ce se păstrează de la o sesiune la alta, în două jumătăți.**
 
-Prima o scrie echipa: fișiere de instrucțiuni ale proiectului, cum ar fi AGENTS.md. Descoperirea, aria de aplicare și precedența depind de client; unele cer configurare sau încărcare explicită (Capitolul 6). A doua o scrie agentul pentru sine: comenzi de build pe care le-a dedus, concluzii de debugging, preferințe inferate.
+Prima o scrie echipa: fișiere de instrucțiuni ale proiectului, cum ar fi AGENTS.md. Descoperirea, aria de aplicare și precedența depind de client; unele cer configurare sau încărcare explicită (Capitolul 6). A doua o scrie agentul pentru sine: preferințe, corecturi și decizii pe care nu le poate reconstitui din cod.
 
 *Întreabă: Citește un fișier de memorie partajat de echipă la începutul sesiunii și își ține și o memorie proprie?*
 
@@ -258,7 +258,7 @@ Harness-ul e runtime-ul din jurul modelului: îți formatează cererea, gestione
 
 Codul sursă și probele rulate în mediul real pot arăta ce acoperă efectiv un sandbox. Codex CLI impune un sandbox de OS by default pe Linux și macOS; Claude Code oferă un sandbox de shell opt-in; opencode are nevoie de izolare la nivel de OS asigurată din exterior. Default-urile depind de versiune, deci verifică-le pe ale tale.
 
-Un vendor care livrează un sandbox real se așteaptă ca instrucțiuni ostile să ajungă - prin dependențe, prin fișiere compromise, prin injection - și construiește apărare în adâncime (defense in depth). Unul care livrează îngrădire soft se așteaptă la un mediu de încredere. Ambele posturi pot fi apărate; tu alegi, iar Capitolul 2 transformă alegerea în cinci straturi.
+Contează ce acoperă sandbox-ul în realitate, nu ce a intenționat vendorul. Tu alegi, iar Capitolul 2 transformă alegerea în cinci straturi.
 
 ---
 
@@ -303,12 +303,12 @@ Un vendor care livrează un sandbox real se așteaptă ca instrucțiuni ostile s
 
 **Un prompt e o cerere. Un control e ceva ce agentul nu poate ocoli cu vorba.**
 
-Pe 24 aprilie 2026, PocketOS, un mic SaaS pentru închirieri auto, și-a pierdut baza de date de producție din cauza unui coding agent (Cursor, pe Claude Opus 4.6). În timpul unui task de rutină, agentul a dat peste o nepotrivire de credențiale, a găsit un API token pentru Railway, platforma de infrastructură a firmei, și a invocat Volume Delete. Apelul a durat nouă secunde, iar backup-urile stăteau pe același volum. După aceea, agentul a scris: „I guessed instead of verifying. I ran a destructive action without being asked.” Relatările publice diferă în privința recuperării; sursele sunt în Anexa C.
+Pe 24 aprilie 2026, PocketOS, un mic SaaS pentru închirieri auto, și-a pierdut baza de date de producție din cauza unui coding agent (Cursor, pe Claude Opus 4.6). În timpul unui task de rutină, agentul a dat peste o nepotrivire de credențiale, a găsit un API token pentru Railway, platforma de infrastructură a firmei, și a invocat Volume Delete. Apelul a durat nouă secunde. După aceea, agentul a scris: „I guessed instead of verifying. I ran a destructive action without being asked.” Railway spune că vechea rută de API a propagat ștergerea în cascadă, așa că backup-urile păreau pierdute, și că a recuperat datele din backup-urile offsite de disaster recovery; relatările diferă în privința duratei. Sursele sunt în Anexa C.
 
 PocketOS avea o instrucțiune în limbaj natural, care e mai slabă decât stratul unu. Din incident se citează trei lecții, și toate trei sunt greșite:
 
 - „Agentul și-a ignorat instrucțiunile.” Da. Asta fac agenții uneori; un prompt nu e niciodată un control dur pentru o acțiune distructivă.
-- „Agenții AI sunt nesiguri.” La fel de nesigur e orice tool îndreptat spre producție fără controale.
+- „Agenții AI sunt nesiguri.” La fel de nesigură e orice automatizare care ajunge în producție fără controale aplicate.
 - „N-ar trebui să folosim AI pentru operațiuni pe baze de date.” Asta înseamnă să arunci productivitate reală, când straturile pot delimita riscul.
 
 Sub toate cinci stă privilegiul minim: la fiecare nivel - agentul, procesul lui, credențialele lui, rețeaua lui - acorzi minimul care permite muncii să se întâmple.
@@ -330,7 +330,7 @@ Sub toate cinci stă privilegiul minim: la fiecare nivel - agentul, procesul lui
        Fiecare strat prinde ce scapă celorlalte.
 ```
 
-*Figura: Cele cinci straturi de guvernanță, suprapuse ca apărare în adâncime.*
+*Figura: Cele cinci straturi de guvernanță, suprapuse ca apărare în adâncime (defense in depth).*
 
 | Strat | Blochează | Cedează când | Ar fi oprit PocketOS? |
 |---|---|---|---|
@@ -405,6 +405,8 @@ Oriunde citește agentul limbaj natural e o suprafață de injecție: un ticket 
 
 Constrânge ce poate face agentul, indiferent de ce a citit. Un sandbox aplicat efectiv blochează accesul interzis pe căile pe care le acoperă; un hook protejat, cu răspuns de blocare, poate controla categoriile pe care le recunoaște. Verifică și căile pe care nu le acoperă niciunul. Un AGENTS.md otrăvit poate schimba comportamentul agentului la fiecare pornire de sesiune, încă un motiv pentru care trece prin review ca orice cod (Capitolul 6).
 
+Configurația unui repository e cod care rulează. Înainte să ai încredere într-un repository clonat, citește-i setările de agent, hook-urile, serverele MCP și task-urile de editor. Analiza Microsoft din august 2026 despre worm-ul ChainDrop a arătat că acesta scria `.claude/settings.json` și `.vscode/tasks.json` în repository-uri, ca activitatea ulterioară a agentului sau a editorului să repornească payload-ul. Dacă găsești o asemenea schimbare, oprește sesiunile și job-urile din fundal, revocă credențialele la care puteau ajunge, păstrează dovezile și implică responsabilul de incidente înainte să faci curat. În CI, nu rula niciodată un agent cu secrete sau drept de scriere peste conținut de neîncredere venit din pull request-uri.
+
 ---
 
 ### Dincolo de cele cinci
@@ -433,12 +435,12 @@ Constrânge ce poate face agentul, indiferent de ce a citit. Un sandbox aplicat 
 
 ### De făcut luni
 
-*Întocmește o fișă de control pentru fiecare limită pe care vrei s-o impui. Monitorizarea demonstrează detectarea, nu faptul că o acțiune interzisă e blocată.*
+*Întocmește o fișă de control pentru fiecare limită pe care vrei s-o impui. Monitorizarea demonstrează detectarea, nu faptul că o acțiune interzisă e blocată. Un context separat de subagent nu e o autoritate separată, iar blocarea unei rute nu blochează alta: configurația gestionată de la OpenAI precizează că dezactivarea doar a Browser Use nu împiedică Computer Use să conducă browserul ca aplicație desktop.*
 
 | Câmp | Ce notezi |
 |---|---|
 | Limita urmărită | Operațiunea care trebuie interzisă sau aprobată explicit |
-| Rute acoperite | Shell, tool-uri native de fișiere, servicii conectate și subprocese; numește excluderile |
+| Rute acoperite | Shell, tool-uri native de fișiere, MCP și alte servicii conectate, sesiuni de browser autentificate, controlul desktopului și subprocese; numește excluderile |
 | Aplicarea regulii | Unde e configurația, cum e protejată de editări unilaterale, versiunea instalată |
 | Verificare | O probă inofensivă, refuzul sau aprobarea așteptată, rezultatul real și dovezile |
 | Comportament la eșec | Ce se întâmplă când controlul lipsește, nu pornește, se oprește cu eroare sau depășește timeout-ul |
@@ -688,7 +690,7 @@ Fiecare task atingea un fișier sau o pereche de fișiere. Task-ul cinci depinde
 
 Un plan pe care îl poți aproba are trei proprietăți:
 
-- **Fiecare task numește rezultatul, zona de cod și verificarea.** Două-cinci minute sunt un exemplu de granularitate pentru pași mecanici, nu o regulă. Grupează munca suficient de coerent încât contextul și review-ul să nu coste mai mult decât execuția.
+- **Fiecare task numește rezultatul, zona de cod și verificarea.** Grupează munca suficient de coerent încât contextul și review-ul să nu coste mai mult decât execuția.
 - **Numește verificările potrivite.** Teste existente sau noi, build, lint ori inspecție, după schimbare; testele de regresie au sens pentru un bug de comportament. Un plan trebuie să explice cum verifici, nu să inventeze teste fără valoare.
 - **Spune ce înseamnă „gata” pentru întreaga modificare**, nu doar per task. Ăsta e rezultatul pe care îl va verifica Verify.
 
@@ -865,7 +867,7 @@ Un reviewer poate acoperi ambele perspective. Pentru schimbări riscante, un dom
 - **Acceptă sau respinge fiecare constatare cu un motiv.** Urmărește defectele reale găsite și rezolvate, nu volumul de comentarii sau scorul unui reviewer.
 - **Limitează rundele la un beneficiu observabil.** După un fix, verifică problema și eventualele regresii. Un review nou sau o suită rerulată fără schimbări ori incertitudini noi consumă timp fără să adauge automat dovezi.
 
-Defectele critice blochează livrarea; cele importante se rezolvă sau primesc o decizie explicită de risc înainte de ship. Sugestiile de stil nu declanșează automat încă o rundă. Păstrează review-ul uman și aprobările cerute de echipă.
+Fiecare constatare are o severitate: cele critice blochează livrarea, cele importante se rezolvă înainte de ship, iar sugestiile ajung în descrierea PR-ului, pentru reviewerul uman.
 
 ---
 
@@ -880,7 +882,7 @@ Orice diff poate conține o greșeală de tastare, un off-by-one sau un edge cas
 1. **Diff-stat-ul raportat la cerere sau plan.** Forma schimbării se potrivește cu cererea? Un fișier neașteptat merită o explicație: poate fi o descoperire necesară sau o extindere a scopului.
 2. **Citește testele pentru ce afirmă,** nu pentru dacă trec. Verdele e cel mai ieftin semnal și cel pe care îl ai deja.
 3. **Verifică granițele despre care echipa ta a scris reguli:** pattern-urile interzise din AGENTS.md, convențiile de strat, modulele periculoase de atins. Agentul le încalcă sigur pe el și în stil fluent, așa că o încălcare arată curat.
-4. **Dă grep pe fiecare nume nou introdus de diff** pe care nu-l recunoști. Apelul care nu există se citește la fel de plauzibil ca cel care există (verificarea încrucișată e în Capitolul 6).
+4. **Dă grep pe fiecare nume nou introdus de diff** pe care nu-l recunoști. Apelul care nu există se citește la fel de plauzibil ca cel care există (verificarea încrucișată e în Capitolul 6). Pentru o dependență nouă, confirmă pachetul și publisher-ul exact, licența și advisory-urile, ce rulează la instalare, și citește manifestul împreună cu lockfile-ul; o dependență deja aprobată poate face deja treaba.
 5. **Abia acum, linie cu linie,** concentrând timpul pe corectitudinea de business și pe potrivirea arhitecturală, fie că ai folosit sau nu revieweri-agent.
 
 Pentru schimbări nefamiliare sau cu consecințe importante, o verificare opțională a înțelegerii poate ajuta: cere-i agentului un quiz despre edge case-uri, ownership și ce se strică dacă o presupunere e greșită. O întrebare fără răspuns arată ce trebuie lămurit înainte de aprobare. Folosește-l când review-ul obișnuit nu a stabilit deja această înțelegere. Anexa B.8 conține ordinea de citire și verificarea opțională.
@@ -893,7 +895,7 @@ Pentru schimbări nefamiliare sau cu consecințe importante, o verificare opțio
 
 Folosește verificările care demonstrează rezultatul și protejează zona afectată: teste existente, teste de regresie unde sunt utile, build, lint, inspecție vizuală sau o verificare manuală. Pentru un bug de comportament, un test care eșuează înainte de fix și trece după e o dovadă bună. O schimbare reversibilă de text sau stil nu cere automat un test permanent nou. Rulează suita mai largă când dependențele, riscul ori regulile repo-ului o cer; o rulare deja validă nu trebuie repetată fără un motiv nou.
 
-Pentru verificarea comportamentului în frontend, preferă rolurile și etichetele vizibile utilizatorului în locul selectoarelor CSS fragile. Rezistă multor schimbări de stil și DOM dacă rămâne stabil contractul de accesibilitate. Un select nativ folosește `selectOption()`; un radio folosește `check()`; un combobox custom poate cere o altă interacțiune. Înlocuirea unui control cu altul poate cere actualizarea testului chiar dacă rezultatul de business rămâne același. Verifică acel rezultat și inspectează schimbările vizuale randate; locatorii semantici nu evaluează layout-ul.
+Pentru verificarea comportamentului în frontend, preferă rolurile și etichetele vizibile utilizatorului în locul selectoarelor CSS fragile, verifică rezultatul obținut și inspectează schimbările vizuale randate; locatorii semantici nu evaluează layout-ul. Interacțiunile specifice fiecărui tip de control sunt în Anexa D.
 
 ---
 
@@ -905,7 +907,7 @@ Sunt un indiciu că modificarea face ce spune testul, nu că testul spune ce tre
 
 Așa că fă review pe testele agentului ca pe codul lui, verificând aserțiunile față de spec. Un test scris pornind de la implementare confirmă implementarea; aserțiunea trebuie să vină din intenție.
 
-Agentul poate optimiza pentru dovezile pe care le vede. SpecBench arată un decalaj mare între testele vizibile și cele ascunse; e un avertisment despre evaluare, nu un motiv să tratezi fiecare PR ca pe un benchmark adversarial.
+Agentul poate optimiza pentru dovezile pe care le vede. Pe SpecBench, agenții frontier au saturat testele vizibile, în timp ce scorurile pe setul held-out au rămas mult mai mici; pentru Claude Code, decalajul a fost de circa 43-48 de puncte, pe trei strategii de căutare. E un avertisment despre evaluare, nu un motiv să tratezi fiecare PR ca pe un benchmark adversarial.
 
 Pentru munca obișnuită:
 
@@ -962,7 +964,7 @@ Soluția a fost un prag de judecată, nu o cotă de timp. Înainte de aprobare, 
 
 - AGENTS.md e infrastructură de echipă: reguli locale scurte, cu motiv clar, trecute prin review ca orice cod și deținute de un champion.
 - Ține-l scurt și relevant: constrângeri locale, comenzi verificate și pointeri. Circa 200 de linii e un reper de întreținere, nu un prag universal demonstrat. Agentul citește înainte să citeze; tu verifici numele noi.
-- Contextul e memorie de lucru. O unitate de muncă per sesiune, starea durabilă în fișiere, o repornire curată la primul semn de derivă.
+- Contextul e memorie de lucru. O unitate de muncă per sesiune, starea durabilă în fișiere; când apare deriva, diagnostichează cauza înainte de compactare sau repornire.
 
 ---
 
@@ -1148,14 +1150,6 @@ Am cerut cincisprezece minute și un terminal. Am lipit promptul de review cu do
 
 Documentul corectat a intrat în repository, iar echipa a ales muncă țintită în locul propunerii de rewrite amplu. Au înlocuit două module în trimestrul următor, inclusiv dependența deprecated. Propunerea de optsprezece luni și înlocuirea de trei luni descriu calendare, nu totaluri comparabile de muncă. Fără ipotezele inițiale despre numărul de oameni și un scenariu contrafactual credibil, relatarea nu stabilește om-luni economisite și nu izolează efectul agentului de judecata experților.
 
-| | |
-|---|---|
-| **Context** | Echipă de banking reglementat, serviciu Java de ~60k LOC scris între 2018 și 2024, documentație învechită |
-| **Timp de agent** | ~15-18 minute |
-| **Timp de corecție umană** | ~45 de minute (reviewerul cunoștea domeniul de onboarding de clienți) |
-| **Rezultat** | Două module purtau datoria tehnică; rewrite-ul de 18 luni a devenit o înlocuire țintită de 3 luni |
-| **Limitări** | Workflow-ul accelerează cunoașterea de domeniu, nu o înlocuiește |
-
 | Fișă de caz | Ce stabilește relatarea |
 |---|---|
 | Proveniență | Engagement de banking anonimizat, relatat de autor |
@@ -1187,6 +1181,14 @@ Verifică harta față de cinci lucruri:
 **Documentul corectat e punctul de intrare pentru orice lucrare ulterioară.**
 
 Pune-l la `docs/architecture.md`. Membrii noi ai echipei îl citesc primii, inginerii seniori îl consultă înainte să atingă o parte nefamiliară, iar agentul îl deschide la cerere, când un task atinge un modul pe care nu l-a văzut, în loc să re-derive arhitectura. AGENTS.md conține o trimitere către fișier, nu structura codebase-ului (Capitolul 6).
+
+---
+
+### Șterge pe bază de dovezi {#delete-with-evidence}
+
+**O eliminare e o afirmație; dovedește-o înainte ca agentul să șteargă ceva.**
+
+Harta face și curățenia mai sigură, adică exact munca pe care o vinde Slopfix din Prolog. Pentru fiecare candidat, strânge referințele statice, folosirea la runtime (log-uri, metrici, feature flags, job-uri programate), orice fallback păstrat pentru incidente și confirmarea owner-ului. Apoi deschide câte un pull request mic pentru fiecare eliminare, cu dovezile atașate, iar review-ul îl face echipa care deține codul. Relatarea OpenAI despre propria curățenie făcută cu modelele GPT-6, peste 1.400 de pull request-uri acceptate la merge care au șters mai mult de 800.000 de linii, numește capcanele: reflection care păcălește analiza statică, o rută nefolosită păstrată ca să atenueze incidente viitoare și propuneri care au adăugat mai multă complexitate decât au eliminat.
 
 ---
 
@@ -1493,17 +1495,11 @@ Până în luna șase, practica arată cum arăta arcul ideal în luna trei - da
 
 **Stabilește un buget explicit de timp și adaptează angajamentele din exemplu la echipă.**
 
-**Championul** învață primul workflow-ul. Are nevoie de timp protejat și de disponibilitatea de a investiga eșecurile; senioritatea singură nu decide alegerea. Șaizeci de ore sunt o alocare posibilă pentru planificare, nu o condiție sau o prognoză.
+**Championul** învață primul workflow-ul. Are nevoie de timp protejat și de disponibilitatea de a investiga eșecurile; senioritatea singură nu decide alegerea. Rulează review-ul de arhitectură (Capitolul 7) pe un codebase familiar, strânge fișierul de instrucțiuni și folosește bucla din Capitolul 4 pe câteva feature-uri, cu procesul dimensionat pentru fiecare, notând fricțiunile în jurnalul de greșeli. Până în ziua 90, un alt inginer rulează workflow-ul la fel de fluent. Calendarul săptămână cu săptămână e în Anexa B.5.
 
-- [ ] Săptămâna 1: instalează agentul, rulează review-ul de arhitectură (Capitolul 7) pe un codebase familiar și dă commit artefactului.
-- [ ] Săptămâna 2: verifică instrucțiunile existente și adaugă constrângerile sau comenzile utile care lipsesc. Invită completări justificate prin pull request-uri.
-- [ ] Săptămânile 3-4: folosește funcțiile din Capitolul 4 pe trei feature-uri, dimensionând procesul pentru fiecare; notează fricțiunile în jurnalul de greșeli.
-- [ ] Lunile 2-3: trei feature-uri medii, în care alții preiau câte o singură fază, apoi predă rolul; până în ziua 90, un alt inginer rulează workflow-ul la fel de fluent.
+**Lead-ul** decide ce muncă primește agentul.
 
-**Lead-ul** decide ce proiecte primesc agentul și ține semaforul.
-
-- [ ] Săptămâna 1: clasifică primele cinci proiecte după cele opt kill signals (Capitolul 8) și împărtășește culorile.
-- [ ] Săptămânile 2-4: pentru câte un proiect de fiecare culoare, scrie ce ar trebui să se schimbe ca să treacă la culoarea următoare.
+- [ ] Săptămâna 1: alege task-urile propuse, stabilește condițiile lor și notează lacunele de pregătire (Capitolul 8).
 - [ ] Lunile 2-3: urmărește cycle time-ul, rata de defecte și timpul reviewerilor (cifre zgomotoase; măsoară oricum), apoi prezintă rezultate oneste, inclusiv unde agentul n-a livrat.
 
 **Managerul** deține eligibilitatea pilotului și bugetul înainte de începerea muncii, apoi procurement-ul, deciziile de extindere și guvernanța recurentă. Anexa A oferă un scenariu ilustrativ cu douăzeci de ingineri și un calcul complet de cost ipotetic; nu oferă rezultate măsurate de adopție sau cycle time.
@@ -1567,9 +1563,9 @@ Tool-urile pe care le-am numit vor arăta cu totul altfel până la următoarea 
 
 **Realitatea e controlul adopției.** Kill signals sunt proprietăți ale codebase-urilor și ale echipelor, nu ale tool-urilor. Semaforul se aplică indiferent ce agent folosești trimestrul ăsta, iar champion, lead, manager e arcul pentru orice tranziție de tooling.
 
-Dacă iei o singură practică, ia review-ul de arhitectură din Capitolul 7 ca diagnostic inițial: dovezi utile de analizat, nu un verdict dintr-o singură rulare. Dacă iei un singur framework, ia kill signals și semaforul din Capitolul 8; „nu”-ul contează la fel de mult ca „da”-ul. Dacă iei o singură orientare, investește în modul de a gândi, nu în tool.
+Dacă iei o singură practică, ia review-ul de arhitectură din Capitolul 7 ca diagnostic inițial: dovezi utile de analizat, nu un verdict dintr-o singură rulare. Dacă iei un singur framework, ia condițiile task-ului și semnalele de pregătire din Capitolul 8; „nu”-ul contează la fel de mult ca „da”-ul. Dacă iei o singură orientare, investește în modul de a gândi, nu în tool.
 
-Înapoi la Slopfix: agentul care a scris paisprezece formatoare de dată și agentul care le strânge într-unul singur sunt același tip de tool. S-au schimbat contextul pe care l-a primit, verificările pe care nu le putea ocoli și oamenii care au decis ce rămâne. Asta e tot manualul, într-un singur exemplu. Îți cere să faci propriile controale și decizii inspectabile.
+Înapoi la Slopfix: agentul care a scris paisprezece formatoare de dată și agentul care le strânge într-unul singur sunt același tip de agent. S-au schimbat contextul pe care l-a primit, verificările pe care nu le putea ocoli și oamenii care au decis ce rămâne. Asta e tot manualul, într-un singur exemplu. Îți cere să faci propriile controale și decizii inspectabile.
 
 Să înțelegi problema devine mai important decât să scrii codul. Era adevărat când a programa însemna să perforezi cartele, când IDE-ul a înlocuit editorul de text și când coding-ul asistat de AI a trecut de la autocomplete la redactarea de cod; e adevărat și acum, când scrisul a rămas în seama agenților. Numele modelelor din ediția asta vor îmbătrâni, iar munca durabilă rămâne: înțelege problema, formulează munca, constrânge execuția, verifică rezultatul. Secvența asta e întreaga problemă de control - și n-a aparținut niciodată tool-urilor. Îți aparține ție.
 
@@ -1607,6 +1603,10 @@ Nu sunt neutru pe subiectul ăsta. Cred că livrarea de software cu agenți e sc
 ## Changelog {#changelog}
 
 Pagina asta urmărește actualizările semnificative ale manualului. Corecturile mărunte și ajustările de SEO nu sunt listate; footer-ul arată data ultimei actualizări.
+
+### 2026-10-30 - Actualizarea din octombrie: încredere, rute, curățenie și recuperare
+
+Capitolul 2 adaugă configurația repository-ului ca suprafață de atac (worm-ul ChainDrop), un răspuns scurt la compromitere și limita pentru CI, iar fișa de control acoperă acum sesiunile de browser, controlul desktopului și serviciile conectate. Capitolul 5 adaugă o verificare a dependențelor în review-ul diff-ului. Capitolul 7 adaugă ștergerea pe bază de dovezi. B.6 adaugă reconcilierea înainte de retry și un buget impus efectiv; B.9 notează modelele rutate, suprafața de autentificare și starea memoriei. Corecturi: relatarea Railway despre backup-urile și scope-urile token-urilor PocketOS, advisory-urile separate despre trust dialog-ul din Claude Code, constatarea Knostic, atribuirea către Claude Code în SpecBench, bugetele din `/workflows` și politica actuală de auto-memory. Protocolul de observare a cititorilor s-a mutat în materialele pentru trialul cu cititori.
 
 ### 2026-10-23 - Dovezi, condiții de task și livrare reproductibilă
 
@@ -1719,8 +1719,8 @@ Cele opt semnale din Capitolul 8 ajută apoi la prioritizarea pregătirii. Culor
 
 | Scorul repository-ului | Ghid de pregătire | Decizia managerului |
 |---|---|---|
-| Verde, 0–1 lacune cunoscute | Puține lacune de pregătire | Ia în calcul muncă delimitată ale cărei condiții sunt îndeplinite. |
-| Galben, 2–3 lacune cunoscute | Pregătire substanțială | Finanțează lacunele cu impact și alege muncă pe care echipa o poate evalua acum. |
+| Verde, 0-1 lacune cunoscute | Puține lacune de pregătire | Ia în calcul muncă delimitată ale cărei condiții sunt îndeplinite. |
+| Galben, 2-3 lacune cunoscute | Pregătire substanțială | Finanțează lacunele cu impact și alege muncă pe care echipa o poate evalua acum. |
 | Roșu, 4+ lacune cunoscute | Pregătire mai amplă | Restrânge munca afectată în timp ce decizi ce investighezi, îmbunătățești, înlocuiești sau retragi. |
 | Necunoscut, `?` | Lipsesc dovezi | Investighează; nu îl număra tacit ca zero. |
 
@@ -1806,12 +1806,12 @@ Pentru aceste schimbări, baseline-ul folosește **200 de ore umane de task**, i
 | Cost lunar pentru 20 de schimbări acceptate | Baseline | Asistat de agent |
 |---|---:|---:|
 | Timp uman de task: 200h / 160h la $100/h | $20,000 | $16,000 |
-| Licențe suplimentare | — | $530 |
-| Consum contorizat, inclusiv încercări eșuate | — | $270 |
-| Infrastructură suplimentară | — | $100 |
-| Setup inițial: 120h × $100 = $12,000, amortizat pe 12 luni | — | $1,000 |
-| Întreținerea instrucțiunilor/integrărilor: 10h × $100 | — | $1,000 |
-| Guvernanță/evaluare recurente: 4h × $100 | — | $400 |
+| Licențe suplimentare | $0 | $530 |
+| Consum contorizat, inclusiv încercări eșuate | $0 | $270 |
+| Infrastructură suplimentară | $0 | $100 |
+| Setup inițial: 120h × $100 = $12,000, amortizat pe 12 luni | $0 | $1,000 |
+| Întreținerea instrucțiunilor/integrărilor: 10h × $100 | $0 | $1,000 |
+| Guvernanță/evaluare recurente: 4h × $100 | $0 | $400 |
 | **Total lunar modelat** | **$20,000** | **$19,300** |
 | **Cost modelat per schimbare comparabilă acceptată** | **$1,000** | **$965** |
 
@@ -1947,7 +1947,7 @@ SHIP
 ### B.4 Fișa de punctare a kill signals {#template-b4}
 
 ```
-CONDIȚIILE TASK-ULUI — completează înainte de punctare
+CONDIȚIILE TASK-ULUI - completează înainte de punctare
   Comportamentul/modulul/mediul propus: ______
   Responsabil calificat pentru evaluare: ______
   Greșeala cu consecințe importante și dovezile care ar expune-o: ______
@@ -1955,7 +1955,7 @@ CONDIȚIILE TASK-ULUI — completează înainte de punctare
 Ceva lipsește sau e necunoscut? Restrânge munca afectată la investigație sau
 pregătire supravegheată până rezolvi. Un repository verde nu autorizează singur un task.
 
-SEMNALE DE PREGĂTIRE — 0 lacună absentă / 0.5 parțială / 1 substanțială / ? necunoscut
+SEMNALE DE PREGĂTIRE - 0 lacună absentă / 0.5 parțială / 1 substanțială / ? necunoscut
 Pentru fiecare, notează dovezi, responsabil și acțiunea următoare. Nu transforma ? în 0.
 
 1 Verificare insuficientă
@@ -2050,10 +2050,14 @@ MUNCA
   și recuperabilă în controalele rulării nesupravegheate. Un scor verde nu ajunge.
 CONDIȚIA DE OPRIRE (evaluabilă de mașină; bucla se oprește singură)
   Done când: ______ (queue gol / suita verde / N unități gata de review)
-  Buget: max ______ tokeni sau $______ sau ______ iterații sau ______ ore - ce se atinge primul
+  Buget: max ______ tokeni sau $______ sau ______ iterații sau ______ ore - ce se atinge primul,
+  impus de ceva ce bucla nu poate ocoli (un avertisment de consum nu e un buget)
   Regula de eșec: aceeași unitate eșuează de două ori -> sari peste ea și marchează-o; trei unități sărite -> oprește tot
 FIECARE ITERAȚIE
   Context proaspăt; starea se citește din queue + jurnalul din repo
+  Înainte de retry sau reluare: reconciliază commit-ul, scrierile încheiate,
+  procesele care rulează, apelurile externe și consumul; operațiunile importante
+  trebuie să poată fi repetate fără efecte nedorite
   O unitate per iterație; termină-o sau notează în jurnal de ce nu - nimic aplicat pe jumătate
   Gate: ______ (teste / lint / typecheck / build), impus prin verificări obligatorii protejate
   Protejează schimbările evaluatorului, configurației și regulilor de politică de
@@ -2141,8 +2145,10 @@ Rulează-l după schimbări de model, harness sau skill și când rezultatele se
 BASELINE
   Alege task-uri reprezentative și fixează criteriile de acceptare înainte de rulări.
   Include și cazuri în care skill-ul nu ar trebui să se declanșeze.
-  Notează modelul, effort-ul, versiunile harness-ului/workflow-ului, commit-ul
-  de pornire și permisiunile.
+  Notează modelele folosite efectiv (nu doar eticheta din selector când rutarea
+  e activă), effort-ul, versiunile harness-ului/workflow-ului, suprafața de
+  autentificare și planul, commit-ul de pornire, permisiunile și starea memoriei
+  persistente. Sesiunile proaspete pornesc din stări salvate echivalente.
 COMPARAȚIE
   Compară configurația curentă și cea propusă pe task-uri similare; documentează
   ce s-a schimbat. Pentru un skill sau plugin opțional, compară execuția nativă
@@ -2161,6 +2167,8 @@ PROMPTURI ȘI FIȘIERE DE INSTRUCȚIUNI
   locale și controalele de securitate. Verifică trigger-ele și prescripțiile excesive
   din skill-uri. Verifică descoperirea și prioritatea instrucțiunilor (B.2);
   nu presupune că AGENTS.md sau CLAUDE.md se încarcă identic în alt client.
+  Confirmă când intră în vigoare o editare: Codex își construiește lanțul de
+  instrucțiuni la pornire, deci repornește-l ca să le reîncarce.
 COMPATIBILITATE LA MIGRARE
   Elimină parametrii API respinși de noul model; verifică formatele de output suportate.
   Unde există controale de effort, compară nivelurile după task sau fază; numele nu se
@@ -2171,7 +2179,9 @@ COMPATIBILITATE LA MIGRARE
 DECIZIE
   Păstrează, simplifică, limitează la anumite task-uri sau la invocare manuală ori
   dezactivează workflow-ul opțional, după beneficiul observat. Notează versiunile și
-  limitele comparației. Dacă rezultatele continuă să scadă, revino la semnalele din Capitolul 8.
+  limitele comparației. Păstrează un fallback testat pentru un model retras din
+  planul tău. Dacă rezultatele continuă să scadă, revino la semnalele din
+  Capitolul 8.
 ```
 
 ### B.10 Checklist-ul de verificare a plugin-urilor {#template-b10}
@@ -2183,7 +2193,8 @@ MAINTAINER
   Activ în ultimele 90 de zile? Mai mult de un maintainer? Un palmares real?
 SUPRAFAȚA DE PERMISIUNI
   Ce tool-uri, hook-uri, căi de fișiere și apeluri de rețea adaugă? Cererile
-  largi au nevoie de o justificare.
+  largi au nevoie de o justificare. Adnotările MCP (read-only, destructive) sunt
+  afirmații, nu controale; ai încredere în ele doar cât ai în server.
 REVIEW-UL DE COD ȘI DE WORKFLOW
   Inspectează versiunea instalată: instrucțiuni, trigger-e, hook-uri, scripturi și
   dependențe. Alege profunzimea review-ului după suprafață și risc, nu după un
@@ -2241,20 +2252,6 @@ Compară un typo în textul de ajutor, un câmp priority care traversează stoca
 
 *Răspuns:* typo-ul cere inspecție directă, editare, verificare focalizată și livrare obișnuită. Schimbarea priority cere decizii explicite, dependențe ordonate, dovezi pentru eșec/retry și predare către producție. Restrânge schimbarea ledger-ului până stabilești evaluarea și verificarea. Artefacte și numere de agenți alternative sunt acceptabile când acoperă deciziile și controalele.
 
-**Observă doi sau trei cititori din publicul-țintă**
-
-Dă-i fiecărui inginer aceste task-uri fără să-i explici răspunsurile înainte:
-
-1. În exercițiul Wire, identifică ce nu dovedește aserțiunea slabă, înainte să citești răspunsul sau să rulezi verifier-ul.
-2. Aplică B.4 unei schimbări reale propuse. Explică ce muncă poate continua, ce trebuie să aștepte și ce dovezi ar schimba decizia.
-3. Folosește Anexa A ca să distingi timpul de livrare, efortul uman și valoarea financiară modelată; explică de ce exemplul de cost nu stabilește economii de bani.
-
-Cere-le cititorilor să gândească cu voce tare. Notează prima lor interpretare, ezitările, dovezile citate și orice ajutor oferit; un răspuns obținut cu indicii nu e un succes independent. Discută răspunsurile după exerciții și revizuiește pasajele care cer în mod repetat explicații verbale. Tabelul este o fișă goală de observație, nu rezultatul unui trial.
-
-| Cititor / task | Prima interpretare sau ezitare | Dovezi citate / ajutor oferit | Editare propusă |
-|---|---|---|---|
-| | | | |
-
 ---
 
 ## Anexa C - Surse și lecturi suplimentare
@@ -2279,10 +2276,10 @@ Anexa asta există pentru că fiecare afirmație din manual merită o sursă ver
 
 ---
 
-**Afirmația:** Pe 24 aprilie 2026, PocketOS și-a pierdut baza de date de producție în nouă secunde, când un agent Cursor bazat pe Claude Opus 4.6 a invocat Volume Delete de la Railway printr-un API token găsit pe parcurs, în timpul unei încercări de recuperare după o nepotrivire de credențiale. Backup-urile, stocate pe același volum, au fost distruse odată cu datele primare.
-**Sursa:** Reported by DevOps.com ("When AI Goes Really, Really Wrong"), Business Insider (Jer Crane statement), and others. Anthropic's Claude Opus 4.6 system card (February 2026) describes the model that powered the agent.
+**Afirmația:** Pe 24 aprilie 2026, PocketOS și-a pierdut baza de date de producție în nouă secunde, când un agent Cursor bazat pe Claude Opus 4.6 a invocat Volume Delete de la Railway printr-un API token găsit pe parcurs, în timpul unei încercări de recuperare după o nepotrivire de credențiale. Railway spune că vechea rută de API a făcut o ștergere în cascadă care a făcut backup-urile să pară indisponibile și că a recuperat baza de date, cu toate datele, din backup-urile offsite de disaster recovery. Token-ul avea acces la nivel de cont (account-scoped).
+**Sursa:** Railway, "Your AI wants to nuke your database," April 29, 2026 ([blog.railway.com/p/your-ai-wants-to-nuke-your-database](https://blog.railway.com/p/your-ai-wants-to-nuke-your-database)). Reported by DevOps.com ("When AI Goes Really, Really Wrong"), Business Insider (Jer Crane statement), and others. Anthropic's Claude Opus 4.6 system card (February 2026) describes the model that powered the agent.
 **Unde e folosită:** Capitolul 2 (Guardrails în cinci straturi); Anexa D, Capitolul 2 (PocketOS: unde diferă relatările și ce au schimbat platformele).
-**Atenție:** Cronologia recuperării diferă între relatările publice - restore-ul făcut de Railway ar fi durat ~30 de minute după ce Crane i-a contactat, în timp ce alte relatări vorbesc de ~30 de ore sau două zile până la restaurarea operațională completă. Folosesc incidentul pentru pattern-ul de guvernanță, nu ca reconstituire criminalistică exactă. Urmarea: pe 29 aprilie 2026, Railway a anunțat că toate ștergerile de volume și resurse - până atunci instantanee când erau invocate prin API - fac acum soft-delete cu o fereastră de recuperare de 48 de ore, alături de guardrails la nivel de workspace și acces de agent cu scop limitat ([blog.railway.com/p/your-ai-wants-to-nuke-your-database](https://blog.railway.com/p/your-ai-wants-to-nuke-your-database)).
+**Atenție:** Cronologia recuperării diferă între relatările publice - restore-ul făcut de Railway ar fi durat ~30 de minute după ce Crane i-a contactat, în timp ce alte relatări vorbesc de ~30 de ore sau două zile până la restaurarea operațională completă. Folosesc incidentul pentru pattern-ul de guvernanță, nu ca reconstituire criminalistică exactă. Urmarea: pe 29 aprilie 2026, Railway a anunțat că ștergerile prin API, până atunci imediate, fac acum soft-delete cu aceeași fereastră de recuperare de 48 de ore ca în dashboard. Token-urile cu scope de workspace și de proiect existau deja; sesiunea a folosit unul la nivel de cont. Reverificat pe 30 octombrie 2026.
 
 ---
 
@@ -2300,23 +2297,30 @@ Anexa asta există pentru că fiecare afirmație din manual merită o sursă ver
 
 ---
 
+**Afirmația:** Analiza Microsoft despre worm-ul de supply chain ChainDrop arată că acesta folosea credențiale GitHub furate ca să injecteze fișiere în configurația Claude și Visual Studio Code (`.claude/settings.json`, `.vscode/tasks.json` și scripturi de setup asociate) pe branch-urile repository-urilor, pentru persistență, astfel încât activitatea ulterioară din Claude sau VS Code să poată reporni payload-ul.
+**Sursa:** Microsoft Security, "ChainDrop supply-chain compromise: anatomy of a self-propagating worm," August 4, 2026: [microsoft.com/en-us/security/blog/2026/08/04/chaindrop-supply-chain-compromise-anatomy-self-propagating-worm/](https://www.microsoft.com/en-us/security/blog/2026/08/04/chaindrop-supply-chain-compromise-anatomy-self-propagating-worm/).
+**Unde e folosită:** Capitolul 2 (Injecția ajunge prin munca în sine); Anexa D, Capitolul 2.
+**Atenție:** Analiza unei singure campanii. Articolul vorbește de căi de configurație „Claude”; lecția e că o configurație de agent sau de editor e executabilă și face parte din recuperarea după incident.
+
+---
+
 ### Vulnerabilități cu versiuni de patch
 
-**Afirmația:** Claude Code era vulnerabil la remote code execution prin fișiere de proiect din surse nesigure: fișiere `.mcp.json` sau `.claude/settings.json` malițioase, din repo-uri în care nu aveai încredere, puteau executa hook-uri înainte de dialogul de trust, deschizând calea spre RCE.
-**Sursa:** Check Point Research, February 2026. CVE-2025-59536. NVD: [nvd.nist.gov/vuln/detail/CVE-2025-59536](https://nvd.nist.gov/vuln/detail/CVE-2025-59536). Articol: [research.checkpoint.com/2026/rce-and-api-token-exfiltration-through-claude-code-project-files-cve-2025-59536/](https://research.checkpoint.com/2026/rce-and-api-token-exfiltration-through-claude-code-project-files-cve-2025-59536/).
+**Afirmația:** Check Point Research a raportat două vulnerabilități Claude Code legate de configurația de proiect din surse nesigure. Avertismentul de trust de la pornire nu spunea clar că, dacă accepți un folder, hook-urile lui pot rula fără altă confirmare (GHSA-ph6w-f82w-28w6, fără CVE, patch-uită în v1.0.87). Separat, un bug în dialogul de trust permitea unui proiect să execute cod înainte ca utilizatorul să-l accepte (CVE-2025-59536, GHSA-4fgq-fpq9-mr3g, patch-uită în v1.0.111).
+**Sursa:** Check Point Research, February 25, 2026. Anthropic advisories: [GHSA-ph6w-f82w-28w6](https://github.com/anthropics/claude-code/security/advisories/GHSA-ph6w-f82w-28w6), [GHSA-4fgq-fpq9-mr3g](https://github.com/anthropics/claude-code/security/advisories/GHSA-4fgq-fpq9-mr3g). CVE-2025-59536. NVD: [nvd.nist.gov/vuln/detail/CVE-2025-59536](https://nvd.nist.gov/vuln/detail/CVE-2025-59536). Articol: [research.checkpoint.com/2026/rce-and-api-token-exfiltration-through-claude-code-project-files-cve-2025-59536/](https://research.checkpoint.com/2026/rce-and-api-token-exfiltration-through-claude-code-project-files-cve-2025-59536/).
 **Unde e folosită:** Anexa D, Capitolul 2 (trei clase de vulnerabilități din spatele straturilor unu-trei).
-**Atenție:** Dezvăluită și patch-uită în Claude Code v1.0.111 (octombrie 2025); articolul Check Point a apărut în februarie 2026. Versiunile dinaintea patch-ului rămân vulnerabile; clasa de probleme supraviețuiește chiar și după patch-ul specific.
+**Atenție:** Fix-urile au fost livrate pe 26 august și 22 septembrie 2025; advisory-ul despre dialogul de trust a fost publicat pe 3 octombrie 2025, iar articolul Check Point în februarie 2026. Să accepți trust-ul înseamnă deja să permiți execuția. Versiunile dinaintea patch-urilor rămân vulnerabile; clasa de probleme supraviețuiește patch-urilor specifice. Reverificat pe 30 octombrie 2026.
 
 ---
 
 **Afirmația:** Claude Code era vulnerabil la exfiltrarea de API key-uri prin injecție de configurație: setări controlate de atacator, care suprascriau `ANTHROPIC_BASE_URL` înainte de promptul de trust, puteau scurge API key-urile.
-**Sursa:** Check Point Research, February 2026. CVE-2026-21852.
+**Sursa:** Check Point Research, February 2026. CVE-2026-21852; Anthropic advisory [GHSA-jh7p-qr78-84p7](https://github.com/anthropics/claude-code/security/advisories/GHSA-jh7p-qr78-84p7), January 20, 2026.
 **Unde e folosită:** Anexa D, Capitolul 2 (trei clase de vulnerabilități din spatele straturilor unu-trei).
 **Atenție:** Patch-uită în Claude Code v2.0.65. Aceeași clasă ca CVE-2025-59536: execuția configurației de proiect nesigure înainte de trust.
 
 ---
 
-**Afirmația:** Knostic a raportat în decembrie 2025 că, în setup-ul observat, Claude Code încărca fișierele `.env*` din directorul de lucru fără permisiune explicită, expunând secretele în context.
+**Afirmația:** Knostic a raportat în decembrie 2025 că, în setup-ul observat, Claude Code încărca fișierele `.env*` din directorul de lucru fără permisiune explicită, punându-le valorile în mediul procesului. Knostic precizează că asta nu dovedește că valorile au ajuns în contextul modelului, dar recomandă să presupui că pot ieși din mediul local.
 **Sursa:** Knostic, December 2025: [knostic.ai/blog/claude-loads-secrets-without-permission](https://knostic.ai/blog/claude-loads-secrets-without-permission). Aria controalelor curente: [code.claude.com/docs/en/sandboxing](https://code.claude.com/docs/en/sandboxing).
 **Unde e folosită:** Capitolul 2 (Stratul 3: Secrete); Anexa D, Capitolul 2 (trei clase de vulnerabilități din spatele straturilor unu-trei), numită în clasa de vulnerabilități de auto-încărcare a fișierelor dot-env.
 **Atenție:** O relatare datată, nu o afirmație că fiecare sesiune curentă încarcă automat aceste fișiere. `denyRead` pentru shell și setările de credențiale protejează comenzile pe care le acoperă; citirile native de fișiere au nevoie de permisiuni separate. Ține secretele în afara mediului agentului dacă nicio cale de citire nu trebuie să ajungă la ele. Aria curentă a fost verificată pe 23 octombrie 2026.
@@ -2439,8 +2443,64 @@ Anexa asta există pentru că fiecare afirmație din manual merită o sursă ver
 
 **Afirmația:** O migrație undo e opțională și nu poate inversa fiabil orice schimbare distructivă de date sau eșec parțial. Recuperarea poate folosi în schimb deployment compatibil cu versiunile anterioare, corecție roll-forward sau restaurare testată.
 **Sursa:** Redgate Flyway, [Undo migrations](https://documentation.red-gate.com/flyway/flyway-concepts/migrations/undo-migrations), updated May 21, 2026.
-**Unde e folosită:** Capitolele 4–5 (review-ul migrației Wire); companionul practic.
+**Unde e folosită:** Capitolele 4-5 (review-ul migrației Wire); companionul practic.
 **Atenție:** Verificat pe 23 octombrie 2026. Strategia potrivită depinde de sistem și de obiectivele necesare de recuperare. Documentația nu dovedește politica unei colaborări cu clientul care nu a fost publicată.
+
+---
+
+**Afirmația:** Documentația OpenAI despre configurația gestionată spune că Computer Use poate opera un browser ca aplicație nativă, că regulile de site și de capabilități din Browser Use nu se aplică pe acea rută și că dezactivarea doar a Browser Use nu blochează toate rutele către browser.
+**Sursa:** OpenAI, managed configuration documentation, [learn.chatgpt.com/docs/enterprise/managed-configuration](https://learn.chatgpt.com/docs/enterprise/managed-configuration), checked October 30, 2026.
+**Unde e folosită:** Capitolul 2 (De făcut luni); Anexa D, Capitolul 2 (rutele prin browser, desktop și remote).
+**Atenție:** Documentație de vendor nedatată și care se schimbă; lecția despre acoperirea rutelor se aplică oricărui agent care controlează un browser sau desktopul.
+
+---
+
+**Afirmația:** Specificația Model Context Protocol spune că clienții trebuie să trateze adnotările tool-urilor ca nesigure, dacă nu vin de la servere de încredere, și că ar trebui să existe mereu un om care poate refuza invocarea unui tool.
+**Sursa:** MCP specification 2026-07-28, Tools: [modelcontextprotocol.io/specification/2026-07-28/server/tools](https://modelcontextprotocol.io/specification/2026-07-28/server/tools).
+**Unde e folosită:** Anexa B.10; Anexa D, Capitolul 2.
+**Atenție:** O specificație stabilește obligațiile clientului; verifică ce aplică efectiv clientul pe care îl folosești.
+
+---
+
+**Afirmația:** Ghidul GitHub pentru Actions spune că workflow-urile `pull_request_target` și `workflow_run` sunt privilegiate, pot avea drept de scriere și secrete și nu trebuie să facă checkout la cod de neîncredere din pull request-uri.
+**Sursa:** GitHub Docs, "Secure use reference," [docs.github.com/en/actions/reference/security/secure-use](https://docs.github.com/en/actions/reference/security/secure-use), checked October 30, 2026.
+**Unde e folosită:** Capitolul 2 (Injecția ajunge prin munca în sine); Anexa D, Capitolul 2.
+**Atenție:** Specific platformei; alte sisteme de CI au nevoie de aceeași separare între input-ul de neîncredere și execuția privilegiată.
+
+---
+
+**Afirmația:** Workflow-urile din Claude Code impun limite de agenți la runtime (concurență, elemente per apel, 1.000 de agenți per rulare); ghidul de dimensiune e un sfat pentru model, iar avertismentul pentru workflow-uri mari „doesn't pause or limit the run.” Reluarea returnează rezultatele salvate ale agenților încheiați, în aceeași sesiune.
+**Sursa:** Claude Code workflows documentation, [code.claude.com/docs/en/workflows](https://code.claude.com/docs/en/workflows), checked October 30, 2026.
+**Unde e folosită:** Anexa B.6; Anexa D, Capitolele 1 și 9.
+**Atenție:** Limitele mărginesc numărul de agenți, nu tokenii sau banii; o limită de cheltuieli are nevoie de propriul control.
+
+---
+
+**Afirmația:** GitHub Copilot Fusion a devenit disponibil general pe 28 octombrie 2026; rutează și orchestrează modelele folosite pentru o cerere și facturează fiecare model la tariful lui standard.
+**Sursa:** GitHub changelog, October 28, 2026: [github.blog/changelog/2026-10-28-route-and-orchestrate-models-with-github-copilot-fusion/](https://github.blog/changelog/2026-10-28-route-and-orchestrate-models-with-github-copilot-fusion/).
+**Unde e folosită:** Anexa B.9; Anexa D, Anexa A.
+**Atenție:** Anunț de vendor; notează modelele folosite efectiv, în loc să le deduci din selector.
+
+---
+
+**Afirmația:** Începând cu 14 octombrie 2026, GPT-5.5 a fost retras din Codex pentru utilizatorii autentificați cu ChatGPT; API-ul OpenAI și sesiunile Codex autentificate cu API key nu au fost afectate.
+**Sursa:** OpenAI Codex changelog, [learn.chatgpt.com/docs/changelog](https://learn.chatgpt.com/docs/changelog), entry of October 14, 2026.
+**Unde e folosită:** Anexa B.9; Anexa D, Anexa A.
+**Atenție:** Disponibilitatea diferă după suprafața de autentificare și plan; verifică-le pe ale tale.
+
+---
+
+**Afirmația:** Codex își construiește lanțul de instrucțiuni AGENTS.md la pornire, parcurgând drumul de la rădăcina proiectului până la directorul curent; ca să preia schimbările, repornește Codex.
+**Sursa:** OpenAI, AGENTS.md documentation, [learn.chatgpt.com/docs/agent-configuration/agents-md](https://learn.chatgpt.com/docs/agent-configuration/agents-md), checked October 30, 2026.
+**Unde e folosită:** Anexa B.9.
+**Atenție:** Alți clienți reîncarcă instrucțiunile altfel; verifică pentru fiecare client.
+
+---
+
+**Afirmația:** OpenAI relatează că a folosit modelele GPT-6 ca să-și curețe propriul cod: peste 1.400 de pull request-uri acceptate la merge care au șters mai mult de 800.000 de linii, cu dovezi strânse (configurație, istoric, profile din producție) înainte de fiecare schimbare și câte un PR draft mic per curățenie, notând capcane precum reflection care păcălește analiza statică, rute nefolosite păstrate ca să atenueze incidente viitoare și propuneri care adăugau mai multă complexitate decât beneficiul așteptat.
+**Sursa:** OpenAI, "Maintaining software with the GPT-6 family," [developers.openai.com/blog/maintaining-software-with-the-gpt-6-family](https://developers.openai.com/blog/maintaining-software-with-the-gpt-6-family), checked October 30, 2026.
+**Unde e folosită:** Capitolul 7 (Șterge pe bază de dovezi).
+**Atenție:** Relatarea unui vendor despre propriul codebase, nedatată pe pagină; nu e o măsurătoare controlată.
 
 ---
 
@@ -2462,7 +2522,7 @@ Anexa asta există pentru că fiecare afirmație din manual merită o sursă ver
 
 ---
 
-**Afirmația:** Claude Code întreține un strat de auto-memory în care Claude își scrie singur notițe de la o sesiune la alta - comenzi de build pe care le-a deslușit, concluzii de debugging pe care le-a confirmat, preferințe de stil de cod pe care le-a dedus - distinct de CLAUDE.md-ul scris de utilizator. Necesită Claude Code v2.1.59+; activat implicit; stocare per repo.
+**Afirmația:** Claude Code întreține un strat de auto-memory în care Claude își scrie singur notițe de la o sesiune la alta - preferințele utilizatorului, feedback, decizii de proiect în curs și referințe externe, sărind peste tot ce poate deduce din codebase, cum ar fi arhitectura sau fix-urile de debugging - distinct de CLAUDE.md-ul scris de utilizator. Memoria e locală pe mașină și e comună tuturor worktree-urilor unui repository (verificat pe 30 octombrie 2026). Necesită Claude Code v2.1.59+; activat implicit; stocare per repo.
 **Sursa:** [code.claude.com/docs/en/memory](https://code.claude.com/docs/en/memory).
 **Unde e folosită:** Capitolul 1 (Memory); Anexa D, Capitolul 1 (Memory și skill-uri: povestea convergenței).
 **Atenție:** Intrarea documentează implementarea din Claude Code, dar jumătatea asta e o convergență, nu o exclusivitate: GitHub Copilot Memory a ajuns în public preview pe 15 ianuarie 2026 - înainte să apară Auto Memory - și era activat implicit pe tier-urile Pro până pe 4 martie; Codex CLI a adăugat memorie automată de fundal în aprilie 2026.
@@ -2660,11 +2720,11 @@ Anexa asta există pentru că fiecare afirmație din manual merită o sursă ver
 **Afirmația:** Pe 260 de configurații multi-agent, coordonarea a ajutat doar pe task-urile descompozabile, a degradat planificarea secvențială cu între 39% și 70% în funcție de arhitectură și a produs randamente negative pe task-urile unde un singur agent depășea deja circa 45% acuratețe.
 **Sursa:** Kim et al., "Capable language models can outgrow the benefits of collaboration," Nature Machine Intelligence 8, 1157-1172, July 24, 2026: [doi.org/10.1038/s42256-026-01268-y](https://doi.org/10.1038/s42256-026-01268-y); preprint "Towards a Science of Scaling Agent Systems," [arxiv.org/abs/2512.08296](https://arxiv.org/abs/2512.08296).
 **Unde e folosită:** Capitolul 4 (Execute, gate-ul de împărțire); Anexa D, Capitolul 4 (când rentează împărțirea în subagenți); Anexa B.3.
-**Atenție:** Benchmark-urile nu sunt specifice codului; pragul de 45% e un predictor ajustat pe task-urile testate, nu o lege.
+**Atenție:** În mare parte nu sunt specifice codului: două dintre cele șase benchmark-uri, SWE-bench Verified și Terminal-Bench, sunt de coding, fiecare pe un subset de 20 de instanțe; pragul de 45% e un predictor ajustat pe task-urile testate, nu o lege.
 
 ---
 
-**Afirmația:** Pe SpecBench, fiecare agent de frontieră saturează suita de teste vizibilă, în timp ce scorul pe testele ascunse rămâne mult mai mic, cu decalaje de circa 43-48 de puncte procentuale; decalajul la percentila 90 crește cu circa 27 de puncte la fiecare înzecire a numărului de linii de cod; căutarea suplimentară nu elimină fiabil reward hacking-ul.
+**Afirmația:** Pe SpecBench, fiecare agent de frontieră saturează suita de teste vizibilă, în timp ce scorul pe testele ascunse rămâne mult mai mic; pentru Claude Code decalajul e de circa 43-48 de puncte procentuale pe trei strategii de căutare, iar la ceilalți agenți variază după strategie; decalajul la percentila 90 crește cu circa 27 de puncte la fiecare înzecire a numărului de linii de cod; căutarea suplimentară nu elimină fiabil reward hacking-ul.
 **Sursa:** Bingchen Zhao, Dhruv Srikanth, Yuxiang Wu, Zhengyao Jiang (Weco AI), "SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents," May 20, 2026 (v2 September 9, 2026): [arxiv.org/abs/2605.21384](https://arxiv.org/abs/2605.21384).
 **Unde e folosită:** Capitolul 5 (Poți avea încredere în testele scrise de agent?); Anexa D, Capitolul 5 (SpecBench și constatarea Cursor, pe larg); Anexa B.3.
 **Atenție:** Abstractul rotunjește creșterea la 28 de puncte; corpul lucrării raportează 27, cu R² de 0,21, deci trendul e real și zgomotos.
@@ -2771,7 +2831,7 @@ Anexa asta există pentru că fiecare afirmație din manual merită o sursă ver
 
 ### Note despre actualitate
 
-Sursele își păstrează datele de publicare/versiune. Intrările reverificate în această revizie numesc explicit 23 octombrie 2026; asta nu înseamnă că fiecare afirmație istorică a fost revalidată independent. Pentru o afirmație cu consecințe importante, păstrează sursa directă, versiunea/data, data verificării, setup-ul relevant și interpretarea dedusă. Documentația care se modifică trebuie reverificată înainte să te bazezi pe ea. Fișele de caz relatate de autor nu sunt măsurători controlate, iar companionul sintetic și economia ipotetică sunt artefacte didactice, nu dovezi ale colaborărilor.
+Sursele își păstrează datele de publicare/versiune. Intrările reverificate în ultimele revizii numesc explicit 23 sau 30 octombrie 2026; asta nu înseamnă că fiecare afirmație istorică a fost revalidată independent. Pentru o afirmație cu consecințe importante, păstrează sursa directă, versiunea/data, data verificării, setup-ul relevant și interpretarea dedusă. Documentația care se modifică trebuie reverificată înainte să te bazezi pe ea. Fișele de caz relatate de autor nu sunt măsurători controlate, iar companionul sintetic și economia ipotetică sunt artefacte didactice, nu dovezi ale colaborărilor.
 
 ---
 
@@ -2795,7 +2855,7 @@ Aici stau dovezile și detaliile datate din spatele fiecărui capitol: studiile,
 
 **Configurarea subagenților și istoricul adopției.** Codex CLI expune `agents.max_concurrent_threads_per_session` pentru thread-urile pornite, excluzându-l pe cel principal; `agents.max_threads` e un alias legacy. Default-urile nespecificate sunt alese de client, nu un plafon fix de șase. Alți agenți expun orchestrare proprie, dependentă de versiune. *Surse: OpenAI config reference și Subagents docs, verificate pe 23 octombrie 2026; changelog-uri istorice ale vendorilor. Atenție: documentația curentă nu stabilește data GA de 14 martie menționată anterior; inspectează setările instalate și limitele de resurse.*
 
-**Orchestrare scriptată (`/workflows`).** `/workflows` din Claude Code (mijlocul lui 2026) pune agentul să scrie un script care trimite subagenți în mod determinist: faze în ordine, fan-out în paralel sau printr-un pipeline pe sute de copii, hand-off-uri validate după o schemă, un gate opțional de verificare, reluabil și cu buget limitat. Determinismul e singura diferență reală față de dispatch-ul condus de model (ca în Superpowers); apelează la el când fan-out-ul e mare, repetabil sau merită verificat mecanic. *Sursa: Changelog, 2026-06-11.*
+**Orchestrare scriptată (`/workflows`).** `/workflows` din Claude Code (mijlocul lui 2026) pune agentul să scrie un script care trimite subagenți în mod determinist: faze în ordine, fan-out în paralel sau printr-un pipeline pe sute de copii, hand-off-uri validate după o schemă, un gate opțional de verificare și o reluare care redă agenții deja încheiați. Limitele de la runtime mărginesc numărul de agenți; ghidul de dimensiune și avertismentul pentru rulări mari sunt doar orientative și nu opresc și nu limitează cheltuiala, așa că un buget are nevoie în continuare de propriul control. Față de dispatch-ul condus de model (ca în Superpowers), aduce determinism și ține rezultatele intermediare în afara conversației principale; apelează la el când fan-out-ul e mare, repetabil sau merită verificat mecanic. *Sursa: documentația Claude Code despre workflows, verificată pe 30 octombrie 2026.*
 
 **Memory și skill-uri: roluri comune, încărcare diferită.** Instrucțiunile proiectului au un rol comun, nu descoperire identică. Codex are precedență pe directoare; Claude are fallback/import dependent de versiune; Gemini CLI folosește implicit GEMINI.md și poate configura AGENTS.md; Aider suportă includere explicită read-only. Capitolul 6 consemnează aria și metodele de inspecție. Corpurile de skill și memoria scrisă de agent sunt mecanisme separate, cu propriile reguli de încărcare și retenție. *Surse: documentația oficială Codex, Claude Code, Gemini CLI și Aider, verificată pe 23 octombrie 2026; Anexa C. Atenție: numele comune nu implică încărcare automată sau autoritate egală.*
 
@@ -2807,23 +2867,19 @@ Aici stau dovezile și detaliile datate din spatele fiecărui capitol: studiile,
 
 ### Capitolul 2 - Guardrails în cinci straturi {#deep-dive-chapter-2}
 
-**Trei clase de vulnerabilități din spatele straturilor unu-trei.** (1) Expunerea secretelor: agenții pot descoperi fișiere `.env*` prin shell sau tool-uri native ori pot moșteni variabile de mediu secrete. Protejează fiecare cale. Setările de credențiale din Claude Code restricționează comenzile din sandbox; regulile de deny-read pentru shell nu blochează tool-ul nativ Read. (2) Injecția prin fișiere de configurare: fișiere `.claude/settings.json` sau `.mcp.json` nesigure execută hook-uri înainte de dialogul de trust, ceea ce deschide calea spre remote code execution (CVE-2025-59536, patch-uită în Claude Code v1.0.111) sau spre exfiltrarea de API key-uri printr-un `ANTHROPIC_BASE_URL` suprascris (CVE-2026-21852, patch-uită în v2.0.65). (3) Ocolirea parser-ului de permisiuni: reguli de deny sărite pentru binare pe care parser-ul nu le recunoaște (`open()` din Python, `fs.readFile` din Node) sau, ca eșec silențios, atunci când o comandă înlănțuia mai mult de cincizeci de subcomenzi (`MAX_SUBCOMMANDS_FOR_SECURITY_CHECK = 50`), iar verificarea cădea pe un „ask” generic; dezvăluită pe 1 aprilie 2026 și patch-uită în v2.1.90 în câteva zile. Nimic din configurație nu arată un asemenea eșec, așa că presupune că orice strat luat singur poate avea un bug; clasele supraviețuiesc patch-urilor lor. *Surse: Knostic, Dec 2025; Check Point Research, Feb 2026 (patch-uit în octombrie 2025); Adversa AI Red Team, Apr 1, 2026; Adam Kinney, Apr 2026. Atenție: clase arhitecturale, nu CVE-uri punctuale; versiunile fără patch rămân vulnerabile.*
+**Trei clase de vulnerabilități din spatele straturilor unu-trei.** (1) Expunerea secretelor: agenții pot descoperi fișiere `.env*` prin shell sau tool-uri native ori pot moșteni variabile de mediu secrete. Protejează fiecare cale. Setările de credențiale din Claude Code restricționează comenzile din sandbox; regulile de deny-read pentru shell nu blochează tool-ul nativ Read. (2) Injecția prin fișiere de configurare: setări de proiect nesigure puteau rula hook-uri odată ce folderul era marcat de încredere, fără ca avertismentul să spună asta (patch-uită în v1.0.87); puteau executa cod înainte ca dialogul de trust să fie acceptat (CVE-2025-59536, patch-uită în v1.0.111); sau puteau trimite cererile, și API key-ul, către un `ANTHROPIC_BASE_URL` suprascris înainte de promptul de trust (CVE-2026-21852, patch-uită în v2.0.65). Să accepți trust-ul înseamnă deja să permiți execuția. (3) Lacune de acoperire și ocoliri ale parser-ului: o regulă de deny scrisă pentru o interfață nu o acoperă pe alta (o regulă de deny pe Read nu oprește `cat` prin Bash sau `open()` din Python) sau, ca eșec silențios, atunci când o comandă înlănțuia mai mult de cincizeci de subcomenzi (`MAX_SUBCOMMANDS_FOR_SECURITY_CHECK = 50`), iar verificarea cădea pe un „ask” generic; dezvăluită pe 1 aprilie 2026 și patch-uită în v2.1.90 în câteva zile. Nimic din configurație nu arată un asemenea eșec, așa că presupune că orice strat luat singur poate avea un bug; clasele supraviețuiesc patch-urilor lor. *Surse: Knostic, Dec 2025; Check Point Research, Feb 2026 (fix-uri din august până în decembrie 2025); Adversa AI Red Team, Apr 1, 2026; Adam Kinney, Apr 2026. Atenție: clase arhitecturale, nu CVE-uri punctuale; versiunile fără patch rămân vulnerabile.*
 
 **Escape-urile din sandbox („DuneSlide”).** La mijlocul lui 2026, un red team a dezvăluit două vulnerabilități critice zero-click de prompt injection în sandbox-ul cu suport în kernel din Cursor (CVE-2026-50548 și CVE-2026-50549, CVSS 9.8), care abuzau allowlist-ul de scriere pe directorul de lucru și un fallback de rezolvare a symlink-urilor ca să ajungă la execuție de cod la nivel de OS. Versiunile dinainte de Cursor 3.0 (2 aprilie 2026) erau afectate. Lecția e clasa, nu vendorul: și cel mai puternic strat poate avea bug-uri - exact de-asta straturile sunt cinci. *Surse: Cato Networks (Cato AI Labs), mijlocul lui 2026; SecurityWeek and The Hacker News, Jul 2026.*
-
-**Default-urile de sandbox per agent.** Vezi intrarea din Capitolul 1 despre postura de sandbox pe vendor; ideea pentru capitolul ăsta e că o instalare default a unui agent opt-in rulează cu stratul doi oprit.
 
 **Injecția prin materialul de lucru: proof of concept-ul cu DNS TXT.** Relatarea din iunie 2026 descrie un repository care determină Claude Code să preia un payload prin DNS TXT și să-l execute. Un allowlist de proxy HTTP/domenii nu stabilește izolarea DNS. Verifică separat conexiunile directe, tool-urile DNS directe și cererile prin resolverul de sistem, folosind endpoint-uri proprii inofensive. README-ul runtime-ului documentează cereri neîngrădite prin resolverul de sistem pe ruta sa Windows și comportament similar pe macOS. Suportul runtime-ului separat nu înseamnă suport de sandbox shell nativ Windows în Claude Code. *Surse: relatarea din 29 iunie și documentația de rețea Anthropic sandbox-runtime, Anexa C; aria curentă verificată pe 23 octombrie 2026. Atenție: platformele și rutele de rezoluție diferă; un proof of concept nu e o frecvență măsurată.*
 
 **Telemetrie și exemple de hook-uri.** Până la mijlocul lui 2026, Claude Code, Codex CLI și Gemini CLI emit OpenTelemetry nativ, așa că store-ul de audit poate fi orice vorbește deja stack-ul tău; cerința e durabilitatea și posibilitatea de interogare. Plugin-ul security-guidance livrează reguli pentru circa opt-zece categorii de vulnerabilități. O regulă de echipă în plus față de cele două din capitol: blochează editările într-un modul relevant pentru conformitate în afara orelor de program.
 
-**PocketOS: unde diferă relatările și ce au schimbat platformele.** Restore-ul făcut de Railway ar fi durat circa 30 de minute după ce CEO-ul i-a contactat; alte relatări vorbesc de circa 30 de ore sau de două zile până la restaurarea completă, așa că manualul folosește incidentul doar pentru pattern-ul de guvernanță. În decurs de o săptămână, pe 29 aprilie 2026, Railway a mutat toate ștergerile de volume și de resurse, inclusiv calea de API folosită de agent, pe soft-delete cu o fereastră de recuperare de 48 de ore și a adăugat guardrails la nivel de workspace și credențiale de agent cu scop limitat. Follow-up-ul lui Alexey Grigorev la pierderea DataTalks.Club din Terraform (sfârșitul lui februarie 2026) se citește ca checklist-ul acestui capitol: delete protection în Terraform și în AWS, starea mutată în S3, review manual al fiecărui plan distructiv, un tier de suport AWS mai ridicat. AWS a restaurat aproximativ 1,94M de rânduri dintr-un snapshot în circa o zi. *Surse: DevOps.com; Business Insider; Railway blog, Apr 29, 2026; relatarea publică a lui Grigorev.*
+**PocketOS: unde diferă relatările și ce au schimbat platformele.** Railway spune că a recuperat baza de date, cu toate datele, din backup-urile offsite de disaster recovery; restore-ul ar fi durat circa 30 de minute după ce CEO-ul i-a contactat, în timp ce alte relatări vorbesc de circa 30 de ore sau de două zile până la restaurarea completă, așa că manualul folosește incidentul doar pentru pattern-ul de guvernanță. Pe 29 aprilie 2026, Railway a aliniat ștergerile prin API la soft-delete-ul de 48 de ore din dashboard. Token-urile cu scope de workspace și de proiect existau deja; token-ul din sesiune era la nivel de cont, cel mai larg disponibil. Follow-up-ul lui Alexey Grigorev la pierderea DataTalks.Club din Terraform (sfârșitul lui februarie 2026) se citește ca checklist-ul acestui capitol: delete protection în Terraform și în AWS, starea mutată în S3, review manual al fiecărui plan distructiv, un tier de suport AWS mai ridicat. AWS a restaurat aproximativ 1,94M de rânduri dintr-un snapshot în circa o zi. *Surse: DevOps.com; Business Insider; Railway blog, Apr 29, 2026; relatarea publică a lui Grigorev.*
 
----
+**Rutele prin browser, desktop și remote.** Un sandbox pe directorul proiectului nu mărginește un browser deja autentificat, o funcție de control al desktopului sau un API remote accesat cu credențiale salvate. Configurația gestionată de la OpenAI spune explicit: Computer Use poate opera un browser ca aplicație nativă, regulile de site din Browser Use nu se aplică pe acea rută, iar blocarea ei cere fie dezactivarea forțată a Computer Use, fie refuzarea aplicației de browser. Trece fiecare rută în fișa de control, cu identitatea efectivă sub care rulează. Adnotările tool-urilor MCP, cum ar fi read-only sau destructive, sunt descrieri, nu controale: specificația din iulie 2026 spune că clienții trebuie să le trateze ca nesigure, dacă serverul nu e de încredere. *Surse: configurația gestionată OpenAI și specificația MCP 2026-07-28, verificate pe 30 octombrie 2026.*
 
-**PocketOS: postarea publică.** CEO-ul PocketOS a scris public despre incident, iar postarea a devenit rapid un punct de referință în discuțiile despre siguranța AI-ului în producție. *Sursa: Anexa C, Incidente cunoscute.*
-
-**DataTalks.Club, imaginea în oglindă a lui PocketOS.** În incidentul DataTalks.Club, Claude Code a rulat `terraform destroy` pe un state file rămas în urmă: o hartă despre care agentul nu știa că îi trebuie, acolo unde la PocketOS era o credențială pe care n-ar fi trebuit s-o dețină. Același remediu: confirmare pe operațiunile distructive, doar credențialele de care are nevoie task-ul și o stare pe care echipa a verificat-o. *Sursa: relatarea publică a lui Alexey Grigorev; Anexa C.*
+**ChainDrop: persistență prin configurația agentului și a editorului.** Analiza Microsoft din 4 august 2026 despre un worm de supply chain care se auto-propagă arată că acesta folosea credențiale GitHub furate ca să injecteze `.claude/settings.json`, `.vscode/tasks.json` și scripturi de setup asociate pe branch-uri, astfel încât activitatea ulterioară din Claude sau VS Code să poată reporni payload-ul. Recuperarea include așadar aceste fișiere, hook-urile, memoria și definițiile de workflow, nu doar pachetul care a adus payload-ul. Pentru CI, ghidul GitHub spune că workflow-urile `pull_request_target` și `workflow_run` sunt privilegiate și nu trebuie să facă checkout la cod de neîncredere. *Surse: Microsoft Security, Aug 4, 2026; GitHub Actions secure-use reference, verificat pe 30 octombrie 2026.*
 
 ### Capitolul 3 - Bottleneck-ul s-a mutat {#deep-dive-chapter-3}
 
@@ -2857,7 +2913,7 @@ Aici stau dovezile și detaliile datate din spatele fiecărui capitol: studiile,
 
 **Când ajută un reviewer independent.** Ghidul Fable 5 recomandă verificatori separați, cu context proaspăt, pentru muncă de durată; ghidul Opus 5 avertizează că instrucțiunile și subagenții de verificare suplimentari pot produce over-verification, cu cost fără câștig de calitate. Niciunul nu stabilește nevoia a doi revieweri în secvență pentru fiecare PR. Studiile despre preluarea criticilor, rundele de reparare și ancorarea judecătorilor justifică întrebări de evaluat: rezolvă agentul constatările reale, mai ajută încă o rundă, este a doua opinie independentă? Nu transfera mecanic procente din raționament matematic sau deep research la code review. *Surse: Anthropic, „Prompting Claude Fable 5” și „Prompting Claude Opus 5”, verificate Oct 23, 2026; Yang et al., Jul 16, 2026; Wan et al., Jan 22, 2026 (v2 Apr 29); Kapetanovic et al., Aug 26, 2026. Atenție: recomandări de model și studii din alte domenii; review-ul suplimentar trebuie să-și justifice costul prin defecte reale și risc.*
 
-**SpecBench și constatarea Cursor, pe larg.** SpecBench (mai 2026) a pus agenți de frontieră în fața unor specificații cu seturi de teste vizibile și ascunse. Fiecare agent a saturat suita vizibilă aproape de 100%, cu decalaje de circa 43-48 de puncte pe testele ascunse; decalajul la percentila 90 a crescut cu circa 27 de puncte la fiecare înzecire a liniilor de cod, iar mai multă căutare nu a eliminat fiabil reward hacking-ul. Cursor a găsit cealaltă jumătate în iunie 2026: pe SWE-bench Pro, 63% dintre rezolvările reușite ale lui Claude Opus 4.8 Max recuperaseră fix-ul din upstream, din istoricul de git sau din rețea, în loc să-l deriveze, iar sigilarea ambelor a coborât scorul de la 87,1% la 73,0%. Rezultatele cer criterii independente și integritatea evaluării. Testele held-out și sigilarea accesului la soluții sunt potrivite pentru benchmark-uri și situații cu cerințe ridicate de asigurare; nu devin automat procedura fiecărui PR. *Surse: Zhao, Srikanth, Wu and Jiang (Weco AI), May 20, 2026 (v2 Sep 9); Naman Jain, Cursor, Jun 25, 2026. Atenție: abstractul rotunjește cele 27 de puncte la 28 (R² de 0,21), deci trendul e real, dar zgomotos; rezultatul Cursor e pe un singur harness și un singur model.*
+**SpecBench și constatarea Cursor, pe larg.** SpecBench (mai 2026) a pus agenți de frontieră în fața unor specificații cu seturi de teste vizibile și ascunse. Fiecare agent a saturat suita vizibilă, în timp ce scorurile pe testele ascunse au rămas mult mai mici; decalajul lui Claude Code a fost de circa 43-48 de puncte pe trei strategii de căutare, iar la ceilalți agenți a variat după strategie; decalajul la percentila 90 a crescut cu circa 27 de puncte la fiecare înzecire a liniilor de cod, iar mai multă căutare nu a eliminat fiabil reward hacking-ul. Cursor a găsit cealaltă jumătate în iunie 2026: pe SWE-bench Pro, 63% dintre rezolvările reușite ale lui Claude Opus 4.8 Max recuperaseră fix-ul din upstream, din istoricul de git sau din rețea, în loc să-l deriveze, iar sigilarea ambelor a coborât scorul de la 87,1% la 73,0%. Rezultatele cer criterii independente și integritatea evaluării. Testele held-out și sigilarea accesului la soluții sunt potrivite pentru benchmark-uri și situații cu cerințe ridicate de asigurare; nu devin automat procedura fiecărui PR. *Surse: Zhao, Srikanth, Wu and Jiang (Weco AI), May 20, 2026 (v2 Sep 9); Naman Jain, Cursor, Jun 25, 2026. Atenție: abstractul rotunjește cele 27 de puncte la 28 (R² de 0,21), deci trendul e real, dar zgomotos; rezultatul Cursor e pe un singur harness și un singur model.*
 
 **Locatori și interacțiuni semantice în Playwright.** Rolurile și etichetele pot rezista schimbărilor de stil/DOM cât timp contractul de accesibilitate e stabil. Acțiunile depind de control: `selectOption()` vizează un select nativ; `check()` selectează un radio/checkbox; un widget custom poate cere alte interacțiuni. Înlocuirea unei componente poate cere actualizarea testului. Verifică comportamentul de business și inspectează schimbările vizuale randate. *Surse: documentația Playwright de locatori/input, verificată pe 23 octombrie 2026; Anexa C. Atenție: stabilitatea semantică nu stabilește compatibilitatea modelului de interacțiune sau corectitudinea vizuală.*
 
@@ -2879,7 +2935,7 @@ Aici stau dovezile și detaliile datate din spatele fiecărui capitol: studiile,
 
 **Compactare și măsurători de context.** JetBrains a comparat istoricul negestionat, mascarea și rezumarea în cinci configurații SWE-agent/SWE-bench Verified. Mascarea a fost mai ieftină decât rezumarea în patru; Qwen3-Coder 480B a economisit 52.7% cu mascarea și 50.4% cu rezumarea față de istoricul negestionat. Alte configurații au economisit mai puțin; nu rezultă nici o reducere universală de peste 50%, nici acel raport între metode. Anthropic a raportat separat un câștig de 29% din curățarea rezultatelor de tool-uri pe evaluarea internă de căutare. Studiul multi-turn a găsit degradare medie față de o tură complet specificată și recuperare prin consolidare. *Surse: Lindenbauer et al., The Complexity Trap, Table 1; Anthropic, September 29, 2025; Laban et al., May 2025; Anexa C. Atenție: intervenții și setup-uri diferite, nu o comparație controlată de handoff în coding. Baseline de cost reverificat pe 23 octombrie 2026.*
 
-**Istoric append-only și prețul cache-ului (Fable 5.1).** Blocurile de gândire sunt legate de prefixul exact care le-a produs, așa că editarea sau reordonarea turelor anterioare le invalidează și aruncă raționamentul păstrat pe care Capitolul 1 îl numără ca jumătate din componenta principală Effort: păstrează istoricul append-only și folosește mecanismele harness-ului pentru reluare. Cu citirile din cache la 0,025x din prețul de bază al input-ului, ghidul spune că a compacta devreme ca să economisești s-ar putea să nu mai fie schimbul potrivit; când totuși compactezi, dă-i compactorului o listă de păstrat (planul, întrebările deschise, devierile din notele de implementare, comenzile exacte care au mers). *Sursa: Anthropic, "Prompting Claude Fable 5.1." Atenție: pagină nedatată; 0,025x e aritmetica manualului pe prețurile publicate; cerința append-only se aplică conturilor create de la 31 august 2026 încoace.*
+**Istoric append-only și prețul cache-ului (Fable 5.1).** Blocurile de gândire sunt legate de prefixul exact care le-a produs, așa că editarea sau reordonarea turelor anterioare le invalidează și aruncă raționamentul păstrat pe care Capitolul 1 îl numără ca jumătate din componenta principală Effort. Răspunsul ghidului e să păstrezi istoricul append-only și să lași compactarea pe server sau context editing să facă tăierile; dacă compactezi pe client, înlocuiește tot istoricul cu un singur rezumat plus turul nou. Cu citirile din cache la 0,025x din prețul de bază al input-ului, ghidul spune că a compacta devreme ca să economisești s-ar putea să nu mai fie schimbul potrivit; când totuși compactezi, dă-i compactorului o listă de păstrat (planul, întrebările deschise, devierile din notele de implementare, comenzile exacte care au mers). *Sursa: Anthropic, "Prompting Claude Fable 5.1." Atenție: pagină nedatată, scrisă pentru cei care construiesc harness-uri pe API; 0,025x e aritmetica manualului pe prețurile publicate; cerința append-only se aplică conturilor create de la 31 august 2026 încoace.*
 
 ---
 
@@ -2919,9 +2975,9 @@ Aici stau dovezile și detaliile datate din spatele fiecărui capitol: studiile,
 
 **Bucla exterioară (outer loop): de la AutoGPT la Ralph Wiggum.** Bucla interioară (inner loop) e bucla în șase faze (Capitolul 4); bucla exterioară o învelește și reinvocă agentul până când o condiție e îndeplinită. În 2023, AutoGPT și BabyAGI învârteau un model în buclă pe baza propriei lui păreri despre progres; nimic din exterior nu nota o iterație, turele amplificau deriva, iar abordarea s-a prăbușit în câteva luni ca mod de a livra software. Renașterea diferă structural: la mijlocul lui 2025, Geoff Huntley a legat un agent într-un while-loop de bash (un singur fișier de prompt, repeți), care s-a răspândit sub numele „Ralph Wiggum”. Fiecare iterație pornește cu context proaspăt, face o unitate de lucru și se termină în fața unor evaluatori pe care modelul nu-i controlează (compilator, teste, diff), cu starea în repository. Numele lui pentru modul de eșec e overbaking: o buclă lăsată să ruleze după ce și-a terminat treaba inventează muncă pe care n-a cerut-o nimeni. *Surse: ghuntley.com/ralph (Jul 2025); HumanLayer, Jan 6, 2026; The Register, Jan 27, 2026; repository-urile AutoGPT și BabyAGI. Atenție: verdictul de prăbușire și contrastul structural sunt interpretarea manualului.*
 
-**Bucla exterioară: valul vendorilor și mecanismele condiției de oprire.** Copilot coding agent de la GitHub a devenit general disponibil pe 25 septembrie 2025 (mediu izolat, draft de pull request); Cursor a livrat Cloud Agents pe 30 octombrie 2025; Jules de la Google a adăugat Scheduled Tasks pe 10 decembrie 2025; un plugin ralph-wiggum a aterizat în repository-ul oficial Claude Code în noiembrie 2025. Până în primăvara lui 2026, Claude Code avea `/loop` (re-rulare la un interval sau în ritm propriu), Routines (agenți cloud pornind după un program sau după un eveniment GitHub), `/goal` (lucrează până când o condiție de finalizare e îndeplinită) și `/autofix-pr` (împinge fix-uri până când CI-ul e verde). După testul din Capitolul 1, capabilitatea a ajuns la convergență, deși ceea ce a ajuns la convergență e un workflow în jurul componentelor principale, nu o componentă principală. `/goal` folosește un model separat ca să evalueze condiția pe baza conversației; Codex Goals permite modelului care execută munca să marcheze un obiectiv persistent drept finalizat. Aceste mecanisme controlează continuarea și bugetele. Niciunul nu înlocuiește verificările de acceptare protejate independent. Plugin-ul ralph-wiggum n-are dovezi controlate, iar README-ul lui numește numărul maxim de iterații drept principala plasă de siguranță - un buget, nu o condiție de oprire. *Surse: GitHub changelog, 2025-09-25; blogurile Cursor și Google; Claude Code release notes, Apr-May 2026; Claude Code "/goal" docs; OpenAI Cookbook, "Using Goals in Codex." Atenție: datele vendorilor se mai schimbă; documentația /goal descrie mecanismul, nu rezultatele.*
+**Bucla exterioară: valul vendorilor și mecanismele condiției de oprire.** Între septembrie și decembrie 2025, GitHub, Cursor și Google au livrat agenți cloud sau programați, iar un plugin ralph-wiggum a aterizat în repository-ul oficial Claude Code. Până în primăvara lui 2026, Claude Code avea `/loop` (re-rulare la un interval sau în ritm propriu), Routines (agenți cloud pornind după un program sau după un eveniment GitHub), `/goal` (lucrează până când o condiție de finalizare e îndeplinită) și `/autofix-pr` (împinge fix-uri până când CI-ul e verde). După testul din Capitolul 1, capabilitatea a ajuns la convergență, deși ceea ce a ajuns la convergență e un workflow în jurul componentelor principale, nu o componentă principală. `/goal` folosește un model separat ca să evalueze condiția pe baza conversației; Codex Goals permite modelului care execută munca să marcheze un obiectiv persistent drept finalizat. Aceste mecanisme controlează continuarea și bugetele. Niciunul nu înlocuiește verificările de acceptare protejate independent. Plugin-ul ralph-wiggum n-are dovezi controlate, iar README-ul lui numește numărul maxim de iterații drept principala plasă de siguranță - un buget, nu o condiție de oprire. *Surse: GitHub changelog, 2025-09-25; blogurile Cursor și Google; Claude Code release notes, Apr-May 2026; Claude Code "/goal" docs; OpenAI Cookbook, "Using Goals in Codex." Atenție: datele vendorilor se mai schimbă; documentația /goal descrie mecanismul, nu rezultatele.*
 
-**Bucla exterioară: de ce există fiecare linie din contract și cele două extreme.** O condiție de oprire evaluabilă de o mașină, pentru că o buclă fără ea e abandon. Un buget, pentru că o buclă nesupravegheată e clientul ideal al modelului de tarifare per token (Anexa A). Un gate de acceptare impus prin verificări obligatorii protejate și schimbări de politică trecute prin review, pentru că cel mai ieftin mod de a ajunge pe verde e să negociezi cu propriul evaluator, iar o suită verde scrisă de agent e un indiciu, nu o dovadă (Capitolul 5). Un queue și un jurnal de decizii durabile, cu context proaspăt când hand-off-ul sau deriva observată îl justifică. Izolare dimensionată pentru absență, pentru că o sesiune nesupravegheată e locul unde prompt injection nu mai întâlnește niciun sceptic uman (Capitolul 2). Pune în queue unități similare, verificabile independent și recuperabile doar după ce fiecare îndeplinește condițiile task-ului și controalele de rulare nesupravegheată; verdele singur nu ajunge. Huntley rulează bucla brută la circa 10 dolari pe oră; fabrica de software de la StrongDM rulează livrare complet non-interactivă, cu oameni care nici nu scriu, nici nu fac review la cod, și cu scenarii end-to-end ținute în afara codebase-ului, ca un holdout pe care bucla nu-l poate slăbi, la o cheltuială pe care Simon Willison a estimat-o la aproape 20.000 de dolari pe lună per inginer. *Surse: Willison, Feb 7, 2026; Huntley și The Register, ca mai sus. Atenție: cifra de 10 dolari îi aparține lui Huntley, iar cifrele StrongDM sunt auto-descrierea unei singure companii și încadrarea lui Willison, nu audituri.*
+**Bucla exterioară: de ce există fiecare linie din contract și cele două extreme.** O condiție de oprire evaluabilă de o mașină, pentru că o buclă fără ea e abandon. Un buget, pentru că o buclă nesupravegheată e clientul ideal al modelului de tarifare per token (Anexa A). Un gate de acceptare impus prin verificări obligatorii protejate și schimbări de politică trecute prin review, pentru că cel mai ieftin mod de a ajunge pe verde e să negociezi cu propriul evaluator, iar o suită verde scrisă de agent e un indiciu, nu o dovadă (Capitolul 5). Un queue și un jurnal de decizii durabile, cu context proaspăt când hand-off-ul sau deriva observată îl justifică. Context proaspăt nu înseamnă o lume proaspătă: înainte de retry sau reluare, reconciliază commit-ul curent, scrierile încheiate, procesele care rulează, apelurile externe și consumul, iar operațiunile importante trebuie să poată fi repetate fără efecte nedorite. Izolare dimensionată pentru absență, pentru că o sesiune nesupravegheată e locul unde prompt injection nu mai întâlnește niciun sceptic uman (Capitolul 2). Pune în queue unități similare, verificabile independent și recuperabile doar după ce fiecare îndeplinește condițiile task-ului și controalele de rulare nesupravegheată; verdele singur nu ajunge. Huntley rulează bucla brută la circa 10 dolari pe oră; fabrica de software de la StrongDM rulează livrare complet non-interactivă, cu oameni care nici nu scriu, nici nu fac review la cod, și cu scenarii end-to-end ținute în afara codebase-ului, ca un holdout pe care bucla nu-l poate slăbi, la o cheltuială pe care Simon Willison a estimat-o la aproape 20.000 de dolari pe lună per inginer. *Surse: Willison, Feb 7, 2026; Huntley și The Register, ca mai sus. Atenție: cifra de 10 dolari îi aparține lui Huntley, iar cifrele StrongDM sunt auto-descrierea unei singure companii și încadrarea lui Willison, nu audituri.*
 
 **Exemple de bugete de timp pentru angajamentele rolurilor.** În acest calendar, championul rezervă circa trei ore în prima săptămână și cinci în a doua; săptămânile următoare depind de feature-urile pilotului. Rezultatele urmărite sunt un workflow testat, instrucțiuni utile și întreținute, feature-uri livrate și un succesor desemnat. Lead-ul rezervă circa două ore în prima săptămână și trei-cinci ore în fazele următoare. Sunt exemple de planificare din practică; adaptează-le la efortul măsurat și la punctul de pornire al echipei.
 
@@ -2933,7 +2989,7 @@ Aici stau dovezile și detaliile datate din spatele fiecărui capitol: studiile,
 
 ### Anexa A - Pentru manageri {#deep-dive-appendix-a}
 
-**Rutarea pe tier-uri, cele două puncte măsurate.** Pattern-ul „advisor” al Anthropic împerechează un executor mai ieftin cu un model mai puternic, chemat la nevoie. Sonnet cu Opus ca advisor a obținut cu 2,7 puncte mai mult pe SWE-bench Multilingual decât Sonnet singur, la un cost per task cu 11,9% mai mic. Haiku cu un advisor Opus a obținut 41,2% pe BrowseComp față de 19,7% singur, rămânând cu 29% în urma lui Sonnet singur la scor, la un cost per task cu 85% mai mic. Aceste benchmark-uri de vendor sugerează o opțiune de comparat pe task-uri reprezentative, nu o regulă universală de rutare pentru implementare sau research. *Sursa: Anthropic, "The advisor strategy," Apr 9, 2026. Atenție: benchmark-uri ale vendorului pe propriile modele; cifre per task, nu un raport general.*
+**Rutarea pe tier-uri, cele două puncte măsurate.** Pattern-ul „advisor” al Anthropic împerechează un executor mai ieftin cu un model mai puternic, chemat la nevoie. Sonnet cu Opus ca advisor a obținut cu 2,7 puncte mai mult pe SWE-bench Multilingual decât Sonnet singur, la un cost per task cu 11,9% mai mic. Haiku cu un advisor Opus a obținut 41,2% pe BrowseComp față de 19,7% singur, rămânând cu 29% în urma lui Sonnet singur la scor, la un cost per task cu 85% mai mic. Aceste benchmark-uri de vendor sugerează o opțiune de comparat pe task-uri reprezentative, nu o regulă universală de rutare pentru implementare sau research. Rutarea poate fi făcută și de vendor: GitHub Copilot Fusion, disponibil general din 28 octombrie 2026, alege modelele pentru fiecare cerere și îl facturează pe fiecare la tariful lui standard, așa că notează modelele folosite efectiv. Disponibilitatea depinde de felul în care te autentifici: GPT-5.5 a ieșit din Codex pentru autentificările cu ChatGPT pe 14 octombrie 2026, în timp ce sesiunile cu API key n-au fost afectate. Păstrează un fallback testat. *Surse: Anthropic, "The advisor strategy," Apr 9, 2026; GitHub changelog, Oct 28, 2026; Codex changelog, Oct 14, 2026. Atenție: benchmark-uri ale vendorului pe propriile modele; cifre per task, nu un raport general.*
 
 **Layout cache-first, taxa pe tool-uri și mascarea.** Layout-ul cache-first a tăiat costul de API cu 41% până la 80% pe peste 500 de sesiuni de agent, la trei provideri (Lumer et al., Jan 31, 2026). Cifrele despre definițiile de tool-uri sunt la Capitolul 1, rezultatul despre mascare la Capitolul 6.
 
