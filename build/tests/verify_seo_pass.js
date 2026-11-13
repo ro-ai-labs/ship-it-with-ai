@@ -500,6 +500,36 @@ async function main() {
       await ctx.close();
     }
 
+    // About the author: the named portrait card links to the author's full profile, and the
+    // page's structured data carries the same image and profile (EN and RO).
+    for (const [prefix, profile] of [
+      ['', 'https://ai-labs.ro/mihai-cvasnievschi/'],
+      ['/ro', 'https://ai-labs.ro/ro/mihai-cvasnievschi/'],
+    ]) {
+      const where = `${prefix}/about-the-author/`;
+      const ctx = await browser.newContext({ viewport: { width: 360, height: 800 } });
+      const page = await ctx.newPage();
+      await page.goto(`${baseUrl}${where}`);
+      const img = page.locator('.author-card img');
+      const alt = await img.getAttribute('alt');
+      const loaded = await img.evaluate((el) => el.complete && el.naturalWidth > 0);
+      if (alt !== 'Mihai Cvasnievschi') fail(`${where}: portrait alt = "${alt}"`);
+      else if (!loaded) fail(`${where}: portrait did not load`);
+      else ok(`${where}: named portrait loads`);
+      const href = await page.locator('.author-card a').getAttribute('href');
+      if (href !== profile) fail(`${where}: author card link = ${href}`);
+      else ok(`${where}: author card links to ${profile}`);
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      if (overflow > 0) fail(`${where}: author card overflows a 360px screen by ${overflow}px`);
+      else ok(`${where}: no horizontal overflow at 360px`);
+      const nodes = (await page.locator('script[type="application/ld+json"]').allTextContents()).map((t) => JSON.parse(t));
+      const author = (nodes.find((n) => n['@type'] === 'TechArticle') || {}).author || {};
+      if (author.image !== 'https://ship-it-with.ai/mihai-cvasnievschi.jpg') fail(`${where}: author image in JSON-LD = ${author.image}`);
+      else if (!(author.sameAs || []).includes('https://ai-labs.ro/mihai-cvasnievschi/')) fail(`${where}: author sameAs lacks the ai-labs.ro profile`);
+      else ok(`${where}: JSON-LD author carries the portrait and the profile`);
+      await ctx.close();
+    }
+
     // Byline link on chapter pages → /about-the-author/#contact.
     {
       const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });

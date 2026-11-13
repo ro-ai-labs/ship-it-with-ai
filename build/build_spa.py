@@ -45,7 +45,27 @@ SITE_PUBLISHED = "2026-05-26"
 
 # Author identity, referenced from JSON-LD (Book, TechArticle, Organization).
 AUTHOR_NAME = "Mihai Cvasnievschi"
-AUTHOR_SAMEAS = ["https://www.linkedin.com/in/mihaicvasnievschi/"]
+# The author's profile on his consultancy's site shows the same named portrait as the About the
+# author page here. Listing it in sameAs, with the image, lets search and answer engines tie the
+# two pages (and the photo) to one person.
+AUTHOR_PROFILE = "https://ai-labs.ro/mihai-cvasnievschi/"
+AUTHOR_SAMEAS = ["https://www.linkedin.com/in/mihaicvasnievschi/", AUTHOR_PROFILE]
+AUTHOR_IMAGE = f"{BASE}/mihai-cvasnievschi.jpg"
+
+# Portrait card at the top of the About the author page, per language: one line on what the
+# author does today, and a link to the full profile. Site chrome, not manuscript text.
+AUTHOR_CARD = {
+    "en": {
+        "role": "Founder of AI Labs, an AI strategy and adoption consultancy in Bucharest.",
+        "link": "Profile and talks",
+        "href": AUTHOR_PROFILE,
+    },
+    "ro": {
+        "role": "Fondator AI Labs, firmă de consultanță în strategie și adoptare AI din București.",
+        "link": "Profil și prezentări",
+        "href": "https://ai-labs.ro/ro/mihai-cvasnievschi/",
+    },
+}
 
 # robots directives, supplied as a single per-page meta (no double tags).
 ROBOTS_INDEX = "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
@@ -1937,7 +1957,8 @@ HOMEPAGE_HEAD_SCHEMA = '''<script type="application/ld+json">
     "@id": "{URL_BASE}/#author",
     "name": "{AUTHOR}",
     "url": "{URL_BASE}/about-the-author/",
-    "sameAs": [ "https://www.linkedin.com/in/mihaicvasnievschi/" ],
+    "image": "{AUTHOR_IMAGE}",
+    "sameAs": [ "https://www.linkedin.com/in/mihaicvasnievschi/", "{AUTHOR_PROFILE}" ],
     "knowsAbout": [
       "Agentic coding",
       "AI coding agents",
@@ -2132,6 +2153,8 @@ def _homepage_head_schema(author: str, number_of_pages: int, date_modified: str)
     """
     return HOMEPAGE_HEAD_SCHEMA.format(
         AUTHOR=_json_escape(author),
+        AUTHOR_IMAGE=AUTHOR_IMAGE,
+        AUTHOR_PROFILE=AUTHOR_PROFILE,
         NUMBER_OF_PAGES=number_of_pages,
         DATE_PUBLISHED=SITE_PUBLISHED,
         DATE_MODIFIED=date_modified,
@@ -2522,6 +2545,7 @@ def render_chapter_schema(section: Section) -> str:
             "@type": "Person",
             "name": AUTHOR_NAME,
             "url": _abs("/about-the-author/"),
+            "image": AUTHOR_IMAGE,
             "sameAs": AUTHOR_SAMEAS,
         },
         "publisher": {
@@ -2691,6 +2715,22 @@ def _lang_subs(page_path: str, *, hreflang: bool = True) -> dict:
     }
 
 
+def render_author_card() -> str:
+    """Portrait, name and profile link shown above the About the author text."""
+    card = AUTHOR_CARD[CFG.code]
+    name = html_lib.escape(AUTHOR_NAME)
+    return (
+        '<figure class="author-card">\n'
+        f'        <img src="/mihai-cvasnievschi-480.jpg" alt="{name}" width="480" height="480" decoding="async" />\n'
+        '        <figcaption>\n'
+        f'          <strong class="author-card-name">{name}</strong>\n'
+        f'          <span>{html_lib.escape(card["role"])}</span>\n'
+        f'          <a href="{card["href"]}" target="_blank" rel="noopener">{html_lib.escape(card["link"])}</a>\n'
+        '        </figcaption>\n'
+        '      </figure>\n      '
+    )
+
+
 def render_chapter(template: str, section: Section, *,
                    prev_: Section | None, next_: Section | None,
                    author: str, title_meta: str,
@@ -2699,6 +2739,8 @@ def render_chapter(template: str, section: Section, *,
                    date_modified_human: str) -> str:
     """Render a single per-section page (chapter / appendix / foreword / etc.)."""
     body_html = render_section_body(section, anchor_index)
+    if section.slug == "about-the-author":
+        body_html = render_author_card() + body_html
 
     # Standalone pages put the chapter title at <h1>, so bump body headings up one
     # level (h3->h2, h4->h3, ...) to keep the outline sequential (h1 -> h2 -> h3).
@@ -3082,6 +3124,7 @@ You are welcome to read, cite, and summarize this manual; that is what these fil
 
 ## {CFG.llms_author_heading}
 - [Mihai Cvasnievschi](https://www.linkedin.com/in/mihaicvasnievschi/): {CFG.llms_author_line}
+- [{AUTHOR_CARD[CFG.code]["link"]}]({AUTHOR_CARD[CFG.code]["href"]}): {AUTHOR_CARD[CFG.code]["role"]}
 """
 
 

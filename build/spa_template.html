@@ -1578,6 +1578,38 @@
       .search-overlay, .kbd-overlay { display: none !important; }
     }
 
+    /* === About the author: portrait card === */
+    .author-card {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin: 0 0 32px;
+      padding: 20px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+    }
+    .author-card img {
+      flex: none;
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .author-card figcaption {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+      font-size: 15px;
+      line-height: 1.45;
+      color: var(--color-text-soft);
+    }
+    .author-card-name {
+      font-size: 17px;
+      color: var(--color-text);
+    }
+    .author-card a { justify-self: start; }
+
     /* === Per-chapter page chrome === */
     .reading-time {
       font-size: 13px;
